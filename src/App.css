@@ -1,0 +1,87 @@
+.full-width {
+  width: 100%;
+}
+
+.full-page-loader,
+.auth-page {
+  min-height: 100vh;
+}
+
+.auth-page {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 10% 10%, rgb(37 99 235 / 14%), transparent 30%),
+    #f4f7fb;
+}
+
+.auth-card,
+.tenant-card {
+  width: min(100%, 460px);
+  box-shadow: 0 20px 60px rgb(15 23 42 / 10%);
+}
+
+.tenant-card {
+  width: min(100%, 680px);
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-sidebar {
+  position: relative;
+  border-right: 1px solid #e8edf5;
+  background: #fff !important;
+}
+
+.app-brand {
+  margin: 0 !important;
+  padding: 24px;
+  color: #1d4ed8 !important;
+}
+
+.sidebar-logout {
+  position: absolute;
+  right: 16px;
+  bottom: 20px;
+  left: 16px;
+  width: calc(100% - 32px);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: 1px solid #e8edf5;
+  background: #fff;
+}
+
+.user-menu {
+  cursor: pointer;
+}
+
+.app-content {
+  margin: 24px;
+  padding: 24px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+@media (max-width: 767px) {
+  .app-header {
+    padding: 0 16px;
+  }
+
+  .app-header .ant-typography {
+    display: none;
+  }
+
+  .app-content {
+    margin: 12px;
+    padding: 16px;
+  }
+}
