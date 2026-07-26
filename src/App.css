@@ -71,6 +71,10 @@
   background: #fff;
 }
 
+.resource-search {
+  margin-bottom: 16px;
+}
+
 @media (max-width: 767px) {
   .app-header {
     padding: 0 16px;

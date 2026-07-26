@@ -1,5 +1,5 @@
 import { Authenticated } from "@refinedev/core";
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 
 import { FullPageLoader } from "./FullPageLoader";
 

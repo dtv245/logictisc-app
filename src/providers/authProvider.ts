@@ -2,26 +2,35 @@ import type { AuthProvider } from "@refinedev/core";
 
 import { endpoints } from "../api/endpoints";
 import { normalizeApiError } from "../api/errors";
-import { getCurrentUser, logout } from "../api/authApi";
+import {
+  getCurrentUser,
+  login as loginWithPassword,
+  logout,
+} from "../services/authService";
 import { clearActiveTenantKey } from "../api/tenantSession";
-import { isLarkLoginParams } from "../types/auth";
+import {
+  isLarkLoginParams,
+  isPasswordLoginParams,
+} from "../types/auth";
 import { routes } from "../routes/routeConfig";
 
 export const authProvider = {
   async login(params: unknown) {
-    if (!isLarkLoginParams(params)) {
-      return {
-        success: false,
-        error: normalizeApiError(new Error("Kiểu đăng nhập không hợp lệ.")),
-      };
-    }
-
-    if (params.mode === "redirect") {
+    if (isLarkLoginParams(params) && params.mode === "redirect") {
       window.location.assign(endpoints.auth.larkLogin);
       return { success: true };
     }
 
     try {
+      if (isPasswordLoginParams(params)) {
+        await loginWithPassword(params);
+      } else if (!isLarkLoginParams(params)) {
+        return {
+          success: false,
+          error: normalizeApiError(new Error("Kiểu đăng nhập không hợp lệ.")),
+        };
+      }
+
       await getCurrentUser();
       return {
         success: true,
