@@ -21,7 +21,7 @@ export const isLarkLoginParams = (value: unknown): value is LarkLoginParams => {
   if (typeof value !== "object" || value === null || !("mode" in value)) {
     return false;
   }
-
+  //test commit
   const mode = Reflect.get(value, "mode");
   return mode === "redirect" || mode === "callback";
 };
