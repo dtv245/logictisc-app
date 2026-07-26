@@ -1,3 +1,7 @@
+/**
+ * Chứa các kiểu dữ liệu đăng nhập và người dùng hiện tại.
+ */
+
 import type { Tenant } from "./tenant";
 
 export interface CurrentUser {

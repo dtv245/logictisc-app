@@ -1,7 +1,11 @@
+/**
+ * Quản lý token response mapping và refresh request đơn nhất.
+ */
+
 import axios from "axios";
 
 import { env } from "../config/env";
-import { ApiHttpError, normalizeApiError } from "../api/errors";
+import { ApiHttpError, normalizeApiError } from "./http/errors";
 import { tokenStore } from "./tokenStore";
 
 interface TokenPayload {

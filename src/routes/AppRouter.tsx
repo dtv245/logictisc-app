@@ -1,4 +1,8 @@
-import { lazy, Suspense } from "react";
+/**
+ * Khai báo route tree cho auth, tenant guard và resource pages.
+ */
+
+import { createElement, lazy, Suspense } from "react";
 import { Authenticated } from "@refinedev/core";
 import {
   Navigate,
@@ -7,14 +11,15 @@ import {
   Routes,
 } from "react-router-dom";
 
+import { routes } from "../constants/routes";
+import { appResourcePageRoutes } from "../pages";
 import { FullPageLoader } from "./FullPageLoader";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { TenantGuard } from "./TenantGuard";
-import { routes } from "./routeConfig";
 
 const MainLayout = lazy(() =>
-  import("../layouts/MainLayout").then((module) => ({
-    default: module.MainLayout,
+  import("../components").then((module) => ({
+    default: module.AppLayout,
   })),
 );
 const LoginPage = lazy(() =>
@@ -30,26 +35,6 @@ const LarkCallbackPage = lazy(() =>
 const DashboardPage = lazy(() =>
   import("../pages/dashboard/DashboardPage").then((module) => ({
     default: module.DashboardPage,
-  })),
-);
-const ProductList = lazy(() =>
-  import("../resources/products").then((module) => ({
-    default: module.ProductList,
-  })),
-);
-const ProductCreate = lazy(() =>
-  import("../resources/products").then((module) => ({
-    default: module.ProductCreate,
-  })),
-);
-const ProductEdit = lazy(() =>
-  import("../resources/products").then((module) => ({
-    default: module.ProductEdit,
-  })),
-);
-const ProductShow = lazy(() =>
-  import("../resources/products").then((module) => ({
-    default: module.ProductShow,
   })),
 );
 const SelectTenantPage = lazy(() =>
@@ -71,39 +56,42 @@ const NotFoundPage = lazy(() =>
 export const AppRouter = () => (
   <Suspense fallback={<FullPageLoader />}>
     <Routes>
-    <Route
-      element={
-        <Authenticated
-          key="guest"
-          fallback={<Outlet />}
-          loading={<FullPageLoader />}
-        >
-          <Navigate to={routes.dashboard} replace />
-        </Authenticated>
-      }
-    >
-      <Route path={routes.login} element={<LoginPage />} />
-    </Route>
+      <Route
+        element={
+          <Authenticated
+            key="guest"
+            fallback={<Outlet />}
+            loading={<FullPageLoader />}
+          >
+            <Navigate to={routes.dashboard} replace />
+          </Authenticated>
+        }
+      >
+        <Route path={routes.login} element={<LoginPage />} />
+      </Route>
 
-    <Route path={routes.callback} element={<LarkCallbackPage />} />
-    <Route path={routes.forbidden} element={<ForbiddenPage />} />
+      <Route path={routes.callback} element={<LarkCallbackPage />} />
+      <Route path={routes.forbidden} element={<ForbiddenPage />} />
 
-    <Route element={<ProtectedRoute />}>
-      <Route path={routes.selectTenant} element={<SelectTenantPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path={routes.selectTenant} element={<SelectTenantPage />} />
 
-      <Route element={<TenantGuard />}>
-        <Route element={<MainLayout />}>
-          <Route index element={<Navigate to={routes.dashboard} replace />} />
-          <Route path={routes.dashboard} element={<DashboardPage />} />
-          <Route path={routes.products} element={<ProductList />} />
-          <Route path={routes.productCreate} element={<ProductCreate />} />
-          <Route path={routes.productEdit} element={<ProductEdit />} />
-          <Route path={routes.productShow} element={<ProductShow />} />
+        <Route element={<TenantGuard />}>
+          <Route element={<MainLayout />}>
+            <Route index element={<Navigate to={routes.dashboard} replace />} />
+            <Route path={routes.dashboard} element={<DashboardPage />} />
+            {appResourcePageRoutes.map(({ component, path }) => (
+              <Route
+                element={createElement(component)}
+                key={path}
+                path={path}
+              />
+            ))}
+          </Route>
         </Route>
       </Route>
-    </Route>
 
-    <Route path="*" element={<NotFoundPage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   </Suspense>
 );

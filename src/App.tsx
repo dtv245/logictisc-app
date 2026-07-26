@@ -1,36 +1,22 @@
+/**
+ * Ghép Refine với providers, resource registry, router và Ant Design theme.
+ */
+
 import { Refine } from "@refinedev/core";
 import routerProvider from "@refinedev/react-router-v6";
-import { App as AntdApp, ConfigProvider, theme } from "antd";
+import { App as AntdApp } from "antd";
 import { BrowserRouter } from "react-router-dom";
 
-import "./App.css";
+import "./styles/app.scss";
 import { accessControlProvider } from "./providers/accessControlProvider";
 import { authProvider } from "./providers/authProvider";
 import { dataProvider } from "./providers/dataProvider";
 import { useAntdNotificationProvider } from "./providers/notificationProvider";
+import { appResources } from "./pages";
 import { AppRouter } from "./routes/AppRouter";
-import { routes } from "./routes/routeConfig";
-
-const resources = [
-  {
-    name: "dashboard",
-    list: routes.dashboard,
-    meta: { label: "Tổng quan" },
-  },
-  {
-    name: "products",
-    list: routes.products,
-    create: routes.productCreate,
-    edit: routes.productEdit,
-    show: routes.productShow,
-    meta: {
-      label: "Sản phẩm",
-      canDelete: true,
-    },
-  },
-];
 
 const RefineApplication = () => {
+  // Provider cần Ant Design App context nên được khởi tạo bên trong AntdApp.
   const notificationProvider = useAntdNotificationProvider();
 
   return (
@@ -39,7 +25,7 @@ const RefineApplication = () => {
       authProvider={authProvider}
       dataProvider={dataProvider}
       notificationProvider={notificationProvider}
-      resources={resources}
+      resources={appResources}
       routerProvider={routerProvider}
       options={{
         disableTelemetry: true,
@@ -54,19 +40,9 @@ const RefineApplication = () => {
 function App() {
   return (
     <BrowserRouter>
-      <ConfigProvider
-        theme={{
-          algorithm: theme.defaultAlgorithm,
-          token: {
-            colorPrimary: "#2563eb",
-            borderRadius: 8,
-          },
-        }}
-      >
-        <AntdApp>
-          <RefineApplication />
-        </AntdApp>
-      </ConfigProvider>
+      <AntdApp>
+        <RefineApplication />
+      </AntdApp>
     </BrowserRouter>
   );
 }

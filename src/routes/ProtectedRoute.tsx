@@ -1,3 +1,7 @@
+/**
+ * Chặn route yêu cầu phiên đăng nhập hợp lệ.
+ */
+
 import { Authenticated } from "@refinedev/core";
 import { Outlet } from "react-router-dom";
 

@@ -1,3 +1,7 @@
+/**
+ * Hiển thị loading state toàn màn hình cho lazy route và auth guard.
+ */
+
 import { Flex, Spin } from "antd";
 
 export const FullPageLoader = () => (

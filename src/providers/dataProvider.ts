@@ -1,3 +1,7 @@
+/**
+ * Ánh xạ đầy đủ Refine DataProvider sang REST API Spring.
+ */
+
 import type {
   BaseRecord,
   CreateManyParams,
@@ -19,14 +23,14 @@ import { env } from "../config/env";
 import {
   getResourceEndpoint,
   getResourceItemEndpoint,
-} from "../api/endpoints";
-import { httpClient } from "../api/httpClient";
-import { buildQueryParams } from "../api/queryAdapter";
+} from "../services/http/endpoints";
+import { httpClient } from "../services/http/httpClient";
+import { buildQueryParams } from "../services/http/queryAdapter";
 import {
   adaptListResponse,
   adaptRecordResponse,
   unwrapApiResponse,
-} from "../api/responseAdapter";
+} from "../services/http/responseAdapter";
 
 const requestRecord = async <TData extends BaseRecord>(
   config: AxiosRequestConfig,

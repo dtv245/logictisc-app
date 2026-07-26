@@ -1,18 +1,22 @@
+/**
+ * Implement Refine authentication, identity và permission bindings.
+ */
+
 import type { AuthProvider } from "@refinedev/core";
 
-import { endpoints } from "../api/endpoints";
-import { normalizeApiError } from "../api/errors";
+import { endpoints } from "../services/http/endpoints";
+import { normalizeApiError } from "../services/http/errors";
 import {
   getCurrentUser,
   login as loginWithPassword,
   logout,
 } from "../services/authService";
-import { clearActiveTenantKey } from "../api/tenantSession";
+import { clearActiveTenantKey } from "../services/http/tenantSession";
 import {
   isLarkLoginParams,
   isPasswordLoginParams,
 } from "../types/auth";
-import { routes } from "../routes/routeConfig";
+import { routes } from "../constants/routes";
 
 export const authProvider = {
   async login(params: unknown) {

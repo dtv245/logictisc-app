@@ -1,9 +1,13 @@
+/**
+ * Hiển thị dashboard tổng quan identity và tenant hiện tại.
+ */
+
 import { BankOutlined, UserOutlined } from "@ant-design/icons";
 import { Card, Col, Row, Space, Statistic, Typography } from "antd";
 
-import { useCurrentUser } from "../../hooks/auth/useCurrentUser";
-import { useCurrentTenant } from "../../hooks/tenant/useCurrentTenant";
-import { useTenantList } from "../../hooks/tenant/useTenantList";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
+import { useCurrentTenant } from "../../hooks/useCurrentTenant";
+import { useTenantList } from "../../hooks/useTenantList";
 
 export const DashboardPage = () => {
   const currentUser = useCurrentUser();

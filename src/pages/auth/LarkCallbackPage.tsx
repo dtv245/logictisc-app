@@ -1,12 +1,19 @@
+/**
+ * Hoàn tất callback đăng nhập Lark đúng một lần cho mỗi mount.
+ */
+
 import { useEffect, useRef } from "react";
 import { Result, Spin } from "antd";
 
-import { useLarkLogin } from "../../hooks/auth/useLarkLogin";
+import { useLarkLogin } from "../../hooks/useLarkLogin";
 
 export const LarkCallbackPage = () => {
+  // Ref ngăn callback chạy trùng khi React StrictMode mount effect lại.
   const callbackStarted = useRef(false);
   const { completeLogin, data, error, isError } = useLarkLogin();
 
+  // Callback phụ thuộc completeLogin mới nhất và không cần cleanup vì đây là
+  // mutation HTTP một lần, không phải subscription.
   useEffect(() => {
     if (!callbackStarted.current) {
       callbackStarted.current = true;

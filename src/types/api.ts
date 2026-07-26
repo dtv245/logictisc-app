@@ -1,3 +1,7 @@
+/**
+ * Chứa các kiểu dữ liệu envelope, phân trang và lỗi dùng cho API.
+ */
+
 import type { HttpError } from "@refinedev/core";
 
 export interface ApiEnvelope<TResult> {

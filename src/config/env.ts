@@ -1,3 +1,7 @@
+/**
+ * Parse và validate toàn bộ Vite environment variables.
+ */
+
 import { z } from "zod";
 
 const envSchema = z.object({

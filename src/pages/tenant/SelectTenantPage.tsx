@@ -1,9 +1,13 @@
+/**
+ * Cho phép người dùng chọn một tenant đã được backend cấp quyền.
+ */
+
 import { BankOutlined } from "@ant-design/icons";
 import { Alert, Button, Card, List, Space, Typography } from "antd";
 
-import { useApiError } from "../../hooks/common/useApiError";
-import { useSwitchTenant } from "../../hooks/tenant/useSwitchTenant";
-import { useTenantList } from "../../hooks/tenant/useTenantList";
+import { useApiError } from "../../hooks/useApiError";
+import { useSwitchTenant } from "../../hooks/useSwitchTenant";
+import { useTenantList } from "../../hooks/useTenantList";
 
 export const SelectTenantPage = () => {
   const { tenants, isLoading } = useTenantList();

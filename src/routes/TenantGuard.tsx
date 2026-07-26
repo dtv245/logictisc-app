@@ -1,8 +1,12 @@
+/**
+ * Yêu cầu người dùng chọn tenant trước khi vào TMS routes.
+ */
+
 import { Navigate, Outlet } from "react-router-dom";
 
-import { useCurrentUser } from "../hooks/auth/useCurrentUser";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { FullPageLoader } from "./FullPageLoader";
-import { routes } from "./routeConfig";
+import { routes } from "../constants/routes";
 
 export const TenantGuard = () => {
   const currentUser = useCurrentUser();

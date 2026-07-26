@@ -1,0 +1,70 @@
+@use "./variables" as v;
+
+.full-width {
+  width: 100%;
+}
+
+.full-page-loader,
+.auth-page {
+  min-height: 100vh;
+}
+
+.auth-page {
+  display: grid;
+  place-items: center;
+  padding: v.$spacing-lg;
+  background: v.$color-bg-layout;
+}
+
+.auth-card,
+.tenant-card {
+  width: min(100%, 460px);
+  box-shadow: v.$shadow-secondary;
+}
+
+.tenant-card {
+  width: min(100%, 680px);
+}
+
+.app-brand {
+  margin: 0 !important;
+  color: v.$color-primary !important;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$spacing;
+  padding: 0 v.$spacing-lg;
+  border-bottom: 1px solid v.$color-border-secondary;
+  background: v.$color-bg-container;
+}
+
+.user-menu {
+  cursor: pointer;
+}
+
+.app-content {
+  padding: v.$spacing-lg;
+  border-radius: v.$radius-lg;
+  background: v.$color-bg-container;
+}
+
+.resource-search {
+  margin-bottom: v.$spacing;
+}
+
+@media (max-width: 767px) {
+  .app-header {
+    padding: 0 v.$spacing;
+  }
+
+  .app-header .ant-typography {
+    display: none;
+  }
+
+  .app-content {
+    padding: v.$spacing;
+  }
+}

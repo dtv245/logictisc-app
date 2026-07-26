@@ -1,3 +1,7 @@
+/**
+ * Lưu access token trong bộ nhớ của tab hiện tại.
+ */
+
 let accessToken: string | null = null;
 
 /**

@@ -1,3 +1,9 @@
+/**
+ * Chứa các kiểu dữ liệu tenant và thao tác chuyển tenant.
+ */
+
+import type { BaseRecord } from "@refinedev/core";
+
 export interface Tenant {
   id: string;
   tenantKey: string;
@@ -14,4 +20,3 @@ export interface SwitchTenantResult extends BaseRecord {
   tenantKey: string;
   tenantName?: string;
 }
-import type { BaseRecord } from "@refinedev/core";

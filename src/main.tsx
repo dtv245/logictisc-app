@@ -1,9 +1,13 @@
+/**
+ * Khởi tạo React root và các global stylesheet của ứng dụng.
+ */
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import App from "./App.tsx";
 import "@refinedev/antd/dist/reset.css";
-import "./index.css";
+import "./styles/global.scss";
 
 const rootElement = document.getElementById("root");
 

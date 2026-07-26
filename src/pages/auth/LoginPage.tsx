@@ -1,3 +1,7 @@
+/**
+ * Hiển thị trang đăng nhập bằng mật khẩu hoặc Lark.
+ */
+
 import { LoginOutlined } from "@ant-design/icons";
 import { useLogin } from "@refinedev/core";
 import {
@@ -10,7 +14,7 @@ import {
   Typography,
 } from "antd";
 
-import { useLarkLogin } from "../../hooks/auth/useLarkLogin";
+import { useLarkLogin } from "../../hooks/useLarkLogin";
 import type { PasswordLoginParams } from "../../types/auth";
 
 export const LoginPage = () => {

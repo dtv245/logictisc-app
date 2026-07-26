@@ -1,12 +1,16 @@
+/**
+ * Cung cấp các auth domain actions ngoài CRUD DataProvider.
+ */
+
 import type { CurrentUser, PasswordLoginParams } from "../types/auth";
 import { readAccessToken } from "./authSession";
-import { endpoints } from "../api/endpoints";
-import { httpClient } from "../api/httpClient";
-import { adaptRecordResponse } from "../api/responseAdapter";
+import { endpoints } from "./http/endpoints";
+import { httpClient } from "./http/httpClient";
+import { adaptRecordResponse } from "./http/responseAdapter";
 import {
   clearActiveTenantKey,
   setActiveTenantKey,
-} from "../api/tenantSession";
+} from "./http/tenantSession";
 import { tokenStore } from "./tokenStore";
 
 /**

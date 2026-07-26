@@ -1,7 +1,11 @@
+/**
+ * Hiển thị trạng thái 403 và điều hướng về dashboard.
+ */
+
 import { Button, Result } from "antd";
 import { useGo } from "@refinedev/core";
 
-import { routes } from "../../routes/routeConfig";
+import { routes } from "../../constants/routes";
 
 export const ForbiddenPage = () => {
   const go = useGo();

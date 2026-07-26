@@ -1,7 +1,11 @@
+/**
+ * Kiểm tra quyền resource/action tập trung từ tenant role claims.
+ */
+
 import type { AccessControlProvider } from "@refinedev/core";
 
 import { getCurrentUser } from "../services/authService";
-import { normalizeApiError } from "../api/errors";
+import { normalizeApiError } from "../services/http/errors";
 
 const publicAuthenticatedResources = new Set(["dashboard"]);
 
