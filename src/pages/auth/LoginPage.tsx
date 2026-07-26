@@ -1,10 +1,21 @@
 import { LoginOutlined } from "@ant-design/icons";
-import { Button, Card, Space, Typography } from "antd";
+import { useLogin } from "@refinedev/core";
+import {
+  Button,
+  Card,
+  Divider,
+  Form,
+  Input,
+  Space,
+  Typography,
+} from "antd";
 
 import { useLarkLogin } from "../../hooks/auth/useLarkLogin";
+import type { PasswordLoginParams } from "../../types/auth";
 
 export const LoginPage = () => {
-  const { startLogin, isPending } = useLarkLogin();
+  const passwordLogin = useLogin<PasswordLoginParams>();
+  const larkLogin = useLarkLogin();
 
   return (
     <main className="auth-page">
@@ -13,16 +24,44 @@ export const LoginPage = () => {
           <div>
             <Typography.Title level={2}>Đăng nhập Logictics</Typography.Title>
             <Typography.Text type="secondary">
-              Sử dụng tài khoản Lark của công ty để tiếp tục.
+              Đăng nhập bằng tài khoản hệ thống hoặc Lark của công ty.
             </Typography.Text>
           </div>
+          <Form<PasswordLoginParams>
+            layout="vertical"
+            onFinish={(values) => passwordLogin.mutate(values)}
+          >
+            <Form.Item
+              label="Tên đăng nhập"
+              name="username"
+              rules={[{ required: true, message: "Nhập tên đăng nhập." }]}
+            >
+              <Input autoComplete="username" />
+            </Form.Item>
+            <Form.Item
+              label="Mật khẩu"
+              name="password"
+              rules={[{ required: true, message: "Nhập mật khẩu." }]}
+            >
+              <Input.Password autoComplete="current-password" />
+            </Form.Item>
+            <Button
+              block
+              htmlType="submit"
+              loading={passwordLogin.isLoading}
+              size="large"
+              type="primary"
+            >
+              Đăng nhập
+            </Button>
+          </Form>
+          <Divider>hoặc</Divider>
           <Button
             block
             icon={<LoginOutlined />}
-            loading={isPending}
-            onClick={startLogin}
+            loading={larkLogin.isLoading}
+            onClick={larkLogin.startLogin}
             size="large"
-            type="primary"
           >
             Đăng nhập với Lark
           </Button>

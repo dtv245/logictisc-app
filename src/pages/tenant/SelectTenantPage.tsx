@@ -35,7 +35,7 @@ export const SelectTenantPage = () => {
                   actions={[
                     <Button
                       key={tenant.tenantKey}
-                      loading={tenantSwitch.mutation.isPending}
+                      loading={tenantSwitch.isLoading}
                       onClick={() =>
                         void tenantSwitch
                           .switchTenant(tenant.tenantKey)

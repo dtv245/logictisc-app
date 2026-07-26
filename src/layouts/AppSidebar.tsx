@@ -1,4 +1,5 @@
 import {
+  AppstoreOutlined,
   DashboardOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
@@ -28,6 +29,12 @@ export const AppSidebar = () => {
             icon: <DashboardOutlined />,
             label: "Tổng quan",
             onClick: () => list("dashboard"),
+          },
+          {
+            key: "/products",
+            icon: <AppstoreOutlined />,
+            label: "Sản phẩm",
+            onClick: () => list("products"),
           },
         ]}
       />

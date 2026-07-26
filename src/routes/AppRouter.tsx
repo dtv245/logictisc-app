@@ -1,6 +1,11 @@
 import { lazy, Suspense } from "react";
 import { Authenticated } from "@refinedev/core";
-import { Navigate, Outlet, Route, Routes } from "react-router";
+import {
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
 
 import { FullPageLoader } from "./FullPageLoader";
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -25,6 +30,26 @@ const LarkCallbackPage = lazy(() =>
 const DashboardPage = lazy(() =>
   import("../pages/dashboard/DashboardPage").then((module) => ({
     default: module.DashboardPage,
+  })),
+);
+const ProductList = lazy(() =>
+  import("../resources/products").then((module) => ({
+    default: module.ProductList,
+  })),
+);
+const ProductCreate = lazy(() =>
+  import("../resources/products").then((module) => ({
+    default: module.ProductCreate,
+  })),
+);
+const ProductEdit = lazy(() =>
+  import("../resources/products").then((module) => ({
+    default: module.ProductEdit,
+  })),
+);
+const ProductShow = lazy(() =>
+  import("../resources/products").then((module) => ({
+    default: module.ProductShow,
   })),
 );
 const SelectTenantPage = lazy(() =>
@@ -70,6 +95,10 @@ export const AppRouter = () => (
         <Route element={<MainLayout />}>
           <Route index element={<Navigate to={routes.dashboard} replace />} />
           <Route path={routes.dashboard} element={<DashboardPage />} />
+          <Route path={routes.products} element={<ProductList />} />
+          <Route path={routes.productCreate} element={<ProductCreate />} />
+          <Route path={routes.productEdit} element={<ProductEdit />} />
+          <Route path={routes.productShow} element={<ProductShow />} />
         </Route>
       </Route>
     </Route>

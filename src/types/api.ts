@@ -7,8 +7,8 @@ export interface ApiEnvelope<TResult> {
 }
 
 export interface ApiPage<TResult> {
-  items: TResult[];
-  page: number;
+  content: TResult[];
+  number: number;
   size: number;
   totalElements: number;
   totalPages: number;
@@ -27,6 +27,10 @@ export interface ApiErrorPayload {
   status?: number;
   statusCode?: number;
   message?: string;
+  detail?: string;
+  title?: string;
   error?: string;
-  errors?: Record<string, string | string[]>;
+  errors?: unknown;
+  fieldErrors?: unknown;
+  violations?: unknown;
 }

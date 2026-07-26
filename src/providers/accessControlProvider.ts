@@ -1,6 +1,6 @@
 import type { AccessControlProvider } from "@refinedev/core";
 
-import { getCurrentUser } from "../api/authApi";
+import { getCurrentUser } from "../services/authService";
 import { normalizeApiError } from "../api/errors";
 
 const publicAuthenticatedResources = new Set(["dashboard"]);

@@ -111,7 +111,7 @@ export const BaseTable = <
     filters,
     sorters,
     pagination: {
-      currentPage,
+      current: currentPage,
       pageSize,
       mode: "server",
     },
@@ -135,10 +135,10 @@ export const BaseTable = <
 
   return (
     <Space direction="vertical" size="middle" className="full-width">
-      {showError && list.query.error ? (
+      {showError && list.error ? (
         <Alert
-          message={`Không thể tải dữ liệu (${list.query.error.statusCode})`}
-          description={list.query.error.message}
+          message={`Không thể tải dữ liệu (${list.error.statusCode})`}
+          description={list.error.message}
           type="error"
           showIcon
         />
@@ -147,8 +147,8 @@ export const BaseTable = <
       <Table<TData>
         {...tableProps}
         columns={columns}
-        dataSource={list.result.data}
-        loading={list.query.isFetching}
+        dataSource={list.data?.data ?? []}
+        loading={list.isFetching}
         onChange={handleChange}
         pagination={{
           current: currentPage,
@@ -156,7 +156,7 @@ export const BaseTable = <
           pageSizeOptions,
           showSizeChanger: true,
           showTotal: (total) => `Tổng ${total} bản ghi`,
-          total: list.result.total ?? 0,
+          total: list.data?.total ?? 0,
         }}
         rowKey={rowKey}
       />

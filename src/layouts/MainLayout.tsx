@@ -1,6 +1,6 @@
 import { DownOutlined } from "@ant-design/icons";
 import { Avatar, Dropdown, Flex, Layout, Select, Space, Typography } from "antd";
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 
 import { useCurrentUser } from "../hooks/auth/useCurrentUser";
 import { useLogoutUser } from "../hooks/auth/useLogoutUser";
@@ -33,7 +33,7 @@ export const MainLayout = () => {
         <Header className="app-header">
           <Select
             aria-label="Công ty hiện tại"
-            loading={tenantSwitch.mutation.isPending}
+            loading={tenantSwitch.isLoading}
             onChange={handleTenantChange}
             options={tenants.map((item) => ({
               label: item.tenantName,
