@@ -1,0 +1,23 @@
+{
+  "appName": "Logistics TMS",
+  "environment": "local",
+  "apiBaseUrl": "http://localhost:8080",
+  "requestTimeoutMs": 15000,
+  "identityBaseUrl": "https://localhost:7001",
+  "oauth": {
+    "clientId": "replace-with-spa-client-id",
+    "redirectUri": "http://localhost:5173/auth/callback",
+    "postLogoutRedirectUri": "http://localhost:5173/login",
+    "scopes": ["openid", "profile", "email"],
+    "audience": "logisticsx.api",
+    "issuer": "https://localhost:7001",
+    "jwksUri": "https://localhost:7001/.well-known/openid-configuration/jwks",
+    "clockSkewSeconds": 60
+  },
+  "defaultLocale": "vi",
+  "featureFlags": {
+    "messaging": false,
+    "notifications": false,
+    "documentUpload": false
+  }
+}
