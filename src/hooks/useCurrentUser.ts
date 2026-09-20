@@ -4,7 +4,7 @@
 
 import { useGetIdentity } from "@refinedev/core";
 
-import type { CurrentUser } from "../types/auth";
+import type { CurrentUser } from "../types/auth.types";
 
 // Identity được cache để các layout components không gọi `/auth/me` lặp lại.
 export const useCurrentUser = () =>

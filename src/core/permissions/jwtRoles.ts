@@ -5,15 +5,11 @@
  * Việc tách type giúp UI không vô tình dùng role nghiệp vụ để cấp quyền route.
  */
 
-export const JWT_ROLES = [
-  "SUPERADMIN",
-  "OWNER",
-  "MANAGER",
-  "DISPATCHER",
-  "DRIVER",
-] as const;
+import type { JwtRole } from "../../types/roles.types";
+import { JWT_ROLES } from "../../types/roles.types";
 
-export type JwtRole = (typeof JWT_ROLES)[number];
+export type { JwtRole };
+export { JWT_ROLES };
 
 const JWT_ROLE_SET: ReadonlySet<string> = new Set(JWT_ROLES);
 

@@ -7,8 +7,8 @@ import type { BaseRecord } from "@refinedev/core";
 import { useShow } from "@refinedev/core";
 import { Descriptions } from "antd";
 
-import type { ApiError } from "../types/api";
-import { crudScaffoldText } from "../constants/ui";
+import type { ApiError } from "@/types/api.types";
+import { crudScaffoldText } from "@constants/ui";
 
 interface ResourceShowPageProps {
   resource: string;

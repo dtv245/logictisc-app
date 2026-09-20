@@ -5,7 +5,7 @@
  * replay một request sau 401 vẫn thuộc trách nhiệm interceptor.
  */
 
-import type { JwtRole } from "../permissions";
+import type { JwtRole } from "../../types/roles.types";
 import type {
   AccessTokenVerifier,
   AuthIdentity,
@@ -13,7 +13,7 @@ import type {
   OidcGateway,
   OidcLoginResult,
   OidcUserSnapshot,
-} from "./types";
+} from "../../types/authSession.types";
 
 const DEFAULT_REFRESH_SKEW_SECONDS = 60;
 

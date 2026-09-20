@@ -163,18 +163,40 @@ interface CrudPageComponents {
 }
 
 export interface ResourcePageRoute {
+  action: "create" | "edit" | "list" | "show";
   component: ComponentType;
   path: string;
+  resource: string;
 }
 
 const createResourcePageRoutes = (
   resourceRoutes: CrudPageRoutes,
   components: CrudPageComponents,
 ): ResourcePageRoute[] => [
-  { component: components.List, path: resourceRoutes.list },
-  { component: components.Create, path: resourceRoutes.create },
-  { component: components.Edit, path: resourceRoutes.edit },
-  { component: components.Show, path: resourceRoutes.show },
+  {
+    action: "list",
+    component: components.List,
+    path: resourceRoutes.list,
+    resource: resourceRoutes.list.split("/").filter(Boolean)[0] ?? "",
+  },
+  {
+    action: "create",
+    component: components.Create,
+    path: resourceRoutes.create,
+    resource: resourceRoutes.list.split("/").filter(Boolean)[0] ?? "",
+  },
+  {
+    action: "edit",
+    component: components.Edit,
+    path: resourceRoutes.edit,
+    resource: resourceRoutes.list.split("/").filter(Boolean)[0] ?? "",
+  },
+  {
+    action: "show",
+    component: components.Show,
+    path: resourceRoutes.show,
+    resource: resourceRoutes.list.split("/").filter(Boolean)[0] ?? "",
+  },
 ];
 
 const dashboardResource: IResourceItem = {

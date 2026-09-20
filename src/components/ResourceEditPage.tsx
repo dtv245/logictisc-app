@@ -1,18 +1,46 @@
 /**
- * Cung cấp edit page an toàn khi request DTO chưa được backend xác nhận.
+ * Loads and updates a backend-confirmed resource through Refine useForm.
  */
 
-import { Edit } from "@refinedev/antd";
-import { Result } from "antd";
+import { Edit, useForm } from "@refinedev/antd";
+import type { BaseRecord } from "@refinedev/core";
+import { Form } from "antd";
 
-import { crudScaffoldText } from "../constants/ui";
+import type { ApiError } from "@/types/api.types";
+import { ResourceFormFields } from "./resources/ResourceFormFields";
+import {
+  isEditableResourceName,
+  resourceFormDefinitions,
+  type EditableResourceName,
+} from "./resources/resourceForms";
 
-export const ResourceEditPage = () => (
-  <Edit saveButtonProps={{ disabled: true }}>
-    <Result
-      status="info"
-      subTitle={crudScaffoldText.editNotConfigured}
-      title={crudScaffoldText.notConfiguredTitle}
-    />
-  </Edit>
-);
+interface ResourceEditPageProps {
+  resource?: EditableResourceName;
+}
+
+type ResourceFormValues = Record<string, unknown>;
+
+export const ResourceEditPage = ({ resource: resourceProp }: ResourceEditPageProps) => {
+  const resourceName = resourceProp ?? "__unsupported__";
+  // useForm owns getOne, asynchronous form population and update cache
+  // invalidation; the form definition only declares the backend request fields.
+  const { formProps, saveButtonProps, queryResult } = useForm<
+    BaseRecord,
+    ApiError,
+    ResourceFormValues
+  >({ action: "edit", redirect: "show", resource: resourceName });
+  if (!isEditableResourceName(resourceName)) {
+    throw new Error(`RESOURCE_FORM_NOT_CONFIGURED:${resourceName}`);
+  }
+
+  return (
+    <Edit
+      isLoading={queryResult?.isLoading}
+      saveButtonProps={saveButtonProps}
+    >
+      <Form {...formProps} layout="vertical">
+        <ResourceFormFields definition={resourceFormDefinitions[resourceName]} />
+      </Form>
+    </Edit>
+  );
+};

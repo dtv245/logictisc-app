@@ -5,7 +5,12 @@
  * là nguồn authorization cuối cùng cho mọi request.
  */
 
-import type { JwtRole } from "./jwtRoles";
+import {
+  ACCESS_RESOURCES,
+  type AccessResource,
+  type JwtRole,
+  type RoleMatrixRule,
+} from "../../types/roles.types";
 
 const ALL_ROLES = [
   "SUPERADMIN",
@@ -42,33 +47,6 @@ const TERMINAL_DELETERS = [
 const READ_ACTIONS = ["list", "show", "read"] as const;
 const CRUD_WRITE_ACTIONS = ["create", "edit", "update", "delete"] as const;
 const CRUD_ACTIONS = [...READ_ACTIONS, ...CRUD_WRITE_ACTIONS] as const;
-
-export const ACCESS_RESOURCES = [
-  "roles",
-  "employees",
-  "customers",
-  "invoices",
-  "payments",
-  "loads",
-  "trips",
-  "documents",
-  "drivers",
-  "trucks",
-  "terminals",
-  "inspections",
-  "messages",
-  "messaging",
-  "conversations",
-  "notifications",
-] as const;
-
-export type AccessResource = (typeof ACCESS_RESOURCES)[number];
-
-export interface RoleMatrixRule {
-  readonly resources: readonly AccessResource[];
-  readonly actions: readonly string[];
-  readonly roles: readonly JwtRole[];
-}
 
 /**
  * Mỗi dòng tương ứng trực tiếp với một dòng trong bảng role matrix. Các alias

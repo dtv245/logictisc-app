@@ -36,6 +36,7 @@ const normalizeInteger = (
   value: number | undefined,
   fallback: number,
 ): number =>
+  // Math.trunc tránh gửi số trang thập phân nếu state URL bị chỉnh thủ công.
   typeof value === "number" && Number.isFinite(value)
     ? Math.trunc(value)
     : fallback;
@@ -95,11 +96,15 @@ const serializeFilters = (
   const allowedFields = new Set(allowedFilterFields);
 
   for (const filter of filters) {
+    // Backend foundation contract hiện chỉ hỗ trợ filter phẳng. Fail rõ ràng
+    // thay vì âm thầm serialize AND/OR thành query mà server hiểu sai.
     if (isConditionalFilter(filter)) {
       throw new Error("UNSUPPORTED_CONDITIONAL_FILTER");
     }
 
     if (!allowedFields.has(filter.field)) {
+      // Allowlist nằm trong resource definition để ngăn UI gửi tùy ý tên field
+      // nội bộ hoặc filter chưa được backend lập chỉ mục/hỗ trợ.
       throw new Error(`FILTER_FIELD_NOT_ALLOWED:${filter.field}`);
     }
 
@@ -131,6 +136,8 @@ const serializeSorter = (
   }
 
   if (sorters.length > 1) {
+    // Contract hiện chỉ có một cặp orderBy/descending nên không thể biểu diễn
+    // multi-sort mà không làm mất thông tin.
     throw new Error("MULTIPLE_SORT_FIELDS_NOT_SUPPORTED");
   }
 

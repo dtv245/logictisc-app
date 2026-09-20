@@ -6,18 +6,18 @@
  */
 
 import type {
-  ApiError,
+  BackendApiError,
   ApiResponse,
   PagedResponse,
   ResponseMeta,
-} from "../../shared/types/api";
+} from "../../types/api.types";
 
 export const isRecord = (
   value: unknown,
 ): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-const readApiError = (value: unknown): ApiError | null => {
+const readApiError = (value: unknown): BackendApiError | null => {
   if (
     !isRecord(value) ||
     (value.field !== null && typeof value.field !== "string") ||
@@ -77,7 +77,7 @@ export const readApiResponse = (
     code: value.code,
     message: value.message,
     data: value.data,
-    errors: errors.filter((error): error is ApiError => error !== null),
+    errors: errors.filter((error): error is BackendApiError => error !== null),
     meta,
   };
 };

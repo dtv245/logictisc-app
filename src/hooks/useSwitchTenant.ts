@@ -1,86 +1,70 @@
 /**
- * Chuyển tenant qua custom mutation và làm mới tenant-scoped queries.
+ * Changes tenant only through a fresh Identity Server authentication. The SPA
+ * never sends a tenant header or calls an invented tenant-switch endpoint.
  */
 
 import { useCallback } from "react";
-import {
-  useCustomMutation,
-  useGo,
-  usePermissions,
-} from "@refinedev/core";
+import { useGo, useLogin } from "@refinedev/core";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { endpoints } from "../services/http/endpoints";
-import { ApiHttpError } from "../services/http/errors";
-import { setActiveTenantKey } from "../services/http/tenantSession";
-import type { ApiError } from "../types/api";
-import type {
-  SwitchTenantRequest,
-  SwitchTenantResult,
-} from "../types/tenant";
+import { env } from "@config/env";
+import { routes } from "@constants/routes";
 import { useCurrentUser } from "./useCurrentUser";
-import { routes } from "../constants/routes";
+
+interface TenantReauthenticationParams {
+  mode: "redirect";
+  returnTo: string;
+  forceReauthentication: true;
+}
 
 const isTenantScopedQuery = (queryKey: readonly unknown[]): boolean =>
   ["data", "access", "auth"].includes(String(queryKey[0]));
 
+/**
+ * Buộc cấp token mới khi người dùng muốn đổi tenant.
+ *
+ * Hook cố ý không nhận tenant id: SPA chỉ thể hiện ý định xác thực lại, còn
+ * Identity Server quyết định tenant hợp lệ và ghi tenant đó vào access token.
+ */
 export const useSwitchTenant = () => {
-  // Custom mutation đi qua DataProvider vì switch tenant là domain action,
-  // không phải CRUD của một resource.
-  const mutation = useCustomMutation<
-    SwitchTenantResult,
-    ApiError,
-    SwitchTenantRequest
-  >();
   const currentUser = useCurrentUser();
-  const permissions = usePermissions<string[]>({});
-  const queryClient = useQueryClient();
   const go = useGo();
+  const login = useLogin<TenantReauthenticationParams>();
+  const queryClient = useQueryClient();
 
-  // Callback tuần tự hóa mutation, cache invalidation và identity verification.
   const switchTenant = useCallback(
-    async (tenantKey: string) => {
-      await mutation.mutateAsync({
-        url: endpoints.tenant.switch,
-        method: "post",
-        values: { tenantKey },
-        meta: { allowEmptyResponse: true },
-        successNotification: {
-          type: "success",
-          message: "Đã chuyển công ty",
-        },
-      });
+    async () => {
+      if (env.demoAuth) {
+        // Demo chỉ có một tenant cố định, nên không cần tạo OIDC redirect.
+        go({ to: routes.dashboard, type: "replace" });
+        return;
+      }
 
-      setActiveTenantKey(tenantKey);
-
+      // Dừng request cũ trước khi xóa cache để response tenant hiện tại không
+      // kịp ghi dữ liệu trở lại trong lúc browser đang chuyển sang IdP.
       await queryClient.cancelQueries({
         predicate: (query) => isTenantScopedQuery(query.queryKey),
       });
       queryClient.removeQueries({
-        predicate: (query) =>
-          ["data", "access"].includes(String(query.queryKey[0])),
+        predicate: (query) => isTenantScopedQuery(query.queryKey),
       });
-      await queryClient.resetQueries({ queryKey: ["auth"] });
 
-      const [identityResult] = await Promise.all([
-        currentUser.refetch(),
-        permissions.refetch(),
-      ]);
-
-      if (identityResult.data?.tenantKey !== tenantKey) {
-        throw new ApiHttpError(
-          403,
-          "Backend chưa xác nhận quyền thành viên của công ty đã chọn.",
-        );
-      }
-
-      go({ to: routes.dashboard, type: "replace" });
+      // createAuthProvider sẽ clear session và bắt đầu authorization-code flow
+      // khi nhận forceReauthentication.
+      await login.mutateAsync({
+        mode: "redirect",
+        returnTo: routes.dashboard,
+        forceReauthentication: true,
+      });
     },
-    [currentUser, go, mutation, permissions, queryClient],
+    [go, login, queryClient],
   );
 
   return {
-    ...mutation,
+    error: login.error,
+    isError: login.isError,
+    isLoading: login.isLoading,
     switchTenant,
+    currentTenantId: currentUser.data?.tenantId,
   };
 };

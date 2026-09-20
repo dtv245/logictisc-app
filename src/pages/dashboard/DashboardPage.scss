@@ -1,0 +1,101 @@
+@use "../../styles/variables" as v;
+
+.dashboard-page {
+  width: 100%;
+}
+
+.dashboard-page__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: v.$spacing;
+}
+
+.dashboard-page__heading .ant-typography {
+  margin-bottom: 0;
+}
+
+.dashboard-card {
+  height: 100%;
+  border-color: v.$color-border-secondary;
+}
+
+.dashboard-card .ant-card-head {
+  min-height: 56px;
+}
+
+.dashboard-card__subtitle {
+  display: block;
+  margin-bottom: v.$spacing;
+}
+
+.dashboard-statistic .ant-statistic-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.operations-chart {
+  display: grid;
+  gap: 20px;
+  min-height: 292px;
+  align-content: center;
+}
+
+.operations-chart__row {
+  display: grid;
+  gap: 8px;
+}
+
+.operations-chart__label {
+  display: flex;
+  justify-content: space-between;
+  gap: v.$spacing;
+}
+
+.operations-chart__track {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf1f7;
+}
+
+.operations-chart__bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 240ms ease;
+}
+
+.vehicle-map,
+.vehicle-map__skeleton {
+  width: 100% !important;
+  height: 340px !important;
+  border-radius: v.$radius-lg;
+}
+
+.vehicle-map {
+  z-index: 0;
+  overflow: hidden;
+  background: v.$color-bg-layout;
+}
+
+.dashboard-empty-icon {
+  color: #94a3b8;
+  font-size: 48px;
+}
+
+@media (max-width: 767px) {
+  .dashboard-page__heading {
+    display: block;
+  }
+
+  .operations-chart {
+    min-height: 220px;
+  }
+
+  .vehicle-map,
+  .vehicle-map__skeleton {
+    height: 300px !important;
+  }
+}
+

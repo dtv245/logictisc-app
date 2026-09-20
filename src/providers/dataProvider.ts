@@ -1,220 +1,374 @@
 /**
- * Ánh xạ đầy đủ Refine DataProvider sang REST API Spring.
+ * Adapts the Logistics API transport to the Refine v4 `DataProvider`.
+ *
+ * Resource paths and query whitelists are injected explicitly so the generic
+ * provider cannot invent endpoints or send unsupported sort/filter fields.
  */
 
 import type {
+  BaseKey,
   BaseRecord,
-  CreateManyParams,
   CreateParams,
   CustomParams,
   DataProvider,
-  DeleteManyParams,
   DeleteOneParams,
   GetListParams,
   GetManyParams,
   GetOneParams,
   MetaQuery,
-  UpdateManyParams,
   UpdateParams,
 } from "@refinedev/core";
-import type { AxiosRequestConfig, Method, RawAxiosRequestHeaders } from "axios";
-
-import { env } from "../config/env";
 import {
-  getResourceEndpoint,
-  getResourceItemEndpoint,
-} from "../services/http/endpoints";
-import { httpClient } from "../services/http/httpClient";
-import { buildQueryParams } from "../services/http/queryAdapter";
-import {
-  adaptListResponse,
-  adaptRecordResponse,
-  unwrapApiResponse,
-} from "../services/http/responseAdapter";
+  AxiosHeaders,
+  type AxiosHeaderValue,
+  type AxiosRequestConfig,
+} from "axios";
 
-const requestRecord = async <TData extends BaseRecord>(
-  config: AxiosRequestConfig,
-): Promise<TData> => {
-  const response = await httpClient.request<unknown>(config);
-  return adaptRecordResponse<TData>(response.data);
+import { ApiHttpError } from "../core/api/httpError";
+import { isRecord, readPagedResponse } from "../core/api/envelope";
+import { createLatestRequestCoordinator } from "../core/api/latestRequest";
+import {
+  assertRelativeApiPath,
+  joinApiItemPath,
+} from "../core/api/path";
+import {
+  serializeCustomQuery,
+  serializeListQuery,
+} from "../core/api/querySerializer";
+import type { LogisticsApiClient } from "../types/apiClient.types";
+
+export type ResourceUpdateMethod = "put" | "patch";
+
+export interface ApiResourceDefinition {
+  collectionPath: string;
+  allowedFilterFields: readonly string[];
+  allowedSortFields: readonly string[];
+  updateMethod?: ResourceUpdateMethod;
+}
+
+export interface CreateDataProviderOptions {
+  apiClient: LogisticsApiClient;
+  resources: Readonly<Record<string, ApiResourceDefinition>>;
+}
+
+const readQuerySignal = (
+  meta: MetaQuery | undefined,
+): AbortSignal | undefined => meta?.queryContext?.signal;
+
+const createProtocolError = (
+  code: string,
+  cause?: unknown,
+): ApiHttpError =>
+  new ApiHttpError({
+    statusCode: 500,
+    code,
+    message: code,
+    requestId: null,
+    cause,
+  });
+
+const readRecord = <TData extends BaseRecord>(
+  value: unknown,
+): TData => {
+  if (!isRecord(value)) {
+    throw createProtocolError("INVALID_RECORD_RESPONSE");
+  }
+
+  const { id } = value;
+  const hasValidId =
+    (typeof id === "string" && id.trim().length > 0) ||
+    (typeof id === "number" && Number.isFinite(id));
+  if (!hasValidId) {
+    throw createProtocolError("INVALID_RECORD_ID");
+  }
+
+  // Common transport validation can establish an object boundary; feature
+  // schemas validate the concrete DTO fields before they reach forms/views.
+  return value as TData;
 };
 
-const resolveEndpoint = (resource: string, meta?: MetaQuery): string =>
-  getResourceEndpoint(resource, meta);
+const readCustomData = <TData extends BaseRecord>(
+  value: unknown,
+): TData => {
+  if (value === undefined || value === null) {
+    throw createProtocolError("EMPTY_CUSTOM_RESPONSE");
+  }
 
-export const dataProvider: DataProvider = {
-  async getList<TData extends BaseRecord = BaseRecord>(params: GetListParams) {
-    const { resource, pagination, filters, sorters, meta } = params;
-    const response = await httpClient.get<unknown>(
-      resolveEndpoint(resource, meta),
-      {
-        params: buildQueryParams({ pagination, filters, sorters }),
-      },
-    );
+  // Refine v4 constrains custom results to BaseRecord even though several
+  // existing action endpoints legitimately return scalar values.
+  return value as TData;
+};
 
-    return adaptListResponse<TData>(response.data);
-  },
+const buildItemPath = (
+  definition: ApiResourceDefinition,
+  id: BaseKey,
+): string => joinApiItemPath(definition.collectionPath, id);
 
-  async getOne<TData extends BaseRecord = BaseRecord>(params: GetOneParams) {
-    const { resource, id, meta } = params;
-    const data = await requestRecord<TData>({
-      method: "get",
-      url: getResourceItemEndpoint(resource, id, meta),
-    });
+const createRequestHeaders = (
+  headers: object | undefined,
+): AxiosHeaders | undefined => {
+  if (!headers) {
+    return undefined;
+  }
 
-    return { data };
-  },
+  const result = new AxiosHeaders();
+  const entries = Object.entries(headers) as [string, unknown][];
 
-  async getMany<TData extends BaseRecord = BaseRecord>(params: GetManyParams) {
-    const { resource, ids, meta } = params;
-    const data = await Promise.all(
-      ids.map((id) =>
-        requestRecord<TData>({
-          method: "get",
-          url: getResourceItemEndpoint(resource, id, meta),
-        }),
-      ),
-    );
+  for (const [name, value] of entries) {
+    const isHeaderValue =
+      value === null ||
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean" ||
+      (Array.isArray(value) &&
+        value.every((entry) => typeof entry === "string"));
 
-    return { data };
-  },
-
-  async create<TData extends BaseRecord = BaseRecord, TVariables = object>(
-    params: CreateParams<TVariables>,
-  ) {
-    const { resource, variables, meta } = params;
-    const data = await requestRecord<TData>({
-      method: "post",
-      url: resolveEndpoint(resource, meta),
-      data: variables,
-    });
-
-    return { data };
-  },
-
-  async createMany<
-    TData extends BaseRecord = BaseRecord,
-    TVariables = object,
-  >(params: CreateManyParams<TVariables>) {
-    const { resource, variables, meta } = params;
-    const data = await Promise.all(
-      variables.map((variable) =>
-        requestRecord<TData>({
-          method: "post",
-          url: resolveEndpoint(resource, meta),
-          data: variable,
-        }),
-      ),
-    );
-
-    return { data };
-  },
-
-  async update<TData extends BaseRecord = BaseRecord, TVariables = object>(
-    params: UpdateParams<TVariables>,
-  ) {
-    const { resource, id, variables, meta } = params;
-    const data = await requestRecord<TData>({
-      method: "patch",
-      url: getResourceItemEndpoint(resource, id, meta),
-      data: variables,
-    });
-
-    return { data };
-  },
-
-  async updateMany<
-    TData extends BaseRecord = BaseRecord,
-    TVariables = object,
-  >(params: UpdateManyParams<TVariables>) {
-    const { resource, ids, variables, meta } = params;
-    const data = await Promise.all(
-      ids.map((id) =>
-        requestRecord<TData>({
-          method: "patch",
-          url: getResourceItemEndpoint(resource, id, meta),
-          data: variables,
-        }),
-      ),
-    );
-
-    return { data };
-  },
-
-  async deleteOne<TData extends BaseRecord = BaseRecord, TVariables = object>(
-    params: DeleteOneParams<TVariables>,
-  ) {
-    const { resource, id, variables, meta } = params;
-    const response = await httpClient.delete<unknown>(
-      getResourceItemEndpoint(resource, id, meta),
-      { data: variables },
-    );
-    const unwrapped = unwrapApiResponse(response.data);
-    const data =
-      unwrapped === undefined || unwrapped === null || unwrapped === ""
-        ? ({ id } as TData)
-        : adaptRecordResponse<TData>(response.data);
-
-    return { data };
-  },
-
-  async deleteMany<TData extends BaseRecord = BaseRecord, TVariables = object>({
-    resource,
-    ids,
-    variables,
-    meta,
-  }: DeleteManyParams<TVariables>) {
-    const data = await Promise.all(
-      ids.map(async (id) => {
-        const result = await dataProvider.deleteOne<TData, TVariables>({
-          resource,
-          id,
-          variables,
-          meta,
-        });
-        return result.data;
-      }),
-    );
-
-    return { data };
-  },
-
-  async custom<
-    TData extends BaseRecord = BaseRecord,
-    TQuery = unknown,
-    TPayload = unknown,
-  >(params: CustomParams<TQuery, TPayload>) {
-    const { url, method, filters, sorters, payload, query, headers, meta } = params;
-    const response = await httpClient.request<unknown>({
-      url,
-      method: method as Method,
-      data: payload,
-      params: buildQueryParams({
-        filters,
-        sorters,
-        query,
-        pagination: { mode: "off" },
-      }),
-      headers: headers as RawAxiosRequestHeaders,
-    });
-
-    const responseResult = unwrapApiResponse(response.data);
-    const allowsEmptyResponse = meta?.allowEmptyResponse === true;
-
-    if (
-      response.status === 204 ||
-      (allowsEmptyResponse &&
-        (responseResult === null || responseResult === undefined))
-    ) {
-      const fallback =
-        typeof payload === "object" && payload !== null ? payload : {};
-      return { data: fallback as TData };
+    if (!isHeaderValue) {
+      throw new Error(`INVALID_CUSTOM_HEADER:${name}`);
     }
 
-    return { data: adaptRecordResponse<TData>(response.data) };
-  },
+    result.set(name, value as AxiosHeaderValue);
+  }
 
-  getApiUrl() {
-    return env.apiBaseUrl;
-  },
+  return result;
+};
+
+const withSignal = (
+  signal: AbortSignal | undefined,
+): { signal?: AbortSignal } => (signal ? { signal } : {});
+
+export const createLogisticsDataProvider = ({
+  apiClient,
+  resources,
+}: CreateDataProviderOptions): DataProvider => {
+  const latestLists = createLatestRequestCoordinator();
+
+  const getDefinition = (
+    resource: string,
+  ): ApiResourceDefinition => {
+    const definition = resources[resource];
+    if (!definition) {
+      throw new Error(`RESOURCE_NOT_CONFIGURED:${resource}`);
+    }
+
+    assertRelativeApiPath(definition.collectionPath);
+    return definition;
+  };
+
+  const requestRecord = async <TData extends BaseRecord>(
+    config: AxiosRequestConfig,
+  ): Promise<TData> => {
+    const response = await apiClient.instance.request<unknown>(config);
+    return readRecord<TData>(response.data);
+  };
+
+  const getOne = async <TData extends BaseRecord = BaseRecord>({
+    resource,
+    id,
+    meta,
+  }: GetOneParams): Promise<{ data: TData }> => {
+    const definition = getDefinition(resource);
+    const data = await requestRecord<TData>({
+      method: "get",
+      url: buildItemPath(definition, id),
+      ...withSignal(readQuerySignal(meta)),
+    });
+
+    return { data };
+  };
+
+  const provider: DataProvider = {
+    async getList<TData extends BaseRecord = BaseRecord>({
+      resource,
+      pagination,
+      filters,
+      sort,
+      sorters,
+      meta,
+    }: GetListParams) {
+      const definition = getDefinition(resource);
+      const query = serializeListQuery({
+        ...(pagination ? { pagination } : {}),
+        ...(filters ? { filters } : {}),
+        ...(sorters ?? sort
+          ? { sorters: sorters ?? sort }
+          : {}),
+        allowedFilterFields:
+          definition.allowedFilterFields,
+        allowedSortFields:
+          definition.allowedSortFields,
+      });
+      const requestKey = `list:${resource}:${JSON.stringify(
+        Object.entries(query).sort(([left], [right]) =>
+          left.localeCompare(right),
+        ),
+      )}`;
+      const coordinatedRequest = latestLists.begin(
+        requestKey,
+        readQuerySignal(meta),
+      );
+
+      try {
+        const response = await apiClient.instance.get<unknown>(
+          definition.collectionPath,
+          {
+            params: query,
+            signal: coordinatedRequest.signal,
+          },
+        );
+        const page = readPagedResponse<TData>(response.data);
+
+        if (!page) {
+          throw createProtocolError("INVALID_PAGED_RESPONSE");
+        }
+
+        return {
+          data: page.items.map((item) => readRecord<TData>(item)),
+          total: page.totalItems,
+        };
+      } finally {
+        coordinatedRequest.release();
+      }
+    },
+
+    getOne,
+
+    async getMany<TData extends BaseRecord = BaseRecord>({
+      resource,
+      ids,
+      meta,
+    }: GetManyParams) {
+      const responses = await Promise.all(
+        ids.map((id) =>
+          getOne<TData>({
+            resource,
+            id,
+            ...(meta ? { meta } : {}),
+          }),
+        ),
+      );
+
+      return {
+        data: responses.map((response) => response.data),
+      };
+    },
+
+    async create<
+      TData extends BaseRecord = BaseRecord,
+      TVariables = object,
+    >({
+      resource,
+      variables,
+      meta,
+    }: CreateParams<TVariables>) {
+      const definition = getDefinition(resource);
+      const data = await requestRecord<TData>({
+        method: "post",
+        url: definition.collectionPath,
+        data: variables,
+        ...withSignal(readQuerySignal(meta)),
+      });
+
+      return { data };
+    },
+
+    async update<
+      TData extends BaseRecord = BaseRecord,
+      TVariables = object,
+    >({
+      resource,
+      id,
+      variables,
+      meta,
+    }: UpdateParams<TVariables>) {
+      const definition = getDefinition(resource);
+      const data = await requestRecord<TData>({
+        method: definition.updateMethod ?? "put",
+        url: buildItemPath(definition, id),
+        data: variables,
+        ...withSignal(readQuerySignal(meta)),
+      });
+
+      return { data };
+    },
+
+    async deleteOne<
+      TData extends BaseRecord = BaseRecord,
+      TVariables = object,
+    >({
+      resource,
+      id,
+      variables,
+      meta,
+    }: DeleteOneParams<TVariables>) {
+      const definition = getDefinition(resource);
+      const response = await apiClient.instance.delete<unknown>(
+        buildItemPath(definition, id),
+        {
+          ...(variables === undefined ? {} : { data: variables }),
+          ...withSignal(readQuerySignal(meta)),
+        },
+      );
+
+      if (response.data === null || response.data === undefined) {
+        const fallback: BaseRecord = { id };
+        return {
+          // Refine requires delete mutations to return the deleted record even
+          // when the Spring endpoint intentionally returns `data: null`.
+          data: fallback as TData,
+        };
+      }
+
+      return { data: readRecord<TData>(response.data) };
+    },
+
+    async custom<
+      TData extends BaseRecord = BaseRecord,
+      TQuery = unknown,
+      TPayload = unknown,
+    >({
+      url,
+      method,
+      filters = [],
+      sort = [],
+      sorters = [],
+      payload,
+      query,
+      headers,
+      meta,
+    }: CustomParams<TQuery, TPayload>) {
+      if (
+        filters.length > 0 ||
+        sort.length > 0 ||
+        sorters.length > 0
+      ) {
+        throw new Error(
+          "CUSTOM_FILTERS_AND_SORTERS_REQUIRE_FEATURE_ADAPTER",
+        );
+      }
+
+      const requestHeaders = createRequestHeaders(headers);
+      const requestData =
+        method === "get" ||
+        method === "head" ||
+        method === "options"
+          ? undefined
+          : payload;
+
+      const response = await apiClient.instance.request<unknown>({
+        url: assertRelativeApiPath(url),
+        method,
+        ...(requestData === undefined ? {} : { data: requestData }),
+        params: serializeCustomQuery(query),
+        ...(requestHeaders ? { headers: requestHeaders } : {}),
+        ...withSignal(readQuerySignal(meta)),
+      });
+
+      return { data: readCustomData<TData>(response.data) };
+    },
+
+    getApiUrl: apiClient.getApiUrl,
+  };
+
+  return provider;
 };

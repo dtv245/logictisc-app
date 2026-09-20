@@ -3,6 +3,8 @@
  */
 
 const createCrudRoutes = (resource: string) => ({
+  // Giữ cùng một convention URL cho mọi resource để router và Refine metadata
+  // không tự ghép path theo hai cách khác nhau.
   list: `/${resource}`,
   create: `/${resource}/create`,
   edit: `/${resource}/edit/:id`,
@@ -10,8 +12,9 @@ const createCrudRoutes = (resource: string) => ({
 });
 
 export const routes = {
-  callback: "/auth/lark/callback",
+  callback: "/auth/callback",
   dashboard: "/dashboard",
+  diagnostics: "/diagnostics",
   forbidden: "/403",
   login: "/login",
   selectTenant: "/select-tenant",

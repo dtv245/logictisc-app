@@ -1,7 +1,7 @@
 {
   "appName": "Logistics TMS",
   "environment": "local",
-  "apiBaseUrl": "http://localhost:8080",
+  "apiBaseUrl": "http://localhost:5173",
   "requestTimeoutMs": 15000,
   "identityBaseUrl": "https://localhost:7001",
   "oauth": {

@@ -4,23 +4,26 @@
 
 import { Button, Result } from "antd";
 import { useGo } from "@refinedev/core";
+import { useTranslation } from "react-i18next";
 
-import { routes } from "../../constants/routes";
+import { APP_I18N_NAMESPACE } from "@locales";
+import { routes } from "@constants/routes";
 
 export const ForbiddenPage = () => {
   const go = useGo();
+  const { t } = useTranslation(APP_I18N_NAMESPACE);
 
   return (
     <Result
       status="403"
       title="403"
-      subTitle="Bạn không có quyền truy cập trang này."
+      subTitle={t("errors.forbidden")}
       extra={
         <Button
           type="primary"
           onClick={() => go({ to: routes.dashboard, type: "replace" })}
         >
-          Về tổng quan
+          {t("common.goDashboard")}
         </Button>
       }
     />

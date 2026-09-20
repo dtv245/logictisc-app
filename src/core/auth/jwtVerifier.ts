@@ -11,13 +11,13 @@ import {
   type JWTPayload,
 } from "jose";
 
-import { normalizeJwtRoles } from "../permissions";
+import { normalizeJwtRoles } from "../permissions/jwtRoles";
 import {
   LOGISTICS_API_AUDIENCE,
   type AccessTokenVerifier,
   type AuthRuntimeSettings,
   type VerifiedAccessToken,
-} from "./types";
+} from "../../types/authSession.types";
 
 export type AccessTokenValidationCode =
   | "TOKEN_EXPIRED"
@@ -103,7 +103,7 @@ export const createRemoteJwkAccessTokenVerifier = (
   const remoteJwkSet = createRemoteJWKSet(new URL(settings.jwksUri));
 
   return {
-    verify: async (accessToken) => {
+    verify: async (accessToken: string) => {
       const { payload } = await jwtVerify(accessToken, remoteJwkSet, {
         issuer: settings.issuer,
         audience: LOGISTICS_API_AUDIENCE,

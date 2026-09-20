@@ -19,7 +19,7 @@ import type {
   OidcLoginResult,
   OidcProfileSnapshot,
   OidcUserSnapshot,
-} from "./types";
+} from "../../types/authSession.types";
 
 const DEFAULT_RETURN_TO = "/";
 
@@ -171,7 +171,7 @@ export const createOidcGateway = (
   );
 
   return {
-    startLogin: async (returnTo) => {
+    startLogin: async (returnTo: string) => {
       const state: LoginRequestState = {
         returnTo: normalizeLocalReturnTo(returnTo),
       };
@@ -180,7 +180,7 @@ export const createOidcGateway = (
       await userManager.signinRedirect({ state });
     },
 
-    completeLogin: async (callbackUrl) => {
+    completeLogin: async (callbackUrl?: string) => {
       // Callback này xác thực state/nonce trước khi trả User.
       const user = await userManager.signinRedirectCallback(callbackUrl);
       if (!user) {

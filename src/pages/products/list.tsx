@@ -5,9 +5,9 @@
 import { CreateButton, List, useTable } from "@refinedev/antd";
 import { Button, Form, Input, Table } from "antd";
 
-import type { ApiError } from "../../types/api";
-import { productColumns } from "./columns";
-import type { Product, ProductSearchValues } from "./types";
+import type { ApiError } from "@/types/api.types";
+import { productColumns } from "@features/products/components/columns";
+import type { Product, ProductSearchValues } from "@/types/product.types";
 
 export const ProductList = () => {
   // useTable đồng bộ search, pagination và sorting với URL/DataProvider.

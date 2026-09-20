@@ -4,7 +4,7 @@
 
 import { useMemo } from "react";
 
-import type { Tenant } from "../types/tenant";
+import type { Tenant } from "../types/tenant.types";
 import { useCurrentUser } from "./useCurrentUser";
 
 export const useCurrentTenant = () => {

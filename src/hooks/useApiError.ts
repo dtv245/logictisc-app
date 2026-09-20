@@ -5,7 +5,7 @@
 import { useCallback } from "react";
 import { App } from "antd";
 
-import { normalizeApiError } from "../services/http/errors";
+import { normalizeHttpError } from "../core/api/httpError";
 
 export const useApiError = () => {
   const { notification } = App.useApp();
@@ -13,7 +13,7 @@ export const useApiError = () => {
   // Callback ổn định để có thể truyền thẳng vào Promise.catch ở UI actions.
   const showApiError = useCallback(
     (error: unknown) => {
-      const apiError = normalizeApiError(error);
+      const apiError = normalizeHttpError(error);
       notification.error({
         message: `Lỗi ${apiError.statusCode}`,
         description: apiError.message,

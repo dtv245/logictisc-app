@@ -1,3 +1,3 @@
 /** Hiển thị edit page của Payment resource. */
-import { ResourceEditPage } from "../../components";
-export const PaymentEdit = ResourceEditPage;
+import { ResourceEditPage } from "@components";
+export const PaymentEdit = () => <ResourceEditPage resource="payments" />;

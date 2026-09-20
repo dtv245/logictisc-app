@@ -6,8 +6,8 @@ import { Show, TextField } from "@refinedev/antd";
 import { useShow } from "@refinedev/core";
 import { Descriptions, Tag } from "antd";
 
-import type { ApiError } from "../../types/api";
-import type { Product } from "./types";
+import type { ApiError } from "@/types/api.types";
+import type { Product } from "@/types/product.types";
 
 export const ProductShow = () => {
   // useShow quản lý query lifecycle và record ID lấy từ route hiện tại.
