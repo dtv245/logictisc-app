@@ -8,7 +8,7 @@
 import type { AccessControlProvider } from "@refinedev/core";
 
 import type { JwtRole } from "../types/roles.types";
-import { canJwtRolesAccess } from "../core/permissions/roleMatrix";
+import { canJwtRolesAccess } from "../providers/permissions/roleMatrix";
 
 export interface JwtRoleSource {
   getJwtRoles: () => Promise<readonly JwtRole[]>;

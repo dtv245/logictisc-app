@@ -1,18 +1,19 @@
+import { toDate, toDateOrNull } from "@formatters/dateTime";
 import type { InvoiceResponse, InvoiceLineItemResponse } from "@/types/invoice.dto";
 import type { Invoice, InvoiceLineItem } from "@/types/invoice.types";
 
 export function mapInvoiceResponse(response: InvoiceResponse): Invoice {
   return {
     ...response,
-    dueDate: response.dueDate ? new Date(response.dueDate) : null,
-    sentAt: response.sentAt ? new Date(response.sentAt) : null,
-    periodStart: response.periodStart ? new Date(response.periodStart) : null,
-    periodEnd: response.periodEnd ? new Date(response.periodEnd) : null,
-    approvedAt: response.approvedAt ? new Date(response.approvedAt) : null,
-    billingPeriodStart: response.billingPeriodStart ? new Date(response.billingPeriodStart) : null,
-    billingPeriodEnd: response.billingPeriodEnd ? new Date(response.billingPeriodEnd) : null,
-    createdAt: new Date(response.createdAt),
-    lastModifiedAt: response.lastModifiedAt ? new Date(response.lastModifiedAt) : null,
+    dueDate: toDateOrNull(response.dueDate),
+    sentAt: toDateOrNull(response.sentAt),
+    periodStart: toDateOrNull(response.periodStart),
+    periodEnd: toDateOrNull(response.periodEnd),
+    approvedAt: toDateOrNull(response.approvedAt),
+    billingPeriodStart: toDateOrNull(response.billingPeriodStart),
+    billingPeriodEnd: toDateOrNull(response.billingPeriodEnd),
+    createdAt: toDate(response.createdAt),
+    lastModifiedAt: toDateOrNull(response.lastModifiedAt),
   };
 }
 

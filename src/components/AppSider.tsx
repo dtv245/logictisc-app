@@ -41,7 +41,6 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import { useLogoutUser } from "../hooks/useLogoutUser";
 import { AppTitle } from "./AppTitle";
 
@@ -67,7 +66,7 @@ export const AppSider = ({
   meta,
 }: RefineThemedLayoutV2SiderProps) => {
   const { token } = theme.useToken();
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   const direction = useContext(ConfigProvider.ConfigContext).direction;
   const breakpoint = Grid.useBreakpoint();
   const Link = useLink();

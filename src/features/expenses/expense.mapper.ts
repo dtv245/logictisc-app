@@ -1,14 +1,15 @@
+import { toDate, toDateOrNull } from "@formatters/dateTime";
 import type { ExpenseResponse } from "@/types/expense.dto";
 import type { Expense } from "@/types/expense.types";
 
 export function mapExpenseResponse(response: ExpenseResponse): Expense {
   return {
     ...response,
-    expenseDate: new Date(response.expenseDate),
-    approvedAt: response.approvedAt ? new Date(response.approvedAt) : null,
-    estimatedCompletionDate: response.estimatedCompletionDate ? new Date(response.estimatedCompletionDate) : null,
-    actualCompletionDate: response.actualCompletionDate ? new Date(response.actualCompletionDate) : null,
-    createdAt: new Date(response.createdAt),
-    lastModifiedAt: response.lastModifiedAt ? new Date(response.lastModifiedAt) : null,
+    expenseDate: toDate(response.expenseDate),
+    approvedAt: toDateOrNull(response.approvedAt),
+    estimatedCompletionDate: toDateOrNull(response.estimatedCompletionDate),
+    actualCompletionDate: toDateOrNull(response.actualCompletionDate),
+    createdAt: toDate(response.createdAt),
+    lastModifiedAt: toDateOrNull(response.lastModifiedAt),
   };
 }

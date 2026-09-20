@@ -9,7 +9,7 @@ import type {
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { createApplicationI18n } from "@locales";
+import { initializeAppI18n } from "@locales";
 import { App } from "@/App";
 
 const config: RuntimeConfig = {
@@ -45,7 +45,7 @@ const readyHealth: HealthProbeResult = {
 
 describe("App", () => {
   it("switches from the fallback locale and renders ready diagnostics", async () => {
-    const i18n = await createApplicationI18n({ locale: "vi" });
+    const i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });
 
     render(
       <App

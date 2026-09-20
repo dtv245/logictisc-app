@@ -12,7 +12,7 @@ import {
 } from "axios";
 import { describe, expect, it } from "vitest";
 
-import { createApiClient } from "@core/api/apiClient";
+import { createApiClient } from "@providers/api/apiClient";
 import { createLogisticsDataProvider } from "@providers/dataProvider";
 
 const runtimeConfig = {

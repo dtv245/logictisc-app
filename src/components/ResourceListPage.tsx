@@ -1,15 +1,20 @@
-/**
- * Cung cấp list page chuẩn dùng Refine useTable cho resource chưa có UI riêng.
- */
-
-import { CreateButton, List, useTable } from "@refinedev/antd";
+import { CreateButton, List, useTable, useModalForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
-import { Alert, Table } from "antd";
+import { useShow } from "@refinedev/core";
+import { Alert, Table, Modal, Form } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 import type { ApiError } from "@/types/api.types";
 import { crudScaffoldText } from "@constants/ui";
 import { getResourceCapabilities } from "./resources/resourceCapabilities";
+import { ResourceCreateModal } from "./ResourceCreateModal";
+import { ResourceActionContext } from "./ResourceActionContext";
+import { ResourceFormFields } from "./resources/ResourceFormFields";
+import {
+  isEditableResourceName,
+  resourceFormDefinitions,
+  type EditableResourceName,
+} from "./resources/resourceForms";
 
 interface ResourceListPageProps<TData extends BaseRecord> {
   columns: ColumnsType<TData>;
@@ -21,29 +26,84 @@ export const ResourceListPage = <TData extends BaseRecord>({
   resource,
 }: ResourceListPageProps<TData>) => {
   const capabilities = getResourceCapabilities(resource);
-  // Refine useTable sở hữu pagination/filter/sort state và gọi dataProvider,
-  // tránh lặp lại useState + useList trong từng resource.
+  
   const { tableProps, tableQueryResult } = useTable<TData, ApiError>({
     pagination: { mode: "server" },
     resource,
     syncWithLocation: true,
   });
 
+  const editModal = useModalForm<BaseRecord, ApiError, Record<string, unknown>>({
+    action: "edit",
+    resource,
+  });
+
+  const { queryResult: showQueryResult, showId, setShowId } = useShow<BaseRecord, ApiError>({
+    resource,
+  });
+
+  const isEditable = isEditableResourceName(resource);
+  const definition = isEditable ? resourceFormDefinitions[resource as EditableResourceName] : null;
+
   return (
-    <List
-      headerButtons={
-        capabilities.create ? <CreateButton resource={resource} /> : null
-      }
+    <ResourceActionContext.Provider
+      value={{
+        showEdit: (id) => editModal.show(id),
+        showView: (id) => setShowId(id),
+      }}
     >
-      {tableQueryResult.error ? (
-        <Alert
-          description={tableQueryResult.error.message}
-          message={crudScaffoldText.loadError}
-          showIcon
-          type="error"
-        />
-      ) : null}
-      <Table<TData> {...tableProps} columns={columns} rowKey="id" />
-    </List>
+      <List
+        headerButtons={
+          capabilities.create ? (
+            <ResourceCreateModal
+              resource={resource}
+              trigger={(show) => (
+                <CreateButton onClick={(e) => { e.preventDefault(); show(); }} />
+              )}
+            />
+          ) : null
+        }
+      >
+        {tableQueryResult.error ? (
+          <Alert
+            description={tableQueryResult.error.message}
+            message={crudScaffoldText.loadError}
+            showIcon
+            type="error"
+          />
+        ) : null}
+        <Table<TData> {...tableProps} columns={columns} rowKey="id" />
+      </List>
+
+      {isEditable && definition && (
+        <Modal
+          {...editModal.modalProps}
+          title={`Edit ${resource}`}
+          okText="Save"
+          confirmLoading={editModal.formLoading}
+        >
+          <Form {...editModal.formProps} layout="vertical">
+            <ResourceFormFields definition={definition} />
+          </Form>
+        </Modal>
+      )}
+
+      {isEditable && definition && (
+        <Modal
+          open={!!showId}
+          onCancel={() => setShowId(undefined)}
+          title={`View ${resource}`}
+          footer={null}
+        >
+          {showQueryResult?.isFetching ? (
+            <p>Loading...</p>
+          ) : (
+            <Form initialValues={showQueryResult?.data?.data} layout="vertical" disabled>
+               <ResourceFormFields definition={definition} />
+            </Form>
+          )}
+        </Modal>
+      )}
+    </ResourceActionContext.Provider>
   );
 };

@@ -5,7 +5,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { createAuthProvider } from "@providers/authProvider";
-import { AuthSessionManager } from "@core/auth/sessionManager";
+import { AuthSessionManager } from "@providers/auth/sessionManager";
 import type {
   AccessTokenVerifier,
   OidcGateway,

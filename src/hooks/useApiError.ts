@@ -5,7 +5,7 @@
 import { useCallback } from "react";
 import { App } from "antd";
 
-import { normalizeHttpError } from "../core/api/httpError";
+import { normalizeHttpError } from "../providers/api/httpError";
 
 export const useApiError = () => {
   const { notification } = App.useApp();

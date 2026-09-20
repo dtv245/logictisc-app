@@ -6,11 +6,10 @@ import { useEffect, useRef } from "react";
 import { Card, Result, Spin } from "antd";
 import { useTranslation } from "react-i18next";
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import { useLarkLogin } from "@hooks/useLarkLogin";
 
 export const LarkCallbackPage = () => {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   // Ref ngăn callback chạy trùng khi React StrictMode mount effect lại.
   const callbackStarted = useRef(false);
   const { completeLogin, data, error, isError } = useLarkLogin();

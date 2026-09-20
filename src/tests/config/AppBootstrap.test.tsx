@@ -2,7 +2,7 @@
  * Verifies that the provider/router tree is mounted only after bootstrap.
  */
 
-import { createApplicationI18n } from "@locales";
+import { initializeAppI18n } from "@locales";
 import { DiagnosticsPage } from "@pages/diagnostics";
 import {
   RuntimeConfigError,
@@ -69,7 +69,7 @@ async function renderBootstrap(
     "renderReady"
   >,
 ) {
-  const i18n = await createApplicationI18n({ locale: "vi" });
+  const i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });
   return render(
     <I18nextProvider i18n={i18n}>
       <ConfigProvider>

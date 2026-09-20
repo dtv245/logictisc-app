@@ -8,9 +8,8 @@ import { Empty, Flex, Space, Spin, Typography } from "antd";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { SHARED_I18N_NAMESPACE } from "@locales";
 import { AccessibleAnnouncement } from "./AccessibleAnnouncement";
-import type { AsyncState } from "./asyncStateModel";
+import type { AsyncState } from "@utils/asyncStateModel";
 import { QueryErrorState } from "./ErrorStates";
 
 export interface AsyncStateViewProps<T> {
@@ -32,7 +31,7 @@ export function AsyncStateView<T>({
   emptyTitle,
   emptyDescription,
 }: AsyncStateViewProps<T>) {
-  const { t } = useTranslation(SHARED_I18N_NAMESPACE);
+  const { t } = useTranslation();
 
   switch (state.status) {
     case "loading":

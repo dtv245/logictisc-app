@@ -6,12 +6,11 @@ import { Button, Result } from "antd";
 import { useGo } from "@refinedev/core";
 import { useTranslation } from "react-i18next";
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import { routes } from "@constants/routes";
 
 export const ForbiddenPage = () => {
   const go = useGo();
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
 
   return (
     <Result

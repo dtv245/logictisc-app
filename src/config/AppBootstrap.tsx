@@ -1,3 +1,4 @@
+import type { SupportedLocale } from "@config/types";
 /**
  * Owns the application gate and mounts runtime providers/router only when the
  * validated API and database are ready.
@@ -36,7 +37,7 @@ export function AppBootstrap({
 }: AppBootstrapProps) {
   const { i18n } = useTranslation();
   const applyLocale = useCallback(
-    async (locale: "en" | "vi") => {
+    async (locale: SupportedLocale) => {
       await i18n.changeLanguage(locale);
       document.documentElement.lang = locale;
     },

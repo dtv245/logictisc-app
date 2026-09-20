@@ -6,7 +6,6 @@ import { DownOutlined } from "@ant-design/icons";
 import { Avatar, Dropdown, Flex, Layout, Select, Space, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useLogoutUser } from "../hooks/useLogoutUser";
 import { useApiError } from "../hooks/useApiError";
@@ -15,7 +14,7 @@ import { useSwitchTenant } from "../hooks/useSwitchTenant";
 import { useTenantList } from "../hooks/useTenantList";
 
 export const AppHeader = () => {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   // Các hook Refine dùng chung một identity query; tách tenant derivation thành
   // custom hooks giúp header không tự gọi API hoặc giữ state tenant cục bộ.
   const currentUser = useCurrentUser();

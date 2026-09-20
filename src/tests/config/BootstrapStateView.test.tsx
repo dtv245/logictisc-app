@@ -3,9 +3,7 @@
  */
 
 import {
-  APP_I18N_NAMESPACE,
-  createApplicationI18n,
-  SHARED_I18N_NAMESPACE,
+  initializeAppI18n,
 } from "@locales";
 import {
   RuntimeConfigError,
@@ -54,7 +52,7 @@ const health = {
 async function renderState(
   ui: ReactElement,
 ): Promise<ReturnType<typeof render>> {
-  const i18n = await createApplicationI18n({ locale: "en" });
+  const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
 
   return render(
     <I18nextProvider i18n={i18n}>
@@ -74,9 +72,9 @@ describe("BootstrapStateView", () => {
       kind === "loading-config"
         ? { kind }
         : { config, kind };
-    const i18n = await createApplicationI18n({ locale: "en" });
+    const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
     const message = i18n.t(translationKey, {
-      ns: APP_I18N_NAMESPACE,
+      
     });
 
     await renderState(<BootstrapStateView state={state} />);
@@ -121,7 +119,7 @@ describe("BootstrapStateView", () => {
   ] as const)(
     "renders %s with retry and request ID",
     async (kind, titleKey) => {
-      const i18n = await createApplicationI18n({ locale: "en" });
+      const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
       const onRetry = vi.fn();
       const requestId = `request-${kind}`;
       const state: AppBootstrapState =
@@ -150,14 +148,14 @@ describe("BootstrapStateView", () => {
 
       expect(
         screen.getByText(
-          i18n.t(titleKey, { ns: APP_I18N_NAMESPACE }),
+          i18n.t(titleKey, {  }),
         ),
       ).toBeInTheDocument();
       expect(screen.getByText(requestId)).toBeInTheDocument();
       expect(
         screen.getByRole("button", {
           name: i18n.t("bootstrap.requestId.copy", {
-            ns: APP_I18N_NAMESPACE,
+            
           }),
         }),
       ).toBeInTheDocument();
@@ -165,7 +163,7 @@ describe("BootstrapStateView", () => {
       fireEvent.click(
         screen.getByRole("button", {
           name: i18n.t("actions.retry", {
-            ns: SHARED_I18N_NAMESPACE,
+            
           }),
         }),
       );
@@ -174,7 +172,7 @@ describe("BootstrapStateView", () => {
   );
 
   it("shows HTTP status and disables retry while pending", async () => {
-    const i18n = await createApplicationI18n({ locale: "en" });
+    const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
 
     await renderState(
       <BootstrapStateView
@@ -196,7 +194,7 @@ describe("BootstrapStateView", () => {
     expect(
       screen.getByText(
         i18n.t("bootstrap.httpStatus", {
-          ns: APP_I18N_NAMESPACE,
+          
           status: 503,
         }),
       ),

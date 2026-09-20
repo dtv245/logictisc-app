@@ -7,7 +7,6 @@ import type { NotificationProvider, OpenNotificationParams } from "@refinedev/co
 import { App, Button } from "antd";
 import { useTranslation } from "react-i18next";
 
-import { APP_I18N_NAMESPACE } from "../locales";
 
 const getNotificationKey = (params: OpenNotificationParams): string =>
   // Key ổn định giúp notification progress/success của cùng mutation cập nhật
@@ -16,7 +15,7 @@ const getNotificationKey = (params: OpenNotificationParams): string =>
 
 export const useAntdNotificationProvider = (): NotificationProvider => {
   const { notification } = App.useApp();
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
 
   // Memo hóa provider để Refine không nhận object mới và đăng ký lại callbacks
   // sau mỗi lần component cha render.

@@ -2,7 +2,6 @@
  * Displays the approved public diagnostics whitelist from a ready bootstrap.
  */
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import type { AppBootstrapState } from "@config/bootstrapState";
 import { StatusIndicator } from "@components/StatusIndicator";
 import {
@@ -27,7 +26,7 @@ export function DiagnosticsPage({
   state,
 }: DiagnosticsPageProps) {
   const titleId = useId();
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
 
   return (
     <main aria-labelledby={titleId}>

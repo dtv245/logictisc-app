@@ -18,10 +18,10 @@ import type {
   BrowserLocationAdapter,
 } from "../types/authSession.types";
 import type { LogisticsApiClient } from "../types/apiClient.types";
-import { normalizeHttpError } from "../core/api/httpError";
-import { normalizeLocalReturnTo } from "../core/auth/oidcGateway";
-import { AuthSessionManager } from "../core/auth/sessionManager";
-import { DemoAuthSession } from "../core/auth/demoAuthSession";
+import { normalizeHttpError } from "../providers/api/httpError";
+import { normalizeLocalReturnTo } from "../providers/auth/oidcGateway";
+import { AuthSessionManager } from "../providers/auth/sessionManager";
+import { DemoAuthSession } from "../providers/auth/demoAuthSession";
 
 const DEFAULT_LOGIN_PATH = "/login";
 

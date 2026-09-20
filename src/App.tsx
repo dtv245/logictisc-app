@@ -22,7 +22,6 @@ import {
   type AppBootstrapProps,
 } from "./config";
 import { env } from "./config/env";
-import { APP_I18N_NAMESPACE } from "./locales";
 import {
   createFoundationResources,
   foundationApiResources,
@@ -30,7 +29,7 @@ import {
 } from "./pages/resourceRegistry";
 import type { ReadyBootstrapState } from "./pages/diagnostics";
 import { AppRouter } from "./router/AppRouter";
-import { createApiClient } from "./core/api/apiClient";
+import { createApiClient } from "./providers/api/apiClient";
 import { createAccessControlProvider } from "./providers/accessControlProvider";
 import { createLogisticsDataProvider } from "./providers/dataProvider";
 import {
@@ -38,14 +37,14 @@ import {
   createAuthProvider,
   createDevelopmentAuthProvider,
 } from "./providers/authProvider";
-import { createCurrentUserLoader } from "./core/auth/currentUser";
-import { DemoAuthSession } from "./core/auth/demoAuthSession";
+import { createCurrentUserLoader } from "./providers/auth/currentUser";
+import { DemoAuthSession } from "./providers/auth/demoAuthSession";
 import { createRefineI18nProvider } from "./providers/i18nProvider";
-import { createRemoteJwkAccessTokenVerifier } from "./core/auth/jwtVerifier";
+import { createRemoteJwkAccessTokenVerifier } from "./providers/auth/jwtVerifier";
 import { useAntdNotificationProvider } from "./providers/notificationProvider";
-import { createBrowserOidcGateway } from "./core/auth/oidcGateway";
-import { shouldRetryQuery } from "./core/api/retryPolicy";
-import { AuthSessionManager } from "./core/auth/sessionManager";
+import { createBrowserOidcGateway } from "./providers/auth/oidcGateway";
+import { shouldRetryQuery } from "./providers/api/retryPolicy";
+import { AuthSessionManager } from "./providers/auth/sessionManager";
 
 export interface AppProps
   extends Omit<AppBootstrapProps, "renderReady"> {
@@ -82,7 +81,7 @@ export function RuntimeApplication({
   state,
 }: RuntimeApplicationProps) {
   const notificationProvider = useAntdNotificationProvider();
-  const { i18n, t } = useTranslation(APP_I18N_NAMESPACE);
+  const { i18n, t } = useTranslation();
 
   // Provider objects own session/refresh state, so they must be recreated only
   // when deployment runtime configuration changes.

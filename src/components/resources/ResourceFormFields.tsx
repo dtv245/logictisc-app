@@ -10,7 +10,6 @@ import { Button, Checkbox, Form, Input, InputNumber, Select, Space } from "antd"
 import type { Rule } from "antd/es/form";
 import { useTranslation } from "react-i18next";
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import type {
   RelationRecord,
   ResourceFormDefinition,
@@ -66,7 +65,7 @@ const RelationSelect = ({
 };
 
 const TripStopsField = () => {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   const stopFields: readonly ResourceFormField[] = [
     { control: "text", name: "type", required: true },
     { control: "number", min: 1, name: "order", required: true },
@@ -126,7 +125,7 @@ const TripStopsField = () => {
 };
 
 const FieldRenderer = ({ field, listNamePrefix }: FieldRendererProps) => {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   if (field.control === "tripStops") {
     return <TripStopsField />;
   }

@@ -6,6 +6,7 @@ import { Show, TextField } from "@refinedev/antd";
 import { useShow } from "@refinedev/core";
 import { Descriptions, Tag } from "antd";
 
+import { formatMoney } from "@formatters/money";
 import type { ApiError } from "@/types/api.types";
 import type { Product } from "@/types/product.types";
 
@@ -32,10 +33,9 @@ export const ProductShow = () => {
           <TextField value={record?.description ?? "—"} />
         </Descriptions.Item>
         <Descriptions.Item label="Giá">
-          {record?.price.toLocaleString("vi-VN", {
-            currency: "VND",
-            style: "currency",
-          })}
+          {record?.price === undefined || record?.price === null
+            ? "—"
+            : formatMoney(record.price, { locale: "vi-VN", currency: "VND" })}
         </Descriptions.Item>
         <Descriptions.Item label="Tồn kho">
           <TextField value={record?.stockQuantity} />

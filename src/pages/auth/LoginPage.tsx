@@ -19,7 +19,6 @@ import {
 } from "antd";
 import { useSearchParams } from "react-router-dom";
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import { env } from "../../config/env";
 import { useLarkLogin } from "@hooks/useLarkLogin";
 import type { PasswordLoginParams } from "@/types/auth.types";
@@ -64,7 +63,7 @@ const readLoginError = (
 };
 
 const CredentialsForm = ({ returnTo }: { returnTo?: string }) => {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   const passwordLogin = useLogin<PasswordLoginParams>();
   const loginError = readLoginError(passwordLogin);
 
@@ -131,7 +130,7 @@ const CredentialsForm = ({ returnTo }: { returnTo?: string }) => {
 };
 
 const OidcLogin = ({ returnTo }: { returnTo?: string }) => {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   const larkLogin = useLarkLogin();
 
   return (
@@ -153,7 +152,7 @@ const OidcLogin = ({ returnTo }: { returnTo?: string }) => {
 };
 
 export const LoginPage = () => {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   // `createAuthProvider.check()` dựng link `/login?returnTo=<path>` khi chặn
   // deep-link hoặc phiên hết hạn; đọc lại để trả người dùng đúng trang ban đầu.
   const [searchParams] = useSearchParams();

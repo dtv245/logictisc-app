@@ -6,7 +6,6 @@ import {
   AccessibleAnnouncement,
   ConfigErrorState,
 } from "@components";
-import { SHARED_I18N_NAMESPACE } from "@locales";
 import {
   Button,
   Flex,
@@ -18,7 +17,6 @@ import {
 import { useId, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import type { AppBootstrapState } from "./bootstrapState";
 
 export interface BootstrapStateViewProps {
@@ -47,8 +45,8 @@ function BootstrapFailure({
   title,
 }: BootstrapFailureProps) {
   const titleId = useId();
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
-  const { t: tShared } = useTranslation(SHARED_I18N_NAMESPACE);
+  const { t } = useTranslation();
+  const { t: tShared } = useTranslation();
 
   return (
     <section aria-labelledby={titleId} role="alert">
@@ -121,7 +119,7 @@ export function BootstrapStateView({
   onRetry,
   state,
 }: BootstrapStateViewProps) {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
 
   switch (state.kind) {
     case "loading-config": {

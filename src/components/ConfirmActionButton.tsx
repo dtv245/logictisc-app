@@ -13,9 +13,8 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 
-import { SHARED_I18N_NAMESPACE } from "@locales";
 import { AccessibleAnnouncement } from "./AccessibleAnnouncement";
-import { runSingleFlight } from "./singleFlight";
+import { runSingleFlight } from "@utils/singleFlight";
 
 export interface ConfirmActionButtonProps {
   triggerLabel: ReactNode;
@@ -44,7 +43,7 @@ export function ConfirmActionButton({
   disabled = false,
   buttonType,
 }: ConfirmActionButtonProps) {
-  const { t } = useTranslation(SHARED_I18N_NAMESPACE);
+  const { t } = useTranslation();
   // App.useApp keeps modal theme, locale and context aligned with the root
   // Ant Design App provider.
   const { modal } = AntdApp.useApp();

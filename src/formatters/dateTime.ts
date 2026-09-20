@@ -1,9 +1,12 @@
 /**
- * Parses, serializes and formats absolute instants.
+ * Parses, serializes and maps date/instant values.
  *
- * Strings without an offset are rejected because interpreting them in the
- * browser timezone would silently change the instant sent back to the API.
+ * Strings without an offset are rejected by `parseInstant` because
+ * interpreting them in the browser timezone would silently change the instant
+ * sent back to the API. `toDate`/`toDateOrNull` are thin mappers kept
+ * behavior-compatible with direct `new Date(...)` usage in feature mappers.
  */
+
 export type InstantInput = string | Date;
 
 const isoOffsetSuffixPattern = /(Z|[+-]\d{2}:\d{2})$/i;
@@ -43,4 +46,22 @@ export function formatInstant(
     ...format,
     ...(timeZone ? { timeZone } : {}),
   }).format(parseInstant(value));
+}
+
+/**
+ * Chuyển ISO date string bắt buộc (createdAt, …) thành `Date`.
+ * Dùng cho các mapper DTO → domain khi API luôn gửi giá trị.
+ */
+export function toDate(value: string): Date {
+  return new Date(value);
+}
+
+/**
+ * Chuyển ISO date string có thể thiếu thành `Date | null`.
+ * Dùng cho các mapper DTO → domain với field ngày tùy chọn.
+ */
+export function toDateOrNull(
+  value: string | null | undefined,
+): Date | null {
+  return value ? new Date(value) : null;
 }

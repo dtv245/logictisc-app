@@ -11,7 +11,6 @@ import { Card, Col, Row, Space, Statistic, Tag, Typography } from "antd";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import { useCurrentUser } from "@hooks/useCurrentUser";
 import { useCurrentTenant } from "@hooks/useCurrentTenant";
 import { useTenantList } from "@hooks/useTenantList";
@@ -25,7 +24,7 @@ import { VehicleTrackingMap } from "./VehicleTrackingMap";
 import "./DashboardPage.scss";
 
 export const DashboardPage = () => {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   const currentUser = useCurrentUser();
   const { tenant } = useCurrentTenant();
   const { tenants } = useTenantList();

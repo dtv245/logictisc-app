@@ -3,8 +3,7 @@
  */
 
 import {
-  APP_I18N_NAMESPACE,
-  createApplicationI18n,
+  initializeAppI18n,
 } from "@locales";
 import type { RuntimeConfig } from "@config";
 import { App as AntdApp, ConfigProvider } from "antd";
@@ -55,7 +54,7 @@ const state: ReadyBootstrapState = {
 };
 
 async function renderPage(locale: "en" | "vi") {
-  const i18n = await createApplicationI18n({ locale });
+  const i18n = await initializeAppI18n({ locale, fallbackLocale: "en" });
   const result = render(
     <I18nextProvider i18n={i18n}>
       <ConfigProvider>
@@ -81,7 +80,7 @@ describe("DiagnosticsPage", () => {
       expect(
         screen.getByRole("heading", {
           name: i18n.t("diagnostics.title", {
-            ns: APP_I18N_NAMESPACE,
+            
           }),
         }),
       ).toBeInTheDocument();
@@ -97,7 +96,7 @@ describe("DiagnosticsPage", () => {
         expect(
           screen.getByText(
             i18n.t(`diagnostics.fields.${field}`, {
-              ns: APP_I18N_NAMESPACE,
+              
             }),
           ),
         ).toBeInTheDocument();
@@ -118,7 +117,7 @@ describe("DiagnosticsPage", () => {
     expect(
       screen.getByRole("button", {
         name: i18n.t("bootstrap.requestId.copy", {
-          ns: APP_I18N_NAMESPACE,
+          
         }),
       }),
     ).toBeInTheDocument();

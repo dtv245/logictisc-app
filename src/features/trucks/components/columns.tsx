@@ -1,5 +1,6 @@
 /** Định nghĩa columns cho Truck resource. */
 import { createCrudColumns } from "@components";
+import { displayValue } from "@formatters/display";
 import type { Truck } from "@/types/truck.types";
 
 export const truckColumns = createCrudColumns<Truck>("trucks", [
@@ -10,6 +11,7 @@ export const truckColumns = createCrudColumns<Truck>("trucks", [
   {
     dataIndex: "mainDriverName",
     title: "Tài xế chính",
-    render: (value: unknown) => (value ? String(value) : "—"),
+    render: (value: unknown) => displayValue(value),
   },
 ]);
+

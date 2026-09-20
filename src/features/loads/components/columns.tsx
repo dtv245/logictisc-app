@@ -1,5 +1,6 @@
 /** Định nghĩa columns cho Load resource. */
 import { createCrudColumns } from "@components";
+import { displayValue } from "@formatters/display";
 import type { Load } from "@/types/load.types";
 
 export const loadColumns = createCrudColumns<Load>("loads", [
@@ -9,11 +10,12 @@ export const loadColumns = createCrudColumns<Load>("loads", [
   {
     dataIndex: "customerName",
     title: "Khách hàng",
-    render: (value: unknown, record: Load) => (value ? String(value) : record.customerId),
+    render: (value: unknown, record: Load) => displayValue(value, record.customerId),
   },
   {
     dataIndex: "assignedTruckNumber",
     title: "Xe phụ trách",
-    render: (value: unknown) => (value ? String(value) : "—"),
+    render: (value: unknown) => displayValue(value),
   },
 ]);
+

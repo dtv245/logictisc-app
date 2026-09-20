@@ -6,13 +6,12 @@ import { BankOutlined } from "@ant-design/icons";
 import { Alert, Button, Card, Space, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
-import { APP_I18N_NAMESPACE } from "@locales";
 import { useApiError } from "@hooks/useApiError";
 import { useSwitchTenant } from "@hooks/useSwitchTenant";
 import { useTenantList } from "@hooks/useTenantList";
 
 export const SelectTenantPage = () => {
-  const { t } = useTranslation(APP_I18N_NAMESPACE);
+  const { t } = useTranslation();
   const { tenants, isLoading } = useTenantList();
   const tenantSwitch = useSwitchTenant();
   const { showApiError } = useApiError();

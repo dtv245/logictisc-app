@@ -9,7 +9,6 @@ import { Button, Result, Space, Typography } from "antd";
 import { useId, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { SHARED_I18N_NAMESPACE } from "@locales";
 
 interface StateShellProps {
   status: "error" | "warning" | "403" | "404";
@@ -71,7 +70,7 @@ export function QueryErrorState({
   onRetry,
   retrying = false,
 }: QueryErrorStateProps) {
-  const { t } = useTranslation(SHARED_I18N_NAMESPACE);
+  const { t } = useTranslation();
 
   return (
     <StateShell
@@ -105,7 +104,7 @@ export function ConfigErrorState({
   onRetry,
   retrying = false,
 }: ConfigErrorStateProps) {
-  const { t } = useTranslation(SHARED_I18N_NAMESPACE);
+  const { t } = useTranslation();
 
   return (
     <StateShell
@@ -134,7 +133,7 @@ export interface RecoveryNavigationProps {
 }
 
 export function ForbiddenState({ onGoHome }: RecoveryNavigationProps) {
-  const { t } = useTranslation(SHARED_I18N_NAMESPACE);
+  const { t } = useTranslation();
 
   return (
     <StateShell
@@ -153,7 +152,7 @@ export function ForbiddenState({ onGoHome }: RecoveryNavigationProps) {
 }
 
 export function NotFoundState({ onGoHome }: RecoveryNavigationProps) {
-  const { t } = useTranslation(SHARED_I18N_NAMESPACE);
+  const { t } = useTranslation();
 
   return (
     <StateShell

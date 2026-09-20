@@ -1,5 +1,6 @@
 /** Định nghĩa columns cho Trip resource. */
 import { createCrudColumns } from "@components";
+import { displayValue } from "@formatters/display";
 import type { Trip } from "@/types/trip.types";
 export const tripColumns = createCrudColumns<Trip>("trips", [
   { dataIndex: "number", title: "Số trip", sorter: true },
@@ -8,7 +9,8 @@ export const tripColumns = createCrudColumns<Trip>("trips", [
   {
     dataIndex: "truckNumber",
     title: "Xe phụ trách",
-    render: (value: unknown) => (value ? String(value) : "—"),
+    render: (value: unknown) => displayValue(value),
   },
   { dataIndex: "totalDistance", title: "Tổng quãng đường", sorter: true },
 ]);
+

@@ -24,17 +24,17 @@ import {
   type AxiosRequestConfig,
 } from "axios";
 
-import { ApiHttpError } from "../core/api/httpError";
-import { isRecord, readPagedResponse } from "../core/api/envelope";
-import { createLatestRequestCoordinator } from "../core/api/latestRequest";
+import { ApiHttpError } from "../providers/api/httpError";
+import { isRecord, readPagedResponse } from "../providers/api/envelope";
+import { createLatestRequestCoordinator } from "../providers/api/latestRequest";
 import {
   assertRelativeApiPath,
   joinApiItemPath,
-} from "../core/api/path";
+} from "../providers/api/path";
 import {
   serializeCustomQuery,
   serializeListQuery,
-} from "../core/api/querySerializer";
+} from "../providers/api/querySerializer";
 import type { LogisticsApiClient } from "../types/apiClient.types";
 
 export type ResourceUpdateMethod = "put" | "patch";

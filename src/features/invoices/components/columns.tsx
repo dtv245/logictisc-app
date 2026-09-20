@@ -1,5 +1,6 @@
 /** Định nghĩa columns cho Invoice resource. */
 import { createCrudColumns } from "@components";
+import { displayValue } from "@formatters/display";
 import type { Invoice } from "@/types/invoice.types";
 export const invoiceColumns = createCrudColumns<Invoice>("invoices", [
   { dataIndex: "number", title: "Số hóa đơn", sorter: true },
@@ -8,12 +9,13 @@ export const invoiceColumns = createCrudColumns<Invoice>("invoices", [
   {
     dataIndex: "customerName",
     title: "Khách hàng",
-    render: (value: unknown) => (value ? String(value) : "—"),
+    render: (value: unknown) => displayValue(value),
   },
   {
     dataIndex: "employeeName",
     title: "Nhân viên",
-    render: (value: unknown) => (value ? String(value) : "—"),
+    render: (value: unknown) => displayValue(value),
   },
   { dataIndex: "dueDate", title: "Hạn thanh toán", sorter: true },
 ]);
+

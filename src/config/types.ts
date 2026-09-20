@@ -4,7 +4,9 @@
  * Cấu hình chỉ chứa endpoint và feature flag, tuyệt đối không chứa secret.
  */
 
-export type SupportedLocale = "en" | "vi";
+import type { SupportedLocale } from "../locales";
+
+export type { SupportedLocale };
 
 export interface OAuthRuntimeConfig {
   audience: "logisticsx.api";

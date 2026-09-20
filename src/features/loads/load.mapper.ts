@@ -1,3 +1,4 @@
+import { toDate, toDateOrNull } from "@formatters/dateTime";
 import type {
   LoadResponse,
   LoadExceptionResponse,
@@ -12,32 +13,32 @@ import type {
 export function mapLoadResponse(response: LoadResponse): Load {
   return {
     ...response,
-    dispatchedAt: response.dispatchedAt ? new Date(response.dispatchedAt) : null,
-    pickedUpAt: response.pickedUpAt ? new Date(response.pickedUpAt) : null,
-    deliveredAt: response.deliveredAt ? new Date(response.deliveredAt) : null,
-    cancelledAt: response.cancelledAt ? new Date(response.cancelledAt) : null,
-    requestedPickupDate: response.requestedPickupDate ? new Date(response.requestedPickupDate) : null,
-    requestedDeliveryDate: response.requestedDeliveryDate ? new Date(response.requestedDeliveryDate) : null,
-    createdAt: new Date(response.createdAt),
-    lastModifiedAt: response.lastModifiedAt ? new Date(response.lastModifiedAt) : null,
+    dispatchedAt: toDateOrNull(response.dispatchedAt),
+    pickedUpAt: toDateOrNull(response.pickedUpAt),
+    deliveredAt: toDateOrNull(response.deliveredAt),
+    cancelledAt: toDateOrNull(response.cancelledAt),
+    requestedPickupDate: toDateOrNull(response.requestedPickupDate),
+    requestedDeliveryDate: toDateOrNull(response.requestedDeliveryDate),
+    createdAt: toDate(response.createdAt),
+    lastModifiedAt: toDateOrNull(response.lastModifiedAt),
   };
 }
 
 export function mapLoadExceptionResponse(response: LoadExceptionResponse): LoadException {
   return {
     ...response,
-    occurredAt: new Date(response.occurredAt),
-    resolvedAt: response.resolvedAt ? new Date(response.resolvedAt) : null,
-    createdAt: new Date(response.createdAt),
-    lastModifiedAt: response.lastModifiedAt ? new Date(response.lastModifiedAt) : null,
+    occurredAt: toDate(response.occurredAt),
+    resolvedAt: toDateOrNull(response.resolvedAt),
+    createdAt: toDate(response.createdAt),
+    lastModifiedAt: toDateOrNull(response.lastModifiedAt),
   };
 }
 
 export function mapLoadConditionReportResponse(response: LoadConditionReportResponse): LoadConditionReport {
   return {
     ...response,
-    inspectedAt: new Date(response.inspectedAt),
-    createdAt: new Date(response.createdAt),
-    lastModifiedAt: response.lastModifiedAt ? new Date(response.lastModifiedAt) : null,
+    inspectedAt: toDate(response.inspectedAt),
+    createdAt: toDate(response.createdAt),
+    lastModifiedAt: toDateOrNull(response.lastModifiedAt),
   };
 }
