@@ -1,0 +1,19 @@
+/**
+ * Main SCSS Entry Point cho LogisticsX App.
+ *
+ * File này đóng vai trò là hub trung tâm của hệ thống styles:
+ * 1. Forward các file partial (_variables, _mixins) để các component có thể
+ *    import toàn bộ tiện ích qua `@use "@/styles/app" as app;` hoặc `@use "@/styles/variables" as v;`.
+ * 2. Tải và tổng hợp tất cả Common CSS, Utility Classes, Component Styles và Page Styles.
+ */
+
+// Forward design tokens & mixins để hỗ trợ namespace khi @use
+@forward "./variables";
+@forward "./mixins";
+
+// Import các module SCSS
+@use "./variables" as v;
+@use "./mixins" as m;
+@use "./utilities";
+@use "./components";
+@use "../pages/auth/LoginPage";

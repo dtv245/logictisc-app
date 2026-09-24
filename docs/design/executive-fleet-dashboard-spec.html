@@ -1,0 +1,1588 @@
+<title>Executive Fleet Dashboard — Wireframe Spec</title>
+<style>
+  /* ---------- tokens: light ---------- */
+  :root{
+    --page:#f4f7fb; --surface:#fff; --surface-2:#f9fafc;
+    --ink-1:#172033; --ink-2:#52514e; --ink-3:#898781;
+    --grid:#e6e9ef; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+    --s1:#2563eb;      /* Actual — brand */
+    --s2:#eb6834;      /* Tier C — company target */
+    --s3:#1baf7a;      /* Tier A — industry research */
+    --sB:#898781;      /* Tier B — vendor benchmark (directional) */
+    --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+    --wash-good:rgba(12,163,12,.07); --wash-bad:rgba(208,59,59,.10);
+    --o1:#86b6ef; --o2:#5598e7; --o3:#2a78d6; --o4:#1c5cab; --o5:#104281;
+    --track:#e8eef7;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:where(:not([data-theme="light"])){
+      --page:#0d0d0d; --surface:#1a1a19; --surface-2:#141413;
+      --ink-1:#fff; --ink-2:#c3c2b7; --ink-3:#898781;
+      --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+      --s1:#3987e5; --s2:#d95926; --s3:#199e70; --sB:#898781;
+      --wash-good:rgba(12,163,12,.16); --wash-bad:rgba(208,59,59,.16);
+      --o1:#cde2fb; --o2:#9ec5f4; --o3:#6da7ec; --o4:#3987e5; --o5:#256abf;
+      --track:#2a2a28;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#141413;
+    --ink-1:#fff; --ink-2:#c3c2b7; --ink-3:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --sB:#898781;
+    --wash-good:rgba(12,163,12,.16); --wash-bad:rgba(208,59,59,.16);
+    --o1:#cde2fb; --o2:#9ec5f4; --o3:#6da7ec; --o4:#3987e5; --o5:#256abf;
+    --track:#2a2a28;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--page);color:var(--ink-1);font-family:var(--sans);
+       font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px}
+
+  /* ---------- doc chrome ---------- */
+  .doc-h1{font-size:26px;font-weight:640;letter-spacing:-.015em;margin:0 0 6px}
+  .doc-sub{color:var(--ink-2);margin:0 0 28px;max-width:76ch}
+  h2.sec{font-size:15px;font-weight:640;margin:44px 0 4px;letter-spacing:-.005em}
+  h2.sec .num{color:var(--ink-3);font-variant-numeric:tabular-nums;margin-right:8px;
+              font-weight:500}
+  .sec-note{color:var(--ink-2);margin:0 0 16px;max-width:82ch;font-size:13.5px}
+  h3.sub{font-size:13px;font-weight:640;margin:22px 0 8px;color:var(--ink-2);
+         text-transform:uppercase;letter-spacing:.06em}
+  p{margin:0 0 10px}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);
+       border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+  .callout{background:var(--surface);border:1px solid var(--border);
+           border-left:3px solid var(--s1);border-radius:8px;padding:12px 14px;
+           margin:14px 0;font-size:13.5px;color:var(--ink-2)}
+  .callout strong{color:var(--ink-1)}
+  ul.tight{margin:6px 0 10px;padding-left:20px}
+  ul.tight li{margin-bottom:5px}
+
+  /* ---------- generic panel ---------- */
+  .panel{background:var(--surface);border:1px solid var(--border);
+         border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  .panel-h{display:flex;justify-content:space-between;align-items:baseline;
+           gap:12px;margin-bottom:2px}
+  .panel-t{font-size:13.5px;font-weight:640}
+  .panel-n{font-size:12px;color:var(--ink-3)}
+  .panel-s{font-size:12.5px;color:var(--ink-2);margin:2px 0 14px}
+
+  /* ---------- benchmark grammar key ---------- */
+  .key{display:grid;gap:1px;background:var(--border);border:1px solid var(--border);
+       border-radius:10px;overflow:hidden;margin:16px 0}
+  .key-row{display:grid;grid-template-columns:112px 96px 1fr;gap:14px;
+           align-items:center;background:var(--surface);padding:11px 14px}
+  .key-row--h{background:var(--surface-2);font-size:11.5px;font-weight:640;
+              color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+  .key-sw{display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .key-sw i{display:block;width:34px;height:0;flex:none}
+  .key-body{font-size:12.5px;color:var(--ink-2)}
+  .key-body b{color:var(--ink-1);font-weight:620}
+  @media(max-width:640px){.key-row{grid-template-columns:96px 1fr}
+    .key-row .key-body{grid-column:1/-1}}
+
+  .ln{height:0;border-top-style:solid}
+  .ln-c{border-top-width:2.5px;border-top-color:var(--s2)}
+  .ln-a{border-top-width:2px;border-top-color:var(--s3)}
+  .ln-b{border-top-width:2px;border-top-color:var(--sB);border-top-style:dashed}
+  .ln-act{border-top-width:2.5px;border-top-color:var(--s1)}
+
+  /* provenance chip */
+  .chip{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;
+        font-weight:640;letter-spacing:.04em;text-transform:uppercase;
+        padding:1px 6px;border-radius:999px;border:1px solid;white-space:nowrap;
+        line-height:1.6;cursor:help}
+  .chip--c{color:var(--s2);border-color:var(--s2);background:color-mix(in srgb,var(--s2) 8%,transparent)}
+  .chip--a{color:var(--s3);border-color:var(--s3);background:color-mix(in srgb,var(--s3) 8%,transparent)}
+  .chip--b{color:var(--ink-3);border-color:var(--axis);background:var(--surface-2)}
+
+  /* tooltip */
+  .tt{position:relative;display:inline-flex}
+  .tt>.tt-b{position:absolute;bottom:calc(100% + 8px);left:50%;
+            transform:translateX(-50%) translateY(3px);width:290px;z-index:40;
+            background:var(--surface);border:1px solid var(--border);
+            border-radius:10px;box-shadow:0 12px 32px rgb(15 23 42 / 14%);
+            padding:11px 13px;opacity:0;visibility:hidden;transition:.12s;
+            font-size:12px;line-height:1.5;text-align:left;pointer-events:none}
+  .tt:hover>.tt-b,.tt:focus-within>.tt-b{opacity:1;visibility:visible;
+            transform:translateX(-50%) translateY(0)}
+  .tt-b .tt-h{display:flex;align-items:center;gap:6px;margin-bottom:7px;
+              padding-bottom:7px;border-bottom:1px solid var(--border)}
+  .tt-b .tt-t{font-weight:640;font-size:12px;color:var(--ink-1)}
+  .tt-b dl{display:grid;grid-template-columns:74px 1fr;gap:2px 8px;margin:0}
+  .tt-b dt{color:var(--ink-3);font-size:11px}
+  .tt-b dd{margin:0;color:var(--ink-1);font-size:11.5px}
+  .tt-b .tt-f{margin-top:8px;padding-top:7px;border-top:1px solid var(--border);
+              font-size:11px;color:var(--ink-3)}
+  .tt-b.left{left:0;transform:translateX(0) translateY(3px)}
+  .tt:hover>.tt-b.left,.tt:focus-within>.tt-b.left{transform:translateX(0) translateY(0)}
+
+  /* ---------- filter row ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+           background:var(--surface);border:1px solid var(--border);
+           border-radius:10px;padding:9px 12px;margin-bottom:16px}
+  .fl{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;
+      border:1px solid var(--border);border-radius:7px;padding:4px 9px;
+      background:var(--surface-2);color:var(--ink-2);cursor:pointer}
+  .fl b{color:var(--ink-1);font-weight:600}
+  .fl-lbl{font-size:11px;color:var(--ink-3);text-transform:uppercase;
+          letter-spacing:.06em;margin-right:2px}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:7px;
+       overflow:hidden}
+  .seg button{border:0;background:var(--surface-2);color:var(--ink-2);
+              font:inherit;font-size:12.5px;padding:4px 11px;cursor:pointer}
+  .seg button+button{border-left:1px solid var(--border)}
+  .seg button[aria-pressed="true"]{background:var(--s1);color:#fff;font-weight:600}
+
+  /* ---------- KPI strip ---------- */
+  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:900px){.strip{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.strip{grid-template-columns:1fr}}
+  .tile{background:var(--surface);border:1px solid var(--border);
+        border-radius:12px;padding:14px 15px 13px;display:flex;
+        flex-direction:column;gap:0}
+  .tile-l{font-size:12px;color:var(--ink-2);margin-bottom:6px;display:flex;
+          align-items:center;gap:5px}
+  .tile-v{font-size:30px;font-weight:640;letter-spacing:-.02em;line-height:1.1;
+          color:var(--ink-1)}
+  .tile-v.hero{font-size:48px;letter-spacing:-.03em}
+  .tile-u{font-size:14px;font-weight:560;color:var(--ink-2);margin-left:2px}
+  .tile-d{font-size:12.5px;margin-top:3px;display:flex;align-items:center;gap:5px}
+  .up-bad{color:var(--crit)} .up-good{color:var(--good);color:var(--good)}
+  .dnote{color:var(--ink-3)}
+  .cmps{margin-top:12px;padding-top:11px;border-top:1px solid var(--border);
+        display:grid;gap:7px}
+  .cmp{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:baseline;
+       font-size:11.5px}
+  .cmp-k{color:var(--ink-2)}
+  .cmp-v{font-weight:640;color:var(--ink-1);font-variant-numeric:tabular-nums;
+         text-align:right}
+  .cmp-d{font-variant-numeric:tabular-nums;font-size:11px;font-weight:600}
+  .bad{color:var(--crit)} .ok{color:var(--good)} .mid{color:var(--ink-3)}
+  .ruler{margin:12px 0 2px}
+  .ruler svg{display:block;width:100%;height:auto}
+  .ruler-k{display:flex;justify-content:space-between;gap:8px;font-size:10px;
+           color:var(--ink-3);margin-top:2px;font-variant-numeric:tabular-nums}
+  .ruler-k span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ---------- conclusions ---------- */
+  .cc{display:grid;gap:9px}
+  .cc-row{display:grid;grid-template-columns:78px 1fr 132px;gap:14px;
+          align-items:start;background:var(--surface);border:1px solid var(--border);
+          border-left:3px solid var(--axis);border-radius:10px;padding:12px 14px}
+  .cc-row--high{border-left-color:var(--crit)}
+  .cc-row--watch{border-left-color:var(--warn)}
+  .cc-row--med{border-left-color:var(--serious)}
+  .cc-body{font-size:13px;line-height:1.6;color:var(--ink-2)}
+  .cc-body b{color:var(--ink-1);font-weight:620}
+  .cc-body .num{font-variant-numeric:tabular-nums;color:var(--ink-1);font-weight:600}
+  .cc-body .own{color:var(--ink-1)}
+  .cc-imp{text-align:right;font-size:11.5px;color:var(--ink-2)}
+  .cc-imp b{display:block;font-size:16px;font-weight:640;color:var(--ink-1);
+            font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .cc-imp span{color:var(--ink-3);font-size:10.5px;text-transform:uppercase;
+               letter-spacing:.05em}
+  @media(max-width:700px){.cc-row{grid-template-columns:1fr}
+    .cc-imp{text-align:left}}
+
+  /* badge: icon + label, never colour alone */
+  .bg{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:640;
+      padding:2px 8px 2px 6px;border-radius:999px;border:1px solid;white-space:nowrap}
+  .bg svg{width:11px;height:11px;flex:none}
+  .bg--high{color:var(--crit);border-color:var(--crit);
+            background:color-mix(in srgb,var(--crit) 9%,transparent)}
+  .bg--watch{color:#8a5b00;border-color:var(--warn);
+             background:color-mix(in srgb,var(--warn) 14%,transparent)}
+  .bg--med{color:#a4541f;border-color:var(--serious);
+           background:color-mix(in srgb,var(--serious) 11%,transparent)}
+  :root[data-theme="dark"] .bg--watch{color:var(--warn)}
+  :root[data-theme="dark"] .bg--med{color:var(--serious)}
+  @media(prefers-color-scheme:dark){
+    :root:where(:not([data-theme="light"])) .bg--watch{color:var(--warn)}
+    :root:where(:not([data-theme="light"])) .bg--med{color:var(--serious)}}
+
+  /* ---------- charts ---------- */
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 10px;font-size:11.5px;
+          color:var(--ink-2)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{display:block;width:22px;height:0;flex:none}
+  .legend i.dot{width:9px;height:9px;border-radius:50%;border:0}
+  .chart{position:relative}
+  .chart svg{display:block;width:100%;height:auto;overflow:visible}
+  .gridline{stroke:var(--grid);stroke-width:1}
+  .axisline{stroke:var(--axis);stroke-width:1}
+  .tick{fill:var(--ink-3);font-size:10.5px;font-variant-numeric:tabular-nums}
+  .dlab{fill:var(--ink-1);font-size:11px;font-weight:620}
+  .dsub{fill:var(--ink-3);font-size:10.5px}
+  .l1{fill:none;stroke:var(--s1);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  .l2{fill:none;stroke:var(--s2);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  .lA{fill:none;stroke:var(--s3);stroke-width:1.75;stroke-dasharray:none}
+  .lB{fill:none;stroke:var(--sB);stroke-width:1.75;stroke-dasharray:5 4}
+  .band{fill:var(--wash-good)}
+  .xhair{stroke:var(--ink-3);stroke-width:1;opacity:0;transition:opacity .1s}
+  .hitbox{fill:transparent;cursor:crosshair}
+
+  /* tooltip panel for the line chart */
+  .ctip{position:absolute;pointer-events:none;background:var(--surface);
+        border:1px solid var(--border);border-radius:9px;padding:9px 11px;
+        box-shadow:0 10px 26px rgb(15 23 42 / 16%);font-size:11.5px;
+        min-width:182px;opacity:0;transition:opacity .1s;z-index:30}
+  .ctip .h{font-weight:640;font-size:11.5px;margin-bottom:6px;color:var(--ink-1)}
+  .ctip .r{display:flex;justify-content:space-between;gap:14px;
+           font-variant-numeric:tabular-nums;color:var(--ink-2)}
+  .ctip .r b{color:var(--ink-1);font-weight:620}
+  .ctip .sep{height:1px;background:var(--border);margin:6px 0}
+  .ctip .k{display:inline-flex;align-items:center;gap:5px}
+  .ctip .k i{width:14px;height:0;border-top-width:2px;border-top-style:solid;
+             display:block}
+  .ctip .note{font-size:10.5px;color:var(--ink-3);margin-top:6px;line-height:1.4}
+
+  /* ---------- tables ---------- */
+  .tw{overflow-x:auto;margin:10px 0 0}
+  table{border-collapse:collapse;width:100%;font-size:12px;
+        font-variant-numeric:tabular-nums}
+  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);
+        white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;
+     color:var(--ink-3);font-weight:640;background:var(--surface-2)}
+  tfoot td{font-weight:640;background:var(--surface-2);border-bottom:0}
+  td .flag{color:var(--crit);font-weight:640}
+  details.tv{margin-top:10px;font-size:12px}
+  details.tv>summary{cursor:pointer;color:var(--ink-3);font-size:11.5px;
+                     list-style:none;display:inline-flex;align-items:center;gap:5px}
+  details.tv>summary::-webkit-details-marker{display:none}
+  details.tv>summary::before{content:"▸";font-size:10px}
+  details.tv[open]>summary::before{content:"▾"}
+
+  /* ---------- meters ---------- */
+  .meters{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.meters{grid-template-columns:1fr}}
+  .mtr{background:var(--surface-2);border:1px solid var(--border);
+       border-radius:10px;padding:12px 13px}
+  .mtr-l{font-size:12px;color:var(--ink-2);display:flex;justify-content:space-between;
+         gap:8px;align-items:baseline}
+  .mtr-v{font-size:25px;font-weight:640;letter-spacing:-.02em;margin:5px 0 9px}
+  .mtr-t{height:9px;border-radius:999px;background:var(--track);position:relative;
+         overflow:hidden}
+  .mtr-f{height:100%;border-radius:999px}
+  .mtr-band{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--s3) 20%,transparent);
+            border-left:1px solid var(--s3);border-right:1px solid var(--s3)}
+  .mtr-tk{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink-1);
+          border-radius:2px}
+  .mtr-tk--t{background:var(--s2)}
+  .mtr-s{font-size:11px;color:var(--ink-3);margin-top:8px;display:flex;
+         justify-content:space-between;gap:8px}
+  .mtr-s b{color:var(--ink-2);font-weight:600}
+  .f-ok{background:var(--s1)} .f-warn{background:var(--warn)} .f-bad{background:var(--crit)}
+  .driver{margin-top:16px;padding-top:13px;border-top:1px dashed var(--axis)}
+  .driver-h{font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+            color:var(--ink-3);font-weight:640;margin-bottom:10px;
+            display:flex;align-items:center;gap:6px}
+  .mini{display:grid;gap:6px}
+  .mini-r{display:grid;grid-template-columns:1fr 62px 40px;gap:10px;
+          align-items:center;font-size:12px}
+  .mini-tr{height:8px;border-radius:4px;background:var(--track);overflow:hidden}
+  .mini-f{height:100%;background:var(--s1);border-radius:4px}
+  .mini-n{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2);
+          font-size:11.5px}
+
+  /* ---------- code block ---------- */
+  pre{background:var(--surface-2);border:1px solid var(--border);border-radius:9px;
+      padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:11.5px;
+      line-height:1.6;color:var(--ink-1);margin:10px 0}
+  pre .c{color:var(--ink-3)}
+  pre .k{color:var(--s1);font-weight:600}
+  pre .t{color:var(--s2)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+
+  .pill{display:inline-block;font-size:10.5px;font-weight:640;padding:1px 7px;
+        border-radius:999px;background:var(--surface-2);border:1px solid var(--border);
+        color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+  .ph{border-bottom:1px dotted var(--warn);cursor:help}
+</style>
+
+<div class="wrap">
+
+  <h1 class="doc-h1">Executive Fleet Dashboard — wireframe spec</h1>
+  <p class="doc-sub">Bản sửa cho 5 khối + nguyên tắc xuyên suốt. Mọi con số trong tài liệu này
+  là <b>mock data</b>; mọi benchmark đều là <b>placeholder</b> và được đánh dấu
+  <span class="ph" title="Placeholder — phải thay bằng citation đã kiểm chứng trước khi ship">như thế này</span>
+  để không có threshold nào xuất hiện mà thiếu nguồn.</p>
+
+  <!-- ================= 0. READING ORDER ================= -->
+  <h2 class="sec"><span class="num">0</span>Thứ tự đọc = chuỗi nhân–quả</h2>
+  <p class="sec-note">Đây là thay đổi bố cục lớn nhất và nó quyết định mọi khối bên dưới.
+  Người xem đi từ trên xuống phải trả lời được <em>“vì sao”</em>, không chỉ <em>“cái gì”</em>.</p>
+
+  <div class="panel">
+    <div style="display:grid;gap:1px;background:var(--border);border-radius:9px;overflow:hidden">
+      <div style="background:var(--surface);padding:10px 14px;display:grid;grid-template-columns:26px 190px 1fr;gap:12px;align-items:baseline">
+        <span style="color:var(--ink-3);font-variant-numeric:tabular-nums">1</span>
+        <b style="font-size:12.5px">Company Health</b>
+        <span style="font-size:12.5px;color:var(--ink-2)">Kết quả kinh doanh — margin, unit economics, utilization, reliability. <b>Bốn chỉ số kết quả.</b></span>
+      </div>
+      <div style="background:var(--surface);padding:10px 14px;display:grid;grid-template-columns:26px 190px 1fr;gap:12px;align-items:baseline">
+        <span style="color:var(--ink-3);font-variant-numeric:tabular-nums">2</span>
+        <b style="font-size:12.5px">Quick Conclusions</b>
+        <span style="font-size:12.5px;color:var(--ink-2)">“Vậy thì sao” — 3–5 kết luận, <b>xếp theo tác động tài chính</b>, không theo mức đỏ.</span>
+      </div>
+      <div style="background:var(--surface);padding:10px 14px;display:grid;grid-template-columns:26px 190px 1fr;gap:12px;align-items:baseline">
+        <span style="color:var(--ink-3);font-variant-numeric:tabular-nums">3</span>
+        <b style="font-size:12.5px">Financial Performance</b>
+        <span style="font-size:12.5px;color:var(--ink-2)">Margin đến từ đâu — spread RPM−CPM → cost waterfall → dòng tiền (DSO/AR).</span>
+      </div>
+      <div style="background:var(--surface);padding:10px 14px;display:grid;grid-template-columns:26px 190px 1fr;gap:12px;align-items:baseline">
+        <span style="color:var(--ink-3);font-variant-numeric:tabular-nums">4</span>
+        <b style="font-size:12.5px">Operational &amp; Fleet Health</b>
+        <span style="font-size:12.5px;color:var(--ink-2)">Cái gì sản sinh ra chi phí &amp; độ tin cậy ở trên — 3 chỉ số utilization + <b>downtime/PM là nguyên nhân</b>.</span>
+      </div>
+      <div style="background:var(--surface);padding:10px 14px;display:grid;grid-template-columns:26px 190px 1fr;gap:12px;align-items:baseline">
+        <span style="color:var(--ink-3);font-variant-numeric:tabular-nums">5</span>
+        <b style="font-size:12.5px">Customer Concentration</b>
+        <span style="font-size:12.5px;color:var(--ink-2)">Cơ cấu thương mại đứng sau doanh thu — theo <b>cả</b> doanh thu và lợi nhuận gộp.</span>
+      </div>
+    </div>
+    <p style="margin:12px 0 0;font-size:12.5px;color:var(--ink-2)">
+      <b>Sửa so với bản cũ:</b> 4 KPI vận hành bị copy lên hàng đầu nay nằm ở khối 4; hàng đầu
+      chỉ còn chỉ số <em>kết quả</em>. Downtime và PM compliance rời hàng đầu vì chúng là
+      <em>nguyên nhân</em>, không phải kết quả kinh doanh.
+    </p>
+  </div>
+
+  <!-- ================= 1. BENCHMARK GRAMMAR ================= -->
+  <h2 class="sec"><span class="num">1</span>Ngữ pháp benchmark — component dùng chung</h2>
+  <p class="sec-note">Đây là thứ chữa đúng căn bệnh bạn nêu: “CPM $2.30, top-quartile &lt;$1.70”
+  trần trụi, không nguồn. Toàn bộ dashboard dùng <b>một</b> hệ ký hiệu duy nhất, chia 3 tier,
+  và mọi con số đều bắt buộc có provenance.</p>
+
+  <div class="key">
+    <div class="key-row key-row--h"><span>Tier</span><span>Ký hiệu</span><span>Dùng khi nào / đọc ra sao</span></div>
+
+    <div class="key-row">
+      <span class="key-sw"><span class="chip chip--a">Tier A</span></span>
+      <span><i class="ln ln-a"></i></span>
+      <span class="key-body"><b>Nghiên cứu ngành.</b> Đường liền, nét mảnh, màu aqua. Độ tin cậy cao
+      nhưng là mẫu của người khác — luôn kèm cỡ mẫu. Direct-label bắt buộc (aqua chỉ đạt
+      2.82:1 trên nền trắng).</span>
+    </div>
+
+    <div class="key-row">
+      <span class="key-sw"><span class="chip chip--b">Tier B</span></span>
+      <span><i class="ln ln-b"></i></span>
+      <span class="key-body"><b>Benchmark từ vendor phần mềm.</b> <b>Đường đứt nét</b>, màu xám lùi.
+      Đứt nét ở đây <em>có nghĩa</em> — không phải gridline. Luôn mang nhãn
+      <span class="chip chip--b">Directional</span> vì mẫu tự chọn (self-selected).</span>
+    </div>
+
+    <div class="key-row">
+      <span class="key-sw"><span class="chip chip--c">Tier C</span></span>
+      <span><i class="ln ln-c"></i></span>
+      <span class="key-body"><b>Mục tiêu nội bộ công ty.</b> Đường liền, <b>nét dày nhất, màu cam ấm
+      nổi nhất</b> — đây là thứ điều hành thực sự bị đo. Không bao giờ gộp chung với Tier A/B.</span>
+    </div>
+
+    <div class="key-row">
+      <span class="key-sw"><span class="chip" style="color:var(--s1);border-color:var(--s1);background:color-mix(in srgb,var(--s1) 8%,transparent)">Actual</span></span>
+      <span><i class="ln ln-act"></i></span>
+      <span class="key-body">Không phải một tier — là <b>chính công ty</b>. Xanh brand, luôn là
+      mark chủ đạo. Màu bám theo <em>thực thể</em>, không theo thứ hạng: lọc bớt series không
+      làm đổi màu series còn lại.</span>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Ba kênh phân biệt, không chỉ màu.</strong> Mỗi tier khác nhau ở
+    <em>hue</em> + <em>kiểu nét</em> + <em>độ dày</em> + <em>nhãn chữ</em>. Người mù màu, bản in
+    đen trắng, và chế độ <code>forced-colors</code> vẫn phân biệt được tier. Không có threshold
+    nào chỉ được mã hoá bằng màu.
+  </div>
+
+  <h3 class="sub">Provenance bắt buộc — hover vào bất kỳ con số benchmark nào</h3>
+  <p class="sec-note">Năm trường bạn yêu cầu, cộng một trường độ tin cậy. Hover thử:</p>
+
+  <div class="panel" style="display:flex;flex-wrap:wrap;gap:26px;align-items:center;padding:20px 18px">
+    <span class="tt">
+      <span class="chip chip--c" tabindex="0">Target $2.42</span>
+      <span class="tt-b" role="tooltip">
+        <span class="tt-h"><span class="chip chip--c">Tier C</span>
+          <span class="tt-t">Company target</span></span>
+        <dl>
+          <dt>Nguồn</dt><dd>FY26 Operating Plan, rev. 4</dd>
+          <dt>Công bố</dt><dd>2026-01-15 (board-approved)</dd>
+          <dt>Kỳ đo</dt><dd>FY26 YTD</dd>
+          <dt>Phạm vi</dt><dd>Toàn bộ division, US + CA</dd>
+          <dt>Loại</dt><dd>Company target — <b>nội bộ</b></dd>
+        </dl>
+        <span class="tt-f">Đây là ngưỡng điều hành bị đo. Mọi kết luận ở khối 2 phải quy về con số này.</span>
+      </span>
+    </span>
+
+    <span class="tt">
+      <span class="chip chip--a" tabindex="0">Research $1.98</span>
+      <span class="tt-b" role="tooltip">
+        <span class="tt-h"><span class="chip chip--a">Tier A</span>
+          <span class="tt-t">Industry research</span></span>
+        <dl>
+          <dt>Nguồn</dt><dd>ATRI — <em>An Analysis of the Operational Costs of Trucking</em>, ấn bản gần nhất</dd>
+          <dt>Công bố</dt><dd class="ph" title="Placeholder — điền ngày công bố thật">YYYY-MM-DD</dd>
+          <dt>Kỳ đo</dt><dd>Năm dương lịch trước đó</dd>
+          <dt>Phạm vi</dt><dd>US for-hire truckload, đội ≥ 5 xe</dd>
+          <dt>Loại</dt><dd>External reference</dd>
+        </dl>
+        <span class="tt-f">Độ tin cậy: <b>cao</b> · cỡ mẫu: <span class="ph" title="Placeholder">n = ___</span> carrier. Đây là nguồn chuẩn cho CPM — nhưng mẫu không phải công ty bạn.</span>
+      </span>
+    </span>
+
+    <span class="tt">
+      <span class="chip chip--b" tabindex="0">Vendor $2.11 · directional</span>
+      <span class="tt-b" role="tooltip">
+        <span class="tt-h"><span class="chip chip--b">Tier B</span>
+          <span class="tt-t">Vendor benchmark</span></span>
+        <dl>
+          <dt>Nguồn</dt><dd class="ph" title="Placeholder — tên báo cáo vendor thật">«Vendor» Fleet Benchmark, Q2 2026</dd>
+          <dt>Công bố</dt><dd class="ph" title="Placeholder">YYYY-MM-DD</dd>
+          <dt>Kỳ đo</dt><dd>Q2 2026</dd>
+          <dt>Phạm vi</dt><dd>Khách hàng của vendor, mọi phân khúc</dd>
+          <dt>Loại</dt><dd>External reference — <b>directional</b></dd>
+        </dl>
+        <span class="tt-f">Độ tin cậy: <b>thấp</b> · mẫu tự chọn (khách hàng của vendor), không đại diện ngành. Chỉ dùng để định hướng, không dùng để ra quyết định.</span>
+      </span>
+    </span>
+  </div>
+
+  <h3 class="sub">Cưỡng chế ở tầng type — không thể render threshold thiếu nguồn</h3>
+  <p class="sec-note">Nguyên tắc “không bao giờ hiển thị threshold mà thiếu nguồn” nên là ràng buộc
+  <em>compile-time</em>, không phải quy ước review code. Cho provenance thành trường bắt buộc:</p>
+  <pre><span class="c">// src/features/dashboard/types/benchmark.types.ts</span>
+<span class="k">type</span> <span class="t">Tier</span> = <span style="color:var(--s3)">"research"</span> | <span style="color:var(--s3)">"vendor"</span> | <span style="color:var(--s3)">"target"</span>;
+
+<span class="c">/** Provenance là BẮT BUỘC — không có đường nào dựng một Benchmark thiếu nó. */</span>
+<span class="k">interface</span> <span class="t">Provenance</span> {
+  sourceName: <span class="k">string</span>;        <span class="c">// "ATRI Operational Costs of Trucking"</span>
+  publishedAt: <span class="k">string</span>;       <span class="c">// ISO date — ngày công bố</span>
+  measuredPeriod: <span class="k">string</span>;    <span class="c">// "CY2024" — kỳ đo lường</span>
+  scope: <span class="k">string</span>;             <span class="c">// "US for-hire truckload, fleets 5+"</span>
+  kind: <span style="color:var(--s3)">"external"</span> | <span style="color:var(--s3)">"company"</span>;
+  confidence: <span style="color:var(--s3)">"high"</span> | <span style="color:var(--s3)">"low"</span>;  <span class="c">// low ⇒ UI tự gắn nhãn "directional"</span>
+  sampleSize?: <span class="k">number</span>;
+}
+
+<span class="c">/** Discriminated union: tier quyết định kiểu nét, không phải tuỳ chọn trang trí. */</span>
+<span class="k">type</span> <span class="t">Benchmark</span> =
+  | { tier: <span style="color:var(--s3)">"research"</span>; provenance: <span class="t">Provenance</span> &amp; { confidence: <span style="color:var(--s3)">"high"</span> }; value: <span class="k">number</span> }
+  | { tier: <span style="color:var(--s3)">"vendor"</span>;   provenance: <span class="t">Provenance</span>; value: <span class="k">number</span> }
+  | { tier: <span style="color:var(--s3)">"target"</span>;   provenance: <span class="t">Provenance</span> &amp; { kind: <span style="color:var(--s3)">"company"</span> }; value: <span class="k">number</span> };
+
+<span class="c">// Và một test bất biến: mọi Benchmark render ra DOM phải có provenance hợp lệ.</span>
+<span class="c">// expect(rendered).not.toHaveTextContent(/\$[\d.]+/);  // khi provenance rỗng ⇒ không render</span></pre>
+  <p class="sec-note" style="margin-top:4px">Hệ quả: dữ liệu thiếu citation thì <b>ẩn số đó đi</b> và hiện
+  “chưa có nguồn”, thay vì hiện một con số vô chủ. Xấu hơn về mắt, đúng hơn về điều hành — và đó
+  chính là ưu tiên bạn đặt ra.</p>
+
+  <!-- ================= 2. FILTER ROW ================= -->
+  <h2 class="sec"><span class="num">2</span>Filter row — một hàng, scope toàn trang</h2>
+  <p class="sec-note">Một hàng filter duy nhất ở trên cùng, không có filter lồng trong từng card.
+  Mọi chart render lại trên cùng một slice.</p>
+
+  <div class="filters">
+    <span class="fl-lbl">Kỳ</span>
+    <span class="fl"><b>Tháng 8/2026</b> ▾</span>
+    <span class="fl">So sánh: <b>cùng kỳ năm trước</b> ▾</span>
+    <span style="flex:1"></span>
+    <span class="fl-lbl">Mô hình vận hành</span>
+    <span class="seg" role="group" aria-label="Mô hình vận hành">
+      <button id="om-ded" aria-pressed="false" onclick="setModel('dedicated')">Dedicated lane</button>
+      <button id="om-var" aria-pressed="true" onclick="setModel('variable')">Variable / spot</button>
+    </span>
+  </div>
+  <p class="sec-note" style="margin-top:-6px">
+    <b>Ô “Mô hình vận hành” không phải filter — nó là ngữ cảnh.</b> Nó quyết định ngưỡng
+    loaded-mile ratio ở khối 4 là ngưỡng cứng hay dải linh hoạt. Thử bấm hai nút để xem khối 4 đổi.</p>
+
+  <!-- ================= 3. COMPANY HEALTH ================= -->
+  <h2 class="sec"><span class="num">3</span>Company Health — 4 tile, mỗi tile 4 giá trị</h2>
+  <p class="sec-note">Operating Margin · Unit Economics (CPM + RPM + spread) · Productive
+  Utilization · Service Reliability. Không có downtime, không có PM compliance ở hàng này.</p>
+
+  <div class="strip">
+
+    <!-- tile 1 — hero -->
+    <div class="tile">
+      <span class="tile-l">Operating margin <span class="pill">hero</span></span>
+      <div class="tile-v hero">7.4<span class="tile-u">%</span></div>
+      <div class="tile-d up-bad">▼ 1.6 pts <span class="dnote">so với kỳ trước</span></div>
+
+      <div class="ruler">
+        <svg viewBox="0 0 240 34" role="img" aria-label="Operating margin 7.4% trên thang 4–14%, mục tiêu 9.5%, benchmark nghiên cứu 8.2%, benchmark vendor 7.9%">
+          <line x1="10" y1="19" x2="230" y2="19" stroke="var(--track)" stroke-width="6" stroke-linecap="round"/>
+          <rect x="10" y="15.5" width="74.8" height="7" rx="3.5" fill="var(--s1)"/>
+          <circle cx="84.8" cy="19" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+          <line x1="131" y1="9" x2="131" y2="29" stroke="var(--s2)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="102.4" y1="12" x2="102.4" y2="26" stroke="var(--s3)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="95.8" y1="12" x2="95.8" y2="26" stroke="var(--sB)" stroke-width="2" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="ruler-k"><span>4%</span><span>thang ngành 4–14%</span><span>14%</span></div>
+      </div>
+
+      <div class="cmps">
+        <div class="cmp">
+          <span class="cmp-k">Mục tiêu</span>
+          <span class="tt" style="justify-self:start"><span class="chip chip--c" tabindex="0">Tier C</span>
+            <span class="tt-b" role="tooltip">
+              <span class="tt-h"><span class="chip chip--c">Tier C</span><span class="tt-t">Company target</span></span>
+              <dl><dt>Nguồn</dt><dd>FY26 Operating Plan, rev. 4</dd>
+                  <dt>Công bố</dt><dd>2026-01-15</dd>
+                  <dt>Kỳ đo</dt><dd>FY26 YTD</dd>
+                  <dt>Phạm vi</dt><dd>Toàn bộ division</dd>
+                  <dt>Loại</dt><dd>Company target</dd></dl>
+            </span>
+          </span>
+          <span><span class="cmp-v">9.5%</span> <span class="cmp-d bad">−2.1 pts</span></span>
+        </div>
+        <div class="cmp">
+          <span class="cmp-k">Kỳ trước</span><span></span>
+          <span><span class="cmp-v">9.0%</span> <span class="cmp-d bad">−1.6 pts</span></span>
+        </div>
+        <div class="cmp">
+          <span class="cmp-k">Benchmark</span>
+          <span class="tt" style="justify-self:start"><span class="chip chip--a" tabindex="0">Tier A</span>
+            <span class="tt-b left" role="tooltip">
+              <span class="tt-h"><span class="chip chip--a">Tier A</span><span class="tt-t">Industry research</span></span>
+              <dl><dt>Nguồn</dt><dd>ATRI — Operational Costs of Trucking</dd>
+                  <dt>Công bố</dt><dd class="ph" title="Placeholder">YYYY-MM-DD</dd>
+                  <dt>Kỳ đo</dt><dd>Năm dương lịch trước</dd>
+                  <dt>Phạm vi</dt><dd>US for-hire truckload, ≥5 xe</dd>
+                  <dt>Loại</dt><dd>External reference</dd></dl>
+              <span class="tt-f">Độ tin cậy cao · n = <span class="ph" title="Placeholder">___</span> carrier</span>
+            </span>
+          </span>
+          <span><span class="cmp-v">8.2%</span> <span class="cmp-d bad">−0.8 pts</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- tile 2 — unit economics -->
+    <div class="tile">
+      <span class="tile-l">Unit economics <span class="pill">$/mile</span></span>
+      <div class="tile-v">$0.10<span class="tile-u">spread</span></div>
+      <div class="tile-d up-bad">▼ $0.05 <span class="dnote">RPM − CPM, kỳ trước $0.15</span></div>
+
+      <div class="ruler">
+        <svg viewBox="0 0 240 34" role="img" aria-label="Spread RPM trừ CPM là 0.10 đô trên dặm, mục tiêu 0.29, nghiên cứu 0.24, vendor 0.21">
+          <line x1="10" y1="19" x2="230" y2="19" stroke="var(--track)" stroke-width="6" stroke-linecap="round"/>
+          <rect x="10" y="15.5" width="55" height="7" rx="3.5" fill="var(--crit)"/>
+          <line x1="169.5" y1="9" x2="169.5" y2="29" stroke="var(--s2)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="142" y1="12" x2="142" y2="26" stroke="var(--s3)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="125.5" y1="12" x2="125.5" y2="26" stroke="var(--sB)" stroke-width="2" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="ruler-k"><span>$0</span><span>spread $/mile</span><span>$0.40</span></div>
+      </div>
+
+      <div class="cmps">
+        <div class="cmp"><span class="cmp-k">RPM thực</span><span></span>
+          <span><span class="cmp-v">$2.88</span> <span class="cmp-d ok">+$0.25</span></span></div>
+        <div class="cmp"><span class="cmp-k">CPM thực</span><span></span>
+          <span><span class="cmp-v">$2.78</span> <span class="cmp-d bad">+$0.15</span></span></div>
+        <div class="cmp"><span class="cmp-k">Mục tiêu</span>
+          <span class="tt" style="justify-self:start"><span class="chip chip--c" tabindex="0">Tier C</span>
+            <span class="tt-b left" role="tooltip">
+              <span class="tt-h"><span class="chip chip--c">Tier C</span><span class="tt-t">Company target</span></span>
+              <dl><dt>Nguồn</dt><dd>FY26 Operating Plan, rev. 4</dd>
+                  <dt>Công bố</dt><dd>2026-01-15</dd>
+                  <dt>Kỳ đo</dt><dd>FY26 YTD</dd>
+                  <dt>Phạm vi</dt><dd>Toàn bộ division</dd>
+                  <dt>Loại</dt><dd>Company target</dd></dl>
+              <span class="tt-f">Ngưỡng điều hành. Đây là con số kết luận ở khối 2 phải quy về.</span>
+            </span>
+          </span>
+          <span><span class="cmp-v">$0.29</span> <span class="cmp-d bad">−$0.19</span></span>
+        </div>
+        <div class="cmp"><span class="cmp-k">Benchmark</span>
+          <span class="tt" style="justify-self:start"><span class="chip chip--a" tabindex="0">Tier A</span>
+            <span class="tt-b left" role="tooltip">
+              <span class="tt-h"><span class="chip chip--a">Tier A</span><span class="tt-t">Industry research</span></span>
+              <dl><dt>Nguồn</dt><dd>ATRI — Operational Costs of Trucking</dd>
+                  <dt>Công bố</dt><dd class="ph" title="Placeholder">YYYY-MM-DD</dd>
+                  <dt>Kỳ đo</dt><dd>Năm dương lịch trước</dd>
+                  <dt>Phạm vi</dt><dd>US for-hire truckload, ≥5 xe</dd>
+                  <dt>Loại</dt><dd>External reference</dd></dl>
+              <span class="tt-f">Độ tin cậy cao · n = <span class="ph" title="Placeholder">___</span></span>
+            </span>
+          </span>
+          <span><span class="cmp-v">$0.24</span> <span class="cmp-d bad">−$0.14</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- tile 3 — productive utilization -->
+    <div class="tile">
+      <span class="tile-l">Productive utilization <span class="pill">loaded mi</span></span>
+      <div class="tile-v">71.2<span class="tile-u">%</span></div>
+      <div class="tile-d mid">◆ trong dải <span class="dnote">so với dải ngành</span></div>
+
+      <div class="ruler">
+        <svg viewBox="0 0 240 34" role="img" aria-label="Loaded-mile ratio 71.2% nằm trong dải ngành 62 đến 78 phần trăm">
+          <line x1="10" y1="19" x2="230" y2="19" stroke="var(--track)" stroke-width="6" stroke-linecap="round"/>
+          <rect x="76" y="16" width="88" height="6" rx="3" fill="color-mix(in srgb, var(--s3) 22%, transparent)" stroke="var(--s3)" stroke-width="1"/>
+          <circle cx="126.6" cy="19" r="4.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+        </svg>
+        <div class="ruler-k"><span>50%</span><span>loaded-mile ratio</span><span>90%</span></div>
+      </div>
+
+      <div class="cmps">
+        <div class="cmp"><span class="cmp-k">Mục tiêu</span>
+          <span class="tt" style="justify-self:start"><span class="chip chip--c" tabindex="0">Tier C</span>
+            <span class="tt-b left" role="tooltip">
+              <span class="tt-h"><span class="chip chip--c">Tier C</span><span class="tt-t">Company target — có điều kiện</span></span>
+              <dl><dt>Nguồn</dt><dd>FY26 Operating Plan, rev. 4</dd>
+                  <dt>Công bố</dt><dd>2026-01-15</dd>
+                  <dt>Kỳ đo</dt><dd>FY26 YTD</dd>
+                  <dt>Phạm vi</dt><dd>Chỉ áp dụng khi mô hình = <b>dedicated lane</b></dd>
+                  <dt>Loại</dt><dd>Company target</dd></dl>
+              <span class="tt-f"><b>Ngưỡng này bị treo</b> ở mô hình Variable/spot — xem khối 4. Hiện dải linh hoạt thay vì ngưỡng cứng.</span>
+            </span>
+          </span>
+          <span><span class="cmp-v">—</span> <span class="cmp-d mid">n/a ở mô hình này</span></span>
+        </div>
+        <div class="cmp"><span class="cmp-k">Kỳ trước</span><span></span>
+          <span><span class="cmp-v">73.9%</span> <span class="cmp-d bad">−2.7 pts</span></span></div>
+        <div class="cmp"><span class="cmp-k">Benchmark</span>
+          <span class="tt" style="justify-self:start"><span class="chip chip--a" tabindex="0">Tier A</span>
+            <span class="tt-b left" role="tooltip">
+              <span class="tt-h"><span class="chip chip--a">Tier A</span><span class="tt-t">Industry research</span></span>
+              <dl><dt>Nguồn</dt><dd class="ph" title="Placeholder — nguồn cho loaded-mile ratio">«nguồn ngành»</dd>
+                  <dt>Công bố</dt><dd class="ph" title="Placeholder">YYYY-MM-DD</dd>
+                  <dt>Kỳ đo</dt><dd class="ph" title="Placeholder">____</dd>
+                  <dt>Phạm vi</dt><dd>US truckload, đa phân khúc</dd>
+                  <dt>Loại</dt><dd>External reference — dạng <b>dải</b></dd></dl>
+              <span class="tt-f">Với chỉ số này, ngành công bố <b>khoảng</b> chứ không một điểm. Vẽ thành dải, đừng vẽ một đường.</span>
+            </span>
+          </span>
+          <span><span class="cmp-v">62–78%</span> <span class="cmp-d ok">trong dải</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- tile 4 — service reliability -->
+    <div class="tile">
+      <span class="tile-l">Service reliability <span class="pill">OTD · DIFOT</span></span>
+      <div class="tile-v">91.3<span class="tile-u">% OTD</span></div>
+      <div class="tile-d up-bad">▼ 1.1 pts <span class="dnote">DIFOT 87.6% · −0.6 pts</span></div>
+
+      <div class="ruler">
+        <svg viewBox="0 0 240 34" role="img" aria-label="OTD 91.3 phần trăm, mục tiêu 96, nghiên cứu 94, vendor 92.5">
+          <line x1="10" y1="19" x2="230" y2="19" stroke="var(--track)" stroke-width="6" stroke-linecap="round"/>
+          <rect x="10" y="15.5" width="124.3" height="7" rx="3.5" fill="var(--warn)"/>
+          <line x1="186" y1="9" x2="186" y2="29" stroke="var(--s2)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="164" y1="12" x2="164" y2="26" stroke="var(--s3)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="147.5" y1="12" x2="147.5" y2="26" stroke="var(--sB)" stroke-width="2" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="ruler-k"><span>80%</span><span>OTD</span><span>100%</span></div>
+      </div>
+
+      <div class="cmps">
+        <div class="cmp"><span class="cmp-k">Mục tiêu</span>
+          <span class="tt" style="justify-self:start"><span class="chip chip--c" tabindex="0">Tier C</span>
+            <span class="tt-b left" role="tooltip">
+              <span class="tt-h"><span class="chip chip--c">Tier C</span><span class="tt-t">Company target</span></span>
+              <dl><dt>Nguồn</dt><dd>FY26 Operating Plan, rev. 4</dd>
+                  <dt>Công bố</dt><dd>2026-01-15</dd>
+                  <dt>Kỳ đo</dt><dd>FY26 YTD</dd>
+                  <dt>Phạm vi</dt><dd>Toàn bộ division</dd>
+                  <dt>Loại</dt><dd>Company target</dd></dl>
+            </span>
+          </span>
+          <span><span class="cmp-v">96.0%</span> <span class="cmp-d bad">−4.7 pts</span></span>
+        </div>
+        <div class="cmp"><span class="cmp-k">Kỳ trước</span><span></span>
+          <span><span class="cmp-v">92.4%</span> <span class="cmp-d bad">−1.1 pts</span></span></div>
+        <div class="cmp"><span class="cmp-k">Benchmark</span>
+          <span class="tt" style="justify-self:start">
+            <span class="chip chip--b" tabindex="0">Tier B</span>
+            <span class="tt-b left" role="tooltip">
+              <span class="tt-h"><span class="chip chip--b">Tier B</span><span class="tt-t">Vendor benchmark</span></span>
+              <dl><dt>Nguồn</dt><dd class="ph" title="Placeholder">«Vendor» Fleet Benchmark, Q2 2026</dd>
+                  <dt>Công bố</dt><dd class="ph" title="Placeholder">YYYY-MM-DD</dd>
+                  <dt>Kỳ đo</dt><dd>Q2 2026</dd>
+                  <dt>Phạm vi</dt><dd>Khách hàng vendor, mọi phân khúc</dd>
+                  <dt>Loại</dt><dd>External reference — <b>directional</b></dd></dl>
+              <span class="tt-f">Độ tin cậy <b>thấp</b>: mẫu tự chọn. Không dùng để ra quyết định.</span>
+            </span>
+          </span>
+          <span><span class="cmp-v">92.5%</span> <span class="cmp-d bad">−1.2 pts</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Vì sao ruler chứ không phải 4 con số rời.</strong> Bốn giá trị
+    (actual / mục tiêu / kỳ trước / benchmark) đặt cạnh nhau dưới dạng chữ thì người đọc phải
+    tự tính khoảng cách. Ruler vẽ luôn khoảng cách đó: actual là thanh, Tier C là vạch cam đậm,
+    Tier A là vạch aqua, Tier B là vạch xám đứt — và khoảng trống giữa thanh và vạch cam
+    <em>chính là</em> mức thiếu hụt. Bốn giá trị vẫn còn nguyên trong bảng so sánh bên dưới,
+    nên không có gì bị gate sau hover.
+  </div>
+
+  <!-- ================= 4. QUICK CONCLUSIONS ================= -->
+  <h2 class="sec"><span class="num">4</span>Quick Conclusions — câu có cấu trúc, xếp theo tiền</h2>
+  <p class="sec-note">Bỏ hoàn toàn câu chung chung kiểu “CPM cao hơn benchmark”. Mỗi dòng theo
+  đúng khuôn: <em>[Trạng thái] · [Chỉ số] = [giá trị] · [Δ vs mục tiêu] · [Δ vs kỳ trước] ·
+  [Nguyên nhân] = [%] · [Tác động] · [Người phụ trách + hành động]</em>.</p>
+
+  <div class="panel" style="padding:13px 16px;margin-bottom:10px">
+    <div class="panel-h">
+      <span class="panel-t">Sắp xếp theo: tác động tài chính annualized</span>
+      <span class="panel-n">không sắp theo mức đỏ trên giao diện</span>
+    </div>
+  </div>
+
+  <div class="cc">
+
+    <div class="cc-row cc-row--high">
+      <span><span class="bg bg--high"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1 15 14H1L8 1Zm0 5v4m0 2v.01" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg>High</span></span>
+      <span class="cc-body">
+        <b>Spread RPM−CPM co còn <span class="num">$0.10</span>/dặm</b>, thiếu
+        <span class="num">$0.19</span> so với mục tiêu <span class="num">$0.29</span> và giảm
+        <span class="num">$0.05</span> so với kỳ trước. Nguyên nhân: <b>nhiên liệu +$0.07</b> và
+        <b>lương tài xế +$0.04</b> chiếm <b>73%</b> mức tăng CPM $0.15 — trong khi RPM chỉ tăng
+        $0.03 cùng kỳ. Tác động: <span class="num">$1.42M</span>/năm nếu giữ nguyên.
+        → <span class="own">VP Ops (N. Trần)</span> tái đàm phán fuel surcharge với top-5 khách
+        <span class="dnote">hạn 30/09</span>.
+      </span>
+      <span class="cc-imp"><span>Annualized</span><b>$1.42M</b><span>margin at risk</span></span>
+    </div>
+
+    <div class="cc-row cc-row--high">
+      <span><span class="bg bg--high"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1 15 14H1L8 1Zm0 5v4m0 2v.01" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg>High</span></span>
+      <span class="cc-body">
+        <b>Công nợ quá hạn tập trung vào 2 khách hàng</b>: DSO toàn công ty
+        <span class="num">52</span> ngày, vượt mục tiêu <span class="num">45</span> và tăng
+        <span class="num">6</span> ngày so với kỳ trước. Nguyên nhân: <b>hai khách
+        (Meridian, Kessler)</b> giữ <b>68%</b> AR trên 60 ngày. Tác động:
+        <span class="num">$860K</span> vốn bị chiếm dụng.
+        → <span class="own">CFO (L. Phạm)</span> chuyển 2 tài khoản sang điều khoản
+        net-30 có bảo đảm <span class="dnote">hạn 15/09</span>.
+      </span>
+      <span class="cc-imp"><span>Working cap</span><b>$860K</b><span>cash locked</span></span>
+    </div>
+
+    <div class="cc-row cc-row--watch">
+      <span><span class="bg bg--watch"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 4.6v4m0 2v.01" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>Watch</span></span>
+      <span class="cc-body">
+        <b>OTD xuống <span class="num">91.3%</span></b>, thiếu <span class="num">4.7 pts</span>
+        so với mục tiêu <span class="num">96.0%</span> và giảm <span class="num">1.1 pts</span>
+        so với kỳ trước. Nguyên nhân: <b>downtime ngoài kế hoạch</b> chiếm <b>41%</b> số ca trễ,
+        tập trung ở nhóm xe tải kéo (đời ≥ 2019). Tác động: <span class="num">$340K</span>
+        penalty &amp; tái ký hợp đồng.
+        → <span class="own">Fleet Manager (H. Vũ)</span> dồn PM quá hạn của nhóm xe đó
+        <span class="dnote">hạn 20/09</span>.
+      </span>
+      <span class="cc-imp"><span>Annualized</span><b>$340K</b><span>penalty + churn</span></span>
+    </div>
+
+    <div class="cc-row cc-row--med">
+      <span><span class="bg bg--med"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 5.2v.01M8 7.6v3.6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>Medium</span></span>
+      <span class="cc-body">
+        <b>Loaded-mile ratio <span class="num">71.2%</span></b>, giảm <span class="num">2.7 pts</span>
+        so với kỳ trước; nằm trong dải ngành <span class="num">62–78%</span> nên
+        <b>không có ngưỡng công ty để so</b> (mô hình Variable/spot). Nguyên nhân:
+        <b>deadhead tăng</b> chiếm <b>58%</b> mức giảm, chủ yếu ở lane về miền Trung.
+        Tác động: <span class="num">$210K</span> chi phí nhiên liệu không sinh doanh thu.
+        → <span class="own">Dispatch Lead (T. Đỗ)</span> thử ghép chuyến 2 chiều trên 3 lane đó
+        <span class="dnote">hạn 30/09</span>.
+      </span>
+      <span class="cc-imp"><span>Annualized</span><b>$210K</b><span>unproductive fuel</span></span>
+    </div>
+
+    <div class="cc-row cc-row--watch">
+      <span><span class="bg bg--watch"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 4.6v4m0 2v.01" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>Watch</span></span>
+      <span class="cc-body">
+        <b>Tập trung khách hàng tăng</b>: top-3 chiếm <span class="num">61%</span> doanh thu,
+        tăng <span class="num">4 pts</span> so với kỳ trước; vượt ngưỡng nội bộ
+        <span class="num">55%</span>. Nguyên nhân: <b>tăng trưởng đến 82% từ 2 khách cũ</b>.
+        Tác động: rủi ro <span class="num">$2.1M</span> doanh thu nếu mất 1 khách.
+        → <span class="own">CCO (M. Lê)</span> mở 2 tài khoản mới trong phân khúc retail
+        <span class="dnote">hạn 31/10</span>.
+      </span>
+      <span class="cc-imp"><span>Revenue at risk</span><b>$2.1M</b><span>nếu mất 1 khách</span></span>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Badge là icon + nhãn chữ, không phải đỏ–vàng–xanh.</strong> “High / Watch / Medium”
+    nói được <em>mức độ</em>; màu chỉ lặp lại điều đó. Và thứ tự <b>không</b> theo badge:
+    dòng Medium nằm trên dòng Watch cuối vì tác động tiền của nó lớn hơn. Cột phải in ra
+    con số tác động — đó là căn cứ sắp xếp, để người đọc <em>kiểm chứng được</em> thứ tự,
+    chứ không phải tin vào màu.
+  </div>
+
+  <!-- ================= 5. FINANCIAL ================= -->
+  <h2 class="sec"><span class="num">5</span>Financial Performance</h2>
+
+  <h3 class="sub">5.1 — RPM và CPM trên một trục, vùng spread vẽ nổi ở giữa</h3>
+  <div class="panel">
+    <div class="panel-h">
+      <span class="panel-t">RPM vs CPM — 12 tháng, $/dặm</span>
+      <span class="panel-n">một trục duy nhất (cùng đơn vị)</span>
+    </div>
+    <p class="panel-s">Spread đang co lại: $0.24 → $0.10 trong 12 tháng. Vùng tô giữa hai đường
+    chính là contribution margin — đây là thứ bị mất, không phải hai đường riêng lẻ.</p>
+
+    <div class="legend">
+      <span><i class="ln ln-act"></i>RPM thực</span>
+      <span><i class="ln ln-c"></i>CPM thực</span>
+      <span><i class="dot" style="background:var(--wash-good);border:1px solid var(--s3)"></i>Spread (RPM−CPM)</span>
+    </div>
+
+    <div class="chart" id="spreadChart">
+      <svg viewBox="0 0 720 250" role="img"
+           aria-label="RPM tăng từ 2.62 lên 2.88 đô trên dặm trong khi CPM tăng nhanh hơn từ 2.38 lên 2.78, làm spread co từ 0.24 xuống 0.10">
+        <!-- gridlines -->
+        <line class="gridline" x1="56" y1="16"  x2="700" y2="16"/>
+        <line class="gridline" x1="56" y1="61"  x2="700" y2="61"/>
+        <line class="gridline" x1="56" y1="106" x2="700" y2="106"/>
+        <line class="gridline" x1="56" y1="151" x2="700" y2="151"/>
+        <line class="axisline" x1="56" y1="196" x2="700" y2="196"/>
+        <text class="tick" x="48" y="20"  text-anchor="end">3.00</text>
+        <text class="tick" x="48" y="65"  text-anchor="end">2.80</text>
+        <text class="tick" x="48" y="110" text-anchor="end">2.60</text>
+        <text class="tick" x="48" y="155" text-anchor="end">2.40</text>
+        <text class="tick" x="48" y="200" text-anchor="end">2.20</text>
+
+        <!-- spread band -->
+        <path class="band" d="M56,101.5 L114.55,97 L173.09,92.5 L231.64,88 L290.18,83.5 L348.73,76.75 L407.27,72.25 L465.82,67.75 L524.36,61 L582.91,56.5 L641.45,49.75 L700,43 L700,65.5 L641.45,76.75 L582.91,85.75 L524.36,94.75 L465.82,103.75 L407.27,115 L348.73,121.75 L290.18,130.75 L231.64,137.5 L173.09,144.25 L114.55,148.75 L56,155.5 Z"/>
+
+        <polyline class="l1" points="56,101.5 114.55,97 173.09,92.5 231.64,88 290.18,83.5 348.73,76.75 407.27,72.25 465.82,67.75 524.36,61 582.91,56.5 641.45,49.75 700,43"/>
+        <polyline class="l2" points="56,155.5 114.55,148.75 173.09,144.25 231.64,137.5 290.18,130.75 348.73,121.75 407.27,115 465.82,103.75 524.36,94.75 582.91,85.75 641.45,76.75 700,65.5"/>
+
+        <!-- end markers + direct labels (selective) -->
+        <circle cx="700" cy="43" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+        <circle cx="700" cy="65.5" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="2"/>
+        <text class="dlab" x="700" y="34" text-anchor="end">RPM $2.88</text>
+        <text class="dlab" x="700" y="82" text-anchor="end">CPM $2.78</text>
+
+        <!-- the one number that matters -->
+        <line x1="524.36" y1="61" x2="524.36" y2="94.75" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="3 3"/>
+        <text class="dlab" x="530" y="66">spread $0.15</text>
+        <line x1="641.45" y1="49.75" x2="641.45" y2="76.75" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="3 3"/>
+        <text class="dlab" x="647" y="55">$0.12</text>
+
+        <!-- x axis -->
+        <text class="tick" x="56"  y="216" text-anchor="middle">T9/25</text>
+        <text class="tick" x="173.09" y="216" text-anchor="middle">T11</text>
+        <text class="tick" x="290.18" y="216" text-anchor="middle">T1/26</text>
+        <text class="tick" x="407.27" y="216" text-anchor="middle">T3</text>
+        <text class="tick" x="524.36" y="216" text-anchor="middle">T5</text>
+        <text class="tick" x="641.45" y="216" text-anchor="middle">T7</text>
+        <text class="tick" x="700" y="216" text-anchor="middle">T8</text>
+
+        <g id="xhairG" style="opacity:0">
+          <line id="xhairL" class="xhair" x1="0" y1="12" x2="0" y2="196"/>
+          <circle id="h1" r="4.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+          <circle id="h2" r="4.5" fill="var(--s2)" stroke="var(--surface)" stroke-width="2"/>
+        </g>
+        <rect class="hitbox" id="hit" x="56" y="12" width="644" height="184"/>
+      </svg>
+      <div class="ctip" id="ctip"></div>
+    </div>
+
+    <details class="tv">
+      <summary>Xem dạng bảng</summary>
+      <div class="tw"><table>
+        <thead><tr><th>Tháng</th><th>RPM</th><th>CPM</th><th>Spread</th></tr></thead>
+        <tbody>
+          <tr><td>T9/25</td><td>2.62</td><td>2.38</td><td>0.24</td></tr>
+          <tr><td>T10</td><td>2.64</td><td>2.41</td><td>0.23</td></tr>
+          <tr><td>T11</td><td>2.66</td><td>2.43</td><td>0.23</td></tr>
+          <tr><td>T12</td><td>2.68</td><td>2.46</td><td>0.22</td></tr>
+          <tr><td>T1/26</td><td>2.70</td><td>2.49</td><td>0.21</td></tr>
+          <tr><td>T2</td><td>2.73</td><td>2.53</td><td>0.20</td></tr>
+          <tr><td>T3</td><td>2.75</td><td>2.56</td><td>0.19</td></tr>
+          <tr><td>T4</td><td>2.77</td><td>2.61</td><td>0.16</td></tr>
+          <tr><td>T5</td><td>2.80</td><td>2.65</td><td>0.15</td></tr>
+          <tr><td>T6</td><td>2.82</td><td>2.69</td><td>0.13</td></tr>
+          <tr><td>T7</td><td>2.85</td><td>2.73</td><td>0.12</td></tr>
+          <tr><td>T8/26</td><td>2.88</td><td>2.78</td><td>0.10</td></tr>
+        </tbody>
+      </table></div>
+    </details>
+  </div>
+
+  <h3 class="sub">5.2 — Waterfall chi phí: “chi phí tăng đến từ đâu”</h3>
+  <div class="panel">
+    <div class="panel-h">
+      <span class="panel-t">Phân rã Δ CPM, kỳ trước → kỳ này ($/dặm)</span>
+      <span class="panel-n">cộng lại đúng bằng Δ CPM ở tile Unit Economics</span>
+    </div>
+    <p class="panel-s">Thay cho pie chart tháng hiện tại. Cột này trả lời được câu hỏi nguyên nhân
+    vì nó là <em>phân rã theo thời gian</em>, không phải cơ cấu tại một thời điểm.</p>
+
+    <div class="legend">
+      <span><i style="border-top:2.5px solid var(--crit);display:block;width:22px"></i>Chi phí tăng (bất lợi)</span>
+      <span><i style="border-top:2.5px solid var(--s1);display:block;width:22px"></i>Chi phí giảm (có lợi)</span>
+      <span><i style="border-top:2.5px solid var(--ink-3);display:block;width:22px"></i>Tổng (mốc)</span>
+    </div>
+
+    <div class="chart">
+      <svg viewBox="0 0 720 248" role="img"
+           aria-label="Waterfall: CPM kỳ trước 2.63 đô, tăng bởi nhiên liệu 0.07, lương tài xế 0.04, R và M 0.03, bảo hiểm 0.01, tolls 0.01, giảm bởi khác 0.01, thành 2.78 đô">
+        <line class="gridline" x1="56" y1="30"  x2="700" y2="30"/>
+        <line class="gridline" x1="56" y1="87"  x2="700" y2="87"/>
+        <line class="gridline" x1="56" y1="143" x2="700" y2="143"/>
+        <line class="axisline" x1="56" y1="200" x2="700" y2="200"/>
+        <text class="tick" x="48" y="34"  text-anchor="end">2.82</text>
+        <text class="tick" x="48" y="91"  text-anchor="end">2.74</text>
+        <text class="tick" x="48" y="147" text-anchor="end">2.66</text>
+        <text class="tick" x="48" y="204" text-anchor="end">2.60</text>
+
+        <!-- connectors -->
+        <line x1="108.25" y1="176.82" x2="164.75" y2="176.82" stroke="var(--axis)" stroke-width="1"/>
+        <line x1="188.75" y1="122.73" x2="245.25" y2="122.73" stroke="var(--axis)" stroke-width="1"/>
+        <line x1="269.25" y1="91.82"  x2="325.75" y2="91.82"  stroke="var(--axis)" stroke-width="1"/>
+        <line x1="349.75" y1="68.64"  x2="406.25" y2="68.64"  stroke="var(--axis)" stroke-width="1"/>
+        <line x1="430.25" y1="60.91"  x2="486.75" y2="60.91"  stroke="var(--axis)" stroke-width="1"/>
+        <line x1="510.75" y1="53.18"  x2="567.25" y2="53.18"  stroke="var(--axis)" stroke-width="1"/>
+        <line x1="591.25" y1="60.91"  x2="647.75" y2="60.91"  stroke="var(--axis)" stroke-width="1"/>
+
+        <rect x="84.25"  y="176.82" width="24" height="23.18"  rx="4" fill="var(--ink-3)"/>
+        <rect x="164.75" y="122.73" width="24" height="54.09"  rx="4" fill="var(--crit)"/>
+        <rect x="245.25" y="91.82"  width="24" height="30.91"  rx="4" fill="var(--crit)"/>
+        <rect x="325.75" y="68.64"  width="24" height="23.18"  rx="4" fill="var(--crit)"/>
+        <rect x="406.25" y="60.91"  width="24" height="7.73"   rx="3" fill="var(--crit)"/>
+        <rect x="486.75" y="53.18"  width="24" height="7.73"   rx="3" fill="var(--crit)"/>
+        <rect x="567.25" y="53.18"  width="24" height="7.73"   rx="3" fill="var(--s1)"/>
+        <rect x="647.75" y="60.91"  width="24" height="139.09" rx="4" fill="var(--ink-3)"/>
+
+        <!-- selective direct labels: the biggest mover + the two totals -->
+        <text class="dlab" x="176.75" y="115" text-anchor="middle">+$0.07</text>
+        <text class="dsub" x="176.75" y="101" text-anchor="middle">nhiên liệu</text>
+        <text class="dlab" x="96.25"  y="170" text-anchor="middle">$2.63</text>
+        <text class="dlab" x="659.75" y="54"  text-anchor="middle">$2.78</text>
+
+        <!-- x-axis -->
+        <text class="tick" x="96.25"  y="220" text-anchor="middle">Kỳ trước</text>
+        <text class="tick" x="176.75" y="220" text-anchor="middle">Nhiên liệu</text>
+        <text class="tick" x="257.25" y="220" text-anchor="middle">Lương TX</text>
+        <text class="tick" x="337.75" y="220" text-anchor="middle">R&amp;M</text>
+        <text class="tick" x="418.25" y="220" text-anchor="middle">Bảo hiểm</text>
+        <text class="tick" x="498.75" y="220" text-anchor="middle">Tolls</text>
+        <text class="tick" x="579.25" y="220" text-anchor="middle">Khác</text>
+        <text class="tick" x="659.75" y="220" text-anchor="middle">Kỳ này</text>
+        <text class="dsub" x="360" y="240" text-anchor="middle">Tổng Δ = +$0.15 — khớp đúng Δ CPM ở tile Unit Economics</text>
+      </svg>
+    </div>
+
+    <p class="panel-s" style="margin:12px 0 0">
+      <b>Neo kiểm chứng được:</b> tổng các cột phải bằng đúng Δ CPM hiển thị ở khối 1.
+      Nếu không khớp, đó là bug dữ liệu — không phải sai số làm tròn. Đây là ràng buộc
+      <code>assert</code> được ở tầng compute, không phải ở tầng hiển thị.
+    </p>
+  </div>
+
+  <h3 class="sub">5.3 — DSO &amp; AR aging, kèm cảnh báo tập trung</h3>
+  <div class="panel">
+    <div class="panel-h">
+      <span class="panel-t">DSO &amp; phân bố tuổi nợ theo khách hàng</span>
+      <span class="panel-n">đơn vị: $ nghìn</span>
+    </div>
+
+    <div class="two" style="margin-bottom:4px">
+      <div>
+        <div style="font-size:12px;color:var(--ink-2);margin-bottom:2px">DSO toàn công ty</div>
+        <div style="font-size:30px;font-weight:640;letter-spacing:-.02em">52 <span style="font-size:14px;color:var(--ink-2)">ngày</span></div>
+        <div style="font-size:12.5px;margin-bottom:8px"><span class="bad">▲ +6 ngày</span>
+          <span class="dnote">so với kỳ trước · mục tiêu 45 ngày</span></div>
+        <div style="font-size:11.5px;color:var(--ink-3)">
+          <span class="chip chip--c">Tier C</span> Mục tiêu 45 ngày — FY26 Operating Plan
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--ink-2);margin-bottom:2px">AR quá hạn &gt; 60 ngày</div>
+        <div style="font-size:30px;font-weight:640;letter-spacing:-.02em">$1.24<span style="font-size:14px;color:var(--ink-2)">M</span></div>
+        <div style="font-size:12.5px;margin-bottom:8px"><span class="bad">▲ +$310K</span>
+          <span class="dnote">so với kỳ trước</span></div>
+        <div style="font-size:11.5px;color:var(--ink-3)">trên tổng AR $4.10M</div>
+      </div>
+    </div>
+
+    <div class="legend" style="margin-top:14px">
+      <span><i class="dot" style="background:var(--o1);border-radius:2px"></i>Current</span>
+      <span><i class="dot" style="background:var(--o2);border-radius:2px"></i>1–30</span>
+      <span><i class="dot" style="background:var(--o3);border-radius:2px"></i>31–60</span>
+      <span><i class="dot" style="background:var(--o4);border-radius:2px"></i>61–90</span>
+      <span><i class="dot" style="background:var(--o5);border-radius:2px"></i>90+</span>
+      <span style="color:var(--ink-3)">thang thứ tự — đậm dần = quá hạn lâu hơn</span>
+    </div>
+
+    <div style="display:grid;gap:9px;margin-top:6px">
+      <div style="display:grid;grid-template-columns:104px 1fr 66px;gap:12px;align-items:center;font-size:12px">
+        <span>Meridian <span class="flag" style="font-size:14px">⚑</span></span>
+        <span style="display:flex;height:16px;border-radius:4px;overflow:hidden;gap:2px">
+          <i style="width:14%;background:var(--o1)"></i><i style="width:9%;background:var(--o2)"></i>
+          <i style="width:13%;background:var(--o3)"></i><i style="width:20%;background:var(--o4)"></i>
+          <i style="width:44%;background:var(--o5)"></i>
+        </span>
+        <span style="text-align:right;font-variant-numeric:tabular-nums">$1,180</span>
+      </div>
+      <div style="display:grid;grid-template-columns:104px 1fr 66px;gap:12px;align-items:center;font-size:12px">
+        <span>Kessler <span class="flag" style="font-size:14px">⚑</span></span>
+        <span style="display:flex;height:16px;border-radius:4px;overflow:hidden;gap:2px">
+          <i style="width:22%;background:var(--o1)"></i><i style="width:12%;background:var(--o2)"></i>
+          <i style="width:14%;background:var(--o3)"></i><i style="width:17%;background:var(--o4)"></i>
+          <i style="width:35%;background:var(--o5)"></i>
+        </span>
+        <span style="text-align:right;font-variant-numeric:tabular-nums">$940</span>
+      </div>
+      <div style="display:grid;grid-template-columns:104px 1fr 66px;gap:12px;align-items:center;font-size:12px">
+        <span>Northline</span>
+        <span style="display:flex;height:16px;border-radius:4px;overflow:hidden;gap:2px">
+          <i style="width:58%;background:var(--o1)"></i><i style="width:22%;background:var(--o2)"></i>
+          <i style="width:12%;background:var(--o3)"></i><i style="width:5%;background:var(--o4)"></i>
+          <i style="width:3%;background:var(--o5)"></i>
+        </span>
+        <span style="text-align:right;font-variant-numeric:tabular-nums">$760</span>
+      </div>
+      <div style="display:grid;grid-template-columns:104px 1fr 66px;gap:12px;align-items:center;font-size:12px">
+        <span>Cascade</span>
+        <span style="display:flex;height:16px;border-radius:4px;overflow:hidden;gap:2px">
+          <i style="width:66%;background:var(--o1)"></i><i style="width:18%;background:var(--o2)"></i>
+          <i style="width:9%;background:var(--o3)"></i><i style="width:4%;background:var(--o4)"></i>
+          <i style="width:3%;background:var(--o5)"></i>
+        </span>
+        <span style="text-align:right;font-variant-numeric:tabular-nums">$620</span>
+      </div>
+      <div style="display:grid;grid-template-columns:104px 1fr 66px;gap:12px;align-items:center;font-size:12px">
+        <span>Khác (14)</span>
+        <span style="display:flex;height:16px;border-radius:4px;overflow:hidden;gap:2px">
+          <i style="width:61%;background:var(--o1)"></i><i style="width:21%;background:var(--o2)"></i>
+          <i style="width:11%;background:var(--o3)"></i><i style="width:4%;background:var(--o4)"></i>
+          <i style="width:3%;background:var(--o5)"></i>
+        </span>
+        <span style="text-align:right;font-variant-numeric:tabular-nums">$600</span>
+      </div>
+    </div>
+
+    <div class="callout" style="border-left-color:var(--crit);margin:16px 0 0">
+      <strong>⚠ Cảnh báo tập trung.</strong> Hai khách hàng <b>Meridian</b> và <b>Kessler</b> giữ
+      <b>68%</b> toàn bộ AR quá hạn trên 60 ngày. Rủi ro tập trung, không phải rủi ro phân tán —
+      biện pháp xử lý là theo tài khoản, không phải chính sách chung.
+      <span style="color:var(--ink-3)">→ CFO (L. Phạm), hạn 15/09.</span>
+    </div>
+  </div>
+
+  <!-- ================= 6. OPERATIONAL & FLEET ================= -->
+  <h2 class="sec"><span class="num">6</span>Operational &amp; Fleet Health</h2>
+  <p class="sec-note">“Fleet Utilization %” bị tách thành 3 chỉ số riêng vì một con số gộp
+  không nói được phải sửa cái gì. Downtime và PM compliance nằm ở đây — chúng là
+  <em>nguyên nhân</em> của OTD và của chi phí R&amp;M ở trên.</p>
+
+  <div class="panel">
+    <div class="panel-h">
+      <span class="panel-t">Ba chỉ số utilization</span>
+      <span class="panel-n">không gộp thành một con số</span>
+    </div>
+    <p class="panel-s">Mỗi chỉ số là một meter riêng, mỗi cái có thang và ngữ cảnh riêng.
+    Track là bậc nhạt hơn của cùng thang, fill đổi màu theo mức độ.</p>
+
+    <div class="meters">
+      <div class="mtr">
+        <span class="mtr-l">Time utilization <span class="pill">giờ có việc</span></span>
+        <div class="mtr-v">78.4<span style="font-size:14px;color:var(--ink-2)">%</span></div>
+        <div class="mtr-t"><span class="mtr-f f-warn" style="width:78.4%"></span>
+          <span class="mtr-tk mtr-tk--t" style="left:82%"></span></div>
+        <div class="mtr-s"><span>Tỷ lệ giờ xe có chuyến trên tổng giờ khả dụng</span><b>mục tiêu 82%</b></div>
+        <div class="mtr-s" style="margin-top:4px"><span class="chip chip--c">Tier C</span>
+          <span>FY26 Operating Plan</span></div>
+      </div>
+
+      <div class="mtr" id="lmrCard">
+        <span class="mtr-l">Loaded-mile ratio <span class="pill">dặm có tải</span></span>
+        <div class="mtr-v" id="lmrV">71.2<span style="font-size:14px;color:var(--ink-2)">%</span></div>
+        <div class="mtr-t" id="lmrTrack">
+          <span class="mtr-f f-ok" style="width:71.2%"></span>
+          <span class="mtr-band" id="lmrBand" style="left:62%;width:16%"></span>
+        </div>
+        <div class="mtr-s" id="lmrNote"><span id="lmrNoteL">Dải ngành 62–78%</span><b id="lmrNoteR">trong dải ✓</b></div>
+        <div class="mtr-s" style="margin-top:4px" id="lmrSrc">
+          <span class="chip chip--a">Tier A</span><span id="lmrSrcT">dải linh hoạt — chưa có ngưỡng công ty</span>
+        </div>
+      </div>
+
+      <div class="mtr">
+        <span class="mtr-l">Mechanical availability <span class="pill">xe chạy được</span></span>
+        <div class="mtr-v">93.1<span style="font-size:14px;color:var(--ink-2)">%</span></div>
+        <div class="mtr-t"><span class="mtr-f f-warn" style="width:93.1%"></span>
+          <span class="mtr-tk mtr-tk--t" style="left:95%"></span></div>
+        <div class="mtr-s"><span>Xe sẵn sàng chạy trên tổng đội xe</span><b>mục tiêu 95%</b></div>
+        <div class="mtr-s" style="margin-top:4px"><span class="chip chip--c">Tier C</span>
+          <span>FY26 Operating Plan</span></div>
+      </div>
+    </div>
+
+    <div class="driver">
+      <div class="driver-h">
+        <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v10m0 0 4-4m-4 4-4-4" stroke="var(--ink-3)" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Nguyên nhân — hai chỉ số này kéo ba chỉ số ở trên
+      </div>
+      <div class="two">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+            <span style="font-size:22px;font-weight:640;letter-spacing:-.02em">6.9%</span>
+            <span style="font-size:12.5px"><span class="bad">▲ +1.4 pts</span>
+              <span class="dnote">downtime ngoài kế hoạch · mục tiêu &lt;5%</span></span>
+          </div>
+          <div class="mini">
+            <div class="mini-r"><span>Sửa chữa ngoài kế hoạch</span>
+              <span class="mini-tr"><span class="mini-f" style="width:100%;background:var(--crit)"></span></span>
+              <span class="mini-n">41%</span></div>
+            <div class="mini-r"><span>PM quá hạn</span>
+              <span class="mini-tr"><span class="mini-f" style="width:66%;background:var(--crit)"></span></span>
+              <span class="mini-n">27%</span></div>
+            <div class="mini-r"><span>Chờ phụ tùng</span>
+              <span class="mini-tr"><span class="mini-f" style="width:46%;background:var(--serious)"></span></span>
+              <span class="mini-n">19%</span></div>
+            <div class="mini-r"><span>Khác</span>
+              <span class="mini-tr"><span class="mini-f" style="width:32%;background:var(--ink-3)"></span></span>
+              <span class="mini-n">13%</span></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+            <span style="font-size:22px;font-weight:640;letter-spacing:-.02em">84%</span>
+            <span style="font-size:12.5px"><span class="bad">▼ −9 pts</span>
+              <span class="dnote">PM compliance · mục tiêu ≥95%</span></span>
+          </div>
+          <div class="mini">
+            <div class="mini-r"><span>PM đúng hạn theo lịch</span>
+              <span class="mini-tr"><span class="mini-f" style="width:84%;background:var(--warn)"></span></span>
+              <span class="mini-n">84%</span></div>
+            <div class="mini-r"><span>Xe ≥ 2019 quá hạn PM</span>
+              <span class="mini-tr"><span class="mini-f" style="width:62%;background:var(--crit)"></span></span>
+              <span class="mini-n">31 xe</span></div>
+          </div>
+          <p style="font-size:11.5px;color:var(--ink-2);margin:10px 0 0;line-height:1.5">
+            <b>Đường nhân quả:</b> PM quá hạn 31 xe → downtime ngoài kế hoạch +1.4 pts
+            → mechanical availability 93.1% → OTD 91.3%. Sửa PM là sửa được cả chuỗi.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Ngưỡng loaded-mile ratio phụ thuộc mô hình vận hành.</strong> &gt;85% chỉ là ngưỡng
+    đúng khi chạy <em>dedicated lane</em> — khi đó mới kiểm soát được lane và backhaul.
+    Ở mô hình <em>Variable/spot</em>, không có cơ sở nào để áp ngưỡng đó, nên UI hiện
+    <b>dải ngành</b> thay vì một vạch cứng, và bỏ luôn dòng “mục tiêu” khỏi ô so sánh.
+    Bấm “Dedicated lane” ở filter row để thấy nó đổi.
+  </div>
+
+  <!-- ================= 7. CUSTOMER CONCENTRATION ================= -->
+  <h2 class="sec"><span class="num">7</span>Customer Concentration</h2>
+  <p class="sec-note">Hai view song song — doanh thu <em>và</em> lợi nhuận gộp. Khách hàng lớn
+  nhất theo doanh thu thường không phải lớn nhất theo lợi nhuận; chỉ nhìn doanh thu là bỏ sót
+  đúng chỗ đó.</p>
+
+  <div class="panel">
+    <div class="panel-h" style="margin-bottom:8px">
+      <span class="panel-t">Pareto — top 7 + Other</span>
+      <span class="seg" role="group" aria-label="Chọn thước đo" style="margin-bottom:6px">
+        <button id="pv-rev" aria-pressed="true" onclick="setPareto('rev')">Doanh thu</button>
+        <button id="pv-gm"  aria-pressed="false" onclick="setPareto('gm')">Lợi nhuận gộp</button>
+      </span>
+    </div>
+    <p class="panel-s" id="paretoNote">Top 3 = <b>61%</b> doanh thu. Đường tích luỹ cắt mốc 80%
+    ở khách thứ 6.</p>
+
+    <div class="legend">
+      <span><i class="dot" style="background:var(--s1);border-radius:2px"></i><span id="lgBar">Doanh thu ($, trục trái)</span></span>
+      <span><i class="ln" style="border-top:2px solid var(--s2)"></i>Tích luỹ (%, trục phải)</span>
+      <span><i style="display:block;width:22px;border-top:1.5px dashed var(--ink-3)"></i>Ngưỡng 80%</span>
+    </div>
+
+    <div class="chart">
+      <svg viewBox="0 0 740 262" role="img" id="paretoSvg"
+           aria-label="Biểu đồ Pareto hai trục: top 7 khách hàng chiếm 84% doanh thu, top 3 chiếm 61%">
+        <line class="gridline" x1="56" y1="16"  x2="660" y2="16"/>
+        <line class="gridline" x1="56" y1="62"  x2="660" y2="62"/>
+        <line class="gridline" x1="56" y1="108" x2="660" y2="108"/>
+        <line class="gridline" x1="56" y1="154" x2="660" y2="154"/>
+        <line class="axisline" x1="56" y1="200" x2="660" y2="200"/>
+
+        <!-- trục trái: giá trị tuyệt đối, neo đúng bằng tổng -->
+        <text class="tick" x="48" y="20"  text-anchor="end" id="axL0">$4.4M</text>
+        <text class="tick" x="48" y="66"  text-anchor="end" id="axL1">$3.3M</text>
+        <text class="tick" x="48" y="112" text-anchor="end" id="axL2">$2.2M</text>
+        <text class="tick" x="48" y="158" text-anchor="end" id="axL3">$1.1M</text>
+        <text class="tick" x="48" y="204" text-anchor="end" id="axL4">$0</text>
+        <text class="dsub" x="16" y="108" text-anchor="middle" id="axLTitle"
+              transform="rotate(-90 16 108)">Doanh thu</text>
+
+        <!-- trục phải: % tích luỹ -->
+        <text class="tick" x="668" y="20"  id="axR0">100%</text>
+        <text class="tick" x="668" y="66"  id="axR1">75%</text>
+        <text class="tick" x="668" y="112" id="axR2">50%</text>
+        <text class="tick" x="668" y="158" id="axR3">25%</text>
+        <text class="tick" x="668" y="204" id="axR4">0%</text>
+        <text class="dsub" x="726" y="108" text-anchor="middle"
+              transform="rotate(90 726 108)">% tích luỹ</text>
+
+        <!-- ngưỡng 80% — đọc theo trục PHẢI -->
+        <line x1="56" y1="52.8" x2="660" y2="52.8" stroke="var(--ink-3)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text class="dsub" x="62" y="46">80% tích luỹ (trục phải)</text>
+
+        <!-- bars + cumulative + labels, dựng bằng JS để hai view dùng chung một đường tính -->
+        <g id="pDyn"></g>
+        <g id="pXLab"></g>
+      </svg>
+    </div>
+
+    <div class="callout" style="margin-top:12px">
+      <strong>Hai trục — và cách neo để chúng không nói dối.</strong>
+      Bản chất rủi ro của Pareto hai trục là chỗ này: nếu trục trái đặt max theo cột cao nhất
+      còn trục phải rải đều 0–100%, thì hai thang <em>thẳng hàng với nhau một cách tuỳ ý</em> —
+      đúng lỗi tạo tương quan giả. Ở đây hai trục được <b>neo vào cùng một điểm thật</b>:
+      trục trái chạy <b>0 → tổng</b> ($4.4M), trục phải chạy <b>0% → 100%</b>, nên
+      <code>giá trị tích luỹ = % tích luỹ × tổng</code> đúng ở mọi điểm. Hai thang là
+      <em>tỉ lệ với nhau</em>, không phải trùng khớp ngẫu nhiên.
+      <p style="margin:8px 0 0">Hệ quả cần biết: cột sẽ trông thấp (khách lớn nhất chỉ 28% chiều cao)
+      vì trục trái phải chứa cả tổng. Đường tích luỹ dừng ở <b>84%</b> chứ không tới 100% —
+      đó là thông tin thật: 7 khách lớn nhất phủ 84% doanh thu, 16% còn lại nằm ở 14 khách
+      trong nhóm “Other”. Đường không chạm nóc <em>không phải</em> lỗi vẽ.</p>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th>Khách hàng</th><th>Doanh thu</th><th>%DT</th>
+            <th>Lợi nhuận gộp</th><th>%LNG</th>
+            <th>CPM</th><th>RPM</th><th>OTD</th><th>DSO</th>
+          </tr>
+        </thead>
+        <tbody id="custBody">
+          <tr><td>Meridian <span class="flag">⚑</span></td><td>$1,240K</td><td>28%</td><td>$78K</td><td>9.4%</td><td>$2.91</td><td>$3.21</td><td>89.1%</td><td>64</td></tr>
+          <tr><td>Kessler <span class="flag">⚑</span></td><td>$842K</td><td>19%</td><td>$96K</td><td>16.1%</td><td>$2.68</td><td>$3.20</td><td>92.7%</td><td>58</td></tr>
+          <tr><td>Northline</td><td>$620K</td><td>14%</td><td>$71K</td><td>19.2%</td><td>$2.61</td><td>$3.23</td><td>95.4%</td><td>41</td></tr>
+          <tr><td>Cascade</td><td>$354K</td><td>8%</td><td>$44K</td><td>21.6%</td><td>$2.55</td><td>$3.25</td><td>96.0%</td><td>38</td></tr>
+          <tr><td>Fairview</td><td>$266K</td><td>6%</td><td>$31K</td><td>19.8%</td><td>$2.59</td><td>$3.23</td><td>94.2%</td><td>44</td></tr>
+          <tr><td>Oakline</td><td>$221K</td><td>5%</td><td>$24K</td><td>18.4%</td><td>$2.62</td><td>$3.21</td><td>93.8%</td><td>46</td></tr>
+          <tr><td>Pendleton</td><td>$177K</td><td>4%</td><td>$18K</td><td>17.1%</td><td>$2.66</td><td>$3.21</td><td>91.5%</td><td>49</td></tr>
+          <tr><td>Other (14)</td><td>$709K</td><td>16%</td><td>$112K</td><td>21.6%</td><td>$2.51</td><td>$3.19</td><td>92.0%</td><td>42</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td>Tổng</td><td>$4,429K</td><td>100%</td><td>$474K</td><td>10.7%</td><td>$2.78</td><td>$2.88</td><td>91.3%</td><td>52</td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <p class="panel-s" style="margin:12px 0 0">
+      <b>Đọc ra được gì mà view doanh thu thuần không thấy:</b> Meridian là khách lớn nhất
+      (28% DT) nhưng biên gộp chỉ <b>9.4%</b> — thấp hơn cả mức trung bình công ty 10.7%,
+      trong khi Northline (14% DT) đạt <b>19.2%</b>. Meridian còn có OTD thấp nhất (89.1%)
+      và DSO dài nhất (64 ngày). Đây là khách <em>tốn nguồn lực nhất</em>, và chỉ view
+      lợi nhuận gộp mới lộ ra.
+    </p>
+
+    <details class="tv">
+      <summary>Xem dạng bảng — Pareto theo lợi nhuận gộp</summary>
+      <div class="tw"><table>
+        <thead><tr><th>Khách hàng</th><th>LNG</th><th>%LNG</th><th>% tích luỹ</th></tr></thead>
+        <tbody>
+          <tr><td>Other (14)</td><td>$112K</td><td>23.6%</td><td>23.6%</td></tr>
+          <tr><td>Kessler</td><td>$96K</td><td>20.3%</td><td>43.9%</td></tr>
+          <tr><td>Meridian</td><td>$78K</td><td>16.5%</td><td>60.4%</td></tr>
+          <tr><td>Northline</td><td>$71K</td><td>15.0%</td><td>75.4%</td></tr>
+          <tr><td>Cascade</td><td>$44K</td><td>9.3%</td><td>84.7%</td></tr>
+          <tr><td>Fairview</td><td>$31K</td><td>6.5%</td><td>91.2%</td></tr>
+          <tr><td>Oakline</td><td>$24K</td><td>5.1%</td><td>96.3%</td></tr>
+          <tr><td>Pendleton</td><td>$18K</td><td>3.8%</td><td>100.1%</td></tr>
+        </tbody>
+      </table></div>
+    </details>
+  </div>
+
+  <div class="callout">
+    <strong>Một bẫy đã tránh:</strong> cột không được tô đậm dần theo thứ hạng.
+    Ramp theo hạng là <em>double-encode</em> — độ dài cột đã nói lên độ lớn rồi, tô màu theo
+    hạng chỉ đốt kênh màu vào thông tin đã có. Tất cả cột dùng <b>một</b> hue (xanh brand);
+    “Other” lùi về xám. Nhờ vậy khi lọc bớt khách, màu của khách còn lại không đổi.
+  </div>
+
+  <!-- ================= 8. IMPL NOTES ================= -->
+  <h2 class="sec"><span class="num">8</span>Ghi chú triển khai cho repo này</h2>
+
+  <div class="panel">
+    <ul class="tight" style="font-size:13px;color:var(--ink-2)">
+      <li><b>Chưa có chart library.</b> <code>package.json</code> không có
+      <code>recharts</code>/<code>echarts</code>; <code>src/pages/dashboard/OperationsChart.tsx</code>
+      hiện là bar chart tự dựng bằng CSS. Toàn bộ wireframe trên vẽ được bằng inline SVG + CSS
+      thuần, không cần thêm dependency. Nếu sau này thêm thư viện, các spec mark ở trên
+      (bar ≤24px, line 2px, gap 2px, gridline hairline solid) vẫn là ràng buộc cần giữ.</li>
+
+      <li><b>Token màu.</b> Brand hiện tại <code>$color-primary: #2563eb</code>
+      (<code>src/styles/_variables.scss</code>) đã dùng làm slot “Actual” và đã qua validator
+      cùng <code>#eb6834</code> (Tier C) và <code>#1baf7a</code> (Tier A) trên nền
+      <code>#ffffff</code>. Cần bổ sung 5 bậc ordinal cho AR aging và các token status.</li>
+
+      <li><b>Dark mode.</b> Hiện chưa có <code>ConfigProvider</code> theme trong
+      <code>src/App.tsx</code>. Bộ token trong tài liệu này đã có sẵn bậc dark đã validate —
+      dùng khi thêm <code>theme.darkAlgorithm</code>.</li>
+
+      <li><b>i18n.</b> Mọi nhãn phải đi qua <code>react-i18next</code> như phần còn lại của app
+      (<code>src/locales/{en,vi,ja}.ts</code>). Riêng <em>provenance</em> thì
+      <b>không dịch</b> — tên nguồn, ngày công bố, kỳ đo là dữ liệu, dịch đi là mất khả năng
+      kiểm chứng.</li>
+
+      <li><b>Trạng thái tải.</b> Dùng <code>AsyncStateView</code> sẵn có
+      (<code>src/components/AsyncState.tsx</code>) cho cả 5 khối. Khi refetch, giữ nguyên
+      render cũ ở opacity giảm — không nháy skeleton, không nhảy layout.</li>
+
+      <li><b>Quyền.</b> Theo pattern hiện tại: <code>useCan({ action: "list", resource: … })</code>
+      trước mỗi <code>useList</code>, và hiện “—” thay vì số khi thiếu quyền — không được để
+      một ô trống trông giống số 0.</li>
+
+      <li><b>Kiến trúc.</b> Theo rule flat-feature trong <code>.agents/rules/</code>: đặt dưới
+      <code>src/features/dashboard/</code>, không tạo <code>src/core</code> hay
+      <code>src/app</code>.</li>
+    </ul>
+  </div>
+
+  <h3 class="sub">Ba bất biến nên có test</h3>
+  <div class="panel">
+    <ul class="tight" style="font-size:13px;color:var(--ink-2)">
+      <li>Mọi <code>Benchmark</code> render ra DOM đều có provenance đầy đủ — thiếu thì
+      <b>không render số</b>, hiện “chưa có nguồn”.</li>
+      <li>Tổng waterfall = Δ CPM ở tile Unit Economics (sai lệch &gt; $0.005 là fail).</li>
+      <li>Thứ tự Quick Conclusions khớp thứ tự giảm dần của cột tác động tài chính.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  /* ---------- spread chart crosshair ---------- */
+  var pts = [
+    {m:"T9/25", y:101.5, c:155.5, rpm:2.62, cpm:2.38},
+    {m:"T10",   y:97,    c:148.75, rpm:2.64, cpm:2.41},
+    {m:"T11",   y:92.5,  c:144.25, rpm:2.66, cpm:2.43},
+    {m:"T12",   y:88,    c:137.5,  rpm:2.68, cpm:2.46},
+    {m:"T1/26", y:83.5,  c:130.75, rpm:2.70, cpm:2.49},
+    {m:"T2",    y:76.75, c:121.75, rpm:2.73, cpm:2.53},
+    {m:"T3",    y:72.25, c:115,    rpm:2.75, cpm:2.56},
+    {m:"T4",    y:67.75, c:103.75, rpm:2.77, cpm:2.61},
+    {m:"T5",    y:61,    c:94.75,  rpm:2.80, cpm:2.65},
+    {m:"T6",    y:56.5,  c:85.75,  rpm:2.82, cpm:2.69},
+    {m:"T7",    y:49.75, c:76.75,  rpm:2.85, cpm:2.73},
+    {m:"T8/26", y:43,    c:65.5,   rpm:2.88, cpm:2.78}
+  ];
+  var xs = [56,114.55,173.09,231.64,290.18,348.73,407.27,465.82,524.36,582.91,641.45,700];
+  var host = document.getElementById("spreadChart");
+  var hit  = document.getElementById("hit");
+  var g    = document.getElementById("xhairG");
+  var xl   = document.getElementById("xhairL");
+  var h1   = document.getElementById("h1");
+  var h2   = document.getElementById("h2");
+  var tip  = document.getElementById("ctip");
+  if(!hit) return;
+
+  function move(ev){
+    var svg = hit.ownerSVGElement;
+    var r = svg.getBoundingClientRect();
+    var cx = (ev.touches ? ev.touches[0].clientX : ev.clientX);
+    var vb = (cx - r.left) / r.width * 720;
+    var i = 0, best = 1e9;
+    for (var k=0;k<xs.length;k++){ var d=Math.abs(xs[k]-vb); if(d<best){best=d;i=k;} }
+    var p = pts[i];
+    g.style.opacity = 1;
+    xl.setAttribute("x1", xs[i]); xl.setAttribute("x2", xs[i]);
+    h1.setAttribute("cx", xs[i]); h1.setAttribute("cy", p.y);
+    h2.setAttribute("cx", xs[i]); h2.setAttribute("cy", p.c);
+    var spread = (p.rpm - p.cpm).toFixed(2);
+    tip.innerHTML =
+      '<div class="h">'+p.m+'</div>'+
+      '<div class="r"><span class="k"><i style="border-top-color:var(--s1)"></i>RPM</span><b>$'+p.rpm.toFixed(2)+'</b></div>'+
+      '<div class="r"><span class="k"><i style="border-top-color:var(--s2)"></i>CPM</span><b>$'+p.cpm.toFixed(2)+'</b></div>'+
+      '<div class="sep"></div>'+
+      '<div class="r"><span>Spread</span><b>$'+spread+'</b></div>'+
+      '<div class="note">Spread là contribution margin trên mỗi dặm — đây là thứ đang bị mất.</div>';
+    tip.style.opacity = 1;
+    var px = xs[i]/720 * r.width;
+    tip.style.left = Math.min(Math.max(px - 91, 0), r.width - 190) + "px";
+    tip.style.top = "6px";
+  }
+  function out(){ g.style.opacity=0; tip.style.opacity=0; }
+  hit.addEventListener("mousemove", move);
+  hit.addEventListener("mouseleave", out);
+  hit.addEventListener("touchmove", function(e){ e.preventDefault(); move(e); }, {passive:false});
+  hit.addEventListener("touchend", out);
+})();
+
+/* ---------- operating-model context: hard threshold vs flexible band ---------- */
+function setModel(m){
+  var ded = document.getElementById("om-ded"), v = document.getElementById("om-var");
+  ded.setAttribute("aria-pressed", m === "dedicated");
+  v.setAttribute("aria-pressed", m === "variable");
+
+  var band = document.getElementById("lmrBand");
+  var noteL = document.getElementById("lmrNoteL");
+  var noteR = document.getElementById("lmrNoteR");
+  var srcT  = document.getElementById("lmrSrcT");
+  var track = document.getElementById("lmrTrack");
+  var tk = track.querySelector(".mtr-tk");
+
+  if (m === "dedicated") {
+    band.style.display = "none";
+    if (!tk) { tk = document.createElement("span"); tk.className = "mtr-tk mtr-tk--t"; track.appendChild(tk); }
+    tk.style.display = "block"; tk.style.left = "85%";
+    noteL.textContent = "Ngưỡng cứng — dedicated lane";
+    noteR.innerHTML = '<span class="bad">thiếu 13.8 pts</span>';
+    srcT.textContent = "ngưỡng công ty >85% (chỉ đúng ở dedicated lane)";
+    srcT.previousElementSibling.className = "chip chip--c";
+    srcT.previousElementSibling.textContent = "Tier C";
+  } else {
+    band.style.display = "block";
+    if (tk) tk.style.display = "none";
+    noteL.textContent = "Dải ngành 62–78%";
+    noteR.innerHTML = '<span class="ok">trong dải ✓</span>';
+    srcT.textContent = "dải linh hoạt — chưa có ngưỡng công ty";
+    srcT.previousElementSibling.className = "chip chip--a";
+    srcT.previousElementSibling.textContent = "Tier A";
+  }
+}
+
+/* ---------- pareto hai trục: doanh thu vs lợi nhuận gộp ---------- */
+var PX0=56, PX1=660, PY0=16, PY1=200, PNS="http://www.w3.org/2000/svg";
+var P_NAMES = ["Meridian","Kessler","Northline","Cascade","Fairview","Oakline","Pendleton"];
+var P_REV = [1240, 842, 620, 354, 266, 221, 177];   /* $K */
+var P_GP  = [  78,  96,  71,  44,  31,  24,  18];   /* $K */
+/* "Other (14)" cố ý KHÔNG vẽ thành cột: nó là một nhóm, không phải một khách.
+   Đường tích luỹ vì vậy dừng dưới 100% — đó là thông tin thật, không phải lỗi. */
+var P_TOTAL = { rev: 4429, gm: 474 };
+
+function pMoney(v){
+  if (v <= 0) return "$0";
+  return v >= 1000 ? "$" + (v/1000).toFixed(1) + "M" : "$" + Math.round(v) + "K";
+}
+
+function setPareto(view){
+  var isRev = view === "rev";
+  document.getElementById("pv-rev").setAttribute("aria-pressed", isRev);
+  document.getElementById("pv-gm").setAttribute("aria-pressed", !isRev);
+
+  var total = P_TOTAL[view];
+  var rows = P_NAMES.map(function(n,i){ return { n:n, v:(isRev?P_REV:P_GP)[i] }; })
+                    .sort(function(a,b){ return b.v - a.v; });
+
+  /* cả hai trục dùng CHUNG một hàm toạ độ: trái 0→tổng, phải 0→100%.
+     Nhờ vậy tích luỹ($) = tích luỹ(%) × tổng đúng ở mọi điểm. */
+  var yPct = function(pct){ return PY1 - pct/100 * (PY1 - PY0); };
+  var slot = (PX1 - PX0) / rows.length;
+  var cx = rows.map(function(_,i){ return PX0 + slot*i + slot/2; });
+
+  /* nhãn trục trái: luôn đúng 0 / 25 / 50 / 75 / 100% của tổng */
+  [0,1,2,3,4].forEach(function(i){
+    document.getElementById("axL"+i).textContent = pMoney(total * (1 - i*0.25));
+  });
+  document.getElementById("axLTitle").textContent = isRev ? "Doanh thu" : "Lợi nhuận gộp";
+  document.getElementById("lgBar").textContent =
+    (isRev ? "Doanh thu" : "Lợi nhuận gộp") + " ($, trục trái)";
+
+  var g = document.getElementById("pDyn");
+  while (g.firstChild) g.removeChild(g.firstChild);
+
+  /* cột — một hue duy nhất, không ramp theo hạng */
+  var cum = [], acc = 0;
+  rows.forEach(function(r, i){
+    var pct = r.v / total * 100;
+    acc += pct; cum.push(acc);
+    var yy = yPct(pct), h = PY1 - yy, rad = Math.min(4, h/2);
+    var x = cx[i] - 12, w = 24;
+    var p = document.createElementNS(PNS, "path");
+    p.setAttribute("d",
+      "M"+x+","+PY1+" L"+x+","+(yy+rad)+" Q"+x+","+yy+" "+(x+rad)+","+yy+
+      " L"+(x+w-rad)+","+yy+" Q"+(x+w)+","+yy+" "+(x+w)+","+(yy+rad)+
+      " L"+(x+w)+","+PY1+" Z");
+    p.setAttribute("fill", "var(--s1)");
+    g.appendChild(p);
+
+    /* direct label: chỉ cột lớn nhất, theo đúng "label selectively" */
+    if (i === 0) {
+      var t = document.createElementNS(PNS, "text");
+      t.setAttribute("class","dlab"); t.setAttribute("text-anchor","middle");
+      t.setAttribute("x", cx[0]); t.setAttribute("y", yy - 8);
+      t.textContent = pMoney(r.v);
+      g.appendChild(t);
+    }
+  });
+
+  /* đường tích luỹ */
+  var pl = document.createElementNS(PNS, "polyline");
+  pl.setAttribute("class","l2");
+  pl.setAttribute("points", cx.map(function(x,i){ return x+","+yPct(cum[i]).toFixed(2); }).join(" "));
+  g.appendChild(pl);
+  cx.forEach(function(x,i){
+    var c = document.createElementNS(PNS, "circle");
+    c.setAttribute("cx",x); c.setAttribute("cy",yPct(cum[i]).toFixed(2)); c.setAttribute("r",4);
+    c.setAttribute("fill","var(--s2)"); c.setAttribute("stroke","var(--surface)");
+    c.setAttribute("stroke-width",2);
+    g.appendChild(c);
+  });
+
+  /* mốc cắt 80% — chỉ vẽ khi đường thực sự chạm 80% */
+  /* 79.95 chứ không phải 80: Oakline đạt 79.995% — chênh 0.005 điểm phần trăm,
+     dưới mọi ngưỡng hiển thị, nên tính là đã chạm mốc. */
+  var cross = -1;
+  for (var z=0; z<cum.length; z++){ if (cum[z] >= 79.95){ cross = z; break; } }
+  if (cross >= 0) {
+    var vl = document.createElementNS(PNS,"line");
+    vl.setAttribute("x1",cx[cross]); vl.setAttribute("x2",cx[cross]);
+    vl.setAttribute("y1",yPct(80));   vl.setAttribute("y2",PY1);
+    vl.setAttribute("stroke","var(--ink-3)"); vl.setAttribute("stroke-width",1);
+    vl.setAttribute("stroke-dasharray","3 3"); vl.setAttribute("opacity",".5");
+    g.appendChild(vl);
+    var cl = document.createElementNS(PNS,"text");
+    cl.setAttribute("class","dsub"); cl.setAttribute("x", cx[cross] + 6);
+    cl.setAttribute("y", PY1 - 12);
+    cl.textContent = "cắt 80% ở khách thứ " + (cross+1);
+    g.appendChild(cl);
+  }
+
+  /* nhãn trục x — đổi theo thứ tự sắp xếp của từng view */
+  var xg = document.getElementById("pXLab");
+  while (xg.firstChild) xg.removeChild(xg.firstChild);
+  rows.forEach(function(r,i){
+    var t = document.createElementNS(PNS,"text");
+    t.setAttribute("class","tick"); t.setAttribute("text-anchor","middle");
+    t.setAttribute("x", cx[i]); t.setAttribute("y", 220);
+    t.textContent = r.n;
+    xg.appendChild(t);
+  });
+
+  /* câu dẫn + ghi chú residual */
+  var top3 = (rows[0].v + rows[1].v + rows[2].v) / total * 100;
+  var covered = cum[cum.length-1];
+  var txt = isRev ? "doanh thu" : "lợi nhuận gộp";
+  document.getElementById("paretoNote").innerHTML =
+    "Top 3 = <b>" + top3.toFixed(0) + "%</b> " + txt + ". 7 khách lớn nhất phủ <b>" +
+    covered.toFixed(0) + "%</b> " + txt + " — phần còn lại (" + (100-covered).toFixed(0) +
+    "%) nằm ở 14 khách trong nhóm “Other”, không vẽ thành cột." +
+    (cross >= 0
+      ? " Đường tích luỹ cắt mốc 80% ở khách thứ " + (cross+1) + "."
+      : " <b>Đường tích luỹ không chạm 80%</b> — " + txt +
+        " phân tán hơn nhiều so với doanh thu, không có nhóm “vital few” nào ở đây.") +
+    (isRev ? "" :
+      " <b>Đáng chú ý:</b> thứ tự đảo — Meridian đứng đầu về doanh thu nhưng tụt xuống thứ 3 về lợi nhuận gộp.");
+}
+
+/* Pareto dựng hoàn toàn bằng JS (hai view dùng chung một đường tính) — phải gọi lần đầu.
+   setModel('variable') là trạng thái mặc định đã có sẵn trong HTML. */
+setPareto("rev");
+</script>

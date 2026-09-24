@@ -1,0 +1,102 @@
+@use "../../styles/variables" as v;
+
+.login-page {
+  display: grid;
+  min-height: 100vh;
+  padding: v.$spacing-lg;
+  place-items: center;
+  background:
+    radial-gradient(circle at top, rgb(37 99 235 / 10%), transparent 40%),
+    v.$color-bg-layout;
+}
+
+.login-card.ant-card {
+  width: min(100%, 420px);
+  border: 1px solid v.$color-border-secondary;
+  border-radius: 18px;
+  box-shadow: v.$shadow-secondary;
+}
+
+.login-card > .ant-card-body {
+  padding: 32px;
+}
+
+.login-heading {
+  margin-bottom: v.$spacing-lg;
+  text-align: center;
+}
+
+.login-heading .ant-typography {
+  margin-bottom: 0;
+}
+
+.login-heading h2.ant-typography {
+  margin-top: v.$spacing;
+  color: v.$color-text;
+}
+
+.login-mark {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto;
+  color: #fff;
+  border-radius: 14px;
+  background: v.$color-primary;
+  font-size: 24px;
+  font-weight: 700;
+  place-items: center;
+}
+
+.login-demo-alert.ant-alert,
+.login-error-alert.ant-alert {
+  margin-bottom: v.$spacing-lg;
+}
+
+.login-form .ant-form-item {
+  margin-bottom: v.$spacing;
+}
+
+.login-form .ant-btn,
+.login-oidc .ant-btn {
+  height: 46px;
+}
+
+.login-divider.ant-divider {
+  margin: v.$spacing-lg 0;
+  color: #8b95a7;
+  font-size: 12px;
+}
+
+.login-oidc.ant-space {
+  width: 100%;
+  text-align: center;
+}
+
+.login-oidc .ant-typography {
+  font-size: 12px;
+}
+
+.login-footer.ant-typography {
+  display: block;
+  margin-top: v.$spacing-lg;
+  font-size: 12px;
+  text-align: center;
+}
+
+.login-callback-card.ant-card {
+  width: min(100%, 420px);
+  border-radius: 18px;
+  box-shadow: v.$shadow-secondary;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: v.$spacing-mobile;
+  }
+
+  .login-card > .ant-card-body {
+    padding: v.$spacing-lg;
+  }
+}

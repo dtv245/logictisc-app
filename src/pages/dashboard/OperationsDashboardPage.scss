@@ -1,0 +1,33 @@
+@use "../../styles/variables" as v;
+
+/**
+ * Kiểu dáng riêng của trang Operations Dashboard.
+ *
+ * Kiểu của `OperationsChart` và `VehicleTrackingMap` nằm trong
+ * `features/operations/operations.scss` — trang chỉ lo phần khung.
+ */
+
+.ops-page {
+  width: 100%;
+}
+
+.ops-card {
+  border-color: v.$color-border-secondary;
+  height: 100%;
+}
+
+.ops-card .ant-card-head {
+  min-height: 56px;
+}
+
+.ops-card__subtitle {
+  display: block;
+  margin-bottom: v.$spacing;
+}
+
+/* Tên công ty dài sẽ bị cắt thay vì đẩy vỡ thẻ — nhưng cắt bằng ellipsis vẫn
+   giữ được `title` của antd để rê chuột xem đầy đủ. */
+.ops-statistic .ant-statistic-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

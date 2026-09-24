@@ -1,0 +1,361 @@
+/**
+ * Common Utility Classes cho LogisticsX App.
+ *
+ * Tập hợp các helper classes tiện dụng (display, flexbox, grid, spacing, sizing,
+ * typography, accessibility, overflow) để các component có thể áp dụng trực tiếp
+ * qua prop `className` mà không cần viết lại CSS thủ công.
+ */
+
+@use "./variables" as v;
+@use "./mixins" as m;
+
+// =============================================================================
+// 1. DISPLAY & FLEXBOX UTILITIES
+// =============================================================================
+
+.d-flex {
+  display: flex !important;
+}
+
+.d-inline-flex {
+  display: inline-flex !important;
+}
+
+.d-grid {
+  display: grid !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-inline-block {
+  display: inline-block !important;
+}
+
+.d-none {
+  display: none !important;
+}
+
+.flex-row {
+  flex-direction: row !important;
+}
+
+.flex-col {
+  flex-direction: column !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap !important;
+}
+
+.items-center {
+  align-items: center !important;
+}
+
+.items-start {
+  align-items: flex-start !important;
+}
+
+.items-end {
+  align-items: flex-end !important;
+}
+
+.items-stretch {
+  align-items: stretch !important;
+}
+
+.items-baseline {
+  align-items: baseline !important;
+}
+
+.justify-center {
+  justify-content: center !important;
+}
+
+.justify-between {
+  justify-content: space-between !important;
+}
+
+.justify-start {
+  justify-content: flex-start !important;
+}
+
+.justify-end {
+  justify-content: flex-end !important;
+}
+
+.flex-1 {
+  flex: 1 1 0% !important;
+}
+
+.flex-auto {
+  flex: 1 1 auto !important;
+}
+
+.flex-none {
+  flex: none !important;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+// Spacing Gap cho Flex & Grid
+.gap-xxs {
+  gap: v.$spacing-xxs !important;
+}
+
+.gap-xs {
+  gap: v.$spacing-xs !important;
+}
+
+.gap-sm {
+  gap: v.$spacing-sm !important;
+}
+
+.gap-md {
+  gap: v.$spacing-md !important;
+}
+
+.gap-lg {
+  gap: v.$spacing-lg !important;
+}
+
+.gap-xl {
+  gap: v.$spacing-xl !important;
+}
+
+// =============================================================================
+// 2. GRID UTILITIES
+// =============================================================================
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.grid-auto-fit {
+  @include m.grid-auto-fit;
+}
+
+.grid-auto-fill {
+  @include m.grid-auto-fill;
+}
+
+// Responsive Grid fallback
+@media (max-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid-cols-4,
+  .grid-cols-3,
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+}
+
+// =============================================================================
+// 3. SIZING UTILITIES
+// =============================================================================
+
+.w-100,
+.full-width {
+  width: 100% !important;
+}
+
+.w-auto {
+  width: auto !important;
+}
+
+.h-100,
+.full-height {
+  height: 100% !important;
+}
+
+.min-h-screen {
+  min-height: 100vh !important;
+}
+
+.max-w-content {
+  max-width: v.$content-max-width !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+// =============================================================================
+// 4. SPACING (MARGIN & PADDING) UTILITIES
+// =============================================================================
+
+.m-0 { margin: 0 !important; }
+.mt-0 { margin-top: 0 !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.ml-0 { margin-left: 0 !important; }
+.mr-0 { margin-right: 0 !important; }
+
+.mt-xs { margin-top: v.$spacing-xs !important; }
+.mt-sm { margin-top: v.$spacing-sm !important; }
+.mt-md { margin-top: v.$spacing-md !important; }
+.mt-lg { margin-top: v.$spacing-lg !important; }
+.mt-xl { margin-top: v.$spacing-xl !important; }
+
+.mb-xs { margin-bottom: v.$spacing-xs !important; }
+.mb-sm { margin-bottom: v.$spacing-sm !important; }
+.mb-md { margin-bottom: v.$spacing-md !important; }
+.mb-lg { margin-bottom: v.$spacing-lg !important; }
+.mb-xl { margin-bottom: v.$spacing-xl !important; }
+
+.my-sm {
+  margin-top: v.$spacing-sm !important;
+  margin-bottom: v.$spacing-sm !important;
+}
+
+.my-md {
+  margin-top: v.$spacing-md !important;
+  margin-bottom: v.$spacing-md !important;
+}
+
+.my-lg {
+  margin-top: v.$spacing-lg !important;
+  margin-bottom: v.$spacing-lg !important;
+}
+
+.p-0 { padding: 0 !important; }
+.p-xs { padding: v.$spacing-xs !important; }
+.p-sm { padding: v.$spacing-sm !important; }
+.p-md { padding: v.$spacing-md !important; }
+.p-lg { padding: v.$spacing-lg !important; }
+.p-xl { padding: v.$spacing-xl !important; }
+
+.px-sm {
+  padding-left: v.$spacing-sm !important;
+  padding-right: v.$spacing-sm !important;
+}
+
+.px-md {
+  padding-left: v.$spacing-md !important;
+  padding-right: v.$spacing-md !important;
+}
+
+.px-lg {
+  padding-left: v.$spacing-lg !important;
+  padding-right: v.$spacing-lg !important;
+}
+
+.py-sm {
+  padding-top: v.$spacing-sm !important;
+  padding-bottom: v.$spacing-sm !important;
+}
+
+.py-md {
+  padding-top: v.$spacing-md !important;
+  padding-bottom: v.$spacing-md !important;
+}
+
+.py-lg {
+  padding-top: v.$spacing-lg !important;
+  padding-bottom: v.$spacing-lg !important;
+}
+
+// =============================================================================
+// 5. TYPOGRAPHY UTILITIES
+// =============================================================================
+
+.text-left { text-align: left !important; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+
+.text-truncate {
+  @include m.text-truncate;
+}
+
+.line-clamp-1 { @include m.text-clamp(1); }
+.line-clamp-2 { @include m.text-clamp(2); }
+.line-clamp-3 { @include m.text-clamp(3); }
+
+.tabular-nums {
+  @include m.tabular-nums;
+}
+
+.text-primary { color: v.$color-primary !important; }
+.text-success { color: v.$color-success !important; }
+.text-warning { color: v.$color-warning !important; }
+.text-error,
+.text-danger { color: v.$color-error !important; }
+.text-info { color: v.$color-info !important; }
+.text-neutral { color: v.$color-neutral !important; }
+.text-muted,
+.text-secondary { color: v.$color-text-secondary !important; }
+.text-tertiary { color: v.$color-text-tertiary !important; }
+
+.font-normal { font-weight: v.$font-weight-regular !important; }
+.font-medium { font-weight: v.$font-weight-medium !important; }
+.font-semibold { font-weight: v.$font-weight-semibold !important; }
+.font-bold { font-weight: v.$font-weight-bold !important; }
+
+.text-xs { font-size: v.$font-size-xs !important; }
+.text-sm { font-size: v.$font-size-sm !important; }
+.text-base { font-size: v.$font-size-base !important; }
+.text-lg { font-size: v.$font-size-lg !important; }
+.text-xl { font-size: v.$font-size-xl !important; }
+.text-2xl { font-size: v.$font-size-2xl !important; }
+
+// =============================================================================
+// 6. POSITION & OVERFLOW UTILITIES
+// =============================================================================
+
+.pos-relative { position: relative !important; }
+.pos-absolute { position: absolute !important; }
+.pos-sticky { position: sticky !important; }
+.pos-fixed { position: fixed !important; }
+
+.overflow-hidden { overflow: hidden !important; }
+.overflow-auto { overflow: auto !important; }
+.overflow-x-auto { overflow-x: auto !important; }
+.overflow-y-auto { overflow-y: auto !important; }
+
+.custom-scrollbar {
+  @include m.custom-scrollbar;
+}
+
+// =============================================================================
+// 7. ACCESSIBILITY & INTERACTION UTILITIES
+// =============================================================================
+
+.sr-only {
+  @include m.visually-hidden;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}
+
+.select-none {
+  user-select: none !important;
+}

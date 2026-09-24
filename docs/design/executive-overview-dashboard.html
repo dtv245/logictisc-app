@@ -1,0 +1,2482 @@
+<title>Fleet Executive Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============================================================
+   TOKENS — bare :root carries the complete LIGHT palette.
+   Dark is redefined (not inverted) under both scopes below.
+   ============================================================ */
+:root{
+  color-scheme: light;
+
+  /* grounds & ink */
+  --ground:      #f5f7fa;
+  --surface:     #ffffff;
+  --surface-2:   #f8fafc;
+  --sunken:      #eef2f7;
+  --border:      #e3e8ef;
+  --border-soft: #edf1f6;
+  --ink-1:       #0f172a;
+  --ink-2:       #4a5568;
+  --ink-3:       #8896ab;
+  --ink-4:       #b6c0cf;
+
+  /* series — validated: worst adjacent CVD ΔE 9.2, normal 27.6 */
+  --s-rev:  #2563eb;   /* revenue / RPM / actual */
+  --s-cost: #eb6834;   /* operating cost / CPM */
+  --s-prof: #1baf7a;   /* operating profit / contribution spread */
+
+  /* series washes (band fills) */
+  --wash-prof:  rgba(27,175,122,.14);
+  --wash-prof2: rgba(27,175,122,.07);
+  --bar-track:  #f1f4f9;
+  --bar-prev:   #c9d6e8;
+
+  /* status — reserved, never a series, always with icon + label */
+  --good:    #0ca30c;
+  --good-bg: #e8f7e8;
+  --warn:    #fab219;
+  --warn-bg: #fdf4e0;
+  --crit:    #d03b3b;
+  --crit-bg: #fbeaea;
+  --neutral: #94a3b8;
+  --neutral-bg:#eef2f7;
+
+  --grid:  #eaeef4;
+  --axis:  #d5dce6;
+
+  /* reference grammar — ink + dash, never a hue (hues belong to series) */
+  --ref-t: var(--ink-1);      /* T  internal target   */
+  --ref-i: var(--ink-3);      /* I  industry benchmark*/
+  --ref-h: var(--ink-4);      /* H  historical baseline*/
+
+  --radius:   10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.04);
+  --shadow-lift: 0 4px 14px rgba(15,23,42,.09);
+
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0e131b; --surface:#151b26; --surface-2:#1a2130; --sunken:#111823;
+    --border:#26303f; --border-soft:#1e2733;
+    --ink-1:#f0f4f9; --ink-2:#b3c0d1; --ink-3:#8494a8; --ink-4:#5d6b7e;
+    --s-rev:#3987e5; --s-cost:#d95926; --s-prof:#199e70;
+    --wash-prof: rgba(25,158,112,.20); --wash-prof2: rgba(25,158,112,.10);
+    --bar-track:#1e2733; --bar-prev:#39465a;
+    --good-bg:#122a15; --warn-bg:#2c2410; --crit-bg:#2c1416; --neutral-bg:#1e2733;
+    --grid:#1f2836; --axis:#2c3849;
+    --shadow: 0 1px 2px rgba(0,0,0,.35); --shadow-lift: 0 4px 16px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0e131b; --surface:#151b26; --surface-2:#1a2130; --sunken:#111823;
+  --border:#26303f; --border-soft:#1e2733;
+  --ink-1:#f0f4f9; --ink-2:#b3c0d1; --ink-3:#8494a8; --ink-4:#5d6b7e;
+  --s-rev:#3987e5; --s-cost:#d95926; --s-prof:#199e70;
+  --wash-prof: rgba(25,158,112,.20); --wash-prof2: rgba(25,158,112,.10);
+  --bar-track:#1e2733; --bar-prev:#39465a;
+  --good-bg:#122a15; --warn-bg:#2c2410; --crit-bg:#2c1416; --neutral-bg:#1e2733;
+  --grid:#1f2836; --axis:#2c3849;
+  --shadow: 0 1px 2px rgba(0,0,0,.35); --shadow-lift: 0 4px 16px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--ground); color:var(--ink-1);
+  font-family:var(--sans); font-size:13px; line-height:1.5;
+  font-variant-numeric: proportional-nums;
+}
+:focus-visible{outline:2px solid var(--s-rev); outline-offset:2px; border-radius:3px}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important} }
+
+.shell{max-width:1580px; margin:0 auto; padding-block:0 56px; padding-inline:20px}
+
+/* ---------------- top bar ---------------- */
+.topbar{
+  display:flex; flex-wrap:wrap; align-items:flex-end; gap:20px 32px;
+  padding:22px 0 16px;
+}
+.brand{display:flex; flex-direction:column; gap:3px}
+.brand h1{
+  margin:0; font-size:20px; font-weight:600; letter-spacing:-.015em;
+  text-wrap:balance;
+}
+.brand .sub{color:var(--ink-3); font-size:12px}
+.asof{
+  margin-left:auto; display:flex; align-items:center; gap:8px;
+  font-family:var(--mono); font-size:11.5px; color:var(--ink-3);
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:999px; padding:5px 12px;
+}
+.asof .dot{width:6px;height:6px;border-radius:50%;background:var(--good)}
+.demo-flag{
+  font-size:11px; color:var(--ink-2); background:var(--sunken);
+  border:1px dashed var(--border); border-radius:var(--radius-sm);
+  padding:4px 10px; max-width:640px;
+}
+
+/* reference key — the T/I/H grammar, defined once */
+.refkey{
+  display:flex; flex-wrap:wrap; align-items:center; gap:6px 20px;
+  padding:11px 16px; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:14px;
+}
+.refkey .rk-title{
+  font-size:10.5px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--ink-3);
+}
+.rk{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-2)}
+.rk .sw{width:30px; height:0; flex:none}
+.rk .chip{
+  font-family:var(--mono); font-size:10px; font-weight:600; line-height:1;
+  width:15px; height:15px; display:grid; place-items:center; flex:none;
+  border-radius:3px; border:1px solid currentColor;
+}
+.rk.t .sw{border-top:2.5px solid var(--ref-t)}
+.rk.t .chip{color:var(--ref-t)}
+.rk.i .sw{border-top:2px dashed var(--ref-i)}
+.rk.i .chip{color:var(--ref-i)}
+.rk.h .sw{border-top:2px dotted var(--ref-h)}
+.rk.h .chip{color:var(--ref-h)}
+.rk .hint{color:var(--ink-3); font-size:11.5px}
+
+/* ---------------- filter bar ---------------- */
+.filterbar{
+  position:sticky; top:env(safe-area-inset-top, 0px); z-index:30;
+  display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px 16px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:12px 16px; margin-bottom:18px;
+}
+.fld{display:flex; flex-direction:column; gap:4px; min-width:0}
+.fld > label{
+  font-size:10.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--ink-3);
+}
+.fld select{
+  font-family:inherit; font-size:12.5px; color:var(--ink-1);
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:var(--radius-sm); padding:6px 10px; min-width:132px;
+  cursor:pointer; appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+  background-position:calc(100% - 14px) 12px, calc(100% - 9px) 12px;
+  background-size:5px 5px, 5px 5px; background-repeat:no-repeat;
+  padding-right:28px;
+}
+.fld select:hover{border-color:var(--ink-4)}
+.fb-right{margin-left:auto; display:flex; align-items:flex-end; gap:10px}
+.seg{display:flex; background:var(--sunken); border-radius:var(--radius-sm); padding:2px; gap:2px}
+.seg button{
+  font-family:inherit; font-size:12px; font-weight:500; color:var(--ink-2);
+  background:transparent; border:0; border-radius:4px; padding:5px 11px; cursor:pointer;
+  white-space:nowrap;
+}
+.seg button[aria-pressed="true"]{background:var(--surface); color:var(--ink-1); box-shadow:var(--shadow)}
+.btn-reset{
+  font-family:inherit; font-size:12px; color:var(--ink-2); background:transparent;
+  border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:6px 12px; cursor:pointer;
+}
+.btn-reset:hover{background:var(--surface-2); color:var(--ink-1)}
+
+/* breadcrumb for drill paths */
+.crumb{
+  display:none; align-items:center; gap:8px; flex-wrap:wrap;
+  font-size:12px; color:var(--ink-3); margin:-6px 0 16px;
+}
+.crumb.on{display:flex}
+.crumb button{
+  font-family:inherit; font-size:12px; color:var(--s-rev); background:none;
+  border:0; padding:0; cursor:pointer; text-decoration:underline;
+  text-underline-offset:2px;
+}
+.crumb .sep{color:var(--ink-4)}
+.crumb .cur{color:var(--ink-1); font-weight:500}
+
+/* ---------------- section chrome ---------------- */
+.sect{margin-bottom:22px}
+.sect-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; margin-bottom:10px}
+.sect-head .lvl{
+  font-family:var(--mono); font-size:10px; font-weight:600; color:var(--ink-3);
+  border:1px solid var(--border); border-radius:3px; padding:2px 6px;
+  background:var(--surface); flex:none;
+}
+.sect-head h2{margin:0; font-size:15px; font-weight:600; letter-spacing:-.01em}
+.sect-head .q{color:var(--ink-3); font-size:12px; font-style:italic}
+
+.card{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:var(--shadow); padding:16px;
+}
+.grid{display:grid; gap:14px}
+.g-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-cust{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}
+.card-title{
+  font-size:12.5px; font-weight:600; margin:0 0 2px;
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.card-q{font-size:11.5px; color:var(--ink-3); margin:0 0 14px; font-style:italic}
+
+/* ---------------- health banner (level 1) ---------------- */
+.health{
+  display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:24px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 20px;
+  border-left:5px solid var(--warn);
+}
+.health.crit{border-left-color:var(--crit)}
+.health.good{border-left-color:var(--good)}
+.verdict{
+  display:inline-flex; align-items:center; gap:9px; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:5px 11px; border-radius:999px; margin-bottom:10px;
+  background:var(--warn-bg); color:#8a5b00;
+}
+.health.crit .verdict{background:var(--crit-bg); color:var(--crit)}
+.health.good .verdict{background:var(--good-bg); color:#0a7a0a}
+.health h2{margin:0 0 6px; font-size:26px; font-weight:600; letter-spacing:-.02em; line-height:1.25; text-wrap:balance}
+.health .reason{margin:0; color:var(--ink-2); font-size:13px; max-width:62ch}
+.tally{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-start}
+.tally .t{
+  flex:1 1 0; min-width:88px; background:var(--surface-2);
+  border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:10px 12px;
+}
+.tally .t .n{font-size:24px; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums}
+.tally .t .l{font-size:11px; color:var(--ink-3); margin-top:2px}
+.tally .t.g .n{color:var(--good)} .tally .t.w .n{color:#b07c00} .tally .t.c .n{color:var(--crit)}
+.pathnote{
+  grid-column:1/-1; margin-top:4px; padding-top:14px; border-top:1px solid var(--border-soft);
+  font-size:11.5px; color:var(--ink-3); display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center;
+}
+.pathnote b{color:var(--ink-2); font-weight:600}
+.pathnote .arw{color:var(--ink-4)}
+
+/* ---------------- north star cards ---------------- */
+.kpi{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:15px 16px 14px; display:flex; flex-direction:column; gap:0;
+  border-top:3px solid var(--neutral);
+}
+.kpi.good{border-top-color:var(--good)} .kpi.warn{border-top-color:var(--warn)}
+.kpi.crit{border-top-color:var(--crit)} .kpi.neutral{border-top-color:var(--neutral)}
+.kpi .k-label{
+  display:flex; align-items:center; gap:7px; font-size:11.5px; font-weight:600;
+  color:var(--ink-2); margin-bottom:1px;
+}
+.kpi .k-sub{font-size:11px; color:var(--ink-3); margin-bottom:10px}
+.kpi .k-val{
+  font-size:34px; font-weight:600; line-height:1.05; letter-spacing:-.025em;
+  display:flex; align-items:baseline; gap:5px;
+}
+.kpi .k-val .u{font-size:14px; font-weight:500; color:var(--ink-3); letter-spacing:0}
+.kpi .k-delta{
+  font-size:12px; font-weight:500; margin-top:5px;
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+}
+.kpi .k-delta .p{color:var(--ink-3); font-weight:400}
+.up-bad,.dn-bad{color:var(--crit)} .up-good,.dn-good{color:var(--good)}
+
+/* benchmark ruler inside a KPI card */
+.ruler{margin:13px 0 11px; padding-top:12px; border-top:1px solid var(--border-soft)}
+.ruler-track{
+  position:relative; height:22px; background:var(--bar-track);
+  border-radius:4px; margin-bottom:5px;
+}
+.ruler-bar{
+  position:absolute; left:0; top:5px; height:12px;
+  border-radius:0 3px 3px 0; background:var(--s-rev);
+}
+.ruler-tick{position:absolute; top:0; bottom:0; width:0}
+.ruler-tick::after{content:""; position:absolute; left:0; top:0; height:22px; width:0}
+.ruler-tick.dot{width:11px; height:11px; top:5.5px; border-radius:50%;
+  border:2px solid var(--surface); transform:translateX(-50%)}
+.ruler-tick.t{border-left:2.5px solid var(--ref-t)}
+.ruler-tick.i{border-left:2px dashed var(--ref-i)}
+.ruler-tick.h{border-left:2px dotted var(--ref-h)}
+.ruler-tick.i.dot,.ruler-tick.h.dot{background:var(--ref-i); border-left:0}
+.ruler-tick.h.dot{background:var(--ref-h)}
+.ruler-legend{display:flex; gap:12px; flex-wrap:wrap; font-size:10.5px; color:var(--ink-3)}
+.ruler-legend span{display:flex; align-items:center; gap:5px}
+.ruler-legend i{width:11px; height:0; border-top-width:2px; border-top-style:solid; flex:none}
+
+/* comparison rows */
+.cmp{display:flex; flex-direction:column; gap:5px; font-size:11.5px}
+.cmp .row{display:flex; align-items:center; gap:8px}
+.cmp .row .nm{color:var(--ink-3); flex:1 1 auto; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.cmp .row .vl{font-family:var(--mono); font-size:11.5px; font-weight:500; color:var(--ink-1); flex:none}
+.cmp .row .mk{flex:none; font-family:var(--mono); font-size:10px; width:15px; text-align:center;
+  border-radius:3px; border:1px solid currentColor; line-height:14px; height:15px}
+.mk.t{color:var(--ref-t)} .mk.i{color:var(--ref-i)} .mk.h{color:var(--ref-h)}
+.cmp .row.na .vl{color:var(--ink-3); font-style:italic; font-family:var(--sans)}
+.src{
+  font-size:10.5px; color:var(--ink-3); margin-top:8px; padding-top:9px;
+  border-top:1px dashed var(--border); line-height:1.45;
+}
+.src .k{color:var(--ink-2); font-weight:500}
+
+/* ---------------- insights ---------------- */
+.ins{
+  display:flex; gap:13px; padding:14px 16px; border-radius:var(--radius);
+  background:var(--surface); border:1px solid var(--border);
+  border-left:4px solid var(--neutral); box-shadow:var(--shadow);
+}
+.ins + .ins{margin-top:10px}
+.ins.crit{border-left-color:var(--crit)} .ins.warn{border-left-color:var(--warn)}
+.ins.good{border-left-color:var(--good)}
+.ins .ic{
+  flex:none; width:26px; height:26px; border-radius:7px; display:grid; place-items:center;
+  font-size:14px; font-weight:700; line-height:1; margin-top:1px;
+}
+.ins.crit .ic{background:var(--crit-bg); color:var(--crit)}
+.ins.warn .ic{background:var(--warn-bg); color:#8a5b00}
+.ins.good .ic{background:var(--good-bg); color:#0a7a0a}
+.ins .body{min-width:0; flex:1 1 auto}
+.ins h3{margin:0 0 5px; font-size:13.5px; font-weight:600; letter-spacing:-.008em; text-wrap:balance}
+.ins .cause{margin:0 0 9px; font-size:12.5px; color:var(--ink-2); line-height:1.55}
+.ins .cause b{color:var(--ink-1); font-weight:600}
+.ins .ev{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px}
+.ins .ev span{
+  font-family:var(--mono); font-size:11px; color:var(--ink-2);
+  background:var(--surface-2); border:1px solid var(--border-soft);
+  border-radius:4px; padding:2px 7px;
+}
+.ins .ev span b{color:var(--ink-1); font-weight:600}
+.ins .foot{
+  display:flex; flex-wrap:wrap; gap:8px 22px; font-size:11.5px;
+  padding-top:9px; border-top:1px solid var(--border-soft);
+}
+.ins .foot .f{display:flex; gap:6px; align-items:baseline; min-width:0}
+.ins .foot .f .lb{color:var(--ink-3); flex:none}
+.ins .foot .f .vv{color:var(--ink-1); font-weight:500}
+.ins .foot .f.imp .vv{font-family:var(--mono); color:var(--crit)}
+.ins .foot .f.own .vv{color:var(--ink-2)}
+.ins-empty{padding:22px; text-align:center; color:var(--ink-3); font-size:12.5px}
+
+/* ---------------- charts ---------------- */
+.chartbox{position:relative}
+.chartbox svg{display:block; width:100%; height:auto; max-width:100%; overflow:visible}
+.legend{display:flex; flex-wrap:wrap; gap:7px 18px; font-size:11.5px; color:var(--ink-2); margin-bottom:12px}
+.legend .lg{display:flex; align-items:center; gap:7px}
+.legend .sw{width:16px; height:3px; border-radius:2px; flex:none}
+.legend .sw.dot{width:9px;height:9px;border-radius:50%}
+.legend .sw.band{height:11px; border-radius:2px; opacity:1}
+.legend .sw.t{border-top:2.5px solid var(--ref-t); height:0; border-radius:0}
+.legend .sw.i{border-top:2px dashed var(--ref-i); height:0; border-radius:0}
+.legend .sw.h{border-top:2px dotted var(--ref-h); height:0; border-radius:0}
+
+.subplot-label{
+  font-size:11px; color:var(--ink-3); margin:14px 0 6px;
+  padding-top:12px; border-top:1px solid var(--border-soft);
+}
+.tip{
+  position:fixed; z-index:80; pointer-events:none; opacity:0; transform:translateY(3px);
+  transition:opacity .1s ease; max-width:290px;
+  background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  box-shadow:var(--shadow-lift); padding:9px 11px; font-size:11.5px; color:var(--ink-1);
+}
+.tip.on{opacity:1; transform:translateY(0)}
+.tip .tt{font-weight:600; margin-bottom:5px; font-size:12px}
+.tip .tr{display:flex; gap:12px; justify-content:space-between; font-family:var(--mono); font-size:11px}
+.tip .tr .l{color:var(--ink-3)}
+.tip .tr + .tr{margin-top:3px}
+.tip hr{border:0; border-top:1px solid var(--border-soft); margin:7px 0}
+.tip .note{color:var(--ink-3); font-size:10.5px; line-height:1.4; font-family:var(--sans)}
+
+/* ---------------- horizontal bars (shared) ---------------- */
+.hb{display:flex; flex-direction:column; gap:11px}
+.hb-row{display:grid; grid-template-columns:158px minmax(0,1fr) 104px; gap:12px; align-items:center}
+.hb-row.wide{grid-template-columns:178px minmax(0,1fr) 118px}
+.hb-row .nm{
+  font-size:12px; color:var(--ink-1); overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; display:flex; align-items:center; gap:7px;
+}
+.hb-track{position:relative; height:20px; background:var(--bar-track); border-radius:4px; overflow:visible}
+.hb-fill{position:absolute; left:0; top:0; height:20px; border-radius:0 4px 4px 0; background:var(--s-cost)}
+.hb-fill.prev{background:var(--bar-prev); height:20px; border-radius:0 4px 4px 0}
+/* Chế độ so sánh trước→nay: hai thanh mảnh xếp trên/dưới.
+   Nếu vẽ chồng thì thanh kỳ trước bị che mất ở mọi hạng mục TĂNG — tức là
+   đúng những hạng mục cần đọc nhất. Xếp lớp dọc để cả hai luôn thấy được. */
+.hb-row.paired .hb-track{height:25px}
+.hb-row.paired .hb-fill.prev{top:2px; height:8px; border-radius:0 3px 3px 0}
+.hb-row.paired .hb-fill{top:14px; height:9px; border-radius:0 3px 3px 0}
+.hb-row.paired .hb-tick{top:-2px; bottom:-2px}
+.hb-tick{position:absolute; top:-3px; bottom:-3px; width:0; border-left:2.5px solid var(--ref-t)}
+.hb-val{font-family:var(--mono); font-size:11.5px; text-align:right; font-variant-numeric:tabular-nums}
+.hb-sub{font-size:10.5px; color:var(--ink-3); font-family:var(--mono)}
+.hb-row.clickable{cursor:pointer; border-radius:4px}
+.hb-row.clickable:hover,.hb-row.clickable:focus-visible{background:var(--surface-2); outline:none}
+.hb-row.clickable:focus-visible{box-shadow:0 0 0 2px var(--s-rev)}
+
+/* meter / bullet for ops + fleet */
+.bul{display:flex; flex-direction:column; gap:10px}
+.bul-row{display:grid; grid-template-columns:minmax(120px,168px) minmax(0,1fr) 92px; gap:12px; align-items:center}
+.bul-row .nm{font-size:12px; color:var(--ink-1); display:flex; align-items:center; gap:6px; min-width:0}
+.bul-row .nm span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.bul-track{position:relative; height:14px; border-radius:4px; background:var(--bar-track)}
+.bul-fill{position:absolute; left:0; top:0; height:14px; border-radius:0 4px 4px 0}
+.bul-band{
+  position:absolute; top:-3px; height:20px; border-radius:3px;
+  background:repeating-linear-gradient(135deg,var(--ink-4) 0 2px,transparent 2px 6px);
+  border:1px solid var(--ink-4);
+}
+.bul-tick{position:absolute; top:-4px; bottom:-4px; width:0}
+.bul-tick.t{border-left:2.5px solid var(--ref-t)}
+.bul-tick.i{border-left:2px dashed var(--ref-i)}
+.bul-tick.h{border-left:2px dotted var(--ref-h)}
+.bul-val{font-family:var(--mono); font-size:12px; text-align:right; font-weight:500; font-variant-numeric:tabular-nums}
+.bul-val .s{display:block; font-size:10px; font-weight:400; font-family:var(--sans)}
+
+.mini{display:flex; flex-direction:column; gap:2px}
+.mini .l{font-size:11px; color:var(--ink-3)}
+.mini .v{font-size:21px; font-weight:600; letter-spacing:-.02em; line-height:1.15}
+.mini .d{font-size:11.5px; font-weight:500}
+
+/* ---------------- tables ---------------- */
+.tbl-wrap{overflow-x:auto; margin:0 -16px -16px; padding:0 16px 16px}
+table{border-collapse:collapse; width:100%; font-size:11.5px; min-width:660px}
+th,td{padding:7px 10px; text-align:left; border-bottom:1px solid var(--border-soft); white-space:nowrap}
+th{
+  font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--ink-3); border-bottom:1px solid var(--border); position:sticky; top:0;
+  background:var(--surface);
+}
+td.n,th.n{text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr.hl{background:var(--warn-bg)}
+tbody tr.clickable{cursor:pointer}
+.pill{
+  display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:600;
+  padding:2px 8px; border-radius:999px; white-space:nowrap;
+}
+.pill.good{background:var(--good-bg); color:#0a7a0a}
+.pill.warn{background:var(--warn-bg); color:#8a5b00}
+.pill.crit{background:var(--crit-bg); color:var(--crit)}
+.pill.neutral{background:var(--neutral-bg); color:var(--ink-2)}
+.pill .g{font-size:9px}
+
+/* appendix prose */
+.prose{font-size:12.5px; color:var(--ink-2); line-height:1.65; max-width:78ch}
+.prose h3{font-size:13px; font-weight:600; color:var(--ink-1); margin:18px 0 7px}
+.prose h3:first-child{margin-top:0}
+.prose ul{margin:0 0 10px; padding-left:18px}
+.prose li{margin-bottom:5px}
+.prose code{
+  font-family:var(--mono); font-size:11.5px; background:var(--sunken);
+  border-radius:3px; padding:1px 5px; color:var(--ink-1);
+}
+.prose strong{color:var(--ink-1); font-weight:600}
+.rule-crit{background:var(--crit-bg); border-left:3px solid var(--crit); padding:11px 14px;
+  border-radius:var(--radius-sm); margin-bottom:14px; font-size:12.5px; color:var(--ink-1)}
+.callout{background:var(--surface-2); border:1px solid var(--border); border-left:3px solid var(--s-rev);
+  border-radius:var(--radius-sm); padding:12px 15px; margin:14px 0; font-size:12.5px; color:var(--ink-2)}
+.callout b{color:var(--ink-1)}
+pre.sql{
+  font-family:var(--mono); font-size:11px; line-height:1.6; color:var(--ink-1);
+  background:var(--sunken); border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:13px 15px; overflow-x:auto; margin:10px 0 0;
+}
+pre.sql .kw{color:var(--s-rev); font-weight:600}
+pre.sql .cm{color:var(--ink-3); font-style:italic}
+.sevdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;flex:none}
+
+@media (max-width:1180px){
+  .g-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .health{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:820px){
+  .g-2,.g-3,.g-cust{grid-template-columns:minmax(0,1fr)}
+  .shell{padding-inline:16px}
+  .hb-row{grid-template-columns:104px minmax(0,1fr) 66px; gap:8px}
+  .bul-row{grid-template-columns:minmax(96px,120px) minmax(0,1fr) 76px; gap:9px}
+}
+@media (max-width:560px){
+  .g-4{grid-template-columns:minmax(0,1fr)}
+  .hb-row{grid-template-columns:minmax(0,1fr) 64px}
+  .hb-row .hb-track{grid-column:1/-1; order:3}
+  .bul-row{grid-template-columns:minmax(0,1fr) 72px}
+  .bul-row .bul-track{grid-column:1/-1; order:3}
+  .health h2{font-size:21px}
+}
+</style>
+
+<div class="shell">
+
+  <header class="topbar">
+    <div class="brand">
+      <h1>Executive Command Center — Đội xe &amp; Vận hành</h1>
+      <div class="sub">Dành cho CEO · COO · CFO · Ban điều hành · Kỳ dữ liệu: <span id="asof">12 tháng gần nhất</span></div>
+    </div>
+    <div class="asof"><span class="dot"></span> Dữ liệu chốt <span id="asofDate"></span></div>
+  </header>
+
+  <div class="demo-flag" style="margin-bottom:12px">
+    <strong>Dữ liệu mô phỏng.</strong> Toàn bộ số liệu trong trang này được sinh để minh hoạ thiết kế. Mọi con số benchmark / target là <em>placeholder</em> — khi triển khai phải thay bằng nguồn thật và giữ nguyên nhãn nguồn gốc.
+  </div>
+
+  <!-- REFERENCE KEY : the T / I / H grammar, defined once for the whole page -->
+  <div class="refkey">
+    <span class="rk-title">Ngôn ngữ tham chiếu</span>
+    <span class="rk t"><span class="chip">T</span><span class="sw"></span> Mục tiêu nội bộ</span>
+    <span class="rk i"><span class="chip">I</span><span class="sw"></span> Benchmark ngành <span class="hint">(có nguồn)</span></span>
+    <span class="rk h"><span class="chip">H</span><span class="sw"></span> Cơ sở lịch sử <span class="hint">(kỳ trước)</span></span>
+    <span class="hint" style="margin-left:auto;color:var(--ink-3);font-size:11.5px">Ba loại này <strong style="color:var(--ink-2)">không bao giờ</strong> được trộn hoặc trình bày lẫn nhau.</span>
+  </div>
+
+  <!-- FILTER BAR : one row, scopes everything below -->
+  <div class="filterbar">
+    <div class="fld">
+      <label for="f-range">Khoảng thời gian</label>
+      <select id="f-range">
+        <option value="12" selected>12 tháng gần nhất</option>
+        <option value="6">6 tháng gần nhất</option>
+        <option value="3">Quý gần nhất (3 tháng)</option>
+      </select>
+    </div>
+    <div class="fld">
+      <label for="f-region">Khu vực</label>
+      <select id="f-region"><option value="">Tất cả khu vực</option></select>
+    </div>
+    <div class="fld">
+      <label for="f-bu">Đơn vị kinh doanh</label>
+      <select id="f-bu"><option value="">Tất cả đơn vị</option></select>
+    </div>
+    <div class="fld">
+      <label for="f-fleet">Loại đội xe</label>
+      <select id="f-fleet"><option value="">Tất cả loại đội xe</option></select>
+    </div>
+    <div class="fld">
+      <label for="f-seg">Phân khúc khách hàng</label>
+      <select id="f-seg"><option value="">Tất cả phân khúc</option></select>
+    </div>
+    <div class="fb-right">
+      <div class="fld">
+        <label id="cmp-label">So sánh với</label>
+        <div class="seg" role="group" aria-labelledby="cmp-label">
+          <button type="button" id="cmp-prev" aria-pressed="true">Kỳ trước</button>
+          <button type="button" id="cmp-year" aria-pressed="false">Cùng kỳ năm trước</button>
+        </div>
+      </div>
+      <button type="button" class="btn-reset" id="btn-reset">Đặt lại</button>
+    </div>
+  </div>
+
+  <nav class="crumb" id="crumb" aria-label="Đường dẫn drill-down"></nav>
+
+  <main id="main">
+
+    <!-- ============ LEVEL 1 : IS THE COMPANY HEALTHY? ============ -->
+    <section class="sect">
+      <div class="sect-head">
+        <span class="lvl">L1</span>
+        <h2>Sức khoẻ công ty</h2>
+        <span class="q">Công ty đang khoẻ hay không?</span>
+      </div>
+      <div class="health" id="health"></div>
+    </section>
+
+    <!-- ============ LEVEL 2 : 4 NORTH STAR KPIs ============ -->
+    <section class="sect">
+      <div class="sect-head">
+        <span class="lvl">L2</span>
+        <h2>Bốn chỉ số North Star</h2>
+        <span class="q">KPI nào đang lệch mục tiêu?</span>
+      </div>
+      <div class="grid g-4" id="northstar"></div>
+    </section>
+
+    <!-- ============ LEVEL 3 : EXECUTIVE INSIGHTS ============ -->
+    <section class="sect">
+      <div class="sect-head">
+        <span class="lvl">L3</span>
+        <h2>Kết luận điều hành</h2>
+        <span class="q">Vì sao lại như vậy — và ảnh hưởng bao nhiêu?</span>
+      </div>
+      <div class="prose" style="margin:-4px 0 12px;font-size:11.5px;color:var(--ink-3);max-width:none">
+        Tối đa 5 kết luận, xếp theo <b style="color:var(--ink-2)">tác động tài chính ước tính</b> — không xếp theo mức đỏ trên màn hình.
+        Nhiều cảnh báo cùng một nguyên nhân gốc đã được gộp thành một dòng.
+      </div>
+      <div id="insights"></div>
+    </section>
+
+    <!-- ============ LEVEL 4 : DIAGNOSTIC SECTIONS ============ -->
+    <section class="sect">
+      <div class="sect-head">
+        <span class="lvl">L4a</span>
+        <h2>Hiệu quả tài chính</h2>
+        <span class="q">Cần điều tra ở đâu?</span>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <h3 class="card-title">Doanh thu vs Chi phí vận hành <span class="pill neutral" id="c1-span">12 tháng</span></h3>
+        <p class="card-q">Câu hỏi: Doanh thu và chi phí có đang tăng cùng tốc độ không — và phần chênh lệch (lợi nhuận) đang rộng ra hay hẹp lại? <span style="color:var(--ink-3)">Trục tung không bắt đầu từ 0 — biểu đồ này để đọc phần chênh lệch, không để đọc độ lớn tuyệt đối.</span></p>
+        <div class="legend">
+          <span class="lg"><span class="sw" style="background:var(--s-rev)"></span> Doanh thu</span>
+          <span class="lg"><span class="sw" style="background:var(--s-cost)"></span> Chi phí vận hành</span>
+          <span class="lg"><span class="sw band" style="background:var(--wash-prof)"></span> Lợi nhuận vận hành (phần chênh)</span>
+        </div>
+        <div class="chartbox" id="c1"></div>
+      </div>
+
+      <div class="grid g-3" style="margin-bottom:14px" id="finMinis"></div>
+
+      <div class="card" style="margin-bottom:14px">
+        <h3 class="card-title">RPM vs CPM — biên đóng góp trên mỗi dặm</h3>
+        <p class="card-q">Câu hỏi: Giá bán mỗi dặm có đang tăng nhanh hơn chi phí mỗi dặm không? Vùng tô giữa hai đường là biên đóng góp (RPM − CPM).</p>
+        <div class="legend">
+          <span class="lg"><span class="sw" style="background:var(--s-rev)"></span> RPM — doanh thu / dặm</span>
+          <span class="lg"><span class="sw" style="background:var(--s-cost)"></span> CPM — chi phí / dặm</span>
+          <span class="lg"><span class="sw" style="background:var(--s-prof)"></span> Biên đóng góp (RPM − CPM)</span>
+          <span class="lg"><span class="sw band" style="background:var(--wash-prof)"></span> Vùng biên</span>
+          <span class="lg"><span class="sw t"></span> T — CPM mục tiêu</span>
+        </div>
+        <div class="chartbox" id="c2"></div>
+        <div class="subplot-label">Biên đóng góp theo tháng — cùng trục thời gian, trục giá trị riêng</div>
+        <div class="chartbox" id="c2b"></div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Cơ cấu chi phí — chi phí tăng đến từ đâu?</h3>
+        <p class="card-q">Câu hỏi: Thành phần chi phí nào kéo CPM lên? Thanh mờ là kỳ trước, thanh đậm là kỳ này; sắp xếp theo mức đóng góp vào thay đổi.</p>
+        <div class="legend">
+          <span class="lg"><span class="sw" style="background:var(--bar-prev)"></span> Kỳ trước</span>
+          <span class="lg"><span class="sw" style="background:var(--s-cost)"></span> Kỳ này</span>
+          <span class="lg"><span class="sw t"></span> T — mục tiêu $/dặm</span>
+          <span class="lg" style="color:var(--ink-3)">Vạch T chỉ có ở hạng mục có mục tiêu nội bộ; các hạng mục còn lại không có ngưỡng nên không vẽ vạch.</span>
+        </div>
+        <div class="hb" id="c3"></div>
+      </div>
+    </section>
+
+    <section class="sect">
+      <div class="sect-head">
+        <span class="lvl">L4b</span>
+        <h2>Hiệu quả vận hành &amp; Sức khoẻ đội xe</h2>
+        <span class="q">Nguyên nhân vận hành nằm ở đâu?</span>
+      </div>
+      <div class="grid g-2">
+        <div class="card">
+          <h3 class="card-title">Hiệu quả vận hành</h3>
+          <p class="card-q">Câu hỏi: Năng lực đội xe có đang được dùng hết không, và bao nhiêu dặm là dặm rỗng?</p>
+          <div class="bul" id="opsBullets"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Sức khoẻ đội xe</h3>
+          <p class="card-q">Câu hỏi: Đội xe có đang được bảo trì đúng hạn, hay đang hỏng vặt và nằm xưởng nhiều hơn?</p>
+          <div class="bul" id="fleetBullets"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sect">
+      <div class="sect-head">
+        <span class="lvl">L4c</span>
+        <h2>Tập trung khách hàng</h2>
+        <span class="q">Rủi ro doanh thu có đang dồn vào vài khách không?</span>
+      </div>
+      <div class="grid g-cust">
+        <div class="card">
+          <h3 class="card-title">Top khách hàng theo doanh thu</h3>
+          <p class="card-q">Câu hỏi: Ba khách lớn nhất chiếm bao nhiêu phần trăm doanh thu — và bao nhiêu phần trăm lợi nhuận gộp? Bấm vào một khách để xem chi tiết theo tuyến.</p>
+          <div class="hb" id="custBars"></div>
+          <div id="lanePanel"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Mức độ tập trung</h3>
+          <p class="card-q">Câu hỏi: Nếu mất một khách lớn, doanh thu bị ảnh hưởng bao nhiêu?</p>
+          <div class="grid g-2" id="concTiles" style="gap:10px"></div>
+          <div class="prose" id="concNote" style="margin-top:14px;font-size:12px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ APPENDIX A ============ -->
+    <section class="sect" style="margin-top:34px">
+      <div class="sect-head">
+        <span class="lvl">A</span>
+        <h2>Đặc tả từng trực quan hoá</h2>
+        <span class="q">Metric · dạng biểu đồ · trục · tham chiếu · điều kiện tô màu · tooltip · câu hỏi kinh doanh</span>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap"><table id="specTable"></table></div>
+      </div>
+    </section>
+
+    <!-- ============ APPENDIX B ============ -->
+    <section class="sect">
+      <div class="sect-head">
+        <span class="lvl">B</span>
+        <h2>Rule engine &amp; gộp cảnh báo cùng nguyên nhân</h2>
+        <span class="q">11 luật IF/THEN, cài được bằng SQL / Power BI / Tableau / Looker</span>
+      </div>
+      <div class="card">
+        <div class="rule-crit">
+          <b>Nguyên tắc bắt buộc:</b> nhiều cảnh báo cùng một nguyên nhân gốc phải được <b>gộp thành một kết luận</b>. Bốn luật <code>maintenance cost ↑</code>, <code>unplanned downtime ↑</code>, <code>PM compliance ↓</code>, <code>breakdowns/100k ↑</code> không phải bốn vấn đề — chúng là <b>bốn triệu chứng của một nguyên nhân</b>. Hiển thị riêng lẻ sẽ khiến ban điều hành xử lý bốn việc thay vì một.
+        </div>
+        <div class="prose" id="ruleIntro"></div>
+        <div class="tbl-wrap" style="margin-top:14px"><table id="ruleTable"></table></div>
+        <h3 style="font-size:13px;font-weight:600;margin:22px 0 8px">Cài đặt bằng SQL — gộp theo <code>cluster</code></h3>
+        <pre class="sql" id="sqlBox"></pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   0.  TIỆN ÍCH
+   ===================================================================== */
+var $  = function(s){ return document.querySelector(s); };
+var NS = "http://www.w3.org/2000/svg";
+
+function rng(seed){
+  return function(){
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+var R = rng(20260923);
+
+function money(v){
+  var a = Math.abs(v);
+  if (a >= 1e9) return "$" + (v/1e9).toFixed(2) + "B";
+  if (a >= 1e6) return "$" + (v/1e6).toFixed(2) + "M";
+  if (a >= 1e3) return "$" + (v/1e3).toFixed(0) + "K";
+  return "$" + v.toFixed(0);
+}
+function num(v, d){ d = d === undefined ? 0 : d;
+  return v.toLocaleString("en-US", {minimumFractionDigits:d, maximumFractionDigits:d}); }
+function pct(v, d){ d = d === undefined ? 1 : d; return (v >= 0 ? "" : "−") + Math.abs(v).toFixed(d) + "%"; }
+function rate(v, d){ d = d === undefined ? 2 : d; return "$" + v.toFixed(d); }
+function sgn(v, d, unit){ d = d === undefined ? 1 : d;
+  return (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(d) + (unit || ""); }
+
+/* month labels: index 0 = T9/24 ... index 23 = T8/26 */
+function monthLabel(i){
+  var m = (8 + i) % 12, y = 24 + Math.floor((8 + i) / 12);
+  return "T" + (m + 1) + "/" + y;
+}
+var NM = 24;
+var MONTHS = []; for (var mi = 0; mi < NM; mi++) MONTHS.push(monthLabel(mi));
+
+/* =====================================================================
+   1.  CHIỀU DỮ LIỆU + THAM CHIẾU
+   ===================================================================== */
+var REGIONS = ["Midwest", "Southeast", "West"];
+var BUS     = ["Truckload", "Dedicated"];
+var FLEETS  = ["Long-haul", "Regional", "Private fleet"];
+var SEGMENTS= ["Sản xuất", "Bán lẻ", "Nông nghiệp"];
+
+/* --- Bảng tham chiếu. industry:null  ==>  KHÔNG có benchmark ngành áp dụng được.
+       UI bắt buộc hiển thị "Mục tiêu nội bộ" và trạng thái xám, không được
+       lấy mục tiêu nội bộ gán cho benchmark ngành. --- */
+var REFS = {
+  "Long-haul": {
+    cpm:   { target:1.68, industry:2.30, src:"ATRI — An Analysis of the Operational Costs of Trucking (2025)",
+             scope:"Đội xe đường dài, truckload, thị trường Mỹ", period:"Năm 2024", conf:"high" },
+    spread:{ target:0.90 },
+    util:  { target:84 },
+    loaded:{ target:87, industry:[82,90], src:"ATRI (2025)", scope:"Đường dài, truckload", period:"Năm 2024", conf:"high" },
+    otd:   { target:95, industry:94, src:"Benchmark ngành vận tải (2025)", scope:"Truckload, Bắc Mỹ", period:"Năm 2024", conf:"high" },
+    difot: { target:94, industry:92, src:"Benchmark ngành vận tải (2025)", scope:"Truckload, Bắc Mỹ", period:"Năm 2024", conf:"high" },
+    down:  { target:4.0, industry:null },
+    pm:    { target:95,  industry:null },
+    mnt:   { target:0.165, industry:null },
+    brk:   { target:1.8, industry:null }
+  },
+  "Regional": {
+    cpm:   { target:1.82, industry:2.30, src:"ATRI — An Analysis of the Operational Costs of Trucking (2025)",
+             scope:"Đội xe khu vực, truckload, thị trường Mỹ", period:"Năm 2024", conf:"high" },
+    spread:{ target:0.78 },
+    util:  { target:80 },
+    loaded:{ target:88, industry:[83,91], src:"ATRI (2025)", scope:"Vận tải khu vực", period:"Năm 2024", conf:"high" },
+    otd:   { target:96, industry:94, src:"Benchmark ngành vận tải (2025)", scope:"Truckload, Bắc Mỹ", period:"Năm 2024", conf:"high" },
+    difot: { target:95, industry:92, src:"Benchmark ngành vận tải (2025)", scope:"Truckload, Bắc Mỹ", period:"Năm 2024", conf:"high" },
+    down:  { target:3.5, industry:null },
+    pm:    { target:95,  industry:null },
+    mnt:   { target:0.150, industry:null },
+    brk:   { target:1.5, industry:null }
+  },
+  "Private fleet": {
+    cpm:   { target:2.05, industry:null },
+    spread:{ target:0.52 },
+    util:  { target:72 },
+    loaded:{ target:76, industry:null },
+    otd:   { target:97, industry:null },
+    difot: { target:96, industry:null },
+    down:  { target:3.0, industry:null },
+    pm:    { target:96,  industry:null },
+    mnt:   { target:0.175, industry:null },
+    brk:   { target:1.2, industry:null }
+  }
+};
+var CONC_THRESHOLD = 55;      /* % doanh thu Top-3 — ngưỡng rủi ro nội bộ */
+var DSO_TARGET     = 45;      /* ngày */
+
+/* --- xu hướng cấp công ty, 24 tháng --- */
+var T = {
+  cpm:  [1.68,1.69,1.69,1.70,1.71,1.72,1.72,1.73,1.74,1.75,1.76,1.77,
+         1.78,1.79,1.80,1.80,1.81,1.82,1.84,1.86,1.87,1.89,1.91,1.92],
+  rpm:  [2.38,2.39,2.39,2.40,2.40,2.41,2.41,2.42,2.42,2.43,2.44,2.44,
+         2.44,2.45,2.45,2.46,2.47,2.47,2.48,2.49,2.50,2.51,2.51,2.52],
+  fuel: [.355,.356,.357,.358,.359,.360,.362,.364,.366,.368,.370,.372,
+         .373,.374,.375,.376,.377,.378,.380,.382,.384,.386,.388,.390],
+  maint:[.082,.083,.084,.085,.086,.088,.090,.093,.096,.099,.102,.105,
+         .108,.111,.114,.117,.120,.124,.128,.132,.137,.142,.148,.154],
+  driver:[.302,.301,.301,.300,.300,.299,.299,.298,.298,.297,.297,.296,
+          .296,.295,.295,.294,.294,.293,.292,.291,.290,.289,.288,.287],
+  ins:  [.058,.058,.058,.057,.057,.057,.056,.056,.056,.055,.055,.055,
+         .054,.054,.054,.053,.053,.053,.052,.052,.052,.051,.051,.051],
+  lease:[.088,.087,.086,.086,.085,.084,.083,.082,.081,.080,.079,.078,
+         .077,.076,.075,.074,.073,.072,.071,.070,.069,.068,.067,.066],
+  tolls:[.042,.042,.041,.041,.041,.040,.040,.040,.039,.039,.039,.038,
+         .038,.038,.037,.037,.037,.036,.036,.036,.035,.035,.035,.034],
+  util: [84.0,83.6,83.2,82.7,82.1,81.4,80.6,79.9,79.2,78.6,78.2,78.0,
+         78.1,78.3,78.4,78.2,78.0,77.9,77.8,77.6,77.4,77.2,77.0,76.8],
+  dead: [14.0,14.2,14.5,14.8,15.1,15.4,15.7,16.0,16.3,16.5,16.7,17.0,
+         17.1,17.2,17.3,17.3,17.4,17.4,17.5,17.5,17.6,17.6,17.7,17.7],
+  otd:  [96.4,96.6,96.8,96.9,96.7,96.8,96.9,96.8,96.7,96.8,96.9,96.8,
+         96.8,96.9,96.8,96.7,96.8,96.8,96.9,96.8,96.7,96.8,96.8,96.9],
+  difot:[92.1,92.3,92.5,92.6,92.4,92.5,92.6,92.5,92.4,92.5,92.6,92.5,
+         92.4,92.3,92.2,92.1,92.0,91.9,91.8,91.7,91.6,91.5,91.4,91.3],
+  down: [3.8,3.9,4.0,4.1,4.3,4.5,4.7,4.9,5.1,5.3,5.5,5.7,
+         5.8,5.9,6.0,6.1,6.2,6.3,6.4,6.5,6.6,6.7,6.8,6.9],
+  pm:   [97.0,96.5,96.0,95.2,94.5,93.8,93.0,92.0,91.0,90.0,88.5,87.0,
+         86.2,85.5,84.8,84.0,83.2,82.4,81.6,80.8,80.0,79.2,78.4,77.6],
+  ar:   [46,47,47,48,49,50,51,52,53,54,55,56,
+         56,57,57,58,58,59,59,60,60,61,61,62],
+  conc: [55.0,55.8,56.5,57.1,57.8,58.4,59.0,59.6,60.1,60.5,60.8,61.0,
+         61.2,61.4,61.6,61.8,62.0,62.2,62.4,62.6,62.8,63.0,63.2,63.4]
+};
+
+/* trọng số theo chiều */
+var W = {
+  region: { "Midwest":.42, "Southeast":.34, "West":.24 },
+  bu:     { "Truckload":.68, "Dedicated":.32 },
+  fleet:  { "Long-haul":.45, "Regional":.35, "Private fleet":.20 }
+};
+/* thiên lệch theo loại đội xe */
+var FB = {
+  "Long-haul":     { cpm:.94, rpm:1.02, util:1.06, dead:.90 },
+  "Regional":      { cpm:1.00, rpm:1.00, util:1.00, dead:1.02 },
+  "Private fleet": { cpm:1.16, rpm:.92,  util:.86, dead:1.28 }
+};
+
+/* =====================================================================
+   2.  SINH DỮ LIỆU
+   ===================================================================== */
+var BASE_MILES = 1_150_000;
+
+var ROWS = [];   /* dòng vận hành: 1 dòng = 1 tháng × khu vực × BU × loại đội xe */
+(function buildRows(){
+  REGIONS.forEach(function(rg){
+    BUS.forEach(function(bu){
+      FLEETS.forEach(function(fl){
+        var fb = FB[fl];
+        for (var m = 0; m < NM; m++){
+          var share = W.region[rg] * W.bu[bu] * W.fleet[fl];
+          var jitter = 0.96 + R() * 0.08;
+          var season = 1 + 0.035 * Math.sin((m % 12) / 12 * Math.PI * 2 - 1.1);
+          var miles  = BASE_MILES * share * jitter * season;
+
+          var cpm  = T.cpm[m]  * fb.cpm  * (0.985 + R() * 0.03);
+          var rpm  = T.rpm[m]  * fb.rpm  * (0.985 + R() * 0.03);
+          /* fuel/maint chịu thêm thiên lệch loại đội xe */
+          var fS = T.fuel[m]  * (fl === "Private fleet" ? 1.06 : fl === "Long-haul" ? 0.97 : 1);
+          var mS = T.maint[m] * (fl === "Private fleet" ? 1.04 : 1);
+          var shares = [fS, T.driver[m], mS, T.ins[m], T.lease[m], T.tolls[m], 0];
+          var used = shares[0]+shares[1]+shares[2]+shares[3]+shares[4]+shares[5];
+          shares[6] = Math.max(0.01, 1 - used);
+
+          var costTotal = miles * cpm;
+          var dead = Math.min(26, T.dead[m] * fb.dead * (0.97 + R() * 0.06));
+          var loadedShare = 1 - dead / 100;
+
+          var util = Math.min(96, T.util[m] * fb.util * (0.98 + R() * 0.04));
+          var capMiles = miles / (util / 100);
+
+          var otd   = Math.min(99.6, T.otd[m]   * (fl === "Private fleet" ? 1.006 : 1) * (0.995 + R() * 0.01));
+          var difot = Math.min(99,   T.difot[m] * (fl === "Private fleet" ? 1.004 : 1) * (0.995 + R() * 0.01));
+          var down  = T.down[m] * (fl === "Private fleet" ? 0.72 : fl === "Long-haul" ? 1.05 : 1) * (0.97 + R() * 0.06);
+          var pm    = Math.min(99.5, T.pm[m] * (fl === "Private fleet" ? 1.03 : 1) * (0.99 + R() * 0.02));
+
+          var ship  = miles / 412;                     /* ~412 dặm/chuyến */
+          var availHrs = miles / 48;                      /* ~48 dặm/giờ khả dụng */
+          var breakdowns = miles / 100000 * (T.down[m] / 2.4) * (fl === "Private fleet" ? .8 : 1) * (0.9 + R() * 0.2);
+          var dso   = T.ar[m] * (bu === "Dedicated" ? 0.94 : 1.02) * (0.985 + R() * 0.03);
+
+          ROWS.push({
+            m:m, region:rg, bu:bu, fleet:fl,
+            miles:miles, loadedMiles:miles*loadedShare, deadMiles:miles*(dead/100),
+            capMiles:capMiles,
+            rev:miles*rpm, costTotal:costTotal,
+            cFuel:costTotal*shares[0], cDriver:costTotal*shares[1], cMaint:costTotal*shares[2],
+            cIns:costTotal*shares[3],  cLease:costTotal*shares[4],  cTolls:costTotal*shares[5],
+            cOther:costTotal*shares[6],
+            ship:ship, onTime:ship*otd/100, difotN:ship*difot/100,
+            availHrs:availHrs, downHrs:availHrs*down/100,
+            pmT:12, pmOk:12*pm/100,
+            brk:breakdowns,
+            dsoW:dso*miles
+          });
+        }
+      });
+    });
+  });
+})();
+
+/* --- khách hàng: 1 dòng = 1 tháng × phân khúc × khách --- */
+var CUSTOMERS = [
+  { n:"Meridian Logistics",  seg:"Sản xuất"  },
+  { n:"Kessler Foods",       seg:"Bán lẻ"    },
+  { n:"Northline Industrial",seg:"Sản xuất"  },
+  { n:"Cascade Retail Group",seg:"Bán lẻ"    },
+  { n:"Fairview Mills",      seg:"Nông nghiệp"},
+  { n:"Oakline Auto Parts",  seg:"Sản xuất"  },
+  { n:"Pendleton Grain",     seg:"Nông nghiệp"},
+  { n:"Harbor Freight Co.",  seg:"Bán lẻ"    },
+  { n:"Stonebridge Chem",    seg:"Sản xuất"  },
+  { n:"Verity Produce",      seg:"Nông nghiệp"}
+];
+/* thị phần cơ sở (doanh thu) — top-3 ≈ 61% */
+var CUST_SHARE = [.248,.205,.157,.104,.078,.065,.048,.041,.031,.023];
+/* Biên lợi nhuận gộp theo khách. Phải CAO HƠN biên lợi nhuận vận hành
+   (LN gộp = doanh thu − chi phí trực tiếp; LN vận hành trừ tiếp chi phí gián tiếp).
+   Meridian dẫn đầu doanh thu nhưng biên mỏng nhất — đây là chủ ý của kịch bản. */
+var CUST_GM    = [.212,.348,.331,.365,.354,.318,.326,.302,.281,.268];
+
+var CUST_ROWS = [];
+(function buildCust(){
+  for (var m = 0; m < NM; m++){
+    /* tổng doanh thu tháng này = tổng của mọi dòng vận hành */
+    var total = 0;
+    ROWS.forEach(function(r){ if (r.m === m) total += r.rev; });
+    var conc = T.conc[m];
+    for (var c = 0; c < CUSTOMERS.length; c++){
+      /* giãn top-3 theo mức tập trung của tháng */
+      var stretch = 1 + (conc - 55) / 100 * (c < 3 ? 0.55 : -0.42);
+      var share = CUST_SHARE[c] * stretch;
+      var rev = total * share;
+      var gm  = CUST_GM[c] * (0.90 + R() * 0.20) * (1 - (T.cpm[m] - 1.68) / 1.68 * 0.55);
+      CUST_ROWS.push({
+        m:m, seg:CUSTOMERS[c].seg, name:CUSTOMERS[c].n,
+        rev:rev, gp:rev*gm,
+        ship:rev/1180, late:rev/1180*(1-(T.otd[m]-1.5)/100),
+        dsoW:T.ar[m]*(0.86+0.30*(c/9))*rev
+      });
+    }
+  }
+})();
+
+/* =====================================================================
+   3.  GOM NHÓM + KPI
+   ===================================================================== */
+var F = { range:12, region:"", bu:"", fleet:"", seg:"", compare:"prev" };
+
+function sum(list, f){ var s = 0; for (var i=0;i<list.length;i++) s += f(list[i]); return s; }
+
+function agg(rows){
+  if (!rows.length) return null;
+  var miles   = sum(rows, function(r){ return r.miles; });
+  var rev     = sum(rows, function(r){ return r.rev; });
+  var cost    = sum(rows, function(r){ return r.costTotal; });
+  var cFuel   = sum(rows, function(r){ return r.cFuel; });
+  var cDriver = sum(rows, function(r){ return r.cDriver; });
+  var cMaint  = sum(rows, function(r){ return r.cMaint; });
+  var cIns    = sum(rows, function(r){ return r.cIns; });
+  var cLease  = sum(rows, function(r){ return r.cLease; });
+  var cTolls  = sum(rows, function(r){ return r.cTolls; });
+  var cOther  = sum(rows, function(r){ return r.cOther; });
+  var loaded  = sum(rows, function(r){ return r.loadedMiles; });
+  var dead    = sum(rows, function(r){ return r.deadMiles; });
+  var cap     = sum(rows, function(r){ return r.capMiles; });
+  var ship    = sum(rows, function(r){ return r.ship; });
+  var onTime  = sum(rows, function(r){ return r.onTime; });
+  var difotN  = sum(rows, function(r){ return r.difotN; });
+  var availH  = sum(rows, function(r){ return r.availHrs; });
+  var downH   = sum(rows, function(r){ return r.downHrs; });
+  var pmT     = sum(rows, function(r){ return r.pmT; });
+  var pmOk    = sum(rows, function(r){ return r.pmOk; });
+  var brk     = sum(rows, function(r){ return r.brk; });
+  var dsoW    = sum(rows, function(r){ return r.dsoW; });
+
+  return {
+    miles:miles, rev:rev, cost:cost,
+    cFuel:cFuel, cDriver:cDriver, cMaint:cMaint, cIns:cIns, cLease:cLease,
+    cTolls:cTolls, cOther:cOther,
+    cpm: cost/miles, rpm: rev/miles, spread: (rev-cost)/miles,
+    opProfit: rev-cost, opMargin: (rev-cost)/rev*100, grossMargin: 0,
+    util: miles/cap*100, loaded: loaded/miles*100, dead: dead/miles*100,
+    otd: onTime/ship*100, difot: difotN/ship*100,
+    down: downH/availH*100, pm: pmOk/pmT*100,
+    mnt: cMaint/miles, brk: brk/miles*100000,
+    dso: dsoW/miles,
+    fuelShare: cFuel/cost*100, driverShare: cDriver/cost*100, maintShare: cMaint/cost*100,
+    insShare: cIns/cost*100, leaseShare: cLease/cost*100, tollsShare: cTolls/cost*100,
+    otherShare: cOther/cost*100
+  };
+}
+
+function sliceRows(fromM, toM, opts){
+  return ROWS.filter(function(r){
+    if (r.m < fromM || r.m > toM) return false;
+    if (opts.region && r.region !== opts.region) return false;
+    if (opts.bu && r.bu !== opts.bu) return false;
+    if (opts.fleet && r.fleet !== opts.fleet) return false;
+    return true;
+  });
+}
+function sliceCust(fromM, toM, opts){
+  return CUST_ROWS.filter(function(c){
+    if (c.m < fromM || c.m > toM) return false;
+    if (opts.seg && c.seg !== opts.seg) return false;
+    return true;
+  });
+}
+
+/* cửa sổ hiện tại & cửa sổ so sánh */
+function windows(){
+  var n = F.range;
+  var curTo = NM - 1, curFrom = NM - n;
+  var prevFrom, prevTo;
+  if (F.compare === "prev"){ prevTo = curFrom - 1; prevFrom = prevTo - n + 1; }
+  else { prevTo = curTo - 12; prevFrom = curFrom - 12; }
+  if (prevFrom < 0){ prevFrom = 0; prevTo = Math.min(n - 1, NM - 1); }
+  return { curFrom:curFrom, curTo:curTo, prevFrom:prevFrom, prevTo:prevTo, n:n };
+}
+
+function refFor(key){
+  /* khi lọc đúng 1 loại đội xe -> dùng bảng của loại đó.
+     khi trộn nhiều loại -> dùng mục tiêu của loại chiếm ưu thế (Regional làm chuẩn),
+     và ĐÁNH DẤU rõ rằng đây là mục tiêu tổng hợp, không phải benchmark ngành. */
+  var fl = F.fleet || "Regional";
+  var base = REFS[fl];
+  return { r: base, mixed: !F.fleet, fleetLabel: F.fleet || "Toàn đội xe" };
+}
+
+/* =====================================================================
+   4.  TRẠNG THÁI
+   ===================================================================== */
+function statusOf(actual, target, higherBetter, tol){
+  tol = tol === undefined ? 0.05 : tol;
+  if (target === null || target === undefined) return "neutral";
+  if (higherBetter){
+    if (actual >= target) return "good";
+    if (actual >= target * (1 - tol)) return "warn";
+    return "crit";
+  }
+  if (actual <= target) return "good";
+  if (actual <= target * (1 + tol)) return "warn";
+  return "crit";
+}
+var SEV_RANK = { good:0, neutral:1, warn:2, crit:3 };
+var SEV_LABEL = { good:"Đạt", neutral:"Thiếu dữ liệu", warn:"Theo dõi", crit:"Báo động" };
+var SEV_ICON  = { good:"✓", neutral:"–", warn:"!", crit:"▲" };
+
+/* =====================================================================
+   5.  RULE ENGINE
+   ===================================================================== */
+/* Mỗi luật trả về: điểm tác động (USD/năm, ước tính) + bằng chứng.
+   Luật cùng `cluster` sẽ được GỘP thành một kết luận. */
+var RULES = [
+  { id:"cpm_over", cluster:"cost", sev:"warn", order:1,
+    when:function(k){ return k.cpm > k.ref.cpm.target * 1.02; },
+    score:function(k,px){ return (k.cpm - k.ref.cpm.target) * k.miles * px; },
+    title:"Chi phí vận hành trên mỗi dặm vượt mục tiêu nội bộ",
+    cause:function(k,px){
+      var over = (k.cpm / k.ref.cpm.target - 1) * 100;
+      var s = "<b>CPM " + rate(k.cpm) + "/dặm</b>, cao hơn mục tiêu nội bộ " + rate(k.ref.cpm.target) +
+              " khoảng <b>" + over.toFixed(1) + "%</b>.";
+      if (k.ref.cpm.industry !== null && k.cpm < k.ref.cpm.industry){
+        s += " Đáng chú ý: vẫn <b>thấp hơn benchmark ngành " + rate(k.ref.cpm.industry) +
+             "</b> — đây là vấn đề <em>mục tiêu nội bộ</em>, không phải vấn đề cạnh tranh. Hai tham chiếu này chỉ về hai hướng khác nhau và không được gộp.";
+      }
+      return s;
+    },
+    ev:function(k){ return [
+      ["CPM", rate(k.cpm) + "/dặm"],
+      ["T·mục tiêu", rate(k.ref.cpm.target)],
+      ["I·ngành", k.ref.cpm.industry === null ? "n/a" : rate(k.ref.cpm.industry)]
+    ]; },
+    impact:function(k,px){ return money((k.cpm - k.ref.cpm.target) * k.miles * px) + "/năm chi phí vượt mức"; },
+    owner:"CFO + Giám đốc Vận hành"
+  },
+
+  { id:"spread", cluster:"margin", sev:"crit", order:1,
+    when:function(k){ return k.spread < k.spreadPrev * 0.92; },
+    score:function(k,px){ return (k.spreadPrev - k.spread) * k.miles * px; },
+    title:"Biên đóng góp bị nén — giá bán không theo kịp chi phí",
+    cause:function(k){
+      return "Biên đóng góp giảm từ <b>" + rate(k.spreadPrev) + "</b> xuống <b>" + rate(k.spread) +
+             "/dặm (<b>" + sgn((k.spread/k.spreadPrev-1)*100) + "%</b>). RPM chỉ tăng <b>" +
+             sgn((k.rpm/k.rpmPrev-1)*100) + "%</b> trong khi CPM tăng <b>" + sgn((k.cpm/k.cpmPrev-1)*100) +
+             "%</b> — chi phí đang chạy nhanh hơn giá bán.";
+    },
+    ev:function(k){ return [
+      ["Biên", rate(k.spread) + "/dặm"],
+      ["Kỳ trước", rate(k.spreadPrev)],
+      ["T·mục tiêu", rate(k.ref.spread.target)]
+    ]; },
+    impact:function(k,px){ return money((k.spreadPrev - k.spread) * k.miles * px) + "/năm lợi nhuận bị mất"; },
+    owner:"CFO + Giám đốc Kinh doanh"
+  },
+
+  { id:"util_low", cluster:"capacity", sev:"warn", order:2,
+    when:function(k){ return k.util < k.ref.util.target - 2; },
+    score:function(k,px){
+      var missed = (k.ref.util.target - k.util) / 100 * (k.miles / (k.util/100));
+      return missed * k.spread * px;
+    },
+    title:"Công suất đội xe chưa được dùng hết",
+    cause:function(k){
+      return "Hiệu suất sử dụng đạt <b>" + k.util.toFixed(1) + "%</b>, thấp hơn mục tiêu <b>" +
+             k.ref.util.target.toFixed(0) + "%</b> là <b>" + (k.ref.util.target - k.util).toFixed(1) +
+             " điểm</b>. Năng lực kéo bị bỏ trống — đây là chi phí cơ hội, không phải chi phí tiền mặt.";
+    },
+    ev:function(k){ return [
+      ["Sử dụng", k.util.toFixed(1) + "%"],
+      ["T·mục tiêu", k.ref.util.target.toFixed(0) + "%"],
+      ["Kỳ trước", k.utilPrev.toFixed(1) + "%"]
+    ]; },
+    impact:function(k,px){
+      var missed = (k.ref.util.target - k.util)/100 * (k.miles/(k.util/100));
+      return money(missed * k.spread * px) + "/năm biên đóng góp bỏ lỡ";
+    },
+    owner:"COO"
+  },
+
+  { id:"deadhead", cluster:"capacity", sev:"warn", order:2,
+    when:function(k){ return k.dead > k.deadPrev + 1.5; },
+    score:function(k,px){ return (k.dead - k.deadPrev)/100 * k.miles * k.cpm * px; },
+    title:"Tỷ lệ dặm rỗng tăng",
+    cause:function(k){
+      return "Dặm rỗng chiếm <b>" + k.dead.toFixed(1) + "%</b> tổng dặm, tăng từ <b>" + k.deadPrev.toFixed(1) +
+             "%</b>. Mỗi điểm phần trăm dặm rỗng là dặm vẫn tốn nhiên liệu và lương tài xế nhưng không sinh doanh thu.";
+    },
+    ev:function(k){ return [
+      ["Dặm rỗng", k.dead.toFixed(1) + "%"],
+      ["Kỳ trước", k.deadPrev.toFixed(1) + "%"],
+      ["T·dặm có hàng", k.ref.loaded.target.toFixed(0) + "%"]
+    ]; },
+    impact:function(k,px){ return money((k.dead-k.deadPrev)/100*k.miles*k.cpm*px) + "/năm chi phí dặm rỗng tăng thêm"; },
+    owner:"COO + Điều phối"
+  },
+
+  /* ---- CỤM BẢO TRÌ: 4 luật dưới đây LUÔN gộp thành 1 kết luận ---- */
+  { id:"maint_up", cluster:"maintenance", sev:"crit", order:1,
+    when:function(k){ return k.mnt > k.ref.mnt.target * 1.10; },
+    score:function(k,px){ return (k.mnt - k.ref.mnt.target) * k.miles * px; },
+    title:"Chi phí bảo trì trên mỗi dặm tăng vọt",
+    cause:function(k){
+      return "Chi phí bảo trì đạt <b>" + rate(k.mnt,3) + "/dặm</b>, cao hơn mục tiêu <b>" + rate(k.ref.mnt.target,3) +
+             "</b> tới <b>" + ((k.mnt/k.ref.mnt.target-1)*100).toFixed(0) + "%</b> và tăng <b>" +
+             sgn((k.mnt/k.mntPrev-1)*100,0) + "%</b> so với kỳ trước.";
+    },
+    ev:function(k){ return [
+      ["Bảo trì", rate(k.mnt,3) + "/dặm"],
+      ["T·mục tiêu", rate(k.ref.mnt.target,3)],
+      ["Kỳ trước", rate(k.mntPrev,3)]
+    ]; },
+    impact:function(k,px){ return money((k.mnt-k.ref.mnt.target)*k.miles*px) + "/năm"; },
+    owner:"Trưởng bộ phận Bảo trì"
+  },
+  { id:"downtime_up", cluster:"maintenance", sev:"crit", order:1,
+    when:function(k){ return k.down > k.ref.down.target * 1.10; },
+    score:function(k,px){
+      var excessH = (k.down - k.ref.down.target)/100 * (sum(ROWS,function(r){return r.availHrs;})/NM*F.range*(F.region||F.bu||F.fleet?1:1));
+      return excessH * 48 * k.spread * px;
+    },
+    title:"Downtime ngoài kế hoạch tăng",
+    cause:function(k){
+      return "Xe nằm xưởng ngoài kế hoạch <b>" + k.down.toFixed(1) + "%</b> thời gian khả dụng, vượt mục tiêu <b>" +
+             k.ref.down.target.toFixed(1) + "%</b>. Xe nằm xưởng vừa tốn tiền sửa vừa mất dặm có thể bán.";
+    },
+    ev:function(k){ return [
+      ["Downtime", k.down.toFixed(1) + "%"],
+      ["T·mục tiêu", k.ref.down.target.toFixed(1) + "%"],
+      ["Kỳ trước", k.downPrev.toFixed(1) + "%"]
+    ]; },
+    impact:function(k,px){ return money((k.down-k.ref.down.target)/100*k.capMiles*k.spread*px) + "/năm"; },
+    owner:"Trưởng bộ phận Bảo trì"
+  },
+  { id:"pm_low", cluster:"maintenance", sev:"crit", order:1,
+    when:function(k){ return k.pm < k.ref.pm.target - 3; },
+    score:function(k){ return (k.ref.pm.target - k.pm) * 4200; },
+    title:"Tuân thủ bảo trì định kỳ (PM) dưới mục tiêu",
+    cause:function(k){
+      return "PM compliance chỉ còn <b>" + k.pm.toFixed(0) + "%</b>, giảm từ <b>" + k.pmPrev.toFixed(0) +
+             "%</b> và thấp hơn mục tiêu <b>" + k.ref.pm.target.toFixed(0) +
+             "%</b> là <b>" + (k.ref.pm.target - k.pm).toFixed(0) + " điểm</b>.";
+    },
+    ev:function(k){ return [
+      ["PM compliance", k.pm.toFixed(0) + "%"],
+      ["T·mục tiêu", k.ref.pm.target.toFixed(0) + "%"],
+      ["Kỳ trước", k.pmPrev.toFixed(0) + "%"]
+    ]; },
+    impact:function(k){ return "Nguyên nhân gốc của cụm bảo trì"; },
+    owner:"Trưởng bộ phận Bảo trì"
+  },
+  { id:"brk_up", cluster:"maintenance", sev:"warn", order:1,
+    when:function(k){ return k.brk > k.ref.brk.target * 1.15; },
+    score:function(k,px){ return (k.brk - k.ref.brk.target) * k.miles/100000 * 1450 * px; },
+    title:"Số lần hỏng hóc trên 100.000 dặm tăng",
+    cause:function(k){
+      return "Tần suất hỏng hóc <b>" + k.brk.toFixed(2) + " lần/100k dặm</b>, so với mục tiêu <b>" +
+             k.ref.brk.target.toFixed(2) + "</b>. Mỗi lần hỏng dọc đường tốn khoảng $1,450 (kéo xe + sửa + chậm chuyến).";
+    },
+    ev:function(k){ return [
+      ["Hỏng hóc", k.brk.toFixed(2) + "/100k dặm"],
+      ["T·mục tiêu", k.ref.brk.target.toFixed(2)],
+      ["Kỳ trước", k.brkPrev.toFixed(2)]
+    ]; },
+    impact:function(k,px){ return money((k.brk-k.ref.brk.target)*k.miles/100000*1450*px) + "/năm"; },
+    owner:"Trưởng bộ phận Bảo trì"
+  },
+
+  { id:"otd_low", cluster:"service", sev:"warn", order:3,
+    when:function(k){ return k.otd < k.ref.otd.target; },
+    score:function(k){ return (k.ref.otd.target - k.otd) * 18500; },
+    title:"Tỷ lệ giao đúng hạn dưới mục tiêu",
+    cause:function(k){
+      return "OTD đạt <b>" + k.otd.toFixed(1) + "%</b>, dưới mục tiêu <b>" + k.ref.otd.target.toFixed(0) +
+             "%</b>. Giao trễ là nguyên nhân trực tiếp của việc mất tái ký hợp đồng ở phân khúc bán lẻ.";
+    },
+    ev:function(k){ return [
+      ["OTD", k.otd.toFixed(1) + "%"],
+      ["T·mục tiêu", k.ref.otd.target.toFixed(0) + "%"],
+      ["I·ngành", k.ref.otd.industry ? k.ref.otd.industry + "%" : "n/a"]
+    ]; },
+    impact:function(k){ return money((k.ref.otd.target-k.otd)/100*18500*12) + "/năm doanh thu có nguy cơ"; },
+    owner:"COO + Chăm sóc khách hàng"
+  },
+
+  { id:"dso_high", cluster:"cash", sev:"warn", order:3,
+    when:function(k){ return k.dso > DSO_TARGET * 1.10; },
+    score:function(k,px){ return (k.dso - DSO_TARGET)/365 * k.rev * px; },
+    title:"Số ngày thu tiền (DSO) tăng cao",
+    cause:function(k){
+      return "DSO ở mức <b>" + k.dso.toFixed(0) + " ngày</b>, so với mục tiêu <b>" + DSO_TARGET +
+             " ngày</b> và kỳ trước <b>" + k.dsoPrev.toFixed(0) + " ngày</b>. Tiền bị giữ trong khoản phải thu thay vì quay vòng.";
+    },
+    ev:function(k){ return [
+      ["DSO", k.dso.toFixed(0) + " ngày"],
+      ["T·mục tiêu", DSO_TARGET + " ngày"],
+      ["Kỳ trước", k.dsoPrev.toFixed(0) + " ngày"]
+    ]; },
+    impact:function(k,px){ return money((k.dso-DSO_TARGET)/365*k.rev*px) + " tiền mặt bị giữ"; },
+    owner:"CFO + Kế toán phải thu"
+  },
+
+  { id:"conc_high", cluster:"customer", sev:"crit", order:2,
+    when:function(k){ return k.top3 > CONC_THRESHOLD; },
+    score:function(k){ return k.top1Rev * 0.35; },
+    title:"Doanh thu tập trung quá cao vào nhóm khách hàng nhỏ",
+    cause:function(k){
+      return "Ba khách lớn nhất chiếm <b>" + k.top3.toFixed(1) + "%</b> doanh thu, vượt ngưỡng rủi ro nội bộ <b>" +
+             CONC_THRESHOLD + "%</b>. Riêng <b>" + k.top1Name + "</b> đã chiếm <b>" + k.top1Share.toFixed(1) +
+             "%</b>. Mất một khách là mất một phần lợi nhuận không bù được trong quý.";
+    },
+    ev:function(k){ return [
+      ["Top-3", k.top3.toFixed(1) + "%"],
+      ["Top-1", k.top1Share.toFixed(1) + "%"],
+      ["Ngưỡng nội bộ", CONC_THRESHOLD + "%"]
+    ]; },
+    impact:function(k){ return money(k.top1Rev*0.35) + " doanh thu có nguy cơ (ước tính 35% KH lớn nhất)"; },
+    owner:"CEO + Giám đốc Kinh doanh"
+  },
+
+  { id:"otd_strong", cluster:"service", sev:"good", order:4,
+    when:function(k){ return k.otd >= k.ref.otd.target && k.difot >= k.ref.difot.target - 2; },
+    score:function(k){ return 240000; },
+    title:"Dịch vụ đang là điểm tựa — OTD vượt mục tiêu",
+    cause:function(k){
+      return "OTD đạt <b>" + k.otd.toFixed(1) + "%</b>, vượt mục tiêu <b>" + k.ref.otd.target.toFixed(0) +
+             "%</b>. Đây là chỉ số duy nhất đang giữ được mức tốt — nên là điểm neo khi đàm phán lại giá với khách hàng.";
+    },
+    ev:function(k){ return [
+      ["OTD", k.otd.toFixed(1) + "%"],
+      ["T·mục tiêu", k.ref.otd.target.toFixed(0) + "%"],
+      ["DIFOT", k.difot.toFixed(1) + "%"]
+    ]; },
+    impact:function(){ return "Lợi thế cạnh tranh — dùng làm đòn bẩy tăng giá"; },
+    owner:"Giám đốc Kinh doanh"
+  }
+];
+
+/* chạy rule engine trên tập KPI đã lọc */
+function runRules(k, px){
+  var fired = [];
+  RULES.forEach(function(rule){
+    var ok = false;
+    try { ok = rule.when(k); } catch(e){ ok = false; }
+    if (!ok) return;
+    var sc = 0;
+    try { sc = Math.abs(rule.score(k, px)); } catch(e){ sc = 0; }
+    if (!isFinite(sc)) sc = 0;
+    /* Một luật lỗi không được phép làm trắng cả dashboard: bọc từng phần,
+       luật nào hỏng thì bỏ luật đó và ghi lại để còn truy vết. */
+    try {
+      fired.push({
+        id:rule.id, cluster:rule.cluster, sev:rule.sev, order:rule.order,
+        title:rule.title, cause:rule.cause(k, px),
+        ev:rule.ev(k), impact:rule.impact(k, px), owner:rule.owner, score:sc
+      });
+    } catch(err){
+      if (window.console && console.warn) console.warn("rule failed: " + rule.id, err);
+    }
+  });
+
+  /* --- GỘP THEO CLUSTER: nhiều triệu chứng, một nguyên nhân --- */
+  var byCluster = {};
+  fired.forEach(function(f){
+    if (!byCluster[f.cluster]) byCluster[f.cluster] = [];
+    byCluster[f.cluster].push(f);
+  });
+
+  var merged = [];
+  Object.keys(byCluster).forEach(function(cl){
+    var group = byCluster[cl];
+    group.sort(function(a,b){ return b.score - a.score; });
+
+    if (group.length === 1){
+      merged.push(group[0]);
+      return;
+    }
+    /* gộp: tiêu đề lấy từ luật nặng nhất, nhưng phải kể được quan hệ nhân quả */
+    var lead = group[0];
+    var worst = group.reduce(function(a,b){ return SEV_RANK[b.sev] > SEV_RANK[a.sev] ? b : a; });
+    var total = sum(group, function(g){ return g.score; });
+    var titleMap = {
+      maintenance:"Năng lực bảo trì đội xe đang trở thành rủi ro lợi nhuận",
+      capacity:"Năng lực đội xe đang bị dùng dưới tiềm năng",
+      service:"Chất lượng dịch vụ đang có dấu hiệu suy giảm",
+      cost:"Chi phí vận hành đang vượt kiểm soát",
+      margin:"Biên lợi nhuận đang bị nén",
+      cash:"Vòng quay tiền mặt đang chậm lại",
+      customer:"Rủi ro doanh thu tập trung"
+    };
+    var causeMap = {
+      maintenance:"<b>Bốn chỉ số này không phải bốn vấn đề riêng lẻ — chúng là bốn triệu chứng của cùng một nguyên nhân gốc.</b> " +
+        "PM compliance giảm trước, kéo theo hỏng hóc tăng, rồi downtime tăng, và cuối cùng là chi phí sửa chữa tăng. " +
+        "Xử lý riêng từng chỉ số sẽ không giải quyết được gì — phải bắt từ lịch bảo trì định kỳ.",
+      capacity:"Sử dụng công suất và dặm rỗng cùng xấu đi, nghĩa là vấn đề nằm ở <b>điều phối và ghép chuyến</b>, không phải ở nhu cầu thị trường.",
+      service:"Các chỉ số dịch vụ cùng giảm — cần kiểm tra xem có phải cùng một nhóm tuyến hoặc cùng một terminal gây ra.",
+      cost:"Nhiều thành phần chi phí cùng tăng — cần đọc tiếp phần Cơ cấu chi phí để tìm thành phần đóng góp lớn nhất.",
+      margin:"", cash:"", customer:""
+    };
+    var evAll = [];
+    group.forEach(function(g){ evAll = evAll.concat(g.ev); });
+    /* khử trùng lặp nhãn bằng chứng */
+    var seen = {}, evU = [];
+    evAll.forEach(function(e){ if (!seen[e[0]]){ seen[e[0]] = 1; evU.push(e); } });
+
+    merged.push({
+      id:cl, cluster:cl, sev:worst.sev, order:lead.order,
+      title:titleMap[cl] || lead.title,
+      cause:(causeMap[cl] || "") + " " + group.map(function(g){ return g.cause; }).join(" "),
+      ev:evU.slice(0, 6),
+      impact:money(total) + "/năm (tổng hợp " + group.length + " chỉ số)",
+      owner:lead.owner,
+      score:total,
+      grouped:group.map(function(g){ return g.title; })
+    });
+  });
+
+  /* ưu tiên theo TÁC ĐỘNG TÀI CHÍNH, không theo mức đỏ trên màn hình.
+     `order` chỉ là hệ số phá vỡ thế hoà rất nhẹ giữa các mức tác động xấp xỉ. */
+  merged.sort(function(a,b){
+    var sa = a.score * (1 + (4 - a.order) * 0.06);
+    var sb = b.score * (1 + (4 - b.order) * 0.06);
+    return sb - sa;
+  });
+  return merged;
+}
+
+/* =====================================================================
+   6.  TÍNH KPI ĐẦY ĐỦ CHO MỘT LÁT CẮT
+   ===================================================================== */
+function buildKPI(){
+  var w = windows();
+  var cur  = agg(sliceRows(w.curFrom, w.curTo, F));
+  var prev = agg(sliceRows(w.prevFrom, w.prevTo, F));
+  var refP = refFor();
+  var ref  = refP.r;
+
+  if (!cur) return null;
+
+  var cust = sliceCust(w.curFrom, w.curTo, F);
+  var custPrev = sliceCust(w.prevFrom, w.prevTo, F);
+
+  /* khách hàng: quy đổi theo tỉ trọng dặm khi có lọc khu vực/BU/loại xe */
+  var allMiles = sum(ROWS.filter(function(r){ return r.m >= w.curFrom && r.m <= w.curTo; }),
+                     function(r){ return r.miles; });
+  var scale = allMiles ? cur.miles / allMiles : 1;
+
+  var byCust = {};
+  cust.forEach(function(c){
+    if (!byCust[c.name]) byCust[c.name] = { name:c.name, seg:c.seg, rev:0, gp:0, ship:0, late:0, dsoW:0 };
+    var o = byCust[c.name];
+    o.rev += c.rev*scale; o.gp += c.gp*scale; o.ship += c.ship*scale;
+    o.late += c.late*scale; o.dsoW += c.dsoW*scale;
+  });
+  var cList = Object.keys(byCust).map(function(n){ return byCust[n]; });
+  var revAll = sum(cList, function(c){ return c.rev; });
+  var gpAll  = sum(cList, function(c){ return c.gp; }) || 1;
+  cList.forEach(function(c){
+    c.share = revAll ? c.rev/revAll*100 : 0;
+    c.gpShare = c.gp / gpAll * 100;
+    c.gm = c.rev ? c.gp/c.rev*100 : 0;
+    c.otd = c.ship ? (1 - c.late/c.ship)*100 : 0;
+    c.dso = c.rev ? c.dsoW/c.rev : 0;
+    /* Giá bán mỗi dặm khác nhau theo khách; chi phí trực tiếp suy ra TỪ biên gộp
+       để giữ đúng đẳng thức RPM − CPM = lợi nhuận gộp trên mỗi dặm.
+       (Nếu bịa CPM/RPM độc lập thì bảng sẽ tự mâu thuẫn với cột %LN gộp.) */
+    var h = 0;
+    for (var ci = 0; ci < c.name.length; ci++) h = (h*31 + c.name.charCodeAt(ci)) % 997;
+    c.rpm = cur.rpm * (0.94 + (h/997)*0.13);
+    c.cpm = c.rpm * (1 - c.gm/100);
+  });
+  cList.sort(function(a,b){ return b.rev - a.rev; });
+
+  var top1 = cList[0] || { rev:0, share:0, name:"—" };
+  var top3 = sum(cList.slice(0,3), function(c){ return c.share; });
+  var top5 = sum(cList.slice(0,5), function(c){ return c.share; });
+  var gpSorted = cList.slice().sort(function(a,b){ return b.gp - a.gp; });
+  var gpTop3 = sum(gpSorted.slice(0,3), function(c){ return c.gpShare; });
+  var hhi = sum(cList, function(c){ return Math.pow(c.share, 2); });
+
+  /* KPI object cho rule engine */
+  var k = {
+    cpm:cur.cpm, rpm:cur.rpm, spread:cur.spread,
+    cpmPrev:prev?prev.cpm:cur.cpm, rpmPrev:prev?prev.rpm:cur.rpm, spreadPrev:prev?prev.spread:cur.spread,
+    util:cur.util, utilPrev:prev?prev.util:cur.util,
+    dead:cur.dead, deadPrev:prev?prev.dead:cur.dead,
+    loaded:cur.loaded, loadedPrev:prev?prev.loaded:cur.loaded,
+    otd:cur.otd, difot:cur.difot,
+    otdPrev:prev?prev.otd:cur.otd, difotPrev:prev?prev.difot:cur.difot,
+    down:cur.down, downPrev:prev?prev.down:cur.down,
+    pm:cur.pm, pmPrev:prev?prev.pm:cur.pm,
+    mnt:cur.mnt, mntPrev:prev?prev.mnt:cur.mnt,
+    brk:cur.brk, brkPrev:prev?prev.brk:cur.brk,
+    dso:cur.dso, dsoPrev:prev?prev.dso:cur.dso,
+    opMargin:cur.opMargin, opMarginPrev:prev?prev.opMargin:cur.opMargin,
+    miles:cur.miles, rev:cur.rev, cost:cur.cost, capMiles:cur.capMiles,
+    top1:top1.share, top1Share:top1.share, top1Rev:top1.rev, top1Name:top1.name,
+    top3:top3, top5:top5, hhi:hhi,
+    ref:ref, refMixed:refP.mixed
+  };
+  return { k:k, cur:cur, prev:prev, ref:ref, refP:refP, w:w, cList:cList,
+           top1:top1, top3:top3, top5:top5, gpTop3:gpTop3, hhi:hhi, gpSorted:gpSorted };
+}
+
+/* =====================================================================
+   7.  RENDER — L1 SỨC KHOẺ
+   ===================================================================== */
+function renderHealth(K, insights){
+  var k = K.k;
+  var checks = [
+    { s: statusOf(k.cpm, k.ref.cpm.target, false, .05) },
+    { s: statusOf(k.spread, k.ref.spread.target, true, .12) },
+    { s: statusOf(k.opMargin, 6.0, true, .15) },
+    { s: statusOf(k.util, k.ref.util.target, true, .04) },
+    { s: statusOf(k.otd, k.ref.otd.target, true, .02) },
+    { s: statusOf(k.difot, k.ref.difot.target, true, .02) },
+    { s: statusOf(k.down, k.ref.down.target, false, .10) },
+    { s: statusOf(k.pm, k.ref.pm.target, true, .04) },
+    { s: statusOf(k.dso, DSO_TARGET, false, .10) },
+    { s: statusOf(k.top3, CONC_THRESHOLD, false, .06) }
+  ];
+  var nG = checks.filter(function(c){ return c.s==="good"; }).length;
+  var nW = checks.filter(function(c){ return c.s==="warn"; }).length;
+  var nC = checks.filter(function(c){ return c.s==="crit"; }).length;
+  var verdict = nC >= 3 ? "crit" : (nC >= 1 || nW >= 4) ? "warn" : "good";
+  var label = verdict==="crit" ? "Báo động" : verdict==="warn" ? "Theo dõi" : "Lành mạnh";
+
+  /* Câu lý giải lấy từ chính các kết luận đã kích hoạt — không hard-code. */
+  var CLUSTER_VI = { maintenance:"bảo trì đội xe", capacity:"sử dụng công suất",
+                     margin:"biên lợi nhuận", cost:"chi phí vận hành", service:"chất lượng dịch vụ",
+                     cash:"vòng quay tiền mặt", customer:"tập trung khách hàng" };
+  var topClusters = insights.slice(0, 3)
+    .map(function(it){ return CLUSTER_VI[it.cluster] || it.cluster; })
+    .filter(function(v, i, a){ return a.indexOf(v) === i; });
+  var reason = "Biên đóng góp " + rate(k.spread) + "/dặm, thu hẹp " + sgn((k.spread/k.spreadPrev-1)*100) +
+    "% so với kỳ trước vì CPM tăng " + sgn((k.cpm/k.cpmPrev-1)*100) + "% trong khi RPM chỉ tăng " +
+    sgn((k.rpm/k.rpmPrev-1)*100) + "%. " +
+    nC + " chỉ số không đạt mục tiêu" +
+    (topClusters.length ? ", tập trung vào " + topClusters.slice(0,2).join(" và ") + "." : ".");
+
+  $("#health").className = "health " + verdict;
+  $("#health").innerHTML =
+    '<div>' +
+      '<span class="verdict">' + SEV_ICON[verdict] + " " + label + '</span>' +
+      '<h2>' + (verdict==="crit" ? "Biên lợi nhuận đang bị nén trong khi đội xe xuống cấp"
+              : verdict==="warn" ? "Công ty vẫn có lãi, nhưng đà đang xấu đi ở hai điểm"
+              : "Công ty đang khoẻ") + '</h2>' +
+      '<p class="reason">' + reason + '</p>' +
+    '</div>' +
+    '<div class="tally">' +
+      '<div class="t g"><div class="n">' + nG + '</div><div class="l">chỉ số đạt mục tiêu</div></div>' +
+      '<div class="t w"><div class="n">' + nW + '</div><div class="l">cần theo dõi</div></div>' +
+      '<div class="t c"><div class="n">' + nC + '</div><div class="l">không đạt mục tiêu</div></div>' +
+      '<div class="t"><div class="n">' + (k.miles/1e6).toFixed(1) +
+        '</div><div class="l">triệu dặm trong kỳ</div></div>' +
+    '</div>' +
+    '<div class="pathnote">' +
+      '<b>Cách đọc trang này:</b> Sức khoẻ công ty <span class="arw">→</span> 4 chỉ số North Star ' +
+      '<span class="arw">→</span> Kết luận điều hành <span class="arw">→</span> Chẩn đoán tài chính / vận hành / đội xe / khách hàng.' +
+      ' <span style="color:var(--ink-4)">Đây là một chuỗi nhân quả, không phải một bộ sưu tập biểu đồ rời.</span>' +
+    '</div>';
+}
+
+/* =====================================================================
+   8.  RENDER — L2 BỐN THẺ KPI
+   ===================================================================== */
+function rulerSVG(actual, target, industry, hist, min, max, higherBetter){
+  /* trả về HTML cho thước so sánh: thanh = thực tế, vạch T / I / H */
+  var span = max - min || 1;
+  var pos = function(v){ return Math.max(0, Math.min(100, (v - min)/span*100)); };
+  var barW = pos(actual);
+  var html = '<div class="ruler-track"><div class="ruler-bar" style="width:' + barW.toFixed(1) + '%"></div>';
+  if (hist !== null && hist !== undefined && isFinite(hist)){
+    html += '<div class="ruler-tick h dot" style="left:' + pos(hist).toFixed(1) + '%" title="H — kỳ trước"></div>';
+  }
+  if (industry !== null && industry !== undefined && isFinite(industry)){
+    html += '<div class="ruler-tick i dot" style="left:' + pos(industry).toFixed(1) + '%" title="I — benchmark ngành"></div>';
+  }
+  if (target !== null && target !== undefined && isFinite(target)){
+    html += '<div class="ruler-tick t" style="left:' + pos(target).toFixed(1) + '%" title="T — mục tiêu nội bộ"></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderNorthStar(K){
+  var k = K.k, cur = K.cur, prev = K.prev, ref = K.ref;
+  var cards = [];
+
+  /* 1 — Cost per Mile */
+  var cpmS = statusOf(k.cpm, ref.cpm.target, false, .05);
+  cards.push({
+    st:cpmS, label:"Chi phí mỗi dặm · CPM", sub:"Tổng chi phí vận hành ÷ tổng dặm",
+    val:rate(k.cpm), unit:"/dặm",
+    delta:{ v:(k.cpm/k.cpmPrev-1)*100, good:false, txt:"so với kỳ trước" },
+    ruler:rulerSVG(k.cpm, ref.cpm.target, ref.cpm.industry, k.cpmPrev,
+                    Math.min(k.cpm, ref.cpm.target, k.cpmPrev) - .2,
+                    Math.max(k.cpm, ref.cpm.industry || 0, k.cpmPrev) + .2),
+    rows:[
+      { mk:"T", nm:"Mục tiêu nội bộ", vl:rate(ref.cpm.target) + "/dặm" },
+      { mk:"I", nm:"Benchmark ngành", vl: ref.cpm.industry === null ? "Không có benchmark áp dụng cho loại đội xe này" : rate(ref.cpm.industry) + "/dặm",
+        na: ref.cpm.industry === null },
+      { mk:"H", nm:"Kỳ trước", vl:rate(k.cpmPrev) + "/dặm" }
+    ],
+    src: ref.cpm.industry === null
+      ? '<span class="k">Nguồn:</span> không có benchmark ngành cho <b>' + K.refP.fleetLabel + '</b>. Hiển thị <b>Mục tiêu nội bộ</b> — không được gán mục tiêu nội bộ cho benchmark ngành.'
+      : '<span class="k">Nguồn I:</span> ' + ref.cpm.src + ' · <span class="k">Phạm vi:</span> ' + ref.cpm.scope + ' · <span class="k">Kỳ đo:</span> ' + ref.cpm.period
+  });
+
+  /* 2 — Revenue per Mile + spread */
+  var rpmS = statusOf(k.spread, ref.spread.target, true, .12);
+  cards.push({
+    st:rpmS, label:"Kinh tế đơn vị · RPM &amp; biên đóng góp", sub:"Doanh thu/dặm trừ chi phí/dặm",
+    val:rate(k.spread), unit:"/dặm",
+    delta:{ v:(k.spread/k.spreadPrev-1)*100, good:true, txt:"biên đóng góp so với kỳ trước" },
+    ruler:rulerSVG(k.spread, ref.spread.target, null, k.spreadPrev,
+                    Math.min(k.spread, ref.spread.target, k.spreadPrev) - .08,
+                    Math.max(k.spread, ref.spread.target, k.spreadPrev) + .08),
+    rows:[
+      { mk:"T", nm:"Biên mục tiêu", vl:rate(ref.spread.target) + "/dặm" },
+      { mk:"H", nm:"Kỳ trước", vl:rate(k.spreadPrev) + "/dặm" },
+      { mk:null, nm:"RPM / CPM", vl:rate(k.rpm) + " − " + rate(k.cpm) }
+    ],
+    src:'<span class="k">Lưu ý:</span> RPM ' + rate(k.rpm) + ' tăng ' + sgn((k.rpm/k.rpmPrev-1)*100) +
+        '% còn CPM tăng ' + sgn((k.cpm/k.cpmPrev-1)*100) + '% — <b>chi phí chạy nhanh hơn giá bán</b>. Biên mục tiêu là chỉ tiêu nội bộ, không có benchmark ngành tương đương.'
+  });
+
+  /* 3 — Fleet utilization */
+  var utilS = statusOf(k.util, ref.util.target, true, .04);
+  cards.push({
+    st:utilS, label:"Hiệu suất sử dụng đội xe", sub:"Dặm chạy thực tế ÷ dặm khả dụng",
+    val:k.util.toFixed(1), unit:"%",
+    delta:{ v:k.util - k.utilPrev, good:true, txt:"điểm phần trăm so với kỳ trước", abs:true },
+    ruler:rulerSVG(k.util, ref.util.target, null, k.utilPrev,
+                    Math.min(k.util, ref.util.target, k.utilPrev) - 4,
+                    Math.max(k.util, ref.util.target, k.utilPrev) + 4),
+    rows:[
+      { mk:"T", nm:"Mục tiêu nội bộ", vl:ref.util.target.toFixed(0) + "%" },
+      { mk:"H", nm:"Kỳ trước", vl:k.utilPrev.toFixed(1) + "%" },
+      { mk:null, nm:"Dặm rỗng", vl:k.dead.toFixed(1) + "% (kỳ trước " + k.deadPrev.toFixed(1) + "%)" }
+    ],
+    src:'<span class="k">Lưu ý:</span> đây là <b>một</b> trong ba chỉ số năng lực — hai chỉ số còn lại (tỷ lệ dặm có hàng, độ sẵn sàng cơ khí) nằm ở mục Hiệu quả vận hành. Không gộp ba chỉ số này thành một con số.'
+  });
+
+  /* 4 — OTD / DIFOT */
+  var otdS = statusOf(k.otd, ref.otd.target, true, .02);
+  cards.push({
+    st:otdS, label:"Độ tin cậy dịch vụ · OTD / DIFOT", sub:"Giao đúng hạn và đầy đủ, không hư hỏng",
+    val:k.otd.toFixed(1), unit:"% OTD",
+    delta:{ v:k.otd - k.otdPrev, good:true, txt:"điểm phần trăm so với kỳ trước", abs:true },
+    ruler:rulerSVG(k.otd, ref.otd.target, ref.otd.industry, k.otdPrev,
+                    Math.min(k.otd, ref.otd.target, k.otdPrev, ref.otd.industry || 100) - 2,
+                    Math.max(k.otd, ref.otd.target, k.otdPrev, ref.otd.industry || 0) + 1),
+    rows:[
+      { mk:"T", nm:"Mục tiêu nội bộ", vl:ref.otd.target.toFixed(0) + "%" },
+      { mk:"I", nm:"Benchmark ngành", vl: ref.otd.industry === null ? "Không có benchmark áp dụng" : ref.otd.industry + "%", na:ref.otd.industry===null },
+      { mk:null, nm:"DIFOT", vl:k.difot.toFixed(1) + "% (mục tiêu " + ref.difot.target + "%)" }
+    ],
+    src: ref.otd.industry === null
+      ? '<span class="k">Nguồn:</span> không có benchmark ngành cho <b>' + K.refP.fleetLabel + '</b> — chỉ hiển thị mục tiêu nội bộ.'
+      : '<span class="k">Nguồn I:</span> ' + ref.otd.src + ' · <span class="k">Phạm vi:</span> ' + ref.otd.scope + ' · <span class="k">Kỳ đo:</span> ' + ref.otd.period
+  });
+
+  $("#northstar").innerHTML = cards.map(function(c){
+    return '<article class="kpi ' + c.st + '">' +
+      '<div class="k-label">' + SEV_ICON[c.st] + " " + c.label + '</div>' +
+      '<div class="k-sub">' + c.sub + '</div>' +
+      '<div class="k-val">' + c.val + '<span class="u">' + c.unit + '</span></div>' +
+      '<div class="k-delta ' + (c.delta.v === 0 ? "" : (c.delta.v > 0) === c.delta.good ? "up-good" : "up-bad") + '">' +
+        (c.delta.abs ? sgn(c.delta.v, 1, " điểm") : sgn(c.delta.v, 1, "%")) +
+        ' <span class="p">' + c.delta.txt + '</span></div>' +
+      '<div class="ruler">' + c.ruler +
+        '<div class="ruler-legend">' +
+          '<span><i style="border-top-style:solid;border-color:var(--ref-t);border-top-width:2.5px"></i>T·mục tiêu</span>' +
+          '<span><i style="border-top-style:dashed;border-color:var(--ref-i)"></i>I·ngành</span>' +
+          '<span><i style="border-top-style:dotted;border-color:var(--ref-h)"></i>H·kỳ trước</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cmp">' + c.rows.map(function(r){
+        return '<div class="row' + (r.na ? " na" : "") + '">' +
+          '<span class="mk ' + (r.mk ? r.mk.toLowerCase() : "") + '">' + (r.mk || "") + '</span>' +
+          '<span class="nm">' + r.nm + '</span><span class="vl">' + r.vl + '</span></div>';
+      }).join("") + '</div>' +
+      '<div class="src">' + c.src + '</div>' +
+    '</article>';
+  }).join("");
+}
+
+/* =====================================================================
+   9.  RENDER — L3 KẾT LUẬN ĐIỀU HÀNH
+   ===================================================================== */
+function renderInsights(K, insights){
+  var host = $("#insights");
+  if (!insights.length){
+    host.innerHTML = '<div class="card ins-empty">Không có kết luận nào được kích hoạt với bộ lọc hiện tại — mọi chỉ số đang trong ngưỡng mục tiêu.</div>';
+    return;
+  }
+  var top = insights.slice(0, 5);
+  host.innerHTML = top.map(function(it, i){
+    var sev = it.sev;
+    return '<article class="ins ' + sev + '">' +
+      '<div class="ic" aria-hidden="true">' + SEV_ICON[sev] + '</div>' +
+      '<div class="body">' +
+        '<h3>' + (i + 1) + '. ' + it.title + '</h3>' +
+        '<p class="cause">' + it.cause + '</p>' +
+        (it.grouped ? '<div class="ev" style="margin-bottom:7px"><span style="background:var(--crit-bg);border-color:transparent;font-family:var(--sans)">Đã gộp ' +
+            it.grouped.length + ' cảnh báo cùng nguyên nhân: ' + it.grouped.join(" · ") + '</span></div>' : '') +
+        '<div class="ev">' + it.ev.map(function(e){
+          return '<span>' + e[0] + ' <b>' + e[1] + '</b></span>';
+        }).join("") + '</div>' +
+        '<div class="foot">' +
+          '<div class="f imp"><span class="lb">Tác động ước tính</span><span class="vv">' + it.impact + '</span></div>' +
+          '<div class="f own"><span class="lb">Chủ trì</span><span class="vv">' + it.owner + '</span></div>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }).join("") +
+  (insights.length > 5
+    ? '<div class="prose" style="margin-top:10px;font-size:11.5px;color:var(--ink-3)">Còn ' +
+      (insights.length - 5) + ' kết luận tác động thấp hơn không hiển thị — panel giới hạn 5 dòng để giữ thứ tự ưu tiên rõ ràng.</div>'
+    : "");
+}
+
+/* =====================================================================
+   10.  SVG HELPERS
+   ===================================================================== */
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+/* biểu đồ 2 đường + dải tô giữa (doanh thu/chi phí, RPM/CPM) */
+function bandChart(host, series, opts){
+  opts = opts || {};
+  /* viewBox tỉ lệ ~4.4:1 để khi SVG giãn theo bề rộng card (~1500px)
+     thì chiều cao và cỡ chữ vẫn đúng tầm — không bị phóng đại. */
+  var W_ = 1320, H_ = opts.height || 300;
+  var PX0 = 84, PX1 = 1286, PY0 = 24, PY1 = 252;
+  var n = series.length;
+  var vals = [];
+  series.forEach(function(s){ vals.push(s.a); vals.push(s.b); });
+  if (opts.targetLine !== undefined && opts.targetLine !== null) vals.push(opts.targetLine);
+  var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  var pad = (hi - lo) * 0.35 || 1;
+  lo = Math.max(0, lo - pad); hi = hi + pad * 0.55;
+  var span = hi - lo || 1;
+  var X = function(i){ return PX0 + (PX1 - PX0) * (n === 1 ? .5 : i/(n-1)); };
+  var Y = function(v){ return PY1 - (v - lo)/span * (PY1 - PY0); };
+
+  var g = [];
+  /* gridlines + y ticks */
+  var TICKS = 5;
+  for (var t = 0; t <= TICKS; t++){
+    var v = lo + span * t/TICKS, y = Y(v);
+    g.push('<line x1="' + PX0 + '" y1="' + y.toFixed(1) + '" x2="' + PX1 + '" y2="' + y.toFixed(1) +
+           '" stroke="var(--grid)" stroke-width="1"/>');
+    g.push('<text x="' + (PX0 - 14) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end" ' +
+           'font-family="var(--mono)" font-size="11" fill="var(--ink-3)">' + esc(opts.fmtY(v)) + '</text>');
+  }
+
+  /* dải tô giữa hai đường */
+  var fwd = [], back = [];
+  for (var i = 0; i < n; i++) fwd.push(X(i).toFixed(1) + "," + Y(series[i].a).toFixed(1));
+  for (var j = n - 1; j >= 0; j--) back.push(X(j).toFixed(1) + "," + Y(series[j].b).toFixed(1));
+  g.push('<path d="M' + fwd.join(" L") + " L" + back.join(" L") + ' Z" fill="var(--wash-prof)"/>');
+
+  /* vạch mục tiêu T */
+  if (opts.targetLine !== undefined && opts.targetLine !== null){
+    var ty = Y(opts.targetLine);
+    g.push('<line x1="' + PX0 + '" y1="' + ty.toFixed(1) + '" x2="' + PX1 + '" y2="' + ty.toFixed(1) +
+           '" stroke="var(--ref-t)" stroke-width="2.5"/>');
+    var labY = Math.max(2, ty - 19);   /* kẹp trong viewBox, không cho tràn ra ngoài */
+    g.push('<rect x="' + (PX0 + 3) + '" y="' + labY.toFixed(1) + '" width="196" height="17" rx="3" ' +
+           'fill="var(--surface)"/>');
+    g.push('<text x="' + (PX0 + 10) + '" y="' + (labY + 13).toFixed(1) + '" font-family="var(--mono)" ' +
+           'font-size="11" font-weight="600" fill="var(--ref-t)">T· ' + esc(opts.targetLabel) + '</text>');
+  }
+
+  /* đường */
+  ["b","a"].forEach(function(key){
+    var s = key === "b" ? series.map(function(d,i){ return {x:X(i), y:Y(d.b)}; })
+                        : series.map(function(d,i){ return {x:X(i), y:Y(d.a)}; });
+    var col = key === "b" ? "var(--s-cost)" : "var(--s-rev)";
+    g.push('<polyline points="' + s.map(function(p){ return p.x.toFixed(1)+","+p.y.toFixed(1); }).join(" ") +
+           '" fill="none" stroke="' + col + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>');
+  });
+
+  /* KHÔNG vẽ thêm đường biên đóng góp ở đây. Biên (~$0.57) nhỏ hơn nhiều so với
+     RPM (~$2.5) và CPM (~$1.9) — cùng đơn vị nhưng khác độ lớn, nên nếu nhét
+     chung một trục thì đường biên rơi ra ngoài vùng vẽ. Biên được vẽ ở biểu đồ
+     nhỏ riêng bên dưới (small multiple, chung trục X, trục Y riêng). */
+
+  /* vòng tròn tương tác + endpoint */
+  for (var q = 0; q < n; q++){
+    var cx = X(q).toFixed(1);
+    g.push('<circle cx="' + cx + '" cy="' + Y(series[q].a).toFixed(1) + '" r="4" fill="var(--s-rev)" stroke="var(--surface)" stroke-width="2"/>');
+    g.push('<circle cx="' + cx + '" cy="' + Y(series[q].b).toFixed(1) + '" r="4" fill="var(--s-cost)" stroke="var(--surface)" stroke-width="2"/>');
+  }
+
+  /* nhãn trực tiếp ở điểm cuối (lệch vào trong + kẹp trong vùng vẽ: đỉnh chuỗi
+     thường chạm sát mép trên, không kẹp thì nhãn đội ra ngoài card) */
+  var lastX = X(n-1), la = Y(series[n-1].a), lb = Y(series[n-1].b);
+  var laY = Math.max(PY0 + 2, la - 13);
+  var lbY = Math.min(PY1 - 2, lb + 19);
+  g.push('<text x="' + (lastX - 12) + '" y="' + laY.toFixed(1) + '" text-anchor="end" font-family="var(--mono)" font-size="12" font-weight="600" fill="var(--ink-1)">' + esc(opts.fmtY(series[n-1].a)) + '</text>');
+  g.push('<text x="' + (lastX - 12) + '" y="' + lbY.toFixed(1) + '" text-anchor="end" font-family="var(--mono)" font-size="12" font-weight="600" fill="var(--ink-1)">' + esc(opts.fmtY(series[n-1].b)) + '</text>');
+
+  /* x labels */
+  var step = Math.ceil(n / 12);
+  series.forEach(function(d, i){
+    if (i % step !== 0 && i !== n-1) return;
+    g.push('<text x="' + X(i).toFixed(1) + '" y="' + (PY1 + 22) + '" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink-3)">' + esc(d.label) + '</text>');
+  });
+
+  /* vùng bắt hover */
+  var hits = series.map(function(d, i){
+    var w = (PX1 - PX0)/Math.max(1, n-1);
+    return '<rect x="' + (X(i) - w/2).toFixed(1) + '" y="' + PY0 + '" width="' + w.toFixed(1) + '" height="' + (PY1 - PY0) +
+           '" fill="transparent" data-i="' + i + '" class="hit"/>';
+  }).join("");
+  g.push('<g class="hits">' + hits + '</g>');
+  g.push('<line class="cross" x1="0" y1="' + PY0 + '" x2="0" y2="' + PY1 + '" stroke="var(--ink-4)" stroke-width="1" opacity="0"/>');
+
+  host.innerHTML = '<svg viewBox="0 0 ' + W_ + ' ' + H_ + '" role="img" aria-label="' + esc(opts.aria) + '">' +
+                   g.join("") + '</svg>';
+
+  /* hover layer */
+  var svg = host.querySelector("svg");
+  var cross = svg.querySelector(".cross");
+  svg.querySelectorAll(".hit").forEach(function(r){
+    r.addEventListener("mouseenter", function(){
+      var i = +r.getAttribute("data-i");
+      cross.setAttribute("x1", X(i).toFixed(1));
+      cross.setAttribute("x2", X(i).toFixed(1));
+      cross.setAttribute("opacity", "1");
+      showTip(r, series[i].label, opts.tipRows(series[i]));
+    });
+    r.addEventListener("mouseleave", function(){
+      cross.setAttribute("opacity", "0"); hideTip();
+    });
+  });
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { /* không animation */ }
+}
+
+/* Biên đóng góp theo tháng — SMALL MULTIPLE, không phải trục kép.
+   Biên (~$0.57) và RPM (~$2.50) cùng đơn vị nhưng lệch nhau gần 5 lần: nhét
+   chung một trục thì biên bị ép bẹp thành đường phẳng; còn dựng trục Y thứ hai
+   trên CÙNG một plot là dual-axis — anti-pattern số 1 của tài liệu này. Hai plot
+   tách biệt, chung trục X, mỗi plot một trục Y, là cách đúng. */
+function spreadChart(host, series, target, fmtY){
+  var W_ = 1320, H_ = 150;
+  var PX0 = 84, PX1 = 1286, PY0 = 18, PY1 = 104;
+  var n = series.length;
+  if (!n){ host.innerHTML = ""; return; }
+
+  var sp = series.map(function(d){ return d.spread; });
+  var hi = Math.max.apply(null, sp.concat([target])) * 1.20;  /* chừa chỗ nhãn trên đỉnh cột */
+  var lo = Math.min(0, Math.min.apply(null, sp));             /* mốc 0 luôn có mặt */
+  var span = (hi - lo) || 1;
+  var X = function(i){ return PX0 + (PX1 - PX0) * (n === 1 ? .5 : i/(n-1)); };
+  var Y = function(v){ return PY1 - (v - lo)/span * (PY1 - PY0); };
+  var slot = (PX1 - PX0)/Math.max(1, n-1);
+  var bw = Math.min(24, slot * 0.58);   /* mark spec: cột ≤ 24px */
+
+  var g = [];
+  [0, .5, 1].forEach(function(f){
+    var v = lo + span*f, y = Y(v);
+    g.push('<line x1="' + PX0 + '" y1="' + y.toFixed(1) + '" x2="' + PX1 + '" y2="' + y.toFixed(1) +
+           '" stroke="var(--grid)" stroke-width="1"/>');
+    g.push('<text x="' + (PX0 - 14) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end" ' +
+           'font-family="var(--mono)" font-size="11" fill="var(--ink-3)">' + esc(fmtY(v)) + '</text>');
+  });
+  var y0 = Y(0);
+  g.push('<line x1="' + PX0 + '" y1="' + y0.toFixed(1) + '" x2="' + PX1 + '" y2="' + y0.toFixed(1) +
+         '" stroke="var(--axis)" stroke-width="1"/>');
+
+  /* vạch mục tiêu T — cùng ngữ pháp tham chiếu (mực đậm + liền) với các biểu đồ trên */
+  var ty = Y(target);
+  g.push('<line x1="' + PX0 + '" y1="' + ty.toFixed(1) + '" x2="' + PX1 + '" y2="' + ty.toFixed(1) +
+         '" stroke="var(--ref-t)" stroke-width="2.5"/>');
+  var labY = Math.max(1, Math.min(PY1 - 24, ty - 19));
+  g.push('<rect x="' + (PX0 + 3) + '" y="' + labY.toFixed(1) + '" width="196" height="17" rx="3" ' +
+         'fill="var(--surface)"/>');
+  g.push('<text x="' + (PX0 + 10) + '" y="' + (labY + 13).toFixed(1) + '" font-family="var(--mono)" ' +
+         'font-size="11" font-weight="600" fill="var(--ref-t)">T· biên mục tiêu ' + esc(fmtY(target)) + '</text>');
+
+  /* cột — đầu dữ liệu bo 3.5px, chân vuông tại đường 0 */
+  series.forEach(function(d, i){
+    var y = Y(d.spread);
+    var yTop = Math.min(y, y0), yBot = Math.max(y, y0);
+    var h = Math.max(1, yBot - yTop);
+    var r = Math.min(3.5, h/2, bw/2);
+    var x = X(i) - bw/2, x2 = x + bw;
+    var path;
+    if (y <= y0){   /* giá trị dương: bo ở đỉnh */
+      path = 'M' + x.toFixed(1) + ',' + yBot.toFixed(1) +
+             ' L' + x.toFixed(1) + ',' + (yTop + r).toFixed(1) +
+             ' Q' + x.toFixed(1) + ',' + yTop.toFixed(1) + ' ' + (x + r).toFixed(1) + ',' + yTop.toFixed(1) +
+             ' L' + (x2 - r).toFixed(1) + ',' + yTop.toFixed(1) +
+             ' Q' + x2.toFixed(1) + ',' + yTop.toFixed(1) + ' ' + x2.toFixed(1) + ',' + (yTop + r).toFixed(1) +
+             ' L' + x2.toFixed(1) + ',' + yBot.toFixed(1) + ' Z';
+    } else {        /* giá trị âm: bo ở đáy */
+      path = 'M' + x.toFixed(1) + ',' + yTop.toFixed(1) +
+             ' L' + x.toFixed(1) + ',' + (yBot - r).toFixed(1) +
+             ' Q' + x.toFixed(1) + ',' + yBot.toFixed(1) + ' ' + (x + r).toFixed(1) + ',' + yBot.toFixed(1) +
+             ' L' + (x2 - r).toFixed(1) + ',' + yBot.toFixed(1) +
+             ' Q' + x2.toFixed(1) + ',' + yBot.toFixed(1) + ' ' + x2.toFixed(1) + ',' + (yBot - r).toFixed(1) +
+             ' L' + x2.toFixed(1) + ',' + yTop.toFixed(1) + ' Z';
+    }
+    g.push('<path d="' + path + '" fill="var(--s-prof)"/>');
+  });
+
+  /* Nhãn trực tiếp — BẮT BUỘC, không phải trang trí: aqua nằm trong nhóm màu
+     có tương phản < 3:1 trên nền sáng, nên "relief rule" bắt buộc phải có nhãn
+     nhìn thấy được. Ghi nhãn điểm cuối và điểm thấp nhất (điểm cần chú ý nhất). */
+  var iLast = n - 1, iMin = 0;
+  for (var k = 1; k < n; k++) if (sp[k] < sp[iMin]) iMin = k;
+  var toLabel = (iMin === iLast) ? [iLast] : [iMin, iLast];
+  toLabel.forEach(function(i){
+    var y = Y(sp[i]);
+    var ly = (sp[i] >= 0) ? y - 7 : y + 15;
+    g.push('<text x="' + X(i).toFixed(1) + '" y="' + Math.max(11, Math.min(H_ - 8, ly)).toFixed(1) +
+           '" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" ' +
+           'fill="var(--ink-1)">' + esc(fmtY(sp[i])) + '</text>');
+  });
+
+  /* trục X — nhãn thưa như biểu đồ trên để hai plot đọc thẳng cột với nhau */
+  var step = Math.ceil(n / 12);
+  series.forEach(function(d, i){
+    if (i % step !== 0 && i !== n-1) return;
+    g.push('<text x="' + X(i).toFixed(1) + '" y="' + (PY1 + 22) + '" text-anchor="middle" ' +
+           'font-family="var(--mono)" font-size="11" fill="var(--ink-3)">' + esc(d.label) + '</text>');
+  });
+
+  /* vùng bắt hover — rộng bằng cả slot, không bắt người dùng nhắm trúng cột */
+  var hits = series.map(function(d, i){
+    return '<rect x="' + (X(i) - slot/2).toFixed(1) + '" y="' + PY0 + '" width="' + slot.toFixed(1) +
+           '" height="' + (PY1 - PY0 + 20) + '" fill="transparent" data-i="' + i + '" class="hit"/>';
+  }).join("");
+
+  host.innerHTML = '<svg viewBox="0 0 ' + W_ + ' ' + H_ + '" role="img" aria-label="' +
+                   esc("Biên đóng góp trên mỗi dặm theo tháng, so với mục tiêu") + '">' +
+                   g.join("") + '<g class="hits">' + hits + '</g></svg>';
+
+  host.querySelectorAll(".hit").forEach(function(rc){
+    rc.addEventListener("mouseenter", function(){
+      var i = +rc.getAttribute("data-i"), d = series[i];
+      showTip(rc, d.label, [
+        { l:"Biên đóng góp", v:rate(d.spread) + "/dặm" },
+        { l:"RPM", v:rate(d.rpm) },
+        { l:"CPM", v:rate(d.cpm) },
+        "hr",
+        { l:"Mục tiêu", v:rate(target) + "/dặm" },
+        { n:"Cùng trục thời gian với biểu đồ RPM/CPM phía trên; trục giá trị vẽ riêng vì biên nhỏ hơn RPM nhiều lần." }
+      ]);
+    });
+    rc.addEventListener("mouseleave", hideTip);
+  });
+}
+
+/* =====================================================================
+   11.  TOOLTIP
+   ===================================================================== */
+var tipEl = $("#tip");
+function showTip(anchor, title, rows){
+  var html = '<div class="tt">' + esc(title) + '</div>';
+  rows.forEach(function(r){
+    if (r === "hr"){ html += "<hr>"; return; }
+    if (r.note){ html += '<div class="note">' + r.note + '</div>'; return; }
+    html += '<div class="tr"><span class="l">' + r.l + '</span><span>' + r.v + '</span></div>';
+  });
+  tipEl.innerHTML = html;
+  tipEl.classList.add("on");
+  var b = anchor.getBoundingClientRect();
+  var tr = tipEl.getBoundingClientRect();
+  var left = b.left + b.width/2 - tr.width/2;
+  left = Math.max(10, Math.min(window.innerWidth - tr.width - 10, left));
+  var top = b.top - tr.height - 10;
+  if (top < 10) top = b.bottom + 10;
+  tipEl.style.left = left + "px";
+  tipEl.style.top = top + "px";
+}
+function hideTip(){ tipEl.classList.remove("on"); }
+
+/* =====================================================================
+   12.  RENDER — BIỂU ĐỒ TÀI CHÍNH
+   ===================================================================== */
+function renderFinancial(K){
+  var w = K.w;
+  var months = [];
+  for (var m = w.curFrom; m <= w.curTo; m++){
+    var rows = sliceRows(m, m, F);
+    var a = agg(rows);
+    if (a) months.push({ m:m, label:MONTHS[m], a:a });
+  }
+  /* Chart 1 — doanh thu / chi phí / dải lợi nhuận */
+  var s1 = months.map(function(d){
+    return { label:d.label, a:d.a.rev, b:d.a.cost,
+             rev:d.a.rev, cost:d.a.cost, profit:d.a.opProfit,
+             margin:d.a.opMargin, cpm:d.a.cpm, rpm:d.a.rpm };
+  });
+  if (s1.length){
+    bandChart($("#c1"), s1, {
+      height:300, aria:"Doanh thu và chi phí vận hành theo tháng",
+      fmtY:function(v){ return money(v); },
+      tipRows:function(d){
+        return [
+          { l:"Doanh thu", v:money(d.rev) },
+          { l:"Chi phí", v:money(d.cost) },
+          "hr",
+          { l:"Lợi nhuận vận hành", v:money(d.profit) },
+          { l:"Biên vận hành", v:d.margin.toFixed(1) + "%" }
+        ];
+      }
+    });
+    $("#c1-span").textContent = s1.length + " tháng";
+  }
+
+  /* Chart 2 — RPM vs CPM + vạch mục tiêu CPM */
+  var s2 = months.map(function(d){
+    return { label:d.label, a:d.a.rpm, b:d.a.cpm,
+             rpm:d.a.rpm, cpm:d.a.cpm, spread:d.a.spread, miles:d.a.miles };
+  });
+  if (s2.length){
+    bandChart($("#c2"), s2, {
+      height:300, aria:"RPM và CPM theo tháng",
+      fmtY:function(v){ return "$" + v.toFixed(2); },
+      targetLine:K.ref.cpm.target,
+      targetLabel:"CPM mục tiêu " + rate(K.ref.cpm.target),
+      tipRows:function(d){
+        return [
+          { l:"RPM", v:rate(d.rpm) },
+          { l:"CPM", v:rate(d.cpm) },
+          "hr",
+          { l:"Biên đóng góp", v:rate(d.spread) + "/dặm" },
+          { l:"Dặm", v:num(d.miles/1e3,0) + "K" }
+        ];
+      }
+    });
+    /* small multiple: biên vẽ riêng trục, chung trục thời gian với biểu đồ trên */
+    spreadChart($("#c2b"), s2, K.ref.spread.target, function(v){ return "$" + v.toFixed(2); });
+  }
+
+  /* Chart 3 — cơ cấu chi phí (dumbbell ngang, sắp theo mức đóng góp vào thay đổi) */
+  var cur = K.cur, prev = K.prev;
+  var comps = [
+    { n:"Nhiên liệu",      c:cur.cFuel,   p:prev?prev.cFuel:cur.cFuel,   t:null },
+    { n:"Lương tài xế",    c:cur.cDriver, p:prev?prev.cDriver:cur.cDriver, t:null },
+    { n:"Bảo trì & sửa chữa", c:cur.cMaint, p:prev?prev.cMaint:cur.cMaint, t:K.ref.mnt.target },
+    { n:"Bảo hiểm",        c:cur.cIns,    p:prev?prev.cIns:cur.cIns,     t:null },
+    { n:"Thuê xe / khấu hao", c:cur.cLease, p:prev?prev.cLease:cur.cLease, t:null },
+    { n:"Phí cầu đường",   c:cur.cTolls,  p:prev?prev.cTolls:cur.cTolls, t:null },
+    { n:"Chi phí vận hành khác", c:cur.cOther, p:prev?prev.cOther:cur.cOther, t:null }
+  ];
+  comps.forEach(function(x){
+    x.cpmC = x.c/cur.miles; x.cpmP = x.p/(prev?prev.miles:cur.miles);
+    x.delta = x.cpmC - x.cpmP;
+    x.share = x.c/cur.cost*100;
+  });
+  comps.sort(function(a,b){ return b.delta - a.delta; });
+  var maxCpm = Math.max.apply(null, comps.map(function(x){ return Math.max(x.cpmC, x.cpmP); }));
+
+  $("#c3").innerHTML = comps.map(function(x){
+    var wC = maxCpm ? x.cpmC/maxCpm*100 : 0;
+    var wP = maxCpm ? x.cpmP/maxCpm*100 : 0;
+    var dCol = x.delta > 0.0005 ? "var(--crit)" : x.delta < -0.0005 ? "var(--good)" : "var(--ink-3)";
+    var tick = (x.t !== null && x.t !== undefined)
+      ? '<span class="hb-tick" style="left:' + (x.t/maxCpm*100).toFixed(1) + '%"></span>' : "";
+    return '<div class="hb-row paired" data-cost="' + esc(x.n) + '" data-cpmc="' + x.cpmC.toFixed(4) +
+        '" data-cpmp="' + x.cpmP.toFixed(4) + '" data-share="' + x.share.toFixed(1) +
+        '" data-delta="' + x.delta.toFixed(4) + '">' +
+      '<span class="nm">' + esc(x.n) + '</span>' +
+      '<span class="hb-track">' +
+        '<span class="hb-fill prev" style="width:' + wP.toFixed(1) + '%"></span>' +
+        '<span class="hb-fill" style="width:' + wC.toFixed(1) + '%"></span>' +
+        tick +
+      '</span>' +
+      '<span class="hb-val">' + rate(x.cpmC,3) +
+        '<span class="hb-sub" style="display:block;color:' + dCol + '">' + sgn(x.delta,3) + ' · ' + x.share.toFixed(0) + '%</span>' +
+      '</span>' +
+    '</div>';
+  }).join("");
+
+  document.querySelectorAll("#c3 .hb-row").forEach(function(r){
+    r.addEventListener("mouseenter", function(){
+      var d = +r.getAttribute("data-delta");
+      showTip(r, r.getAttribute("data-cost") + " — $/dặm", [
+        { l:"Kỳ này", v:rate(+r.getAttribute("data-cpmc"), 3) },
+        { l:"Kỳ trước", v:rate(+r.getAttribute("data-cpmp"), 3) },
+        "hr",
+        { l:"Thay đổi", v:sgn(d, 3) + "/dặm" },
+        { l:"Tỷ trọng chi phí", v:r.getAttribute("data-share") + "%" },
+        { note: d > 0 ? "Thành phần này đang <b>kéo CPM lên</b>." : d < 0 ? "Thành phần này đang <b>kéo CPM xuống</b>." : "Không đổi so với kỳ trước." }
+      ]);
+    });
+    r.addEventListener("mouseleave", hideTip);
+  });
+
+  /* mini cards */
+  var minis = [
+    { l:"Biên lợi nhuận vận hành", v:cur.opMargin.toFixed(1) + "%",
+      d:(cur.opMargin - (prev?prev.opMargin:cur.opMargin)), unit:" điểm", good:true, t:"vs kỳ trước" },
+    { l:"Biên lợi nhuận gộp", v:K.gpSorted.length ? (sum(K.gpSorted,function(c){return c.gp;})/sum(K.gpSorted,function(c){return c.rev;})*100).toFixed(1) + "%" : "—",
+      d:0, unit:"", good:true, t:"theo khách hàng", noDelta:true },
+    { l:"Số ngày thu tiền · DSO", v:Math.round(cur.dso) + " ngày",
+      d:(cur.dso - (prev?prev.dso:cur.dso)), unit:" ngày", good:false, t:"· mục tiêu " + DSO_TARGET + " ngày",
+      status:statusOf(cur.dso, DSO_TARGET, false, .10) },
+    { l:"Tăng trưởng doanh thu", v:sgn((cur.rev/(prev?prev.rev:cur.rev)-1)*100) + "%",
+      d:0, unit:"", good:true, t:"vs kỳ trước", noDelta:true,
+      status:((cur.rev/(prev?prev.rev:cur.rev)-1) >= 0) ? "good" : "crit" },
+    { l:"Tăng trưởng chi phí vận hành", v:sgn((cur.cost/(prev?prev.cost:cur.cost)-1)*100) + "%",
+      d:0, unit:"", good:false, t:"vs kỳ trước", noDelta:true,
+      status:((cur.cost/(prev?prev.cost:cur.cost)-1) > (cur.rev/(prev?prev.rev:cur.rev)-1)) ? "crit" : "good" }
+  ];
+  $("#finMinis").innerHTML = minis.map(function(m){
+    var st = m.status || "neutral";
+    var dHtml = m.noDelta ? '<div class="d" style="color:var(--ink-3)">' + m.t + '</div>'
+      : '<div class="d ' + ((m.d >= 0) === m.good ? "up-good" : "up-bad") + '">' +
+        sgn(m.d,1,m.unit) + ' <span style="color:var(--ink-3);font-weight:400">' + m.t + '</span></div>';
+    return '<div class="card" style="padding:13px 15px">' +
+      '<div class="mini"><span class="l">' + m.l + '</span>' +
+      '<span class="v">' + m.v + '</span>' + dHtml + '</div></div>';
+  }).join("");
+}
+
+/* =====================================================================
+   13.  RENDER — VẬN HÀNH & ĐỘI XE
+   ===================================================================== */
+function bulletRow(name, actual, target, industry, hist, min, max, higherBetter, unit, note){
+  var span = max - min || 1;
+  var pos = function(v){ return Math.max(0, Math.min(100, (v - min)/span*100)); };
+  var st = statusOf(actual, target, higherBetter, .05);
+  var col = st === "good" ? "var(--good)" : st === "warn" ? "var(--warn)" : st === "crit" ? "var(--crit)" : "var(--neutral)";
+  var w = Math.max(2, pos(actual));
+
+  /* Dải ngành là BỐI CẢNH, phải nằm DƯỚI thanh trạng thái.
+     Vẽ đè lên thì vừa rối vừa làm sai cả hai tín hiệu. */
+  var band = "";
+  if (industry && industry.length === 2){
+    var b0 = pos(industry[0]), b1 = pos(industry[1]);
+    band = '<span class="bul-band" style="left:' + b0.toFixed(1) + '%;width:' + Math.max(1, b1-b0).toFixed(1) + '%" title="Dải ngành ' + industry[0] + '–' + industry[1] + '"></span>';
+  }
+  var ticks = "";
+  if (hist !== null && hist !== undefined) ticks += '<span class="bul-tick h" style="left:' + pos(hist).toFixed(1) + '%" title="H — kỳ trước"></span>';
+  if (target !== null && target !== undefined) ticks += '<span class="bul-tick t" style="left:' + pos(target).toFixed(1) + '%" title="T — mục tiêu"></span>';
+
+  return '<div class="bul-row">' +
+    '<span class="nm"><span title="' + esc(name) + '">' + esc(name) + '</span>' +
+      '<span class="sevdot" style="background:' + col + '"></span></span>' +
+    '<span class="bul-track">' +
+      band +
+      '<span class="bul-fill" style="width:' + w.toFixed(1) + '%;background:' + col + '"></span>' +
+      ticks +
+    '</span>' +
+    '<span class="bul-val">' + actual.toFixed(unit === "%" ? 1 : 2) + unit +
+      '<span class="s" style="color:var(--ink-3)">' + esc(note) + '</span></span>' +
+  '</div>';
+}
+
+function renderOps(K){
+  var k = K.k, ref = K.ref;
+  var rows = [
+    bulletRow("Hiệu suất sử dụng", k.util, ref.util.target, null, k.utilPrev, 60, 100, true, "%",
+              "T·" + ref.util.target.toFixed(0) + "% · H·" + k.utilPrev.toFixed(0) + "%"),
+    bulletRow("Tỷ lệ dặm có hàng", k.loaded, ref.loaded.target, ref.loaded.industry, k.loadedPrev, 70, 100, true, "%",
+              ref.loaded.industry ? "T·" + ref.loaded.target + "% · I·" + ref.loaded.industry[0] + "–" + ref.loaded.industry[1] + "%"
+                                  : "T·" + ref.loaded.target + "%"),
+    bulletRow("Tỷ lệ dặm rỗng", k.dead, null, null, k.deadPrev, 0, 30, false, "%",
+              "H·" + k.deadPrev.toFixed(0) + "% (không có mục tiêu cứng)"),
+    bulletRow("Giao đúng hạn · OTD", k.otd, ref.otd.target, ref.otd.industry ? [ref.otd.industry-2, ref.otd.industry+2] : null,
+              k.otdPrev, 88, 100, true, "%", "T·" + ref.otd.target + "%"),
+    bulletRow("DIFOT", k.difot, ref.difot.target, null, k.difotPrev, 85, 100, true, "%", "T·" + ref.difot.target + "%")
+  ];
+  $("#opsBullets").innerHTML = rows.join("");
+
+  /* ghi chú về điều kiện áp dụng của mục tiêu dặm có hàng */
+  var note = document.createElement("div");
+  note.className = "src";
+  note.style.marginTop = "14px";
+  note.innerHTML = ref.loaded.industry
+    ? '<span class="k">Điều kiện áp dụng:</span> mục tiêu dặm có hàng <b>' + ref.loaded.target +
+      '%</b> chỉ dùng được khi mô hình khai thác là <b>tuyến cố định (dedicated lane)</b>. Với mô hình hiện tại, ' +
+      'dải ngành <b>' + ref.loaded.industry[0] + '–' + ref.loaded.industry[1] + '%</b> được hiển thị kèm — ' +
+      'ngưỡng cứng chỉ có nghĩa khi tuyến ổn định.'
+    : '<span class="k">Điều kiện áp dụng:</span> loại đội xe <b>' + K.refP.fleetLabel +
+      '</b> không có benchmark ngành cho chỉ số này. Chỉ hiển thị <b>mục tiêu nội bộ</b>; ' +
+      'không được gán mục tiêu nội bộ cho benchmark ngành.';
+  $("#opsBullets").appendChild(note);
+}
+
+function renderFleet(K){
+  var k = K.k, ref = K.ref;
+  var rows = [
+    bulletRow("Downtime ngoài kế hoạch", k.down, ref.down.target, null, k.downPrev, 0, 10, false, "%",
+              "T·" + ref.down.target.toFixed(1) + "% · H·" + k.downPrev.toFixed(1) + "%"),
+    bulletRow("Tuân thủ bảo trì · PM", k.pm, ref.pm.target, null, k.pmPrev, 70, 100, true, "%",
+              "T·" + ref.pm.target + "% · H·" + k.pmPrev.toFixed(0) + "%"),
+    bulletRow("Chi phí bảo trì / dặm", k.mnt, ref.mnt.target, null, k.mntPrev, 0, ref.mnt.target*2, false, "",
+              "T·" + rate(ref.mnt.target,3)),
+    bulletRow("Hỏng hóc / 100k dặm", k.brk, ref.brk.target, null, k.brkPrev, 0, ref.brk.target*2.2, false, "",
+              "T·" + ref.brk.target.toFixed(2))
+  ];
+  $("#fleetBullets").innerHTML = rows.join("") +
+    '<div class="src" style="margin-top:14px">' +
+      '<span class="k">Nhãn tham chiếu:</span> các chỉ số sức khoẻ đội xe hiện chỉ có <b>mục tiêu nội bộ (T)</b> và ' +
+      '<b>cơ sở lịch sử (H)</b>. Không có benchmark ngành áp dụng trực tiếp cho loại đội xe <b>' +
+      K.refP.fleetLabel + '</b> — vì vậy trang hiển thị <b>Internal Target</b>, không giả định đây là industry benchmark.' +
+    '</div>';
+}
+
+/* =====================================================================
+   14.  RENDER — TẬP TRUNG KHÁCH HÀNG
+   ===================================================================== */
+var drillCustomer = null;
+
+function renderCustomer(K){
+  var list = K.cList;
+  var maxRev = Math.max.apply(null, list.map(function(c){ return c.rev; })) || 1;
+  var top3Set = {};
+  list.slice(0,3).forEach(function(c){ top3Set[c.name] = 1; });
+  var gpMax = Math.max.apply(null, list.map(function(c){ return c.gpShare; })) || 1;
+
+  $("#custBars").innerHTML = list.slice(0,8).map(function(c){
+    var w = c.rev/maxRev*100;
+    var isTop3 = top3Set[c.name];
+    var over = isTop3 && K.top3 > CONC_THRESHOLD;
+    return '<div class="hb-row clickable wide" data-cust="' + esc(c.name) + '" role="button" tabindex="0" ' +
+        'aria-label="Xem tuyến của ' + esc(c.name) + '">' +
+      '<span class="nm">' + esc(c.name) +
+        (isTop3 ? ' <span class="pill ' + (over ? "crit" : "neutral") + '" style="font-size:9.5px;padding:1px 6px">Top ' + (list.indexOf(c)+1) + '</span>' : '') +
+      '</span>' +
+      '<span class="hb-track" style="background:' + (isTop3 ? "var(--sunken)" : "var(--bar-track)") + '">' +
+        '<span class="hb-fill" style="width:' + w.toFixed(1) + '%;background:' + (isTop3 ? "var(--s-rev)" : "var(--bar-prev)") + '"></span>' +
+      '</span>' +
+      '<span class="hb-val">' + money(c.rev) +
+        '<span class="hb-sub" style="display:block">' + c.share.toFixed(1) + '% · GP ' + c.gpShare.toFixed(1) + '%</span>' +
+      '</span>' +
+    '</div>';
+  }).join("");
+
+  /* gắn sự kiện drill */
+  document.querySelectorAll("#custBars .hb-row").forEach(function(r){
+    var open = function(){ openDrill(r.getAttribute("data-cust")); };
+    r.addEventListener("click", open);
+    r.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } });
+  });
+
+  /* tiles tập trung */
+  var cSt = K.top3 > CONC_THRESHOLD ? "crit" : K.top3 > CONC_THRESHOLD*.9 ? "warn" : "good";
+  var tiles = [
+    { l:"Top 1 khách hàng", v:K.top1.share.toFixed(1) + "%", s:"crit", n:K.top1.name },
+    { l:"Top 3 khách hàng", v:K.top3.toFixed(1) + "%", s:cSt, n:"ngưỡng nội bộ " + CONC_THRESHOLD + "%" },
+    { l:"Top 5 khách hàng", v:K.top5.toFixed(1) + "%", s:K.top5>75?"warn":"neutral", n:"—" },
+    { l:"HHI", v:Math.round(K.hhi), s:"neutral", n:"chỉ để tham khảo" }
+  ];
+  $("#concTiles").innerHTML = tiles.map(function(t){
+    return '<div class="t" style="background:var(--surface-2);border:1px solid var(--border-soft);border-radius:6px;padding:10px 12px">' +
+      '<div style="font-size:11px;color:var(--ink-3)">' + t.l + '</div>' +
+      '<div style="font-size:23px;font-weight:600;letter-spacing:-.02em;margin-top:1px">' + t.v + '</div>' +
+      '<div style="font-size:10.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(t.n) + '</div>' +
+    '</div>';
+  }).join("");
+
+  var gpTop1 = K.gpSorted[0];
+  $("#concNote").innerHTML =
+    '<p style="margin:0 0 10px"><b style="color:var(--ink-1)">Cách diễn giải:</b> Top 3 khách hàng tạo ra <b style="color:var(--ink-1)">' +
+    K.top3.toFixed(0) + '%</b> doanh thu' +
+    (K.top3 > CONC_THRESHOLD ? ' — <b style="color:var(--crit)">vượt ngưỡng rủi ro nội bộ ' + CONC_THRESHOLD + '%</b>.' : ' — trong ngưỡng an toàn.') +
+    '</p>' +
+    '<p style="margin:0 0 10px">Nhưng nếu nhìn theo <b style="color:var(--ink-1)">lợi nhuận gộp</b>, Top 3 chỉ chiếm <b style="color:var(--ink-1)">' +
+    K.gpTop3.toFixed(0) + '%</b>. ' +
+    (gpTop1.name !== K.top1.name
+      ? 'Đáng chú ý: <b style="color:var(--ink-1)">' + esc(gpTop1.name) + '</b> dẫn đầu về lợi nhuận gộp dù không đứng đầu về doanh thu — khách hàng lớn nhất chưa chắc là khách hàng có lãi nhất.'
+      : 'Khách hàng lớn nhất cũng là khách hàng có lãi gộp lớn nhất.') +
+    '</p>' +
+    '<p style="margin:0;color:var(--ink-3)">HHI ' + Math.round(K.hhi) +
+    ' nằm trong vùng tập trung vừa phải. Chỉ số này <b>không</b> đặt làm metric chính vì ban điều hành khó diễn giải trực tiếp — con số Top 1/3/5 ở trên mới là thứ dùng được trong họp.</p>';
+}
+
+function openDrill(custName){
+  var c = K_global.cList.filter(function(x){ return x.name === custName; })[0];
+  if (!c) return;
+  drillCustomer = custName;
+  $("#crumb").className = "crumb on";
+  $("#crumb").innerHTML =
+    '<button type="button" id="crumb-back">Công ty</button>' +
+    '<span class="sep">›</span><span class="cur">' + esc(custName) + '</span>' +
+    '<span class="sep">›</span><span style="color:var(--ink-3)">theo tuyến</span>' +
+    '<span style="color:var(--ink-4);margin-left:6px">— màn hình điều hành dừng ở cấp tuyến; chi tiết cấp chuyến và cấp xe nằm ở màn hình vận hành.</span>';
+  $("#crumb-back").addEventListener("click", closeDrill);
+
+  /* tuyến mô phỏng cho khách này */
+  var lanes = ["Midwest → Southeast","Southeast → West","West → Midwest","Midwest nội vùng","Southeast nội vùng"];
+  var rr = rng(custName.length * 977 + 13);
+  var base = c.rev / 5;
+  var rows = lanes.map(function(l, i){
+    var v = base * (1.6 - i*0.22) * (0.85 + rr()*0.3);
+    return { lane:l, rev:v, cpm:K_global.cur.cpm*(0.90 + i*0.055), otd:c.otd - i*0.9 + rr()*1.2, dso:c.dso + i*1.6 - 3 };
+  });
+  rows.sort(function(a,b){ return b.rev - a.rev; });
+  var maxL = Math.max.apply(null, rows.map(function(r){ return r.rev; }));
+
+  $("#lanePanel").innerHTML =
+    '<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">' +
+      '<div class="card-title" style="margin-bottom:12px">' + esc(custName) +
+        ' <span class="pill neutral">' + money(c.rev) + ' · ' + c.share.toFixed(1) + '% doanh thu</span></div>' +
+      '<div class="hb">' + rows.map(function(r){
+        return '<div class="hb-row">' +
+          '<span class="nm">' + esc(r.lane) + '</span>' +
+          '<span class="hb-track"><span class="hb-fill" style="width:' + (r.rev/maxL*100).toFixed(1) +
+            '%;background:var(--s-rev)"></span></span>' +
+          '<span class="hb-val">' + money(r.rev) +
+            '<span class="hb-sub" style="display:block">OTD ' + r.otd.toFixed(0) + '% · DSO ' + Math.round(r.dso) + 'n</span>' +
+          '</span></div>';
+      }).join("") + '</div>' +
+    '</div>';
+  $("#lanePanel").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+function closeDrill(){
+  drillCustomer = null;
+  $("#crumb").className = "crumb";
+  $("#crumb").innerHTML = "";
+  $("#lanePanel").innerHTML = "";
+}
+
+/* =====================================================================
+   15.  APPENDIX A — ĐẶC TẢ TRỰC QUAN HOÁ
+   ===================================================================== */
+var SPEC = [
+  ["Sức khoẻ công ty","Verdict + tally","—","—","Ngưỡng nội bộ","Đỏ nếu ≥3 chỉ số không đạt","Danh sách chỉ số đã kiểm","Công ty đang khoẻ hay không?"],
+  ["CPM","Thẻ KPI + thước so sánh","—","$/dặm","T mục tiêu · I ngành · H kỳ trước","Đỏ/xám theo mục tiêu","Nguồn, phạm vi, kỳ đo của benchmark","Chi phí mỗi dặm có đang trong tầm kiểm soát?"],
+  ["RPM & biên đóng góp","Thẻ KPI (giá trị = biên)","—","$/dặm","T biên mục tiêu · H kỳ trước","Đỏ khi biên nén >8%","RPM, CPM, biên, mức nén","Giá bán có theo kịp chi phí?"],
+  ["Hiệu suất sử dụng","Thẻ KPI","—","%","T mục tiêu · H kỳ trước","Đỏ khi dưới mục tiêu >4%","Dặm rỗng kèm theo","Năng lực đội xe có dùng hết?"],
+  ["OTD / DIFOT","Thẻ KPI","—","%","T mục tiêu · I ngành","Đỏ khi dưới mục tiêu 2%","DIFOT tách riêng","Dịch vụ có giữ được khách?"],
+  ["Kết luận điều hành","Panel không biểu đồ","—","—","Ngưỡng trong từng luật","Icon + nhãn mức độ","Bằng chứng + tác động + chủ trì","Vì sao — và ảnh hưởng bao nhiêu?"],
+  ["Doanh thu vs Chi phí","2 đường + dải tô","Tháng (12 kỳ)","USD (một trục duy nhất)","—","Dải hẹp dần = cảnh báo","Doanh thu, chi phí, lợi nhuận, biên","Doanh thu và chi phí có tăng cùng nhịp?"],
+  ["RPM vs CPM","2 đường + dải + vạch T","Tháng (12 kỳ)","$/dặm (một trục duy nhất)","T — CPM mục tiêu","Vạch mục tiêu; dải hẹp dần = cảnh báo","RPM, CPM, biên, dặm","Giá bán có đang trên chi phí?"],
+  ["Cơ cấu chi phí","Thanh ngang kép (trước→nay)","$/dặm","Hạng mục chi phí","T — mục tiêu $/dặm","Đỏ khi Δ>0, xanh khi Δ<0","$/dặm kỳ này, Δ, % tổng","Chi phí tăng đến từ đâu?"],
+  ["Biên LN vận hành","Thẻ mini","—","%","H kỳ trước","Đỏ khi giảm","—","Lợi nhuận còn lại bao nhiêu?"],
+  ["DSO","Thẻ mini","—","Ngày","T — 45 ngày","Đỏ khi vượt 10%","—","Tiền có bị giữ trong phải thu?"],
+  ["Hiệu suất sử dụng","Bullet có vạch T/H","%","Chỉ số","T mục tiêu · H kỳ trước","Đỏ/vàng/xanh theo mục tiêu","Giá trị, mục tiêu, kỳ trước","Năng lực có bị bỏ trống?"],
+  ["Dặm có hàng / dặm rỗng","Bullet + dải ngành","%","Chỉ số","T + dải ngành (nếu áp dụng)","Dải ngành thay ngưỡng cứng khi không phải tuyến cố định","Điều kiện áp dụng của ngưỡng","Bao nhiêu dặm không sinh doanh thu?"],
+  ["Sức khoẻ đội xe","Bullet (4 chỉ số)","Giá trị","Chỉ số","T mục tiêu · H kỳ trước","Đỏ/vàng/xanh theo mục tiêu","Nhãn Internal Target khi thiếu benchmark","Đội xe có được bảo trì đúng hạn?"],
+  ["Top khách hàng","Thanh ngang + drill","Doanh thu","Khách hàng","Ngưỡng tập trung nội bộ","Top 3 tô đậm, đỏ khi vượt ngưỡng","Doanh thu, %DT, %LN gộp, tuyến","Doanh thu có dồn vào vài khách?"],
+  ["Top 1/3/5 & HHI","Thẻ số","—","% / điểm","Ngưỡng nội bộ 55%","Đỏ khi Top-3 vượt ngưỡng","Diễn giải bằng câu, không chỉ số","Mất một khách thì mất bao nhiêu?"]
+];
+
+$("#specTable").innerHTML =
+  "<thead><tr>" +
+    ["Trực quan hoá","Dạng","Trục X","Trục Y","Tham chiếu","Điều kiện tô màu","Tooltip","Câu hỏi kinh doanh"]
+      .map(function(h){ return "<th>" + h + "</th>"; }).join("") +
+  "</tr></thead><tbody>" +
+  SPEC.map(function(r){
+    return "<tr>" + r.map(function(c, i){
+      return '<td' + (i === 0 ? ' style="font-weight:600"' : '') + '>' + c + '</td>';
+    }).join("") + "</tr>";
+  }).join("") +
+  "</tbody>";
+
+/* =====================================================================
+   16.  APPENDIX B — BẢNG LUẬT
+   ===================================================================== */
+var RULE_DOC = [
+  ["1","CPM > mục tiêu × 1.02","cost","Theo dõi","(CPM − mục tiêu) × tổng dặm","Chi phí vận hành vượt mục tiêu nội bộ"],
+  ["2","Biên đóng góp < kỳ trước × 0.92","margin","Báo động","(Biên kỳ trước − biên nay) × tổng dặm","Biên bị nén — giá không theo kịp chi phí"],
+  ["3","Hiệu suất sử dụng < mục tiêu − 2 điểm","capacity","Theo dõi","Dặm bỏ trống × biên đóng góp","Công suất chưa dùng hết"],
+  ["4","Dặm rỗng > kỳ trước + 1.5 điểm","capacity","Theo dõi","Δ dặm rỗng × CPM","Tỷ lệ dặm rỗng tăng"],
+  ["5","Chi phí bảo trì/dặm > mục tiêu × 1.10","maintenance","Báo động","(Bảo trì − mục tiêu) × tổng dặm","Chi phí bảo trì tăng vọt"],
+  ["6","Downtime ngoài KH > mục tiêu × 1.10","maintenance","Báo động","Giờ dư × 48 dặm/giờ × biên","Downtime ngoài kế hoạch tăng"],
+  ["7","PM compliance < mục tiêu − 3 điểm","maintenance","Báo động","Hệ số nguyên nhân gốc","Tuân thủ bảo trì định kỳ dưới mục tiêu"],
+  ["8","Hỏng hóc/100k dặm > mục tiêu × 1.15","maintenance","Theo dõi","Số lần dư × $1,450","Tần suất hỏng hóc tăng"],
+  ["9","OTD < mục tiêu","service","Theo dõi","Chuyến trễ × giá trị tái ký","Giao đúng hạn dưới mục tiêu"],
+  ["10","DSO > 45 ngày × 1.10","cash","Theo dõi","(DSO − 45)/365 × doanh thu","Vòng quay tiền mặt chậm lại"],
+  ["11","Top-3 khách > ngưỡng nội bộ 55%","customer","Báo động","DT khách lớn nhất × 35%","Rủi ro doanh thu tập trung"]
+];
+$("#ruleTable").innerHTML =
+  "<thead><tr>" + ["#","Điều kiện IF","Cụm nguyên nhân","Mức","Điểm tác động (USD/năm)","Kết luận sinh ra"]
+    .map(function(h){ return "<th>" + h + "</th>"; }).join("") + "</tr></thead><tbody>" +
+  RULE_DOC.map(function(r){
+    return "<tr>" +
+      '<td class="n">' + r[0] + '</td>' +
+      '<td style="font-family:var(--mono);font-size:11px">' + esc(r[1]) + '</td>' +
+      '<td><code>' + r[2] + '</code></td>' +
+      '<td><span class="pill ' + (r[3]==="Báo động"?"crit":r[3]==="Theo dõi"?"warn":"good") + '">' +
+        '<span class="g">' + (r[3]==="Báo động"?"▲":r[3]==="Theo dõi"?"!":"✓") + '</span>' + r[3] + '</span></td>' +
+      '<td style="font-size:11px;color:var(--ink-2)">' + esc(r[4]) + '</td>' +
+      '<td>' + esc(r[5]) + '</td>' +
+    "</tr>";
+  }).join("") + "</tbody>";
+
+$("#ruleIntro").innerHTML =
+  '<p><b>Cách chạy:</b> mỗi luật đọc tập KPI đã lọc, trả về một <code>cluster</code> (cụm nguyên nhân) và một ' +
+  '<b>điểm tác động bằng USD/năm</b>. Các luật cùng <code>cluster</code> được gộp trước, sau đó mới sắp xếp theo ' +
+  'điểm tác động và cắt còn 5 dòng. Thứ tự hiển thị <b>không</b> theo mức đỏ trên màn hình.</p>' +
+  '<p><b>Bốn luật bảo trì (5, 6, 7, 8) dùng chung cụm <code>maintenance</code></b> — đó là lý do panel kết luận ' +
+  'hiển thị chúng thành <em>một</em> dòng "Năng lực bảo trì đội xe đang trở thành rủi ro lợi nhuận" thay vì bốn dòng riêng.</p>';
+
+$("#sqlBox").innerHTML =
+'<span class="cm">-- Bước 1: tính KPI theo lát cắt của filter</span>\n' +
+'<span class="kw">WITH</span> kpi <span class="kw">AS</span> (\n' +
+'  <span class="kw">SELECT</span>\n' +
+'    <span class="kw">SUM</span>(operating_cost) / <span class="kw">SUM</span>(miles)            <span class="kw">AS</span> cpm,\n' +
+'    <span class="kw">SUM</span>(revenue)        / <span class="kw">SUM</span>(miles)            <span class="kw">AS</span> rpm,\n' +
+'    (<span class="kw">SUM</span>(revenue) - <span class="kw">SUM</span>(operating_cost)) / <span class="kw">SUM</span>(miles) <span class="kw">AS</span> spread,\n' +
+'    <span class="kw">SUM</span>(maintenance_cost) / <span class="kw">SUM</span>(miles)        <span class="kw">AS</span> mnt_per_mile,\n' +
+'    <span class="kw">SUM</span>(unplanned_downtime_hrs) / <span class="kw">SUM</span>(available_hrs) * 100 <span class="kw">AS</span> downtime_pct,\n' +
+'    <span class="kw">SUM</span>(pm_completed) / <span class="kw">SUM</span>(pm_due) * 100          <span class="kw">AS</span> pm_compliance,\n' +
+'    <span class="kw">SUM</span>(breakdowns) / <span class="kw">SUM</span>(miles) * 100000      <span class="kw">AS</span> brk_per_100k\n' +
+'  <span class="kw">FROM</span> fact_fleet_month\n' +
+'  <span class="kw">WHERE</span> month_key <span class="kw">BETWEEN</span> :date_from <span class="kw">AND</span> :date_to\n' +
+'    <span class="kw">AND</span> (:region  <span class="kw">IS NULL OR</span> region  = :region)\n' +
+'    <span class="kw">AND</span> (:bu      <span class="kw">IS NULL OR</span> bu      = :bu)\n' +
+'    <span class="kw">AND</span> (:fleet   <span class="kw">IS NULL OR</span> fleet_type = :fleet)\n' +
+'),\n' +
+'<span class="cm">-- Bước 2: mỗi luật sinh một dòng, KÈM cluster + điểm tác động</span>\n' +
+'alerts <span class="kw">AS</span> (\n' +
+'  <span class="kw">SELECT</span> \'cpm_over\' <span class="kw">AS</span> rule_id, \'cost\' <span class="kw">AS</span> cluster, \'warn\' <span class="kw">AS</span> sev,\n' +
+'         (cpm - t.cpm_target) * (miles) <span class="kw">AS</span> impact_usd\n' +
+'  <span class="kw">FROM</span> kpi, ref_target t <span class="kw">WHERE</span> cpm > t.cpm_target * 1.02\n' +
+'  <span class="kw">UNION ALL</span>\n' +
+'  <span class="kw">SELECT</span> \'maint_up\', \'maintenance\', \'crit\', (mnt_per_mile - t.mnt_target) * miles\n' +
+'  <span class="kw">FROM</span> kpi, ref_target t <span class="kw">WHERE</span> mnt_per_mile > t.mnt_target * 1.10\n' +
+'  <span class="kw">UNION ALL</span>\n' +
+'  <span class="kw">SELECT</span> \'downtime_up\', \'maintenance\', \'crit\', downtime_pct * miles\n' +
+'  <span class="kw">FROM</span> kpi, ref_target t <span class="kw">WHERE</span> downtime_pct > t.downtime_target * 1.10\n' +
+'  <span class="kw">UNION ALL</span>\n' +
+'  <span class="kw">SELECT</span> \'pm_low\', \'maintenance\', \'crit\', (t.pm_target - pm_compliance) * 4200\n' +
+'  <span class="kw">FROM</span> kpi, ref_target t <span class="kw">WHERE</span> pm_compliance < t.pm_target - 3\n' +
+')\n' +
+'<span class="cm">-- Bước 3: GỘP theo cluster — nhiều triệu chứng, một nguyên nhân</span>\n' +
+'<span class="kw">SELECT</span>\n' +
+'  cluster,\n' +
+'  <span class="kw">MAX</span>(sev)                    <span class="kw">AS</span> severity,      <span class="cm">-- mức nặng nhất trong cụm</span>\n' +
+'  <span class="kw">SUM</span>(impact_usd)             <span class="kw">AS</span> impact_usd,    <span class="cm">-- cộng dồn tác động</span>\n' +
+'  <span class="kw">COUNT</span>(*)                    <span class="kw">AS</span> symptom_count, <span class="cm">-- số triệu chứng đã gộp</span>\n' +
+'  <span class="kw">STRING_AGG</span>(rule_id, \', \')  <span class="kw">AS</span> evidence_rules\n' +
+'<span class="kw">FROM</span> alerts\n' +
+'<span class="kw">GROUP BY</span> cluster\n' +
+'<span class="kw">ORDER BY</span> impact_usd <span class="kw">DESC</span>   <span class="cm">-- xếp theo tác động tài chính, không theo mức đỏ</span>\n' +
+'<span class="kw">LIMIT</span> 5;';
+
+/* =====================================================================
+   17.  ĐIỀU KHIỂN
+   ===================================================================== */
+var K_global = null;
+
+function paint(){
+  var K = buildKPI();
+  if (!K){ return; }
+  K_global = K;
+  var px = 12 / F.range;                     /* hệ số quy đổi ra năm */
+  var insights = runRules(K.k, px);
+  renderHealth(K, insights);
+  renderNorthStar(K);
+  renderInsights(K, insights);
+  renderFinancial(K);
+  renderOps(K);
+  renderFleet(K);
+  renderCustomer(K);
+  closeDrill();
+  $("#asof").textContent = MONTHS[K.w.curFrom] + " – " + MONTHS[K.w.curTo] +
+    (F.compare === "prev" ? " · so với kỳ trước" : " · so với cùng kỳ năm trước");
+  $("#asofDate").textContent = MONTHS[NM-1];
+}
+
+function fillSelect(id, items, allLabel){
+  var el = $(id);
+  items.forEach(function(v){
+    var o = document.createElement("option");
+    o.value = v; o.textContent = v;
+    el.appendChild(o);
+  });
+}
+fillSelect("#f-region", REGIONS); fillSelect("#f-bu", BUS);
+fillSelect("#f-fleet", FLEETS);   fillSelect("#f-seg", SEGMENTS);
+
+$("#f-range").addEventListener("change", function(){ F.range = +this.value; paint(); });
+$("#f-region").addEventListener("change", function(){ F.region = this.value; paint(); });
+$("#f-bu").addEventListener("change", function(){ F.bu = this.value; paint(); });
+$("#f-fleet").addEventListener("change", function(){ F.fleet = this.value; paint(); });
+$("#f-seg").addEventListener("change", function(){ F.seg = this.value; paint(); });
+$("#cmp-prev").addEventListener("click", function(){
+  F.compare = "prev"; this.setAttribute("aria-pressed","true");
+  $("#cmp-year").setAttribute("aria-pressed","false"); paint();
+});
+$("#cmp-year").addEventListener("click", function(){
+  F.compare = "year"; this.setAttribute("aria-pressed","true");
+  $("#cmp-prev").setAttribute("aria-pressed","false"); paint();
+});
+$("#btn-reset").addEventListener("click", function(){
+  F = { range:12, region:"", bu:"", fleet:"", seg:"", compare:"prev" };
+  $("#f-range").value = "12"; $("#f-region").value = ""; $("#f-bu").value = "";
+  $("#f-fleet").value = ""; $("#f-seg").value = "";
+  $("#cmp-prev").setAttribute("aria-pressed","true");
+  $("#cmp-year").setAttribute("aria-pressed","false");
+  paint();
+});
+
+/* cập nhật tooltip khi cuộn */
+window.addEventListener("scroll", hideTip, {passive:true});
+
+paint();
+</script>

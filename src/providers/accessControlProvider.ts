@@ -1,32 +1,39 @@
+/**
+ * Kết nối ma trận JWT role với AccessControlProvider của Refine v4.
+ *
+ * Role source được inject để provider không phụ thuộc ngược vào một singleton
+ * auth hoặc runtime-config cụ thể.
+ */
+
 import type { AccessControlProvider } from "@refinedev/core";
 
-import { getCurrentUser } from "../api/authApi";
-import { normalizeApiError } from "../api/errors";
+import type { JwtRole } from "../types/roles.types";
+import { canJwtRolesAccess } from "../providers/permissions/roleMatrix";
 
-const publicAuthenticatedResources = new Set(["dashboard"]);
+export interface JwtRoleSource {
+  getJwtRoles: () => Promise<readonly JwtRole[]>;
+}
 
-export const accessControlProvider: AccessControlProvider = {
-  async can({ resource, action }) {
-    if (!resource || publicAuthenticatedResources.has(resource)) {
-      return { can: true };
+export const createAccessControlProvider = (
+  roleSource: JwtRoleSource,
+): AccessControlProvider => ({
+  can: async ({ resource, action }) => {
+    const roles = await roleSource.getJwtRoles();
+    if (!resource || resource === "dashboard") {
+      const can = roles.length > 0;
+      return can
+        ? { can: true }
+        : { can: false, reason: "authorization.forbidden" };
     }
 
-    try {
-      const user = await getCurrentUser();
-      const permissions = new Set(user.permissions ?? []);
-      const canAccess =
-        permissions.has("*") ||
-        permissions.has(`${resource}:*`) ||
-        permissions.has(`${resource}:${action}`);
+    const can = canJwtRolesAccess(roles, resource, action);
 
-      return {
-        can: canAccess,
-        reason: canAccess ? undefined : "Bạn không có quyền truy cập tài nguyên này.",
-      };
-    } catch (error: unknown) {
-      const apiError = normalizeApiError(error);
-      return { can: false, reason: apiError.message };
-    }
+    return can
+      ? { can: true }
+      : {
+          can: false,
+          reason: "authorization.forbidden",
+        };
   },
   options: {
     buttons: {
@@ -34,4 +41,4 @@ export const accessControlProvider: AccessControlProvider = {
       hideIfUnauthorized: true,
     },
   },
-};
+});

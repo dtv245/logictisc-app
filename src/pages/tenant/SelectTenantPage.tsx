@@ -1,11 +1,17 @@
-import { BankOutlined } from "@ant-design/icons";
-import { Alert, Button, Card, List, Space, Typography } from "antd";
+/**
+ * Cho phép người dùng chọn một tenant đã được backend cấp quyền.
+ */
 
-import { useApiError } from "../../hooks/common/useApiError";
-import { useSwitchTenant } from "../../hooks/tenant/useSwitchTenant";
-import { useTenantList } from "../../hooks/tenant/useTenantList";
+import { BankOutlined } from "@ant-design/icons";
+import { Alert, Button, Card, Space, Typography } from "antd";
+import { useTranslation } from "react-i18next";
+
+import { useApiError } from "@hooks/useApiError";
+import { useSwitchTenant } from "@hooks/useSwitchTenant";
+import { useTenantList } from "@hooks/useTenantList";
 
 export const SelectTenantPage = () => {
+  const { t } = useTranslation();
   const { tenants, isLoading } = useTenantList();
   const tenantSwitch = useSwitchTenant();
   const { showApiError } = useApiError();
@@ -15,46 +21,40 @@ export const SelectTenantPage = () => {
       <Card className="tenant-card">
         <Space direction="vertical" size="large" className="full-width">
           <div>
-            <Typography.Title level={2}>Chọn công ty</Typography.Title>
+            <Typography.Title level={2}>{t("tenant.title")}</Typography.Title>
             <Typography.Text type="secondary">
-              Backend sẽ xác nhận quyền thành viên trước khi chuyển công ty.
+              {t("tenant.description")}
             </Typography.Text>
           </div>
           {tenants.length === 0 && !isLoading ? (
             <Alert
-              message="Tài khoản chưa được cấp quyền vào công ty nào."
+              message={t("tenant.none")}
               type="warning"
               showIcon
             />
           ) : (
-            <List
-              dataSource={tenants}
-              loading={isLoading}
-              renderItem={(tenant) => (
-                <List.Item
-                  actions={[
-                    <Button
-                      key={tenant.tenantKey}
-                      loading={tenantSwitch.mutation.isPending}
-                      onClick={() =>
-                        void tenantSwitch
-                          .switchTenant(tenant.tenantKey)
-                          .catch(showApiError)
-                      }
-                      type="primary"
-                    >
-                      Chọn
-                    </Button>,
-                  ]}
+            <Card loading={isLoading} size="small">
+              <Space direction="vertical" size="middle">
+                <Space>
+                  <BankOutlined />
+                  <Typography.Text strong>
+                    {tenants[0]?.tenantName}
+                  </Typography.Text>
+                  <Typography.Text type="secondary">
+                    {tenants[0]?.tenantKey}
+                  </Typography.Text>
+                </Space>
+                <Button
+                  loading={tenantSwitch.isLoading}
+                  onClick={() =>
+                    void tenantSwitch.switchTenant().catch(showApiError)
+                  }
+                  type="primary"
                 >
-                  <List.Item.Meta
-                    avatar={<BankOutlined />}
-                    title={tenant.tenantName}
-                    description={tenant.tenantKey}
-                  />
-                </List.Item>
-              )}
-            />
+                  {t("tenant.reauthenticate")}
+                </Button>
+              </Space>
+            </Card>
           )}
         </Space>
       </Card>

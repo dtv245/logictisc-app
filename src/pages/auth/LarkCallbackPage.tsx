@@ -1,12 +1,21 @@
-import { useEffect, useRef } from "react";
-import { Result, Spin } from "antd";
+/**
+ * Hoàn tất callback đăng nhập Lark đúng một lần cho mỗi mount.
+ */
 
-import { useLarkLogin } from "../../hooks/auth/useLarkLogin";
+import { useEffect, useRef } from "react";
+import { Card, Result, Spin } from "antd";
+import { useTranslation } from "react-i18next";
+
+import { useLarkLogin } from "@hooks/useLarkLogin";
 
 export const LarkCallbackPage = () => {
+  const { t } = useTranslation();
+  // Ref ngăn callback chạy trùng khi React StrictMode mount effect lại.
   const callbackStarted = useRef(false);
   const { completeLogin, data, error, isError } = useLarkLogin();
 
+  // Callback phụ thuộc completeLogin mới nhất và không cần cleanup vì đây là
+  // mutation HTTP một lần, không phải subscription.
   useEffect(() => {
     if (!callbackStarted.current) {
       callbackStarted.current = true;
@@ -18,17 +27,26 @@ export const LarkCallbackPage = () => {
 
   if (callbackError) {
     return (
-      <Result
-        status="error"
-        title="Không thể hoàn tất đăng nhập Lark"
-        subTitle={callbackError.message}
-      />
+      <main className="login-page">
+        <Card className="login-callback-card">
+          <Result
+            status="error"
+            title={t("auth.callbackError")}
+            subTitle={callbackError.message}
+          />
+        </Card>
+      </main>
     );
   }
 
   return (
-    <main className="auth-page">
-      <Spin size="large" tip="Đang xác thực phiên đăng nhập..." />
+    <main className="login-page">
+      <Card className="login-callback-card">
+        <Result
+          icon={<Spin size="large" />}
+          title={t("auth.callbackLoading")}
+        />
+      </Card>
     </main>
   );
 };

@@ -1,0 +1,789 @@
+@use "../../styles/variables" as v;
+
+/**
+ * Executive Overview.
+ *
+ * Bảng màu tách làm hai nhóm và không được trộn lẫn:
+ *
+ * - Nhóm CHUỖI (series) — danh tính của dữ liệu: doanh thu, chi phí, lợi nhuận.
+ * - Nhóm THAM CHIẾU (reference) — ngưỡng so sánh: mục tiêu nội bộ, benchmark
+ *   ngành, đường cơ sở lịch sử.
+ *
+ * Nhóm tham chiếu cố tình KHÔNG dùng màu. Nó phân biệt bằng mẫu nét và độ đậm
+ * mực, để không tranh chấp màu với nhóm chuỗi và để vẫn đọc được khi in đen
+ * trắng hoặc ở chế độ forced-colors.
+ *
+ * Nhóm TRẠNG THÁI (good/warning/critical) là nhóm thứ ba, chỉ dùng cho trạng
+ * thái, không bao giờ dùng làm màu chuỗi.
+ */
+.exec-page {
+  // Chuỗi
+  --exec-series-revenue: #2563eb;
+  --exec-series-cost: #eb6834;
+  --exec-series-profit: #1baf7a;
+  --exec-band: rgb(27 175 122 / 14%);
+  // Biến thể nhạt của màu chuỗi, dùng cho phần tử không thuộc nhóm trọng tâm
+  // (khách hàng ngoài Top 3). Vẫn là cùng một màu, chỉ khác độ đậm — không phải
+  // một chuỗi mới.
+  --exec-series-muted: #c7d2e4;
+
+  // Tham chiếu — mực, không màu
+  --exec-ref-target: #0f172a;
+  --exec-ref-industry: #8896ab;
+  --exec-ref-historical: #b6c0cf;
+
+  // Trạng thái
+  --exec-good: #0ca30c;
+  --exec-good-bg: #e8f7e8;
+  --exec-warning: #b7791f;
+  --exec-warning-bg: #fdf4e0;
+  --exec-critical: #d03b3b;
+  --exec-critical-bg: #fbeaea;
+  --exec-neutral: #64748b;
+  --exec-neutral-bg: #eef2f7;
+
+  // Chrome
+  --exec-grid: #eaeef4;
+  --exec-axis: #d5dce6;
+  --exec-ink-1: #0f172a;
+  --exec-ink-2: #4a5568;
+  --exec-ink-3: #8896ab;
+  --exec-track: #f1f4f9;
+  --exec-prev: #c9d6e8;
+
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------- Bộ lọc */
+
+.exec-filters {
+  background: var(--color-bg-container, #{v.$color-bg-container});
+  border: 1px solid v.$color-border-secondary;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing;
+}
+
+.exec-filters__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.exec-filters__label {
+  color: var(--exec-ink-3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------- Chú giải */
+
+.exec-ref-legend {
+  align-items: center;
+  color: var(--exec-ink-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$spacing;
+}
+
+.exec-ref-legend__title {
+  color: var(--exec-ink-3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/**
+ * Ngữ pháp tham chiếu: ba kênh cùng lúc — mẫu nét, độ đậm, ký hiệu chữ.
+ * Thiếu một kênh thì người đọc mù màu hoặc in đen trắng sẽ mất thông tin.
+ */
+.exec-ref {
+  align-items: center;
+  display: inline-flex;
+  font-size: 12px;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.exec-ref__swatch {
+  display: inline-block;
+  width: 22px;
+}
+
+.exec-ref--internalTarget .exec-ref__swatch {
+  border-top: 2.5px solid var(--exec-ref-target);
+}
+
+.exec-ref--industryBenchmark .exec-ref__swatch {
+  border-top: 2px dashed var(--exec-ref-industry);
+}
+
+.exec-ref--historicalBaseline .exec-ref__swatch {
+  border-top: 2px dotted var(--exec-ref-historical);
+}
+
+.exec-ref__mark {
+  color: var(--exec-ink-1);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.exec-ref__value {
+  color: var(--exec-ink-1);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.exec-ref__source,
+.exec-ref__tip {
+  color: var(--exec-ink-3);
+}
+
+.exec-ref__tip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.exec-ref--inapplicable .exec-ref__value {
+  color: var(--exec-ink-3);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* --------------------------------------------------------------- Thẻ KPI */
+
+.exec-card .ant-card-head {
+  min-height: 56px;
+}
+
+.exec-card__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.exec-card__title {
+  color: var(--exec-ink-1);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.exec-card__question {
+  color: var(--exec-ink-3);
+  font-size: 12px;
+  font-weight: 400;
+  white-space: normal;
+}
+
+.exec-card__source,
+.exec-card__footnote {
+  display: block;
+  font-size: 12px;
+}
+
+.exec-card__footnote {
+  margin-top: v.$spacing;
+}
+
+.exec-metrics {
+  display: grid;
+  gap: v.$spacing;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.exec-metric {
+  border: 1px solid v.$color-border-secondary;
+  border-radius: v.$radius-lg;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: v.$spacing;
+}
+
+.exec-metric--empty {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 6px,
+    rgb(15 23 42 / 3%) 6px,
+    rgb(15 23 42 / 3%) 12px
+  );
+}
+
+.exec-metric__head {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.exec-metric__label {
+  color: var(--exec-ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Số lớn dùng chữ số tỉ lệ (mặc định), KHÔNG dùng tabular-nums — chữ số
+   đều nhau làm con số lớn trông rời rạc. */
+.exec-metric__value {
+  color: var(--exec-ink-1);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.exec-metric--emphasis .exec-metric__value {
+  font-size: 34px;
+}
+
+.exec-metric__delta,
+.exec-metric__reason {
+  color: var(--exec-ink-3);
+  font-size: 12px;
+}
+
+.exec-metric__placeholder {
+  color: var(--exec-ink-3);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.exec-metric__endpoint {
+  background: var(--exec-neutral-bg);
+  border-radius: 4px;
+  color: var(--exec-ink-2);
+  font-size: 11px;
+  padding: 2px 6px;
+  word-break: break-all;
+}
+
+.exec-metric__refs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+}
+
+/* ---------------------------------------------------------- Trạng thái */
+
+.exec-status {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 600;
+  gap: 4px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.exec-status--good {
+  background: var(--exec-good-bg);
+  color: #056005;
+}
+
+.exec-status--warning {
+  background: var(--exec-warning-bg);
+  color: #7a5210;
+}
+
+.exec-status--critical {
+  background: var(--exec-critical-bg);
+  color: #9b2020;
+}
+
+.exec-status--neutral {
+  background: var(--exec-neutral-bg);
+  color: var(--exec-neutral);
+}
+
+/* ------------------------------------------------------- Chưa có dữ liệu */
+
+.exec-unavailable {
+  align-items: flex-start;
+  background: var(--exec-neutral-bg);
+  border-radius: v.$radius-lg;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: v.$spacing;
+}
+
+.exec-unavailable__icon {
+  color: var(--exec-ink-3);
+  font-size: 18px;
+}
+
+.exec-unavailable__title {
+  color: var(--exec-ink-1);
+}
+
+.exec-unavailable__reason {
+  font-size: 12px;
+}
+
+.exec-unavailable__endpoint {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 6px;
+}
+
+.exec-unavailable__endpoint-label {
+  color: var(--exec-ink-3);
+}
+
+.exec-unavailable__endpoint code {
+  background: var(--color-bg-container, #fff);
+  border-radius: 4px;
+  color: var(--exec-ink-2);
+  padding: 2px 6px;
+  word-break: break-all;
+}
+
+/* ---------------------------------------------------------- Kết luận */
+
+.exec-insights {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.exec-insight {
+  border-left: 3px solid var(--exec-neutral);
+  padding-left: v.$spacing;
+}
+
+.exec-insight__head {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.exec-insight__title {
+  color: var(--exec-ink-1);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.exec-insight__cause,
+.exec-insight__impact {
+  color: var(--exec-ink-2);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.exec-insight__impact {
+  color: var(--exec-ink-3);
+}
+
+.exec-insight__merged {
+  color: var(--exec-ink-3);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.exec-insight__merged ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.exec-insight__merged li {
+  background: var(--exec-neutral-bg);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* ------------------------------------------------------------ Biểu đồ */
+
+.exec-charts {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-lg;
+}
+
+.exec-chart {
+  margin: 0;
+}
+
+.exec-chart figcaption {
+  color: var(--exec-ink-2);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Biểu đồ nhỏ vẽ lại biên đóng góp: cùng trục thời gian với biểu đồ trên,
+   trục giá trị riêng. Có vạch ngăn để người đọc không tưởng đây là cùng một
+   plot bị cắt. */
+.exec-chart--sub {
+  border-top: 1px solid v.$color-border-secondary;
+  padding-top: v.$spacing;
+}
+
+.exec-chart--sub figcaption {
+  color: var(--exec-ink-3);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* Danh sách thanh ngang — dùng chung cho cơ cấu chi phí và tuổi nợ phải thu.
+   Hai khu vực cần đúng cùng một thứ: nhãn, rãnh, giá trị, tỉ trọng. Không dùng
+   biểu đồ tròn vì cơ cấu chi phí có 7 hạng mục, vượt xa ngưỡng đọc được của nó. */
+.exec-cost-list,
+.exec-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.exec-cost,
+.exec-bar {
+  align-items: center;
+  display: grid;
+  gap: v.$spacing;
+  grid-template-columns: 160px 1fr 88px 64px;
+}
+
+.exec-cost__label,
+.exec-bar__label {
+  color: var(--exec-ink-2);
+  font-size: 13px;
+}
+
+.exec-cost__track,
+.exec-bar__track {
+  background: var(--exec-track);
+  border-radius: 4px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.exec-cost__fill,
+.exec-bar__fill {
+  background: var(--exec-series-cost);
+  border-radius: 0 4px 4px 0;
+  display: block;
+  height: 100%;
+}
+
+.exec-cost__value,
+.exec-cost__share,
+.exec-bar__value,
+.exec-bar__share {
+  color: var(--exec-ink-1);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.exec-cost__share,
+.exec-bar__share {
+  color: var(--exec-ink-3);
+}
+
+/* Tuổi nợ là dữ liệu thứ tự: màu thanh mã hoá mức rủi ro, và mỗi mức luôn đi
+   kèm nhãn nhóm do backend đặt — màu không bao giờ là kênh thông tin duy nhất.
+   Nhóm lạ (backend thêm nhóm mới) rơi về màu trung tính, không rơi về màu của
+   một mức rủi ro nào. */
+.exec-bar--good .exec-bar__fill {
+  background: var(--exec-good);
+}
+
+.exec-bar--warning .exec-bar__fill {
+  background: var(--exec-warning);
+}
+
+.exec-bar--critical .exec-bar__fill {
+  background: var(--exec-critical);
+}
+
+.exec-bar--neutral .exec-bar__fill {
+  background: var(--exec-neutral);
+}
+
+/* Nhãn nhóm tuổi nợ dài hơn tên hạng mục chi phí ("Không có ngày đến hạn"), và
+   mỗi dòng mang thêm số hoá đơn ở dòng dưới. */
+.exec-bar {
+  grid-template-columns: 200px 1fr 88px 64px;
+}
+
+.exec-bar__label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.exec-bar__count {
+  color: var(--exec-ink-3);
+  font-size: 12px;
+}
+
+/* Ô số chưa đo được. Gạch mờ đi để nhìn là phân biệt được với một giá trị thật,
+   và con trỏ đổi thành dấu hỏi vì rê chuột vào đó sẽ hiện lý do. */
+.exec-cell--unavailable {
+  color: var(--exec-ink-3);
+  cursor: help;
+  text-decoration: underline dotted currentcolor;
+  text-underline-offset: 3px;
+}
+
+/* --------------------------------------------------------- Thanh đo */
+
+.exec-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-lg;
+}
+
+.exec-bullet {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.exec-bullet--empty {
+  border-bottom: 1px solid v.$color-border-secondary;
+  padding-bottom: v.$spacing;
+}
+
+.exec-bullet__head {
+  align-items: baseline;
+  display: flex;
+  gap: v.$spacing;
+  justify-content: space-between;
+}
+
+.exec-bullet__label {
+  color: var(--exec-ink-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.exec-bullet__value {
+  color: var(--exec-ink-1);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.exec-bullet__target {
+  color: var(--exec-ink-3);
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+/* Dải ngành nằm DƯỚI thanh trạng thái: nó là bối cảnh, không phải kết quả.
+   Vẽ đè lên nhau thì cả hai tín hiệu đều sai. */
+.exec-bullet__track {
+  background: var(--exec-track);
+  border-radius: 4px;
+  display: block;
+  height: 16px;
+  position: relative;
+}
+
+.exec-bullet__band {
+  background: rgb(15 23 42 / 8%);
+  border-radius: 4px;
+  bottom: 2px;
+  position: absolute;
+  top: 2px;
+}
+
+.exec-bullet__fill {
+  border-radius: 0 4px 4px 0;
+  bottom: 2px;
+  display: block;
+  position: absolute;
+  top: 2px;
+  left: 0;
+}
+
+.exec-bullet__track--good .exec-bullet__fill {
+  background: var(--exec-good);
+}
+
+.exec-bullet__track--warning .exec-bullet__fill {
+  background: var(--exec-warning);
+}
+
+.exec-bullet__track--critical .exec-bullet__fill {
+  background: var(--exec-critical);
+}
+
+.exec-bullet__track--neutral .exec-bullet__fill {
+  background: var(--exec-neutral);
+}
+
+.exec-bullet__tick {
+  bottom: -3px;
+  position: absolute;
+  top: -3px;
+  width: 0;
+}
+
+.exec-bullet__tick--target {
+  border-left: 2.5px solid var(--exec-ref-target);
+}
+
+.exec-bullet__tick--historical {
+  border-left: 2px dotted var(--exec-ref-historical);
+}
+
+.exec-bullet__direction {
+  color: var(--exec-ink-3);
+  font-size: 11px;
+}
+
+.exec-bullet__tip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ------------------------------------------------- Tập trung khách hàng */
+
+.exec-customer__reading {
+  color: var(--exec-ink-2);
+  font-size: 14px;
+}
+
+/* Dãy con số quét nhanh phía trên biểu đồ. Ở khu vực khách hàng là Top 1 / Top
+   3 / Top 5 và mức rủi ro; ở khu vực tuổi nợ là tổng còn phải thu và phần đã
+   quá hạn. Đặt trước biểu đồ vì câu hỏi của ban điều hành là "có rủi ro không",
+   không phải "từng dòng đóng góp bao nhiêu". */
+.exec-customer__summary,
+.exec-summary {
+  display: grid;
+  gap: v.$spacing;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin: 0 0 v.$spacing-lg;
+}
+
+.exec-customer__summary-item,
+.exec-summary__item {
+  background: var(--exec-track);
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-mobile v.$spacing;
+}
+
+.exec-customer__summary-label,
+.exec-summary__label {
+  color: var(--exec-ink-3);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
+.exec-customer__summary-value,
+.exec-summary__value {
+  color: var(--exec-ink-1);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  margin: 0;
+}
+
+.exec-customer__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 v.$spacing-lg;
+  padding: 0;
+}
+
+.exec-customer__bars li {
+  align-items: center;
+  display: grid;
+  gap: v.$spacing;
+  grid-template-columns: 180px 1fr 64px;
+}
+
+.exec-customer__name {
+  align-items: center;
+  color: var(--exec-ink-2);
+  display: flex;
+  font-size: 13px;
+  gap: 6px;
+}
+
+.exec-customer__track {
+  background: var(--exec-track);
+  border-radius: 4px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.exec-customer__fill {
+  background: var(--exec-series-muted);
+  border-radius: 0 4px 4px 0;
+  display: block;
+  height: 100%;
+}
+
+/* Nhóm Top 3 đậm hơn, nhưng độ đậm chỉ là lớp nhấn thứ hai: thứ hạng đã được
+   ghi bằng số trong ô tên, nên thông tin không phụ thuộc vào màu. */
+.exec-customer__bar--top .exec-customer__fill {
+  background: var(--exec-series-revenue);
+}
+
+.exec-customer__pct {
+  color: var(--exec-ink-1);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.exec-customer__top {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+/* ------------------------------------------------------------ Hẹp lại */
+
+@media (max-width: 1200px) {
+  .exec-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .exec-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .exec-cost,
+  .exec-bar,
+  .exec-customer__bars li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .exec-cost__value,
+  .exec-cost__share,
+  .exec-bar__value,
+  .exec-bar__share,
+  .exec-customer__pct {
+    text-align: left;
+  }
+}

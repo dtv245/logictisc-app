@@ -1,0 +1,418 @@
+/**
+ * Common Component Styles cho LogisticsX App.
+ *
+ * Chứa các lớp CSS dùng chung cho các thành phần giao diện phổ biến trong toàn dự án:
+ * - Khung layout (Header, Sider, Content, Footer, Page Container)
+ * - Thẻ chứa (App Card, Stat Card, KPI Metric Card)
+ * - Bảng dữ liệu & Toolbar (Table Wrapper, Table Actions, Filter Controls)
+ * - Biểu mẫu (Form Section, Form Actions Bar, Form Grid Helpers)
+ * - Thẻ trạng thái (Status Badges, Status Dots)
+ * - Trạng thái trống / lỗi (Empty State Wrapper, Error State Wrapper)
+ */
+
+@use "./variables" as v;
+@use "./mixins" as m;
+
+// =============================================================================
+// 1. LAYOUT & FRAMEWORK
+// =============================================================================
+
+.app-brand {
+  margin: 0 !important;
+  color: v.$color-primary !important;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-xs;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$spacing;
+  padding: 0 v.$spacing-lg;
+  border-bottom: 1px solid v.$color-border-secondary;
+  background: v.$color-bg-container;
+  position: sticky;
+  top: 0;
+  z-index: v.$z-sticky;
+}
+
+.user-menu {
+  cursor: pointer;
+  padding: v.$spacing-xxs v.$spacing-xs;
+  border-radius: v.$radius-md;
+  transition: background-color v.$transition-fast;
+
+  &:hover {
+    background-color: v.$color-bg-hover;
+  }
+}
+
+.app-content {
+  padding: v.$spacing-lg;
+  border-radius: v.$radius-lg;
+  background: v.$color-bg-container;
+}
+
+.page-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing;
+}
+
+.page-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: v.$spacing;
+  margin-bottom: v.$spacing-xs;
+}
+
+.page-header-title {
+  margin: 0 !important;
+  color: v.$color-text !important;
+}
+
+.page-header-subtitle {
+  color: v.$color-text-secondary;
+  margin-top: v.$spacing-xxs !important;
+  margin-bottom: 0 !important;
+}
+
+.page-header-extra {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  flex-wrap: wrap;
+}
+
+// =============================================================================
+// 2. AUTH & ONBOARDING
+// =============================================================================
+
+.full-page-loader,
+.auth-page {
+  min-height: 100vh;
+}
+
+.auth-page {
+  display: grid;
+  place-items: center;
+  padding: v.$spacing-lg;
+  background: v.$color-bg-layout;
+}
+
+.auth-card,
+.tenant-card {
+  width: min(100%, 460px);
+  box-shadow: v.$shadow-secondary;
+}
+
+.tenant-card {
+  width: min(100%, 680px);
+}
+
+// =============================================================================
+// 3. COMMON CARDS & SURFACE CONTAINERS
+// =============================================================================
+
+.app-card {
+  @include m.card-surface;
+  padding: v.$spacing;
+  transition: box-shadow v.$transition-base;
+
+  &--bordered {
+    border: 1px solid v.$color-border-secondary;
+  }
+
+  &--hoverable {
+    @include m.card-hoverable;
+  }
+
+  &--flat {
+    box-shadow: none;
+    background: v.$color-bg-subtle;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: v.$spacing;
+    padding-bottom: v.$spacing-xs;
+    border-bottom: 1px solid v.$color-border-light;
+  }
+
+  &__title {
+    font-size: v.$font-size-md;
+    font-weight: v.$font-weight-semibold;
+    color: v.$color-text;
+    margin: 0;
+  }
+
+  &__body {
+    width: 100%;
+  }
+
+  &__footer {
+    margin-top: v.$spacing;
+    padding-top: v.$spacing-xs;
+    border-top: 1px solid v.$color-border-light;
+  }
+}
+
+// Statistic / Metric Card
+.stat-card {
+  @include m.card-surface;
+  padding: v.$spacing;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: v.$spacing-xs;
+  }
+
+  &__label {
+    font-size: v.$font-size-xs;
+    font-weight: v.$font-weight-semibold;
+    color: v.$color-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__value {
+    font-size: v.$font-size-2xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$color-text;
+    line-height: v.$line-height-tight;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__delta {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-tertiary;
+    display: inline-flex;
+    align-items: center;
+    gap: v.$spacing-xxs;
+  }
+
+  &__icon {
+    font-size: 20px;
+    color: v.$color-primary;
+  }
+}
+
+// =============================================================================
+// 4. TABLE & LIST HELPERS
+// =============================================================================
+
+.resource-search {
+  margin-bottom: v.$spacing;
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: v.$spacing;
+  margin-bottom: v.$spacing;
+}
+
+.table-actions-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$spacing-xs;
+  white-space: nowrap;
+}
+
+.table-cell-ellipsis {
+  @include m.text-truncate;
+  max-width: 260px;
+  display: inline-block;
+}
+
+.table-mono-cell {
+  font-family: v.$font-family-mono;
+  font-size: v.$font-size-xs;
+  color: v.$color-text-secondary;
+}
+
+// =============================================================================
+// 5. FORM HELPERS & SECTIONS
+// =============================================================================
+
+.app-form {
+  width: 100%;
+}
+
+.form-section {
+  margin-bottom: v.$spacing-lg;
+
+  &__title {
+    font-size: v.$font-size-md;
+    font-weight: v.$font-weight-semibold;
+    color: v.$color-text;
+    margin-bottom: v.$spacing-xxs;
+  }
+
+  &__description {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-secondary;
+    margin-bottom: v.$spacing-sm;
+  }
+
+  &__divider {
+    margin: v.$spacing 0 !important;
+  }
+}
+
+.form-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: v.$spacing-sm;
+  margin-top: v.$spacing-lg;
+  padding-top: v.$spacing;
+  border-top: 1px solid v.$color-border-light;
+
+  &--sticky {
+    position: sticky;
+    bottom: 0;
+    background: v.$color-bg-container;
+    padding-bottom: v.$spacing;
+    z-index: v.$z-sticky;
+  }
+}
+
+// =============================================================================
+// 6. STATUS BADGES & DOTS
+// =============================================================================
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: v.$radius-full;
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-medium;
+  line-height: 1.4;
+  white-space: nowrap;
+
+  &--success {
+    background: v.$color-success-bg;
+    color: v.$color-success-text;
+    border: 1px solid v.$color-success-border;
+  }
+
+  &--warning {
+    background: v.$color-warning-bg;
+    color: v.$color-warning-text;
+    border: 1px solid v.$color-warning-border;
+  }
+
+  &--error {
+    background: v.$color-error-bg;
+    color: v.$color-error-text;
+    border: 1px solid v.$color-error-border;
+  }
+
+  &--processing,
+  &--info {
+    background: v.$color-info-bg;
+    color: v.$color-info-text;
+    border: 1px solid v.$color-info-border;
+  }
+
+  &--neutral {
+    background: v.$color-neutral-bg;
+    color: v.$color-neutral-text;
+    border: 1px solid v.$color-neutral-border;
+  }
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: v.$color-neutral;
+
+  &--success { background-color: v.$color-success; }
+  &--warning { background-color: v.$color-warning; }
+  &--error   { background-color: v.$color-error; }
+  &--info    { background-color: v.$color-info; }
+  &--neutral { background-color: v.$color-neutral; }
+
+  &--pulse {
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: inherit;
+      opacity: 0.6;
+      animation: status-pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
+  }
+}
+
+@keyframes status-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+// =============================================================================
+// 7. RESPONSIVE ADJUSTMENTS
+// =============================================================================
+
+@media (max-width: 767px) {
+  .app-header {
+    padding: 0 v.$spacing;
+  }
+
+  .app-header .ant-typography {
+    display: none;
+  }
+
+  .app-content {
+    padding: v.$spacing;
+  }
+
+  .stat-card__value {
+    font-size: v.$font-size-xl;
+  }
+
+  .page-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header-extra {
+    justify-content: flex-start;
+  }
+}
