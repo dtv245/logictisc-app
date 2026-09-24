@@ -294,6 +294,9 @@ export default defineConfig(({ mode }) => {
     include: ['src/tests/**/*.test.{ts,tsx}'],
     exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     setupFiles: ['./src/tests/setup.ts'],
+    env: {
+      VITE_API_BASE_URL: 'http://localhost:5173/api',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

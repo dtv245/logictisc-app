@@ -6,7 +6,11 @@ import { z } from "zod";
 
 const envSchema = z.object({
   VITE_APP_NAME: z.string().trim().min(1).default("Logictics"),
-  VITE_API_BASE_URL: z.string().trim().url(),
+  VITE_API_BASE_URL: z
+    .string()
+    .trim()
+    .url()
+    .default("http://localhost:5173/api"),
   VITE_LARK_LOGIN_URL: z.string().trim().url().optional(),
   VITE_AUTH_LOGIN_PATH: z.string().trim().min(1).default("/auth/login"),
   VITE_AUTH_REFRESH_PATH: z.string().trim().min(1).default("/auth/refresh"),
