@@ -1,7 +1,18 @@
 import type { Address } from "./common.types";
 import type { ISODateTime } from "./api.types";
 
-export type TerminalType = "port" | "rail" | "warehouse" | "yard";
+/**
+ * Khớp `TerminalType` của backend (`terminal/TerminalType.java`).
+ *
+ * Backend lưu dạng CamelCase (`SeaPort`, `RailTerminal`…) nhưng `fromDbValue` chấp nhận **cả**
+ * CamelCase lẫn tên hằng, nên API nhận đúng các giá trị UPPERCASE dưới đây.
+ */
+export type TerminalType =
+  | "SEA_PORT"
+  | "RAIL_TERMINAL"
+  | "INLAND_DEPOT"
+  | "AIR_CARGO"
+  | "BORDER_CROSSING";
 
 export interface TerminalResponse {
   id: string;

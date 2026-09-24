@@ -3,11 +3,34 @@
  */
 
 import { useCallback } from "react";
-import { useLogin } from "@refinedev/core";
+import {
+  useLogin,
+  type AuthActionResponse,
+  type RefineError,
+} from "@refinedev/core";
+import type { UseMutationResult } from "@tanstack/react-query";
 
 import type { LarkLoginParams } from "../types/auth.types";
 
-export const useLarkLogin = () => {
+/**
+ * Viết tay thay vì `ReturnType<typeof useLogin<LarkLoginParams>>`: `useLogin` là hàm
+ * overload nên instantiation expression rơi vào overload **cuối** (bản combined), làm
+ * `data` nới thành `AuthActionResponse | TLoginData`. Callback page đọc `data.success`
+ * sẽ vỡ. Đây là nhánh `UseLoginProps`.
+ */
+export type UseLarkLoginResult = UseMutationResult<
+  AuthActionResponse,
+  Error | RefineError,
+  LarkLoginParams,
+  unknown
+> & {
+  /** Pha callback: đổi code lấy phiên đăng nhập. */
+  completeLogin: () => void;
+  /** Pha redirect: bắt đầu authorization-code flow. */
+  startLogin: (returnTo?: string) => void;
+};
+
+export const useLarkLogin = (): UseLarkLoginResult => {
   // useLogin chuyển toàn bộ mutation lifecycle qua AuthProvider.
   const login = useLogin<LarkLoginParams>();
 

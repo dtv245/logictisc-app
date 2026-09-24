@@ -18,25 +18,35 @@ header, `PATCH`, and an envelope shape that did not match the Spring API. The
 legacy entry and Phase 0 router were removed after the unified runtime became
 the only production composition.
 
+> **Path update — 2026-09-21.** The `src/app/` and `src/core/` layout referenced
+> above and elsewhere in this document **no longer exists**; it was flattened
+> after the unification and `src/app/`, `src/core/`, `src/shared/` and
+> `src/common/` are now explicitly banned by
+> `.agents/rules/frontend-engineering.md`. The runtime lives in `src/App.tsx`,
+> transport in `src/providers/api/`, and the role policy in
+> `src/providers/permissions/`. The **decisions** recorded here are unchanged;
+> only the paths moved.
+
 ## Decision
 
-Use one composition rooted at `src/app/App.tsx`:
+Use one composition rooted at `src/App.tsx`:
 
 ```text
-main
-  -> initialize vi/en i18n
-  -> AppBootstrap
-     -> load /runtime-config.json
-     -> apply configured locale
-     -> public GET /api/health
-     -> RuntimeConfigProvider
-     -> RuntimeApplication
-        -> OIDC/session dependencies
-        -> Logistics API client
-        -> Refine auth/data/access-control providers
-        -> BrowserRouter
-        -> public diagnostics/auth routes
-        -> protected tenant-aware layout/business routes
+src/main.tsx
+  -> initializeAppI18n (src/locales) vi/en
+  -> App (src/App.tsx)
+     -> AppBootstrap (src/config)
+        -> load /runtime-config.json
+        -> apply configured locale
+        -> public GET /api/health
+        -> RuntimeConfigProvider
+        -> RuntimeApplication (src/App.tsx)
+           -> OIDC/session dependencies (src/providers/auth)
+           -> Logistics API client (src/providers/api)
+           -> Refine auth/data/access-control providers (src/providers)
+           -> BrowserRouter
+           -> public diagnostics/auth routes
+           -> protected tenant-aware layout/business routes (src/router)
 ```
 
 The runtime dependency graph is created from validated runtime config and remains stable for that deployment configuration.
@@ -58,9 +68,9 @@ The runtime dependency graph is created from validated runtime config and remain
 
 ### API and authorization
 
-- The new `core/api` client is the only production transport.
+- The `src/providers/api` client is the only production transport.
 - Resource definitions explicitly map supported resource names to `/api/**`, allowed filters/sorts, and `PUT` updates.
-- `core/permissions` is the single UI role policy and fails closed. Spring remains final authorization authority.
+- `src/providers/permissions` is the single UI role policy and fails closed. Spring remains final authorization authority.
 
 ### Routing and localization
 

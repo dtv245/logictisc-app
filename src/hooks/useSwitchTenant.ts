@@ -4,7 +4,8 @@
  */
 
 import { useCallback } from "react";
-import { useGo, useLogin } from "@refinedev/core";
+import { useGo, useLogin, type AuthActionResponse, type RefineError } from "@refinedev/core";
+import type { UseMutationResult } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { env } from "@config/env";
@@ -26,7 +27,21 @@ const isTenantScopedQuery = (queryKey: readonly unknown[]): boolean =>
  * Hook cố ý không nhận tenant id: SPA chỉ thể hiện ý định xác thực lại, còn
  * Identity Server quyết định tenant hợp lệ và ghi tenant đó vào access token.
  */
-export const useSwitchTenant = () => {
+export type UseSwitchTenantResult = Pick<
+  UseMutationResult<
+    AuthActionResponse,
+    Error | RefineError,
+    TenantReauthenticationParams,
+    unknown
+  >,
+  "error" | "isError" | "isLoading"
+> & {
+  currentTenantId: string | undefined;
+  /** Buộc xác thực lại; IdP quyết định tenant và ghi vào access token. */
+  switchTenant: () => Promise<void>;
+};
+
+export const useSwitchTenant = (): UseSwitchTenantResult => {
   const currentUser = useCurrentUser();
   const go = useGo();
   const login = useLogin<TenantReauthenticationParams>();

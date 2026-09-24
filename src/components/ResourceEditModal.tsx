@@ -1,14 +1,16 @@
-import type React from "react";
 import { useModalForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { Form, Modal } from "antd";
+import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
+import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
+import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
 import { ResourceFormFields } from "./resources/ResourceFormFields";
 import {
   isEditableResourceName,
   resourceFormDefinitions,
-  type EditableResourceName,
 } from "./resources/resourceForms";
 
 interface ResourceEditModalProps {
@@ -19,7 +21,9 @@ interface ResourceEditModalProps {
 }
 
 export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEditModalProps) => {
-  const { modalProps, formProps, formLoading } = useModalForm<
+  const { t } = useTranslation();
+
+  const { form, modalProps, formProps, formLoading, close } = useModalForm<
     BaseRecord,
     ApiError,
     Record<string, unknown>
@@ -32,24 +36,38 @@ export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEd
     queryOptions: {
       enabled: visible && id !== null,
     },
+    // Lỗi validation của backend gắn vào đúng field đang sửa — xem `ResourceCreateModal`.
+    onMutationError: (error) => {
+      applyBackendFieldErrors(form, error.errors ?? {});
+    },
   });
+
+  // Đóng thật gồm hai phần: `close` để Refine dọn state nội bộ và reset form, còn
+  // `onClose` báo cho cha. Cả hai chỉ được chạy **sau** khi người dùng xác nhận bỏ thay
+  // đổi — trước đây `onClose()` chạy vô điều kiện, nên huỷ hộp thoại xác nhận vẫn làm
+  // modal đóng.
+  const closeModal = useCallback(() => {
+    close();
+    onClose();
+  }, [close, onClose]);
+
+  // Refine hỏi bằng `window.confirm` khi đóng form còn thay đổi; thay bằng modal antd.
+  const discardConfirm = useDiscardConfirm(closeModal);
 
   if (!isEditableResourceName(resource)) {
     return null;
   }
 
-  const definition = resourceFormDefinitions[resource as EditableResourceName];
+  // `isEditableResourceName` là type predicate nên `resource` đã được thu hẹp.
+  const definition = resourceFormDefinitions[resource];
 
   return (
     <Modal
       {...modalProps}
       open={visible}
-      onCancel={() => {
-        if (modalProps.onCancel) modalProps.onCancel({} as React.MouseEvent<HTMLButtonElement>);
-        onClose();
-      }}
-      title={`Edit ${resource}`}
-      okText="Save"
+      onCancel={discardConfirm.onCancel}
+      title={t("crud.editTitle", { resource: t(`resources.${resource}`) })}
+      okText={t("actions.save")}
       confirmLoading={formLoading}
     >
       <Form

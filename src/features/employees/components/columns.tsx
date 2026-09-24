@@ -1,9 +1,9 @@
 /** Định nghĩa columns cho Employee resource. */
-import { createCrudColumns } from "@components";
+import { createCrudColumns } from "@components/crudColumns";
 import type { Employee } from "@/types/employee.types";
 export const employeeColumns = createCrudColumns<Employee>("employees", [
-  { dataIndex: "firstName", title: "Tên", sorter: true },
-  { dataIndex: "lastName", title: "Họ", sorter: true },
-  { dataIndex: "email", title: "Email", sorter: true },
-  { dataIndex: "status", title: "Trạng thái", sorter: true },
+  { dataIndex: "firstName", titleKey: "columns.employees.firstName", sorter: true },
+  { dataIndex: "lastName", titleKey: "columns.employees.lastName", sorter: true },
+  { dataIndex: "email", titleKey: "columns.employees.email", sorter: true },
+  { dataIndex: "status", titleKey: "columns.employees.status", status: true, sorter: true },
 ]);

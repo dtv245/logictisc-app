@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { VehicleTrackingMap } from "@pages/dashboard/VehicleTrackingMap";
+import { VehicleTrackingMap } from "@features/operations/components/VehicleTrackingMap";
 
 describe("VehicleTrackingMap", () => {
   it("initializes Leaflet for a valid last-known vehicle position", async () => {

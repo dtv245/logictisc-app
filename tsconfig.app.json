@@ -47,8 +47,8 @@
       "@locales": ["./src/locales"],
       "@styles/*": ["./src/styles/*"],
       "@styles": ["./src/styles"],
-      "@test/*": ["./src/test/*"],
-      "@test": ["./src/test"],
+      "@test/*": ["./src/tests/*"],
+      "@test": ["./src/tests"],
       "@assets/*": ["./src/assets/*"],
       "@assets": ["./src/assets"]
     },

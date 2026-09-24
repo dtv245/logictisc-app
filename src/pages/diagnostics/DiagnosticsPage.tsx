@@ -3,7 +3,8 @@
  */
 
 import type { AppBootstrapState } from "@config/bootstrapState";
-import { StatusIndicator } from "@components/StatusIndicator";
+import { PageHeader } from "@components/PageHeader";
+import { StatusTag } from "@components/StatusTag";
 import {
   Card,
   Descriptions,
@@ -32,14 +33,11 @@ export function DiagnosticsPage({
     <main aria-labelledby={titleId}>
       <Card>
         <Flex gap="middle" vertical>
-          <div>
-            <Typography.Title id={titleId} level={2}>
-              {t("diagnostics.title")}
-            </Typography.Title>
-            <Typography.Paragraph type="secondary">
-              {t("diagnostics.description")}
-            </Typography.Paragraph>
-          </div>
+          <PageHeader
+            description={t("diagnostics.description")}
+            id={titleId}
+            title={t("diagnostics.title")}
+          />
 
           <Descriptions
             bordered
@@ -69,7 +67,7 @@ export function DiagnosticsPage({
             <Descriptions.Item
               label={t("diagnostics.fields.status")}
             >
-              <StatusIndicator
+              <StatusTag
                 label={state.health.status}
                 tone="success"
               />
@@ -77,7 +75,7 @@ export function DiagnosticsPage({
             <Descriptions.Item
               label={t("diagnostics.fields.database")}
             >
-              <StatusIndicator
+              <StatusTag
                 label={state.health.database}
                 tone="success"
               />

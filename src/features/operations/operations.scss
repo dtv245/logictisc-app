@@ -1,0 +1,79 @@
+@use "../../styles/variables" as v;
+
+/**
+ * Kiểu dáng cho các thành phần của Operations Dashboard.
+ *
+ * Tách khỏi `pages/dashboard/OperationsDashboardPage.scss` vì đây là kiểu của
+ * component, không phải của trang: `OperationsChart` và `VehicleTrackingMap`
+ * tự sở hữu hình thức của chúng, trang chỉ xếp chúng vào lưới.
+ */
+
+.operations-chart {
+  align-content: center;
+  display: grid;
+  gap: 20px;
+  min-height: 292px;
+}
+
+.operations-chart__row {
+  display: grid;
+  gap: 8px;
+}
+
+.operations-chart__label {
+  display: flex;
+  gap: v.$spacing;
+  justify-content: space-between;
+}
+
+.operations-chart__track {
+  background: #edf1f7;
+  border-radius: 999px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.operations-chart__bar {
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transition: width 240ms ease;
+}
+
+/* Dùng chung cho trạng thái rỗng của cả biểu đồ lẫn bản đồ. */
+.operations-empty-icon {
+  color: #94a3b8;
+  font-size: 48px;
+}
+
+.vehicle-map,
+.vehicle-map__skeleton {
+  border-radius: v.$radius-lg;
+  height: 340px !important;
+  width: 100% !important;
+}
+
+.vehicle-map {
+  background: v.$color-bg-layout;
+  overflow: hidden;
+  /* Leaflet tự đặt z-index cao cho các pane của nó; neo lại để bản đồ không
+     chồng lên header/Select của app. */
+  z-index: 0;
+}
+
+@media (max-width: 767px) {
+  .operations-chart {
+    min-height: 220px;
+  }
+
+  .vehicle-map,
+  .vehicle-map__skeleton {
+    height: 300px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .operations-chart__bar {
+    transition: none;
+  }
+}

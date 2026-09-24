@@ -3,8 +3,12 @@
  */
 
 import { Flex, Spin, Typography } from "antd";
+import { useTranslation } from "react-i18next";
 
-export const FullPageLoader = () => (
+export const FullPageLoader = () => {
+  const { t } = useTranslation();
+
+  return (
   <Flex
     align="center"
     justify="center"
@@ -13,6 +17,7 @@ export const FullPageLoader = () => (
     className="full-page-loader"
   >
     <Spin size="large" />
-    <Typography.Text type="secondary">Đang tải...</Typography.Text>
+    <Typography.Text type="secondary">{t("common.loading")}</Typography.Text>
   </Flex>
-);
+  );
+};

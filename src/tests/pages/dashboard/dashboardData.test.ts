@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { toVehicleMapPoints, type DashboardTruckRecord } from "@pages/dashboard/dashboardData";
+import { toVehicleMapPoints, type OperationsTruckRecord } from "@features/operations/operations.data";
 
 const truck = (
-  overrides: Partial<DashboardTruckRecord> = {},
-): DashboardTruckRecord => ({
+  overrides: Partial<OperationsTruckRecord> = {},
+): OperationsTruckRecord => ({
   id: "truck-1",
   number: "TRK-001",
   status: "available",

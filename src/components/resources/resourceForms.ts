@@ -4,6 +4,8 @@
  * notifications do not expose generic create/update endpoints.
  */
 
+import { translate } from "@locales/translate";
+
 export type EditableResourceName =
   | "customers"
   | "employees"
@@ -41,13 +43,28 @@ export interface RelationRecord {
 
 export interface ResourceFormField {
   control: ResourceFormControl;
-  max?: number;
+  /**
+   * `max` của `InputNumber`. Nhận hàm khi giá trị phụ thuộc thời điểm render
+   * (ví dụ `year` không được vượt năm sau).
+   */
+  max?: number | (() => number);
   maxLength?: number;
   min?: number;
   name: string;
   options?: readonly string[];
   pattern?: RegExp;
   required?: boolean;
+  /**
+   * Trường do server sở hữu: hiển thị nhưng không cho người dùng sửa.
+   *
+   * Control được render `disabled`, và antd **vẫn giữ giá trị của field `disabled`
+   * trong form store**, nên khi update giá trị gốc được gửi lại nguyên vẹn thay vì
+   * bị xoá. Đây là chủ ý: repo chưa có `UpdateLoadRequest`/`UpdatePaymentRequest`
+   * nên không xác minh được PUT là full-replace hay partial — gửi lại giá trị cũ
+   * đúng trong cả hai trường hợp. Lúc create, field không có giá trị nên khoá bị bỏ
+   * khỏi payload (`JSON.stringify` bỏ `undefined`) và server tự quyết định.
+   */
+  readOnly?: boolean;
   uppercase?: boolean;
   relationResource?: string;
   relationLabelFormat?: (record: RelationRecord) => string | undefined;
@@ -57,6 +74,32 @@ export interface ResourceFormField {
 export interface ResourceFormDefinition {
   fields: readonly ResourceFormField[];
 }
+
+/**
+ * Control nào chiếm cả chiều ngang, kể cả khi form xếp nhiều cột.
+ *
+ * Suy ra từ `control` chứ không bắt từng định nghĩa tự khai: đây là thuộc tính của
+ * *loại control*, nên để nơi khai field tự nhớ là kiểu gì cũng có field bị bỏ sót, và
+ * triệu chứng chỉ hiện ra khi nhìn — một `textarea` cao 3 dòng bị kẹp trong nửa cột.
+ *
+ * Khai bằng `Record` đủ khoá nên thêm control mới vào `ResourceFormControl` là **lỗi
+ * biên dịch** ngay tại đây, buộc phải quyết định nó rộng hay hẹp.
+ */
+const FULL_WIDTH_BY_CONTROL: Record<ResourceFormControl, boolean> = {
+  boolean: false,
+  datetime: false,
+  email: false,
+  number: false,
+  relation: false,
+  select: false,
+  text: false,
+  textarea: true,
+  tripStops: true,
+  uuid: false,
+};
+
+export const isFullWidthControl = (field: ResourceFormField): boolean =>
+  FULL_WIDTH_BY_CONTROL[field.control];
 
 const text = (name: string, required = false): ResourceFormField => ({
   control: "text",
@@ -86,13 +129,24 @@ const number = (
   name: string,
   required = false,
   min?: number,
-  max?: number,
+  max?: number | (() => number),
 ): ResourceFormField => ({
   control: "number",
   name,
   required,
   ...(min === undefined ? {} : { min }),
   ...(max === undefined ? {} : { max }),
+});
+/** Năm sau — `year` của xe không được vượt mốc này. */
+const nextYear = () => new Date().getFullYear() + 1;
+/**
+ * Trường server sở hữu: hiển thị nhưng không cho sửa. Xem `ResourceFormField.readOnly`.
+ * `required` bị xoá vì trường không nhập được thì không thể bắt buộc nhập.
+ */
+const readOnly = (field: ResourceFormField): ResourceFormField => ({
+  ...field,
+  readOnly: true,
+  required: false,
 });
 const boolean = (name: string): ResourceFormField => ({
   control: "boolean",
@@ -184,7 +238,8 @@ export const resourceFormDefinitions: Readonly<
       select("type", ["box_truck", "dry_van", "flatbed", "reefer", "tractor"]),
       number("vehicleCapacity", true, 0),
       select("status", ["available", "assigned", "in_transit", "maintenance", "out_of_service"]),
-      text("make"), text("model"), number("year", false, 1900), text("vin"),
+      text("make"), text("model"), number("year", false, 1900, nextYear),
+      { ...text("vin"), uppercase: true },
       text("licensePlate"), text("licensePlateState"), boolean("isHazmatPlacarded"),
       relation(
         "mainDriverId",
@@ -206,8 +261,16 @@ export const resourceFormDefinitions: Readonly<
     fields: [
       text("name", true),
       select("type", ["container", "dry_van", "flatbed", "reefer", "vehicle"]),
+      // Phải khớp đúng `LoadStatus` (5 giá trị). Thiếu giá trị nào thì load đang ở
+      // trạng thái đó mở form edit sẽ ra ô trống và bị ghi đè khi lưu.
+      //
+      // Lưu ý: KHÔNG suy enum của form từ `src/types/*.dto.ts` — chính DTO từng khai thừa
+      // `pending`/`in_transit`, và bản sửa theo DTO đó đã ghi đè mất trạng thái thật.
+      // Nguồn sự thật là enum Java của backend; xem `resourceFormEnums.test.ts`.
       select("status", ["draft", "dispatched", "picked_up", "delivered", "cancelled"]),
-      number("distance", true, 0), boolean("isInProximity"),
+      number("distance", true, 0),
+      // Server công bố, không phải người dùng khai.
+      readOnly(boolean("isInProximity")),
       relation("customerId", "customers", true, (r) => r.name || r.id),
       relation(
         "assignedTruckId",
@@ -252,6 +315,7 @@ export const resourceFormDefinitions: Readonly<
   trips: {
     fields: [
       text("name", true), number("totalDistance", true, 0),
+      // Phải khớp đúng `TripStatus` (4 giá trị) — `trip/TripStatus.java`.
       select("status", ["draft", "dispatched", "completed", "cancelled"]),
       relation(
         "truckId",
@@ -265,7 +329,7 @@ export const resourceFormDefinitions: Readonly<
   invoices: {
     fields: [
       select("type", ["customer", "payroll", "subscription", "credit_note"]),
-      select("status", ["draft", "pending_approval", "approved", "sent", "paid", "overdue", "void"]),
+      select("status", ["draft", "issued", "partially_paid", "paid", "cancelled"]),
       select("taxBehavior", ["exclusive", "inclusive"], false), textarea("notes"),
       datetime("dueDate"),
       relation("loadId", "loads", false, (r) => r.name ? `Load #${r.number ?? ""} ${r.name}` : r.id),
@@ -289,11 +353,15 @@ export const resourceFormDefinitions: Readonly<
         "invoiceId",
         "invoices",
         false,
-        (r) => r.number ? `Hóa đơn #${r.number}` : (r.id ? `Hóa đơn ${r.id.slice(0, 8)}` : r.id),
+        (r) => r.number
+          ? translate("crud.invoiceOption", { number: r.number })
+          : (r.id ? translate("crud.invoiceOptionFallback", { id: r.id.slice(0, 8) }) : r.id),
       ),
       number("amountAmount", true, 0), text("amountCurrency", true),
-      textarea("description"), text("referenceNumber"), text("stripePaymentMethodId"),
-      text("stripePaymentIntentId"), datetime("recordedAt"),
+      textarea("description"), text("referenceNumber"),
+      // Stripe sở hữu hai ID này; UI không dựng luồng thanh toán Stripe.
+      readOnly(text("stripePaymentMethodId")), readOnly(text("stripePaymentIntentId")),
+      datetime("recordedAt"),
       ...requiredAddress.map((field) => ({ ...field, name: `billing${field.name.charAt(0).toUpperCase()}${field.name.slice(1)}` })),
     ],
   },
@@ -304,12 +372,17 @@ export const createResourceFormInitialValues = (
 ): Record<string, unknown> => {
   const entries: Array<readonly [string, unknown]> = [];
   for (const field of definition.fields) {
-      if (field.control === "boolean") {
+    // Không seed trường server sở hữu: gửi `false` lúc create là client tự khẳng
+    // định một sự thật của server (ví dụ `isInProximity`).
+    if (field.readOnly) {
+      continue;
+    }
+    if (field.control === "boolean") {
       entries.push([field.name, false]);
-      }
-      if (field.control === "tripStops") {
+    }
+    if (field.control === "tripStops") {
       entries.push([field.name, [{}]]);
-      }
+    }
   }
   return Object.fromEntries(entries);
 };

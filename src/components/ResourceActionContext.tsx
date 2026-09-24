@@ -7,7 +7,9 @@ export interface ResourceActionContextType {
 
 export const ResourceActionContext = createContext<ResourceActionContextType | null>(null);
 
-export const useResourceAction = () => {
-  const context = useContext(ResourceActionContext);
-  return context; // May be null if not wrapped
-};
+/**
+ * Trả về `null` khi component không nằm trong `ResourceActionContext.Provider`
+ * (ví dụ bảng dùng ngoài `ResourceListPage`) — consumer phải tự kiểm tra.
+ */
+export const useResourceAction = (): ResourceActionContextType | null =>
+  useContext(ResourceActionContext);

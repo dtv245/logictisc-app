@@ -1,9 +1,9 @@
 /** Định nghĩa columns cho Accident resource. */
-import { createCrudColumns } from "@components";
+import { createCrudColumns } from "@components/crudColumns";
 import type { AccidentReport } from "@/types/accident.types";
 export const accidentColumns = createCrudColumns<AccidentReport>("accidents", [
-  { dataIndex: "accidentDateTime", title: "Thời điểm", sorter: true },
-  { dataIndex: "accidentType", title: "Loại", sorter: true },
-  { dataIndex: "severity", title: "Mức độ", sorter: true },
-  { dataIndex: "status", title: "Trạng thái", sorter: true },
+  { dataIndex: "accidentDateTime", titleKey: "columns.accidents.accidentDateTime", sorter: true },
+  { dataIndex: "accidentType", titleKey: "columns.accidents.accidentType", sorter: true },
+  { dataIndex: "severity", titleKey: "columns.accidents.severity", status: true, sorter: true },
+  { dataIndex: "status", titleKey: "columns.accidents.status", status: true, sorter: true },
 ]);

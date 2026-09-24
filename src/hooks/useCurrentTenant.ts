@@ -5,9 +5,14 @@
 import { useMemo } from "react";
 
 import type { Tenant } from "../types/tenant.types";
-import { useCurrentUser } from "./useCurrentUser";
+import { useCurrentUser, type UseCurrentUserResult } from "./useCurrentUser";
 
-export const useCurrentTenant = () => {
+export type UseCurrentTenantResult = Pick<
+  UseCurrentUserResult,
+  "error" | "isLoading" | "refetch"
+> & { tenant: Tenant | undefined };
+
+export const useCurrentTenant = (): UseCurrentTenantResult => {
   const currentUser = useCurrentUser();
   // Memo hóa vì layout đọc tenant ở nhiều nơi trong cùng render tree.
   const tenant = useMemo<Tenant | undefined>(() => {

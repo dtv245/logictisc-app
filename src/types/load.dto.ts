@@ -2,7 +2,12 @@ import type { Address, GeoLocation, Money } from "./common.types";
 import type { ISODateTime } from "./api.types";
 
 export type LoadType = "container" | "dry_van" | "flatbed" | "reefer" | "vehicle";
-export type LoadStatus = "draft" | "pending" | "dispatched" | "picked_up" | "in_transit" | "delivered" | "cancelled";
+/**
+ * Khớp `LoadStatus` của backend (`load/core/LoadStatus.java`), lưu ở cột dạng chữ thường.
+ * State machine: `draft → dispatched → picked_up → delivered`, và `cancelled` từ ba trạng thái
+ * đầu. `delivered`/`cancelled` là trạng thái kết thúc.
+ */
+export type LoadStatus = "draft" | "dispatched" | "picked_up" | "delivered" | "cancelled";
 export type LoadSource = "manual" | "customer_portal" | "load_board" | "api";
 export type ExternalLoadProviderType = "dat" | "truckstop" | "123loadboard" | "other";
 export type HazmatClass = "class_1" | "class_2" | "class_3" | "class_4" | "class_5" | "class_6" | "class_7" | "class_8" | "class_9";

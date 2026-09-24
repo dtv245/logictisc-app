@@ -58,6 +58,8 @@ The SPA does not send `X-Tenant*`. The current tenant is the validated token `/a
 
 All endpoints use one-based `page`/`pageSize`, envelope `ApiResponse.data`, and `PUT` updates unless a resource explicitly says otherwise.
 
+**Source of truth:** `foundationApiResources` in `src/pages/resourceRegistry.ts`. That object is what the running application actually registers; this table documents the same contract for backend reviewers. A resource absent from that object has no runtime route or menu entry even when a page component exists.
+
 | Resource | Collection path | Allowed filters | Allowed sorts |
 |---|---|---|---|
 | customers | `/api/customers` | search, status | name, email, status |
@@ -71,14 +73,23 @@ All endpoints use one-based `page`/`pageSize`, envelope `ApiResponse.data`, and 
 | payments | `/api/payments` | status, invoiceId | recordedAt, status, referenceNumber |
 | documents | `/api/documents` | type, status, loadId, truckId, employeeId | fileName, type, status |
 | notifications | `/api/notifications` | none | none |
+| roles | `/api/roles` | search | name |
+
+Read-only resources: `documents`, `notifications` and `drivers` are registered without Refine `create`/`edit` actions, so the UI offers no create or edit route for them regardless of backend capability. `notifications` additionally sets `canDelete: false`.
 
 Messaging uses feature adapters because conversations live at `/api/messages/conversations` and messages require principal-scoped parameters/actions; the generic `/conversations` resource must not call an invented endpoint.
+
+## Transport and authorization
+
+The transport is `src/providers/api/` (`createApiClient` plus envelope, error, query-serialization and retry helpers). The single UI role policy is `src/providers/permissions/`, which fails closed. Spring remains the final authorization authority.
 
 ## CORS
 
 Backend CORS allows configured exact SPA origins, methods `GET,POST,PUT,PATCH,DELETE,OPTIONS`, headers `Authorization,Content-Type,X-Request-Id,Accept`, and exposes `Content-Disposition,X-Request-Id`. Credentials remain disabled for Bearer-only API calls.
 
 ## Routes
+
+Routes are declared in `src/router/AppRouter.tsx` against the constants in `src/constants/routes.ts`.
 
 | Route | Access | Purpose |
 |---|---|---|

@@ -23,6 +23,7 @@ export const ProductCreate = () => {
   return (
     <Create saveButtonProps={saveButtonProps}>
       <ProductForm
+        columns={2}
         formProps={{
           ...formProps,
           initialValues: {

@@ -4,9 +4,15 @@
 
 import { useMemo } from "react";
 
-import { useCurrentUser } from "./useCurrentUser";
+import type { Tenant } from "../types/tenant.types";
+import { useCurrentUser, type UseCurrentUserResult } from "./useCurrentUser";
 
-export const useTenantList = () => {
+export type UseTenantListResult = Pick<
+  UseCurrentUserResult,
+  "error" | "isLoading" | "refetch"
+> & { tenants: Tenant[] };
+
+export const useTenantList = (): UseTenantListResult => {
   const currentUser = useCurrentUser();
   // Giữ reference ổn định để Select/List không render lại khi query state khác đổi.
   const tenants = useMemo(

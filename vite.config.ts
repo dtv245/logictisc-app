@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => {
       '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
       '@router': fileURLToPath(new URL('./src/router', import.meta.url)),
       '@styles': fileURLToPath(new URL('./src/styles', import.meta.url)),
-      '@test': fileURLToPath(new URL('./src/test', import.meta.url)),
+      '@test': fileURLToPath(new URL('./src/tests', import.meta.url)),
       '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
       '@locales': fileURLToPath(new URL('./src/locales', import.meta.url)),
     },
@@ -293,7 +293,7 @@ export default defineConfig(({ mode }) => {
     environment: 'jsdom',
     include: ['src/tests/**/*.test.{ts,tsx}'],
     exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: ['./src/tests/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

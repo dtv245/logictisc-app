@@ -4,7 +4,10 @@
 
 import { useIsAuthenticated } from "@refinedev/core";
 
-export const useAuthStatus = () => {
+export const useAuthStatus = (): ReturnType<typeof useIsAuthenticated> & {
+  /** Đã chuẩn hoá từ `data.authenticated`; false khi chưa có dữ liệu. */
+  isAuthenticated: boolean;
+} => {
   // Refine quản lý cache và lifecycle của auth check thay cho state cục bộ.
   const query = useIsAuthenticated();
 

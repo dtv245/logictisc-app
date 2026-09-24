@@ -44,6 +44,11 @@ const DashboardPage = lazy(() =>
     default: module.DashboardPage,
   })),
 );
+const OperationsDashboardPage = lazy(() =>
+  import("@pages/dashboard/OperationsDashboardPage").then((module) => ({
+    default: module.OperationsDashboardPage,
+  })),
+);
 const SelectTenantPage = lazy(() =>
   import("@pages/tenant/SelectTenantPage").then((module) => ({
     default: module.SelectTenantPage,
@@ -127,6 +132,10 @@ export const AppRouter = ({
         <Route element={<TenantGuard />}>
           <Route element={<MainLayout />}>
             <Route path={routes.dashboard} element={<DashboardPage />} />
+            <Route
+              path={routes.operations}
+              element={<OperationsDashboardPage />}
+            />
             {resourcePageRoutes.map(({ action, component, path, resource }) => (
               <Route
                 element={

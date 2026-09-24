@@ -8,15 +8,13 @@
 
 import { Refine } from "@refinedev/core";
 import routerProvider from "@refinedev/react-router-v6";
-import {
-  App as AntdApp,
-  ConfigProvider,
-} from "antd";
+import { App as AntdApp } from "antd";
 import type { i18n } from "i18next";
 import { useMemo } from "react";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import { BrowserRouter } from "react-router-dom";
 
+import { AntdLocaleProvider } from "./components/AntdLocaleProvider";
 import {
   AppBootstrap,
   type AppBootstrapProps,
@@ -58,7 +56,7 @@ export function App({
 }: AppProps) {
   return (
     <I18nextProvider i18n={i18n}>
-      <ConfigProvider>
+      <AntdLocaleProvider>
         <AntdApp>
           <AppBootstrap
             {...(loadConfig ? { loadConfig } : {})}
@@ -68,7 +66,7 @@ export function App({
             )}
           />
         </AntdApp>
-      </ConfigProvider>
+      </AntdLocaleProvider>
     </I18nextProvider>
   );
 }
@@ -181,10 +179,16 @@ export function RuntimeApplication({
     };
   }, [state.config]);
 
+  // Phải dựng lại khi `t` đổi vì nhãn resource được dịch ngay bên trong factory
+  // (`resourceRegistry.ts` ghi đè `meta.label`). Memo để giữ nguyên reference của
+  // mảng resource — Refine dùng nó cho menu và router, mảng mới mỗi render sẽ làm
+  // toàn bộ menu dựng lại.
   const resources = useMemo(
     () => createFoundationResources(t),
     [t],
   );
+  // Refine nhận provider này qua context; object mới mỗi render sẽ khiến mọi
+  // component con tiêu thụ i18nProvider render lại dù ngôn ngữ không đổi.
   const i18nProvider = useMemo(
     () =>
       createRefineI18nProvider({

@@ -12,44 +12,19 @@ import type {
 } from "@refinedev/core";
 
 import { routes } from "../constants/routes";
-import type { LoginParams, PasswordLoginParams } from "../types/auth.types";
+import { isPasswordLoginParams } from "../types/auth.types";
 import type {
   AuthIdentity,
   BrowserLocationAdapter,
 } from "../types/authSession.types";
 import type { LogisticsApiClient } from "../types/apiClient.types";
+import { translate } from "@locales/translate";
 import { normalizeHttpError } from "../providers/api/httpError";
 import { normalizeLocalReturnTo } from "../providers/auth/oidcGateway";
 import { AuthSessionManager } from "../providers/auth/sessionManager";
 import { DemoAuthSession } from "../providers/auth/demoAuthSession";
 
 const DEFAULT_LOGIN_PATH = "/login";
-
-/** Thu hẹp login params không tin cậy sang payload đăng nhập mật khẩu. */
-export const isPasswordLoginParams = (
-  value: unknown,
-): value is PasswordLoginParams => {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-
-  const username = Reflect.get(value, "username");
-  const password = Reflect.get(value, "password");
-  return (
-    typeof username === "string" &&
-    username.trim().length > 0 &&
-    typeof password === "string" &&
-    password.length > 0
-  );
-};
-
-export const isLarkLoginParams = (value: unknown): value is LoginParams => {
-  if (typeof value !== "object" || value === null || !("mode" in value)) {
-    return false;
-  }
-  const mode = Reflect.get(value, "mode");
-  return mode === "redirect" || mode === "callback";
-};
 
 export interface AuthProviderOptions {
   readonly sessions: AuthSessionManager;
@@ -296,7 +271,7 @@ export const createDevelopmentAuthProvider = ({
             : routes.dashboard,
           routes.dashboard,
         ),
-        successNotification: { message: "Đăng nhập thành công" },
+        successNotification: { message: translate("auth.loginSuccess") },
       };
     } catch (error) {
       await localSession.clearSession();

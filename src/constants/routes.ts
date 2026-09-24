@@ -17,6 +17,9 @@ export const routes = {
   diagnostics: "/diagnostics",
   forbidden: "/403",
   login: "/login",
+  // Màn hình điều phối, tách khỏi `dashboard` (Executive Overview): hai màn
+  // hình trả lời hai câu hỏi khác nhau và cùng tồn tại.
+  operations: "/operations",
   selectTenant: "/select-tenant",
   resources: {
     accidents: createCrudRoutes("accidents"),

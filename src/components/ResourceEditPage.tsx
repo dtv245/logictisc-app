@@ -6,6 +6,7 @@ import { Edit, useForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { Form } from "antd";
 
+import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import type { ApiError } from "@/types/api.types";
 import { ResourceFormFields } from "./resources/ResourceFormFields";
 import {
@@ -24,11 +25,18 @@ export const ResourceEditPage = ({ resource: resourceProp }: ResourceEditPagePro
   const resourceName = resourceProp ?? "__unsupported__";
   // useForm owns getOne, asynchronous form population and update cache
   // invalidation; the form definition only declares the backend request fields.
-  const { formProps, saveButtonProps, queryResult } = useForm<
+  const { form, formProps, saveButtonProps, queryResult } = useForm<
     BaseRecord,
     ApiError,
     ResourceFormValues
-  >({ action: "edit", redirect: "show", resource: resourceName });
+  >({
+    action: "edit",
+    redirect: "show",
+    resource: resourceName,
+    onMutationError: (error) => {
+      applyBackendFieldErrors(form, error.errors ?? {});
+    },
+  });
   if (!isEditableResourceName(resourceName)) {
     throw new Error(`RESOURCE_FORM_NOT_CONFIGURED:${resourceName}`);
   }
@@ -39,7 +47,11 @@ export const ResourceEditPage = ({ resource: resourceProp }: ResourceEditPagePro
       saveButtonProps={saveButtonProps}
     >
       <Form {...formProps} layout="vertical">
-        <ResourceFormFields definition={resourceFormDefinitions[resourceName]} />
+        {/* Trang route rộng nên xếp 2 cột; modal vẫn 1 cột — xem `ResourceFormFields`. */}
+        <ResourceFormFields
+          columns={2}
+          definition={resourceFormDefinitions[resourceName]}
+        />
       </Form>
     </Edit>
   );

@@ -1,21 +1,21 @@
 /** Định nghĩa columns cho Invoice resource. */
-import { createCrudColumns } from "@components";
+import { createCrudColumns } from "@components/crudColumns";
 import { displayValue } from "@formatters/display";
 import type { Invoice } from "@/types/invoice.types";
 export const invoiceColumns = createCrudColumns<Invoice>("invoices", [
-  { dataIndex: "number", title: "Số hóa đơn", sorter: true },
-  { dataIndex: "type", title: "Loại", sorter: true },
-  { dataIndex: "status", title: "Trạng thái", sorter: true },
+  { dataIndex: "number", titleKey: "columns.invoices.number", sorter: true },
+  { dataIndex: "type", titleKey: "columns.invoices.type", options: true, sorter: true },
+  { dataIndex: "status", titleKey: "columns.invoices.status", status: true, sorter: true },
   {
     dataIndex: "customerName",
-    title: "Khách hàng",
+    titleKey: "columns.invoices.customerName",
     render: (value: unknown) => displayValue(value),
   },
   {
     dataIndex: "employeeName",
-    title: "Nhân viên",
+    titleKey: "columns.invoices.employeeName",
     render: (value: unknown) => displayValue(value),
   },
-  { dataIndex: "dueDate", title: "Hạn thanh toán", sorter: true },
+  { dataIndex: "dueDate", titleKey: "columns.invoices.dueDate", sorter: true },
 ]);
 

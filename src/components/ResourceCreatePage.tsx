@@ -6,6 +6,7 @@ import { Create, useForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { Form } from "antd";
 
+import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import type { ApiError } from "@/types/api.types";
 import { ResourceFormFields } from "./resources/ResourceFormFields";
 import {
@@ -25,11 +26,18 @@ export const ResourceCreatePage = ({ resource: resourceProp }: ResourceCreatePag
   const resourceName = resourceProp ?? "__unsupported__";
   // useForm delegates mutation, notifications, invalidation and navigation to
   // Refine instead of rebuilding that server-state lifecycle in the page.
-  const { formProps, saveButtonProps } = useForm<
+  const { form, formProps, saveButtonProps } = useForm<
     BaseRecord,
     ApiError,
     ResourceFormValues
-  >({ action: "create", redirect: "list", resource: resourceName });
+  >({
+    action: "create",
+    redirect: "list",
+    resource: resourceName,
+    onMutationError: (error) => {
+      applyBackendFieldErrors(form, error.errors ?? {});
+    },
+  });
   if (!isEditableResourceName(resourceName)) {
     throw new Error(`RESOURCE_FORM_NOT_CONFIGURED:${resourceName}`);
   }
@@ -42,7 +50,8 @@ export const ResourceCreatePage = ({ resource: resourceProp }: ResourceCreatePag
         initialValues={createResourceFormInitialValues(definition)}
         layout="vertical"
       >
-        <ResourceFormFields definition={definition} />
+        {/* Trang route rộng nên xếp 2 cột; modal vẫn 1 cột — xem `ResourceFormFields`. */}
+        <ResourceFormFields columns={2} definition={definition} />
       </Form>
     </Create>
   );

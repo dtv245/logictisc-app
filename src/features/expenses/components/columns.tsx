@@ -1,10 +1,10 @@
 /** Định nghĩa columns cho Expense resource. */
-import { createCrudColumns } from "@components";
+import { createCrudColumns } from "@components/crudColumns";
 import type { Expense } from "@/types/expense.types";
 export const expenseColumns = createCrudColumns<Expense>("expenses", [
-  { dataIndex: "number", title: "Số chi phí", sorter: true },
-  { dataIndex: "type", title: "Loại", sorter: true },
-  { dataIndex: "status", title: "Trạng thái", sorter: true },
-  { dataIndex: "vendorName", title: "Nhà cung cấp", sorter: true },
-  { dataIndex: "expenseDate", title: "Ngày chi", sorter: true },
+  { dataIndex: "number", titleKey: "columns.expenses.number", sorter: true },
+  { dataIndex: "type", titleKey: "columns.expenses.type", sorter: true },
+  { dataIndex: "status", titleKey: "columns.expenses.status", status: true, sorter: true },
+  { dataIndex: "vendorName", titleKey: "columns.expenses.vendorName", sorter: true },
+  { dataIndex: "expenseDate", titleKey: "columns.expenses.expenseDate", sorter: true },
 ]);

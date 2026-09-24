@@ -1,200 +1,183 @@
-/** Hiển thị dashboard vận hành bằng dữ liệu thật từ API hiện có. */
+/**
+ * Executive Overview — màn hình điều hành của ban lãnh đạo.
+ *
+ * Mục tiêu: trong 30 giây trả lời được "công ty đang khỏe hay không, nếu không
+ * thì vấn đề nằm ở đâu và nguyên nhân chính là gì".
+ *
+ * Trang này CỐ TÌNH mỏng: nó chỉ lắp ráp. Toàn bộ ngưỡng tham chiếu, luật sinh
+ * kết luận và cách tính chỉ số nằm trong `src/features/executive/`.
+ *
+ * Mọi chỉ số đều tự khai báo nguồn dữ liệu. Chỉ số chưa có endpoint tổng hợp ở
+ * backend sẽ hiển thị khung trống kèm lý do và tên endpoint còn thiếu — tuyệt
+ * đối không hiện số ước lượng. Xem `executive.metrics.ts`.
+ */
 
-import {
-  BankOutlined,
-  CarOutlined,
-  EnvironmentOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import { useCan, useList } from "@refinedev/core";
-import { Card, Col, Row, Space, Statistic, Tag, Typography } from "antd";
-import { useCallback, useMemo } from "react";
+import { ArrowRightOutlined } from "@ant-design/icons";
+import { Button, Space, Typography } from "antd";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
-import { useCurrentUser } from "@hooks/useCurrentUser";
-import { useCurrentTenant } from "@hooks/useCurrentTenant";
-import { useTenantList } from "@hooks/useTenantList";
-import type { ApiError } from "@/types/api.types";
-import {
-  toVehicleMapPoints,
-  type DashboardTruckRecord,
-} from "./dashboardData";
-import { OperationsChart } from "./OperationsChart";
-import { VehicleTrackingMap } from "./VehicleTrackingMap";
+import { PageHeader } from "@components/PageHeader";
+import { routes } from "@constants/routes";
+import { AgingSection } from "@features/executive/components/AgingSection";
+import { CustomerSection } from "@features/executive/components/CustomerSection";
+import { ExecutiveFilterBar } from "@features/executive/components/ExecutiveFilterBar";
+import { FinancialSection } from "@features/executive/components/FinancialSection";
+import { InsightPanel } from "@features/executive/components/InsightPanel";
+import { MetricCard } from "@features/executive/components/MetricCard";
+import { MetricGroupSection } from "@features/executive/components/MetricGroupSection";
+import { ReferenceLegend } from "@features/executive/components/ReferenceChip";
+import { SectionCard } from "@features/executive/components/SectionCard";
+import { DISPLAY_CURRENCY, DEFAULT_RANGE_MONTHS } from "@features/executive/executive.constants";
+import { CUSTOMER_CONCENTRATION_THRESHOLD, TOP1_CONCENTRATION_THRESHOLD } from "@features/executive/executive.refs";
+import { UNAVAILABLE_METRIC } from "@features/executive/executive.metrics";
+import { useExecutiveData } from "@features/executive/executive.queries";
+import type { FleetType } from "@features/executive/executive.refs";
+import type { ExecutiveFilters } from "@/types/executive.types";
 import "./DashboardPage.scss";
+
+const INITIAL_FILTERS: ExecutiveFilters = {
+  rangeMonths: DEFAULT_RANGE_MONTHS,
+  region: "",
+  businessUnit: "",
+  fleetType: "",
+  customerSegment: "",
+  comparison: "previousPeriod",
+};
 
 export const DashboardPage = () => {
   const { t } = useTranslation();
-  const currentUser = useCurrentUser();
-  const { tenant } = useCurrentTenant();
-  const { tenants } = useTenantList();
-  const trucksAccess = useCan({ action: "list", resource: "trucks" });
-  const loadsAccess = useCan({ action: "list", resource: "loads" });
-  const tripsAccess = useCan({ action: "list", resource: "trips" });
-  const canReadTrucks = trucksAccess.data?.can === true;
-  const canReadLoads = loadsAccess.data?.can === true;
-  const canReadTrips = tripsAccess.data?.can === true;
+  const navigate = useNavigate();
+  const [filters, setFilters] = useState<ExecutiveFilters>(INITIAL_FILTERS);
 
-  const trucks = useList<DashboardTruckRecord, ApiError>({
-    resource: "trucks",
-    pagination: { current: 1, pageSize: 100 },
-    queryOptions: { enabled: canReadTrucks, staleTime: 30_000 },
-  });
-  const loads = useList({
-    resource: "loads",
-    pagination: { current: 1, pageSize: 1 },
-    queryOptions: { enabled: canReadLoads, staleTime: 30_000 },
-  });
-  const trips = useList({
-    resource: "trips",
-    pagination: { current: 1, pageSize: 1 },
-    queryOptions: { enabled: canReadTrips, staleTime: 30_000 },
-  });
+  // Bộ lọc "tất cả loại đội xe" nghĩa là không có ngưỡng ngành nào áp dụng
+  // chung — chuyển thành `null` để lớp ngưỡng đánh dấu notApplicable.
+  const fleetType = useMemo<FleetType | null>(
+    () => (filters.fleetType === "" ? null : (filters.fleetType as FleetType)),
+    [filters.fleetType],
+  );
 
-  const vehiclePoints = useMemo(
-    () => toVehicleMapPoints(trucks.data?.data ?? []),
-    [trucks.data?.data],
-  );
-  const getStatusLabel = useCallback(
-    (status: string) =>
-      t(`forms.options.${status}`, { defaultValue: status }),
-    [t],
-  );
-  const permissionsLoading =
-    trucksAccess.isLoading || loadsAccess.isLoading || tripsAccess.isLoading;
-  const chartItems = [
-    {
-      color: "#2563eb",
-      label: t("dashboard.operations.trucks"),
-      value: canReadTrucks ? trucks.data?.total : undefined,
-    },
-    {
-      color: "#14b8a6",
-      label: t("dashboard.operations.loads"),
-      value: canReadLoads ? loads.data?.total : undefined,
-    },
-    {
-      color: "#f59e0b",
-      label: t("dashboard.operations.trips"),
-      value: canReadTrips ? trips.data?.total : undefined,
-    },
-  ];
+  const data = useExecutiveData(fleetType, filters.rangeMonths);
+
+  const resetFilters = useCallback(() => setFilters(INITIAL_FILTERS), []);
 
   return (
-    <Space direction="vertical" size="large" className="dashboard-page">
-      <div className="dashboard-page__heading">
-        <div>
-          <Typography.Title level={2}>{t("dashboard.title")}</Typography.Title>
-          <Typography.Text type="secondary">
-            {t("dashboard.greeting", {
-              name: currentUser.data?.name ?? t("dashboard.fallbackName"),
-            })}
-          </Typography.Text>
+    <Space direction="vertical" size="large" className="exec-page">
+      <PageHeader
+        description={t("executive.description")}
+        extra={
+          // Drill-down sang màn hình điều phối. Đây là đường duy nhất đi từ
+          // "công ty đang thế nào" xuống "xe nào đang ở đâu" mà không cần đổi
+          // màn hình mặc định của ban điều hành.
+          <Button
+            icon={<ArrowRightOutlined />}
+            iconPosition="end"
+            onClick={() => navigate(routes.operations)}
+            type="link"
+          >
+            {t("executive.cta.viewOperations")}
+          </Button>
+        }
+        title={t("executive.title")}
+      />
+
+      <ExecutiveFilterBar
+        businessUnitOptions={[]}
+        customerSegmentOptions={[]}
+        filters={filters}
+        onChange={setFilters}
+        onReset={resetFilters}
+        regionOptions={[]}
+      />
+
+      <ReferenceLegend />
+
+      {/* 1. Chỉ số North Star */}
+      <SectionCard
+        question={t("executive.sections.northStar.question")}
+        title={t("executive.sections.northStar.title")}
+      >
+        <div className="exec-metrics">
+          {data.northStar.map((model) => (
+            <MetricCard
+              currency={DISPLAY_CURRENCY}
+              emphasis
+              key={model.definition.id}
+              model={model}
+            />
+          ))}
         </div>
-        <Tag color="blue" icon={<EnvironmentOutlined />}>
-          {t("dashboard.lastKnownData")}
-        </Tag>
-      </div>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} xl={6}>
-          <Card className="dashboard-card">
-            <Statistic
-              className="dashboard-statistic"
-              prefix={<BankOutlined />}
-              title={t("dashboard.currentTenant")}
-              value={tenant?.tenantName ?? t("dashboard.noTenant")}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} xl={6}>
-          <Card className="dashboard-card">
-            <Statistic
-              prefix={<UserOutlined />}
-              title={t("dashboard.tenantCount")}
-              value={tenants.length}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} xl={6}>
-          <Card className="dashboard-card">
-            <Statistic
-              loading={trucksAccess.isLoading || trucks.isLoading}
-              prefix={<CarOutlined />}
-              title={t("dashboard.vehicleCount")}
-              value={canReadTrucks ? trucks.data?.total ?? 0 : "—"}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} xl={6}>
-          <Card className="dashboard-card">
-            <Statistic
-              loading={trucksAccess.isLoading || trucks.isLoading}
-              prefix={<EnvironmentOutlined />}
-              title={t("dashboard.locatedVehicleCount")}
-              value={canReadTrucks ? vehiclePoints.length : "—"}
-            />
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} xl={9}>
-          <Card
-            className="dashboard-card"
-            title={t("dashboard.operations.title")}
-          >
-            <Typography.Text
-              className="dashboard-card__subtitle"
-              type="secondary"
-            >
-              {t("dashboard.operations.description")}
-            </Typography.Text>
-            <OperationsChart
-              isLoading={
-                permissionsLoading ||
-                (canReadTrucks && trucks.isLoading) ||
-                (canReadLoads && loads.isLoading) ||
-                (canReadTrips && trips.isLoading)
-              }
-              items={chartItems}
-              lockedText={t("dashboard.permissionRequired")}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} xl={15}>
-          <Card
-            className="dashboard-card"
-            extra={
-              <Typography.Text type="secondary">
-                {t("dashboard.map.visibleCount", {
-                  count: vehiclePoints.length,
-                })}
-              </Typography.Text>
-            }
-            title={t("dashboard.map.title")}
-          >
-            <Typography.Text
-              className="dashboard-card__subtitle"
-              type="secondary"
-            >
-              {t("dashboard.map.description")}
-            </Typography.Text>
-            <VehicleTrackingMap
-              errorMessage={trucks.error?.message}
-              inaccessibleText={
-                trucksAccess.isLoading || canReadTrucks
-                  ? ""
-                  : t("dashboard.permissionRequired")
-              }
-              isLoading={trucksAccess.isLoading || (canReadTrucks && trucks.isLoading)}
-              loadErrorText={t("dashboard.map.loadError")}
-              mapLabel={t("dashboard.map.ariaLabel")}
-              noLocationText={t("dashboard.map.noLocation")}
-              points={vehiclePoints}
-              statusLabel={getStatusLabel}
-            />
-          </Card>
-        </Col>
-      </Row>
+      </SectionCard>
+
+      {/* 2. Kết luận nhanh */}
+      <SectionCard
+        question={t("executive.sections.insights.question")}
+        title={t("executive.sections.insights.title")}
+      >
+        <InsightPanel
+          awaitingData={data.awaitingData}
+          insights={data.insights}
+          isLoading={data.isLoading}
+        />
+        <Typography.Text className="exec-card__footnote" type="secondary">
+          {t("executive.sections.insights.orderingNote")}
+        </Typography.Text>
+      </SectionCard>
+
+      {/* 3. Tài chính */}
+      <FinancialSection
+        costCategories={data.costCategories}
+        costPerMileTarget={
+          data.definitions
+            .find((definition) => definition.id === "costPerMile")
+            ?.references.find(
+              (reference) => reference.kind === "internalTarget",
+            ) ?? null
+        }
+        currency={DISPLAY_CURRENCY}
+        points={data.monthlyPoints}
+        reasonKey={data.monthlyReasonKey}
+        totalMiles={data.totalMiles}
+      />
+
+      {/* 4. Hiệu quả vận hành */}
+      <MetricGroupSection
+        currency={DISPLAY_CURRENCY}
+        definitions={data.operationalDefinitions}
+        question={t("executive.sections.operational.question")}
+        readings={data.operationalReadings}
+        title={t("executive.sections.operational.title")}
+      />
+
+      {/* 5. Sức khỏe đội xe */}
+      <MetricGroupSection
+        currency={DISPLAY_CURRENCY}
+        definitions={data.fleetHealthDefinitions}
+        question={t("executive.sections.fleetHealth.question")}
+        readings={data.fleetHealthReadings}
+        title={t("executive.sections.fleetHealth.title")}
+      />
+
+      {/* 6. Tập trung khách hàng */}
+      <CustomerSection
+        concentrationThreshold={CUSTOMER_CONCENTRATION_THRESHOLD}
+        currency={DISPLAY_CURRENCY}
+        hhi={data.concentration?.hhi ?? UNAVAILABLE_METRIC}
+        reasonKey={data.concentrationReasonKey}
+        rows={data.concentration?.rows ?? null}
+        top1Share={data.concentration?.top1Share ?? UNAVAILABLE_METRIC}
+        top1Threshold={TOP1_CONCENTRATION_THRESHOLD}
+        top3Share={data.concentration?.top3Share ?? UNAVAILABLE_METRIC}
+        top5Share={data.concentration?.top5Share ?? UNAVAILABLE_METRIC}
+      />
+
+      {/* 7. Tuổi nợ phải thu */}
+      <AgingSection
+        aging={data.aging}
+        currency={DISPLAY_CURRENCY}
+        reasonKey={data.agingReasonKey}
+      />
     </Space>
   );
 };

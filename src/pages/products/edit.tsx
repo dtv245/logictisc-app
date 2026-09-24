@@ -26,7 +26,7 @@ export const ProductEdit = () => {
       isLoading={queryResult?.isLoading}
       saveButtonProps={saveButtonProps}
     >
-      <ProductForm formProps={formProps} />
+      <ProductForm columns={2} formProps={formProps} />
     </Edit>
   );
 };

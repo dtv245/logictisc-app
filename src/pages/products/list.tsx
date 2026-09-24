@@ -1,22 +1,22 @@
-import type { FormProps } from "antd";
-import type { ColumnsType } from "antd/es/table";
 /**
  * Hiển thị danh sách product bằng Refine useTable.
  */
 
-import { CreateButton, List, useTable, useModalForm } from "@refinedev/antd";
+import { CreateButton, List, useModalForm, useTable } from "@refinedev/antd";
 import { useShow } from "@refinedev/core";
-import { Form, Input, Table, Modal } from "antd";
-import { EditButton, ShowButton, DeleteButton } from "@refinedev/antd";
-import { Space } from "antd";
+import { Form, Input, Modal } from "antd";
+import { useTranslation } from "react-i18next";
 
 import type { ApiError } from "@/types/api.types";
-import { productColumns } from "@features/products/components/columns";
-import type { Product, ProductSearchValues, ProductFormValues } from "@/types/product.types";
+import type { Product, ProductFormValues, ProductSearchValues } from "@/types/product.types";
 import { ProductForm } from "@features/products/components/form";
+import { useProductColumns } from "@features/products/components/columns";
+import { BaseTable } from "@table";
 
 export const ProductList = () => {
-  const { searchFormProps, tableProps } = useTable<
+  const { t } = useTranslation();
+
+  const { searchFormProps, tableProps, tableQueryResult } = useTable<
     Product,
     ApiError,
     ProductSearchValues
@@ -44,21 +44,10 @@ export const ProductList = () => {
     resource: "products",
   });
 
-  // Inject action buttons into columns
-  const finalColumns = [
-    ...productColumns,
-    {
-      title: "Actions",
-      dataIndex: "actions",
-      render: (_, record: Product) => (
-        <Space>
-          <ShowButton hideText recordItemId={record.id} onClick={(e) => { e.preventDefault(); setShowId(record.id); }} />
-          <EditButton hideText recordItemId={record.id} onClick={(e) => { e.preventDefault(); editModal.show(record.id); }} />
-          <DeleteButton hideText recordItemId={record.id} />
-        </Space>
-      )
-    }
-  ];
+  const columns = useProductColumns({
+    onEdit: (id) => editModal.show(id),
+    onShow: (id) => setShowId(id),
+  });
 
   return (
     <>
@@ -69,16 +58,24 @@ export const ProductList = () => {
           style={{ marginBottom: 16 }}
         >
           <Form.Item name="name">
-            <Input placeholder="Tìm theo tên..." allowClear />
+            <Input placeholder={t("products.searchPlaceholder")} allowClear />
           </Form.Item>
         </Form>
-        <Table<Product> {...tableProps} columns={finalColumns as ColumnsType<Product>} rowKey="id" />
+        <BaseTable<Product>
+          columns={columns}
+          queryResult={{
+            error: tableQueryResult.error,
+            isFetching: tableQueryResult.isFetching,
+            refetch: tableQueryResult.refetch,
+          }}
+          tableProps={tableProps}
+        />
       </List>
 
       <Modal
         {...createModal.modalProps}
-        title="Create Product"
-        okText="Create"
+        title={t("products.createTitle")}
+        okText={t("products.createOk")}
         confirmLoading={createModal.formLoading}
       >
         <ProductForm
@@ -91,8 +88,8 @@ export const ProductList = () => {
 
       <Modal
         {...editModal.modalProps}
-        title="Edit Product"
-        okText="Save"
+        title={t("products.editTitle")}
+        okText={t("actions.save")}
         confirmLoading={editModal.formLoading}
       >
         <ProductForm formProps={editModal.formProps} />
@@ -101,17 +98,17 @@ export const ProductList = () => {
       <Modal
         open={!!showId}
         onCancel={() => setShowId(undefined)}
-        title="View Product"
+        title={t("products.viewTitle")}
         footer={null}
       >
         {showQueryResult?.isFetching ? (
-          <p>Loading...</p>
+          <p>{t("common.loading")}</p>
         ) : (
           <ProductForm
             formProps={{
               initialValues: showQueryResult?.data?.data,
-              disabled: true
-            } as FormProps<ProductFormValues>}
+              disabled: true,
+            }}
           />
         )}
       </Modal>

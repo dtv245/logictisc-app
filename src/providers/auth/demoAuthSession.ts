@@ -1,5 +1,6 @@
 /** Local-development authentication session backed by the API dev-auth profile. */
 
+import { translate } from "@locales/translate";
 import type { LogisticsApiClient } from "../../types/apiClient.types";
 import type { AuthIdentity } from "../../types/authSession.types";
 import { normalizeJwtRoles } from "../permissions/jwtRoles";
@@ -72,7 +73,7 @@ export class DemoAuthSession {
     this.identity = {
       id: response.data.subject,
       email: response.data.email,
-      name: "Quản trị viên Local",
+      name: translate("auth.demoUserName"),
       roles,
       tenantId: response.data.tenantId,
     };

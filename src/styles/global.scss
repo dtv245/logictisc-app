@@ -1,9 +1,46 @@
 @use "./variables" as v;
 
 :root {
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  // CSS Variables cho toàn bộ ứng dụng
+  --color-primary: #{v.$color-primary};
+  --color-primary-hover: #{v.$color-primary-hover};
+  --color-primary-active: #{v.$color-primary-active};
+  --color-primary-light: #{v.$color-primary-light};
+
+  --color-success: #{v.$color-success};
+  --color-success-bg: #{v.$color-success-bg};
+  --color-warning: #{v.$color-warning};
+  --color-warning-bg: #{v.$color-warning-bg};
+  --color-error: #{v.$color-error};
+  --color-error-bg: #{v.$color-error-bg};
+  --color-info: #{v.$color-info};
+  --color-info-bg: #{v.$color-info-bg};
+  --color-neutral: #{v.$color-neutral};
+  --color-neutral-bg: #{v.$color-neutral-bg};
+
+  --color-bg-layout: #{v.$color-bg-layout};
+  --color-bg-container: #{v.$color-bg-container};
+  --color-bg-subtle: #{v.$color-bg-subtle};
+  --color-border: #{v.$color-border};
+  --color-border-secondary: #{v.$color-border-secondary};
+
+  --color-text: #{v.$color-text};
+  --color-text-secondary: #{v.$color-text-secondary};
+  --color-text-tertiary: #{v.$color-text-tertiary};
+
+  --radius-sm: #{v.$radius-sm};
+  --radius-md: #{v.$radius-md};
+  --radius-lg: #{v.$radius-lg};
+
+  --spacing-xs: #{v.$spacing-xs};
+  --spacing-sm: #{v.$spacing-sm};
+  --spacing-md: #{v.$spacing-md};
+  --spacing-lg: #{v.$spacing-lg};
+
+  --shadow-card: #{v.$shadow-card};
+  --shadow-secondary: #{v.$shadow-secondary};
+
+  font-family: v.$font-family-base;
   color: v.$color-text;
   background: v.$color-bg-layout;
   font-synthesis: none;
@@ -12,7 +49,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -20,6 +59,11 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  color: v.$color-text;
+  background-color: v.$color-bg-layout;
+  font-family: v.$font-family-base;
+  font-size: v.$font-size-base;
+  line-height: v.$line-height-base;
 }
 
 button,
@@ -31,4 +75,16 @@ textarea {
 
 #root {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: v.$color-primary;
+  text-decoration: none;
+  transition: color v.$transition-fast;
+
+  &:hover {
+    color: v.$color-primary-hover;
+  }
 }

@@ -1,7 +1,8 @@
 import type { Address, GeoLocation } from "./common.types";
 import type { ISODateTime } from "./api.types";
 
-export type TripStatus = "draft" | "planned" | "dispatched" | "in_progress" | "completed" | "cancelled";
+/** Khớp `TripStatus` của backend (`trip/TripStatus.java`). */
+export type TripStatus = "draft" | "dispatched" | "completed" | "cancelled";
 export type TripStopType = "pickup" | "delivery" | "break" | "terminal";
 
 export interface TripResponse {
