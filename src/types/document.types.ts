@@ -42,11 +42,14 @@ export interface Document extends AuditableEntity {
   status: DocumentStatus;
   description?: string | null;
   uploadedById: string;
+  uploadedByName?: string | null;
   employeeId?: string | null;
   loadId?: string | null;
   loadConditionReportId?: string | null;
   recipientName?: string | null;
   recipientSignature?: string | null;
+  captureLatitude?: number | null;
+  captureLongitude?: number | null;
   captureLocation?: GeoLocation | null;
   capturedAt?: string | null;
   tripStopId?: string | null;

@@ -8,9 +8,15 @@ export interface Terminal {
   countryCode: string;
   type: TerminalType;
   notes?: string | null;
-  address: Address;
-  createdAt: Date;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  addressCity?: string | null;
+  addressState?: string | null;
+  addressZipCode?: string | null;
+  addressCountry?: string | null;
+  address?: Address | null;
+  createdAt: string | Date;
   createdBy?: string | null;
-  lastModifiedAt?: Date | null;
+  lastModifiedAt?: string | Date | null;
   lastModifiedBy?: string | null;
 }
