@@ -41,6 +41,7 @@ import { createRefineI18nProvider } from "./providers/i18nProvider";
 import { createRemoteJwkAccessTokenVerifier } from "./providers/auth/jwtVerifier";
 import { useAntdNotificationProvider } from "./providers/notificationProvider";
 import { createBrowserOidcGateway } from "./providers/auth/oidcGateway";
+import { createLarkGateway } from "./providers/auth/larkGateway";
 import { shouldRetryQuery } from "./providers/api/retryPolicy";
 import { AuthSessionManager } from "./providers/auth/sessionManager";
 
@@ -100,6 +101,10 @@ export function RuntimeApplication({
     };
     const sessions = new AuthSessionManager({
       oidc: createBrowserOidcGateway(authSettings),
+      lark: createLarkGateway({
+        loginUrl: env.larkLoginUrl,
+        callbackUrl: `${state.config.apiBaseUrl}/auth/lark/callback`,
+      }),
       tokenVerifier: createRemoteJwkAccessTokenVerifier(authSettings),
       refreshSkewSeconds: authSettings.refreshSkewSeconds,
     });

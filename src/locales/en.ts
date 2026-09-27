@@ -97,6 +97,8 @@ export const enMessages = {
   auth: {
     callbackLoading: "Verifying your sign-in session...",
     callbackError: "Could not complete sign-in",
+    callbackErrorState: "Invalid or expired sign-in session. Please try again.",
+    callbackErrorUnauthorized: "Your account is not authorized to access this system.",
     loginSuccess: "Signed in successfully",
     demoUserName: "Local Administrator",
     introEyebrow: "Run operations with less friction",
@@ -117,7 +119,8 @@ export const enMessages = {
     remember: "Remember me on this device",
     signIn: "Sign in",
     continueWith: "or continue with",
-    oidcSignIn: "Sign in with Identity Server/Lark",
+    larkSignIn: "Sign in with Lark",
+    oidcSignIn: "Sign in with Identity Server",
     protectedBy: "Protected with Authorization Code + PKCE",
     demoReady: "Development account has been prefilled",
     avatarAlt: "Animated polar bear",

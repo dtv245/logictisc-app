@@ -32,8 +32,8 @@ export interface PasswordLoginParams {
 }
 
 export type LarkLoginParams =
-  | { mode: "redirect"; returnTo?: string }
-  | { mode: "callback" };
+  | { mode: "lark-redirect"; returnTo?: string }
+  | { mode: "lark-callback" };
 
 export type LoginParams = PasswordLoginParams | LarkLoginParams;
 
@@ -60,5 +60,5 @@ export const isLarkLoginParams = (value: unknown): value is LarkLoginParams => {
     return false;
   }
   const mode = Reflect.get(value, "mode");
-  return mode === "redirect" || mode === "callback";
+  return mode === "lark-redirect" || mode === "lark-callback";
 };

@@ -99,6 +99,8 @@ export const viMessages = {
   auth: {
     callbackLoading: "Đang xác nhận phiên đăng nhập...",
     callbackError: "Không thể hoàn tất đăng nhập",
+    callbackErrorState: "Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.",
+    callbackErrorUnauthorized: "Tài khoản của bạn không được cấp quyền truy cập hệ thống này.",
     loginSuccess: "Đăng nhập thành công",
     demoUserName: "Quản trị viên Local",
     introEyebrow: "Vận hành nhẹ nhàng hơn",
@@ -119,7 +121,8 @@ export const viMessages = {
     remember: "Ghi nhớ đăng nhập trên thiết bị này",
     signIn: "Đăng nhập",
     continueWith: "hoặc tiếp tục với",
-    oidcSignIn: "Đăng nhập với Identity Server/Lark",
+    larkSignIn: "Đăng nhập bằng Lark",
+    oidcSignIn: "Đăng nhập với Identity Server",
     protectedBy: "Được bảo vệ bằng Authorization Code + PKCE",
     demoReady: "Tài khoản phát triển đã được điền sẵn",
     avatarAlt: "Gấu Bắc Cực hoạt ảnh",

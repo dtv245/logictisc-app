@@ -172,3 +172,81 @@ describe("createAuthProvider", () => {
     expect(logout).toHaveBeenCalledOnce();
   });
 });
+
+describe("createAuthProvider — Lark login", () => {
+  it("calls startLarkLogin with the current path for lark-redirect mode", async () => {
+    const startLarkLogin = vi.fn();
+    const { manager } = createManager();
+    // Inject startLarkLogin into the manager directly for isolation.
+    (manager as unknown as { startLarkLogin: typeof startLarkLogin }).startLarkLogin = startLarkLogin;
+
+    const provider = createAuthProvider({
+      sessions: manager,
+      location: { getCurrentPath: () => "/loads?status=draft" },
+    });
+
+    await expect(
+      provider.login({ mode: "lark-redirect" }),
+    ).resolves.toEqual({ success: true });
+    expect(startLarkLogin).toHaveBeenCalledWith("/loads?status=draft");
+  });
+
+  it("passes explicit returnTo to startLarkLogin for lark-redirect mode", async () => {
+    const startLarkLogin = vi.fn();
+    const { manager } = createManager();
+    (manager as unknown as { startLarkLogin: typeof startLarkLogin }).startLarkLogin = startLarkLogin;
+
+    const provider = createAuthProvider({
+      sessions: manager,
+      location: { getCurrentPath: () => "/" },
+    });
+
+    await expect(
+      provider.login({ mode: "lark-redirect", returnTo: "/trips/42" }),
+    ).resolves.toEqual({ success: true });
+    expect(startLarkLogin).toHaveBeenCalledWith("/trips/42");
+  });
+
+  it("completes Lark callback and redirects to validated returnTo", async () => {
+    const completeLarkLogin = vi.fn().mockResolvedValue({
+      user: {
+        accessToken: "lark.jwt.token",
+        expiresAt: 4_102_444_800,
+        profile: { subject: "lark-user-1" },
+      },
+      returnTo: "/dashboard",
+    });
+    const { manager } = createManager();
+    (manager as unknown as { completeLarkLogin: typeof completeLarkLogin }).completeLarkLogin = completeLarkLogin;
+
+    const provider = createAuthProvider({
+      sessions: manager,
+      location: { getCurrentPath: () => "/auth/callback" },
+    });
+
+    await expect(
+      provider.login({ mode: "lark-callback" }),
+    ).resolves.toEqual({
+      success: true,
+      redirectTo: "/dashboard",
+    });
+    expect(completeLarkLogin).toHaveBeenCalledOnce();
+  });
+
+  it("propagates Lark callback error to the caller", async () => {
+    const completeLarkLogin = vi
+      .fn()
+      .mockRejectedValue(new Error("LARK_CALLBACK_STATE_MISMATCH"));
+    const { manager } = createManager();
+    (manager as unknown as { completeLarkLogin: typeof completeLarkLogin }).completeLarkLogin = completeLarkLogin;
+
+    const provider = createAuthProvider({
+      sessions: manager,
+      location: { getCurrentPath: () => "/auth/callback" },
+    });
+
+    await expect(
+      provider.login({ mode: "lark-callback" }),
+    ).rejects.toThrow("LARK_CALLBACK_STATE_MISMATCH");
+  });
+});
