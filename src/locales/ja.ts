@@ -32,6 +32,7 @@ const shared = {
     goHome: "ホームへ戻る",
     confirm: "確認",
     cancel: "キャンセル",
+    delete: "削除",
   },
   confirm: {
     pendingAnnouncement: "処理を実行中です。",

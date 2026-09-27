@@ -35,6 +35,7 @@ const shared = {
     goHome: "Go to home",
     confirm: "Confirm",
     cancel: "Cancel",
+    delete: "Delete",
   },
   confirm: {
     pendingAnnouncement: "The action is in progress.",
@@ -369,6 +370,9 @@ export const enMessages = {
       "Your changes have not been saved. Closing now will discard them.",
     discardOk: "Discard",
     discardCancel: "Keep editing",
+    deleteTitle: "Delete {{resource}}?",
+    deleteConfirm: "Are you sure you want to delete {{record}}? This action cannot be undone.",
+    deleteConfirmGeneric: "Are you sure you want to delete this item? This action cannot be undone.",
   },
   filters: {
     ariaLabel: "List filters",
@@ -503,6 +507,14 @@ export const enMessages = {
     markAllAsRead: "Mark all as read",
     empty: "No notifications",
     viewAll: "View all notifications",
+    success: "Success",
+    error: "Error",
+    createSuccess: "Successfully created {{resource}}",
+    createError: "There was an error creating {{resource}} (status: {{statusCode}})",
+    editSuccess: "Successfully updated {{resource}}",
+    editError: "There was an error updating {{resource}} (status: {{statusCode}})",
+    deleteSuccess: "Successfully deleted {{resource}}",
+    deleteError: "There was an error deleting {{resource}} (status: {{statusCode}})",
   },
   products: {
     createTitle: "Create product",

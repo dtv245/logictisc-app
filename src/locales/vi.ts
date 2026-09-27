@@ -35,6 +35,7 @@ const shared = {
     goHome: "Về trang chủ",
     confirm: "Xác nhận",
     cancel: "Hủy",
+    delete: "Xóa",
   },
   confirm: {
     pendingAnnouncement: "Thao tác đang được xử lý.",
@@ -370,6 +371,9 @@ export const viMessages = {
     discardContent: "Thay đổi bạn vừa nhập chưa được lưu. Đóng lại thì sẽ mất.",
     discardOk: "Bỏ thay đổi",
     discardCancel: "Tiếp tục sửa",
+    deleteTitle: "Xóa {{resource}}?",
+    deleteConfirm: "Bạn có chắc chắn muốn xóa {{record}} không? Hành động này không thể hoàn tác.",
+    deleteConfirmGeneric: "Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể hoàn tác.",
   },
   filters: {
     ariaLabel: "Bộ lọc danh sách",
@@ -504,6 +508,14 @@ export const viMessages = {
     markAllAsRead: "Đánh dấu đã đọc",
     empty: "Không có thông báo",
     viewAll: "Xem tất cả thông báo",
+    success: "Thành công",
+    error: "Lỗi",
+    createSuccess: "Thêm mới {{resource}} thành công",
+    createError: "Không thể thêm mới {{resource}} (mã: {{statusCode}})",
+    editSuccess: "Cập nhật {{resource}} thành công",
+    editError: "Không thể cập nhật {{resource}} (mã: {{statusCode}})",
+    deleteSuccess: "Xóa {{resource}} thành công",
+    deleteError: "Không thể xóa {{resource}} (mã: {{statusCode}})",
   },
   products: {
     createTitle: "Tạo sản phẩm",

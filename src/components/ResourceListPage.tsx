@@ -1,12 +1,12 @@
-import { CreateButton, List, useTable, useModalForm } from "@refinedev/antd";
+import { CreateButton, List, useTable, useModalForm, TextField } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { useShow } from "@refinedev/core";
-import { Modal, Form } from "antd";
+import { Modal, Form, Descriptions } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
+import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
 import { useEntityFilters } from "@hooks/useEntityFilters";
 import { BaseTable } from "@table";
@@ -57,14 +57,36 @@ export const ResourceListPage = <TData extends BaseRecord>({
     setFilters,
   });
 
+  // Tên resource lấy từ cùng khoá locale mà menu dùng, để tiêu đề modal khớp menu.
+  const resourceLabel = t(`resources.${resource}`);
+
   const editModal = useModalForm<BaseRecord, ApiError, Record<string, unknown>>({
     action: "edit",
     resource,
+    mutationMode: "pessimistic",
+    warnWhenUnsavedChanges: true,
+    successNotification: () => ({
+      key: `edit-${resource}`,
+      message: t("notifications.editSuccess", { resource: resourceLabel }),
+      description: t("notifications.success"),
+      type: "success",
+    }),
+    errorNotification: (error) => ({
+      key: `edit-${resource}`,
+      message: t("notifications.editError", {
+        resource: resourceLabel,
+        statusCode: (error as ApiError)?.statusCode ?? 500,
+      }),
+      description: error?.message,
+      type: "error",
+    }),
     // Lỗi validation của backend gắn vào đúng field đang sửa — xem `ResourceCreateModal`.
     onMutationError: (error) => {
       applyBackendFieldErrors(editModal.form, error.errors ?? {});
     },
   });
+
+  const discardEditConfirm = useDiscardConfirm(editModal.close);
 
   const { queryResult: showQueryResult, showId, setShowId } = useShow<BaseRecord, ApiError>({
     resource,
@@ -74,21 +96,10 @@ export const ResourceListPage = <TData extends BaseRecord>({
   // `isEditableResourceName` là type predicate nên `resource` đã được thu hẹp, không cần ép kiểu.
   const definition = isEditable ? resourceFormDefinitions[resource] : null;
 
-  // Tên resource lấy từ cùng khoá locale mà menu dùng, để tiêu đề modal khớp menu.
-  const resourceLabel = t(`resources.${resource}`);
-
-  // `editModal.show` đổi identity mỗi lần render, nên phải bọc `useCallback` trước khi memo
-  // value — nếu không, `ActionButtons` (consumer) re-render theo mọi lần render của list.
-  const { show: showEditModal } = editModal;
-  const showEdit = useCallback(
-    (id: string | number) => showEditModal(id),
-    [showEditModal],
-  );
-  const showView = useCallback((id: string | number) => setShowId(id), [setShowId]);
-  const actionContext = useMemo(
-    () => ({ showEdit, showView }),
-    [showEdit, showView],
-  );
+  const actionContext = {
+    showEdit: (id: string | number) => editModal.show(id),
+    showView: (id: string | number) => setShowId(id),
+  };
 
   // Modal xem chi tiết là một query riêng, nên nó có đủ bốn trạng thái và dùng thẳng
   // mô hình chung. Trước đây nhánh lỗi bị bỏ sót: fetch hỏng thì modal render form
@@ -112,7 +123,13 @@ export const ResourceListPage = <TData extends BaseRecord>({
             <ResourceCreateModal
               resource={resource}
               trigger={(show) => (
-                <CreateButton onClick={(e) => { e.preventDefault(); show(); }} />
+                <CreateButton
+                  resource={resource}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    show();
+                  }}
+                />
               )}
             />
           ) : null
@@ -143,36 +160,67 @@ export const ResourceListPage = <TData extends BaseRecord>({
       {isEditable && definition && (
         <Modal
           {...editModal.modalProps}
+          onCancel={discardEditConfirm.onCancel}
           title={t("crud.editTitle", { resource: resourceLabel })}
           okText={t("actions.save")}
+          cancelText={t("actions.cancel")}
           confirmLoading={editModal.formLoading}
+          cancelButtonProps={{ disabled: editModal.formLoading }}
+          okButtonProps={{
+            disabled: editModal.formLoading,
+            loading: editModal.formLoading,
+          }}
+          destroyOnHidden
+          width={720}
         >
-          <Form {...editModal.formProps} layout="vertical">
+          <Form
+            {...editModal.formProps}
+            layout="vertical"
+            disabled={editModal.formLoading}
+          >
             <ResourceFormFields definition={definition} />
           </Form>
         </Modal>
       )}
 
-      {isEditable && definition && (
-        <Modal
-          open={!!showId}
-          onCancel={() => setShowId(undefined)}
-          title={t("crud.viewTitle", { resource: resourceLabel })}
-          footer={null}
+      <Modal
+        open={!!showId}
+        onCancel={() => setShowId(undefined)}
+        title={t("crud.viewTitle", { resource: resourceLabel })}
+        footer={null}
+        destroyOnHidden
+        width={720}
+      >
+        <AsyncStateView
+          onRetry={() => void showQueryResult?.refetch()}
+          retrying={showQueryResult?.isFetching}
+          state={showState}
         >
-          <AsyncStateView
-            onRetry={() => void showQueryResult?.refetch()}
-            retrying={showQueryResult?.isFetching}
-            state={showState}
-          >
-            {(record) => (
+          {(record) =>
+            definition ? (
               <Form initialValues={record} layout="vertical" disabled>
                 <ResourceFormFields definition={definition} />
               </Form>
-            )}
-          </AsyncStateView>
-        </Modal>
-      )}
+            ) : (
+              <Descriptions bordered column={1}>
+                {Object.entries(record).map(([field, value]) => (
+                  <Descriptions.Item key={field} label={field}>
+                    <TextField
+                      value={
+                        value === null || value === undefined || value === ""
+                          ? t("crud.emptyValue")
+                          : typeof value === "object"
+                            ? JSON.stringify(value)
+                            : String(value)
+                      }
+                    />
+                  </Descriptions.Item>
+                ))}
+              </Descriptions>
+            )
+          }
+        </AsyncStateView>
+      </Modal>
     </ResourceActionContext.Provider>
   );
 };
