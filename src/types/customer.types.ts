@@ -10,7 +10,7 @@ export type CustomerStatus = "active" | "inactive" | "suspended";
  * [DOMAIN MODEL] 
  * Khách hàng thuê dịch vụ vận tải của tenant. Dùng chủ yếu cho React Components, Refine Hooks và UI Table.
  */
-export interface Customer extends AuditableEntity {
+export interface Customer {
   id: string;
   name: string;
   email?: string | null;
@@ -19,6 +19,12 @@ export interface Customer extends AuditableEntity {
   notes?: string | null;
   taxId?: string | null;
   isVatExempt: boolean;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  addressCity?: string | null;
+  addressState?: string | null;
+  addressZipCode?: string | null;
+  addressCountry?: string | null;
   address?: OptionalAddress | null;
 }
 
@@ -47,7 +53,7 @@ export interface CustomerWithRelations extends Customer {
 /**
  * [FORM MODEL]
  * Đại diện chính xác cho các fields mà User có thể nhập liệu trong form Tạo/Sửa.
- * Không chứa `id`, `createdAt`, `updatedAt` vì form không trực tiếp sửa chúng.
+ * Đồng bộ với `resourceForms.ts`.
  */
 export interface CustomerFormValues {
   name: string;
@@ -57,5 +63,11 @@ export interface CustomerFormValues {
   notes?: string;
   taxId?: string;
   isVatExempt: boolean;
+  addressLine1?: string;
+  addressLine2?: string;
+  addressCity?: string;
+  addressState?: string;
+  addressZipCode?: string;
+  addressCountry?: string;
   address?: OptionalAddress;
 }

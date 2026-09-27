@@ -40,14 +40,16 @@ export const useLarkLogin = (): UseLarkLoginResult => {
   const startLogin = useCallback(
     (returnTo?: string) => {
       login.mutate(
-        returnTo ? { mode: "redirect", returnTo } : { mode: "redirect" },
+        returnTo
+          ? { mode: "lark-redirect", returnTo }
+          : { mode: "lark-redirect" },
       );
     },
     [login],
   );
 
   const completeLogin = useCallback(() => {
-    login.mutate({ mode: "callback" });
+    login.mutate({ mode: "lark-callback" });
   }, [login]);
 
   return {

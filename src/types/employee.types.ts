@@ -36,11 +36,20 @@ export interface Employee {
   salaryType: SalaryType;
   status: EmployeeStatus;
   joinedDate: string;
+  roleId?: string | null;
+  roleName?: string | null;
+  salaryAmount?: number | null;
+  salaryCurrency?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  addressCity?: string | null;
+  addressState?: string | null;
+  addressZipCode?: string | null;
+  addressCountry?: string | null;
   deviceToken?: string | null;
   stripeConnectedAccountId?: string | null;
-  roleId?: string | null;
   address?: OptionalAddress | null;
-  salary: Money;
+  salary?: Money;
 }
 
 /** Giấy phép lái xe và thời hạn chứng nhận của nhân viên. */
@@ -68,6 +77,7 @@ export interface TenantRole {
   name: string;
   displayName?: string | null;
   normalizedName: string;
+  claims?: Array<{ id: string; claimType: string; claimValue: string }>;
 }
 
 /** Claim quyền được gán cho một vai trò tenant. */

@@ -59,6 +59,8 @@ export interface Truck {
   adrEquipmentAllowedClasses: string;
   adrEquipmentIsAdrCertified: boolean;
   adrEquipmentOrangePlateNumber?: string | null;
+  currentLocationLatitude?: number | null;
+  currentLocationLongitude?: number | null;
   currentAddress?: OptionalAddress | null;
   currentLocation?: GeoLocation | null;
 }

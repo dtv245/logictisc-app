@@ -1,4 +1,3 @@
-import type { Address, GeoLocation, Money } from "./common.types";
 import type { ISODateTime } from "./api.types";
 
 export type LoadType = "container" | "dry_van" | "flatbed" | "reefer" | "vehicle";
@@ -16,6 +15,13 @@ export type LoadExceptionType = "delay" | "damage" | "delivery_failure" | "missi
 export type ConditionDefectSeverity = "minor" | "major" | "critical";
 export type ConditionDefectPartCategory = "body" | "cargo" | "container" | "glass" | "interior" | "seal" | "tires" | "wheels" | "other";
 
+/**
+ * Data Transfer Object (DTO) nhận trực tiếp từ API Backend trả về (`LoadResponse.java`).
+ * Tuyệt đối tôn trọng cấu trúc JSON của Backend ở file này:
+ * - deliveryCostAmount và deliveryCostCurrency là trường phẳng.
+ * - origin/destination address và location là các trường phẳng.
+ * - Backend không trả audit fields.
+ */
 export interface LoadResponse {
   id: string;
   number: number;
@@ -29,34 +35,90 @@ export interface LoadResponse {
   deliveredAt?: ISODateTime | null;
   cancelledAt?: ISODateTime | null;
   customerId: string;
-  customerName?: string;
+  customerName?: string | null;
   assignedTruckId?: string | null;
   assignedTruckNumber?: string | null;
   assignedDispatcherId?: string | null;
   assignedDispatcherName?: string | null;
+  containerId?: string | null;
+  originTerminalId?: string | null;
+  destinationTerminalId?: string | null;
   source: LoadSource;
   requestedPickupDate?: ISODateTime | null;
   requestedDeliveryDate?: ISODateTime | null;
   notes?: string | null;
   isHazmat: boolean;
-  hazmatClass?: HazmatClass | null;
+  hazmatClass?: HazmatClass | string | null;
+  unNumber?: string | null;
+  deliveryCostAmount: number;
+  deliveryCostCurrency: string;
+  originAddressLine1: string;
+  originAddressLine2?: string | null;
+  originAddressCity: string;
+  originAddressState: string;
+  originAddressZipCode: string;
+  originAddressCountry: string;
+  originLocationLatitude: number;
+  originLocationLongitude: number;
+  destinationAddressLine1: string;
+  destinationAddressLine2?: string | null;
+  destinationAddressCity: string;
+  destinationAddressState: string;
+  destinationAddressZipCode: string;
+  destinationAddressCountry: string;
+  destinationLocationLatitude: number;
+  destinationLocationLongitude: number;
+}
+
+/**
+ * Payload gửi lên API để tạo mới Load (`CreateLoadRequest.java`).
+ */
+export interface CreateLoadRequest {
+  name: string;
+  type: LoadType | string;
+  status: LoadStatus | string;
+  distance: number;
+  isInProximity: boolean;
+  customerId: string;
+  assignedTruckId?: string | null;
+  assignedDispatcherId?: string | null;
+  source: LoadSource | string;
+  requestedPickupDate?: ISODateTime | null;
+  requestedDeliveryDate?: ISODateTime | null;
+  notes?: string | null;
+  isHazmat: boolean;
+  hazmatClass?: HazmatClass | string | null;
   unNumber?: string | null;
   containerId?: string | null;
   originTerminalId?: string | null;
   destinationTerminalId?: string | null;
-  externalSourceProvider?: ExternalLoadProviderType | null;
+  externalSourceProvider?: ExternalLoadProviderType | string | null;
   externalSourceId?: string | null;
   externalBrokerReference?: string | null;
-  deliveryCost: Money;
-  destinationAddress: Address;
-  destinationLocation: GeoLocation;
-  originAddress: Address;
-  originLocation: GeoLocation;
-  createdAt: ISODateTime;
-  createdBy?: string | null;
-  lastModifiedAt?: ISODateTime | null;
-  lastModifiedBy?: string | null;
+  deliveryCostAmount: number;
+  deliveryCostCurrency: string;
+  originAddressLine1: string;
+  originAddressLine2?: string | null;
+  originAddressCity: string;
+  originAddressState: string;
+  originAddressZipCode: string;
+  originAddressCountry: string;
+  originLocationLatitude: number;
+  originLocationLongitude: number;
+  destinationAddressLine1: string;
+  destinationAddressLine2?: string | null;
+  destinationAddressCity: string;
+  destinationAddressState: string;
+  destinationAddressZipCode: string;
+  destinationAddressCountry: string;
+  destinationLocationLatitude: number;
+  destinationLocationLongitude: number;
 }
+
+/**
+ * Payload gửi lên API để cập nhật Load (`PUT /api/loads/{id}`).
+ */
+export type UpdateLoadRequest = Partial<CreateLoadRequest>;
 
 export interface LoadExceptionResponse {
   id: string;
@@ -68,7 +130,7 @@ export interface LoadExceptionResponse {
   reportedById: string;
   reportedByName: string;
   resolution?: string | null;
-  createdAt: ISODateTime;
+  createdAt?: ISODateTime;
   createdBy?: string | null;
   lastModifiedAt?: ISODateTime | null;
   lastModifiedBy?: string | null;
@@ -76,16 +138,16 @@ export interface LoadExceptionResponse {
 
 export interface ConditionDefectResponse {
   id: string;
-  loadConditionReportId: string;
-  partCategory: ConditionDefectPartCategory;
+  loadConditionReportId?: string;
+  partCategory: ConditionDefectPartCategory | string;
   description: string;
-  severity: ConditionDefectSeverity;
+  severity: ConditionDefectSeverity | string;
 }
 
 export interface LoadConditionReportResponse {
   id: string;
   loadId: string;
-  type: LoadConditionReportType;
+  type: LoadConditionReportType | string;
   vin?: string | null;
   vehicleYear?: number | null;
   vehicleMake?: string | null;
@@ -95,11 +157,10 @@ export interface LoadConditionReportResponse {
   sealNumber?: string | null;
   notes?: string | null;
   inspectorSignature?: string | null;
-  location?: GeoLocation | null;
+  latitude?: number | null;
+  longitude?: number | null;
   inspectedAt: ISODateTime;
   inspectedById: string;
-  createdAt: ISODateTime;
-  createdBy?: string | null;
-  lastModifiedAt?: ISODateTime | null;
-  lastModifiedBy?: string | null;
+  inspectedByName?: string | null;
+  defects?: ConditionDefectResponse[];
 }

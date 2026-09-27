@@ -52,6 +52,11 @@ vi.mock("@refinedev/core", () => ({
     setShowId: vi.fn(),
     showId: state.showId,
   }),
+  useWarnAboutChange: () => ({
+    setWarnWhen: vi.fn(),
+    warnWhen: false,
+    warnWhenUnsavedChanges: true,
+  }),
 }));
 
 vi.mock("@refinedev/antd", () => ({

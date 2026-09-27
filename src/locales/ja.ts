@@ -32,6 +32,7 @@ const shared = {
     goHome: "ホームへ戻る",
     confirm: "確認",
     cancel: "キャンセル",
+    delete: "削除",
   },
   confirm: {
     pendingAnnouncement: "処理を実行中です。",
@@ -109,7 +110,8 @@ export const jaMessages = {
     remember: "この端末でサインイン状態を保持する",
     signIn: "サインイン",
     continueWith: "または次で続行",
-    oidcSignIn: "Identity Server/Lark でサインイン",
+    larkSignIn: "Lark でサインイン",
+    oidcSignIn: "Identity Server でサインイン",
     protectedBy: "Authorization Code + PKCE で保護",
     demoReady: "開発用アカウントを事前入力しました",
     avatarAlt: "アニメーション シロクマ",
@@ -117,5 +119,7 @@ export const jaMessages = {
     support: "システムサポート",
     callbackLoading: "サインイン セッションを確認中...",
     callbackError: "サインインを完了できませんでした",
+    callbackErrorState: "サインイン セッションが無効または期限切れです。もう一度お試しください。",
+    callbackErrorUnauthorized: "このシステムへのアクセス権がありません。",
   },
 } as const;

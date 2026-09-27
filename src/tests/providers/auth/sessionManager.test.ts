@@ -198,3 +198,86 @@ describe("AuthSessionManager", () => {
     expect(listener).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("AuthSessionManager — Lark completeLarkLogin", () => {
+  const createLarkGateway = (overrides: {
+    completeLogin?: () => Promise<{ user: OidcUserSnapshot; returnTo: string }>;
+  } = {}) => ({
+    startLogin: vi.fn(),
+    completeLogin:
+      overrides.completeLogin ??
+      vi.fn().mockResolvedValue({
+        user: createUser("lark-token", "lark-user-1"),
+        returnTo: "/dashboard",
+      }),
+  });
+
+  it("establishes a session from a valid Lark callback response", async () => {
+    const manager = new AuthSessionManager({
+      oidc: createGateway({ getUser: vi.fn().mockResolvedValue(null) }),
+      lark: createLarkGateway(),
+      tokenVerifier: {
+        verify: vi.fn().mockResolvedValue({
+          expiresAt: 4_102_444_800,
+          tenantId: "lark-tenant",
+          subject: "lark-user-1",
+          roles: ["MANAGER"] as const,
+        }),
+      },
+      nowEpochSeconds: () => 1_000,
+    });
+
+    const result = await manager.completeLarkLogin();
+
+    expect(result.returnTo).toBe("/dashboard");
+    await expect(manager.getAccessToken()).resolves.toBe("lark-token");
+    const identity = await manager.getIdentity();
+    expect(identity?.tenantId).toBe("lark-tenant");
+    expect(identity?.roles).toEqual(["MANAGER"]);
+  });
+
+  it("clears the session and rethrows when the Lark callback fails", async () => {
+    const removeUser = vi.fn().mockResolvedValue(undefined);
+    const manager = new AuthSessionManager({
+      oidc: createGateway({
+        getUser: vi.fn().mockResolvedValue(null),
+        removeUser,
+      }),
+      lark: createLarkGateway({
+        completeLogin: vi.fn().mockRejectedValue(
+          new Error("LARK_CALLBACK_STATE_MISMATCH"),
+        ),
+      }),
+      tokenVerifier: createVerifier(),
+      nowEpochSeconds: () => 1_000,
+    });
+
+    await expect(manager.completeLarkLogin()).rejects.toThrow(
+      "LARK_CALLBACK_STATE_MISMATCH",
+    );
+    expect(removeUser).toHaveBeenCalledOnce();
+    await expect(manager.getIdentity()).resolves.toBeNull();
+  });
+
+  it("throws LARK_GATEWAY_NOT_CONFIGURED when no lark gateway is provided", async () => {
+    const manager = new AuthSessionManager({
+      oidc: createGateway(),
+      tokenVerifier: createVerifier(),
+    });
+
+    await expect(manager.completeLarkLogin()).rejects.toThrow(
+      "LARK_GATEWAY_NOT_CONFIGURED",
+    );
+  });
+
+  it("throws LARK_GATEWAY_NOT_CONFIGURED for startLarkLogin without gateway", () => {
+    const manager = new AuthSessionManager({
+      oidc: createGateway(),
+      tokenVerifier: createVerifier(),
+    });
+
+    expect(() => manager.startLarkLogin("/dashboard")).toThrow(
+      "LARK_GATEWAY_NOT_CONFIGURED",
+    );
+  });
+});

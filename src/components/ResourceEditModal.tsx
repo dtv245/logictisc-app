@@ -22,6 +22,7 @@ interface ResourceEditModalProps {
 
 export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEditModalProps) => {
   const { t } = useTranslation();
+  const resourceLabel = t(`resources.${resource}`);
 
   const { form, modalProps, formProps, formLoading, close } = useModalForm<
     BaseRecord,
@@ -31,11 +32,27 @@ export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEd
     action: "edit",
     resource,
     id: id ?? undefined,
+    mutationMode: "pessimistic",
     warnWhenUnsavedChanges: true,
     // When id is null, we shouldn't fetch
     queryOptions: {
       enabled: visible && id !== null,
     },
+    successNotification: () => ({
+      key: `edit-${resource}`,
+      message: t("notifications.editSuccess", { resource: resourceLabel }),
+      description: t("notifications.success"),
+      type: "success",
+    }),
+    errorNotification: (error) => ({
+      key: `edit-${resource}`,
+      message: t("notifications.editError", {
+        resource: resourceLabel,
+        statusCode: (error as ApiError)?.statusCode ?? 500,
+      }),
+      description: error?.message,
+      type: "error",
+    }),
     // Lỗi validation của backend gắn vào đúng field đang sửa — xem `ResourceCreateModal`.
     onMutationError: (error) => {
       applyBackendFieldErrors(form, error.errors ?? {});
@@ -66,13 +83,19 @@ export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEd
       {...modalProps}
       open={visible}
       onCancel={discardConfirm.onCancel}
-      title={t("crud.editTitle", { resource: t(`resources.${resource}`) })}
+      title={t("crud.editTitle", { resource: resourceLabel })}
       okText={t("actions.save")}
+      cancelText={t("actions.cancel")}
       confirmLoading={formLoading}
+      cancelButtonProps={{ disabled: formLoading }}
+      okButtonProps={{ disabled: formLoading, loading: formLoading }}
+      destroyOnHidden
+      width={720}
     >
       <Form
         {...formProps}
         layout="vertical"
+        disabled={formLoading}
       >
         <ResourceFormFields definition={definition} />
       </Form>

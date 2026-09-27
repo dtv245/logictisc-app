@@ -129,20 +129,21 @@ const CredentialsForm = ({ returnTo }: { returnTo?: string }) => {
   );
 };
 
-const OidcLogin = ({ returnTo }: { returnTo?: string }) => {
+const LarkLoginButton = ({ returnTo }: { returnTo?: string }) => {
   const { t } = useTranslation();
   const larkLogin = useLarkLogin();
 
   return (
-    <Space className="login-oidc" direction="vertical" size="middle">
+    <Space className="login-lark" direction="vertical" size="middle">
       <Button
         block
         icon={<LoginOutlined aria-hidden="true" />}
         loading={larkLogin.isLoading}
         onClick={() => larkLogin.startLogin(returnTo)}
         size="large"
+        type="default"
       >
-        {t("auth.oidcSignIn")}
+        {t("auth.larkSignIn")}
       </Button>
       <Typography.Text type="secondary">
         <SafetyCertificateOutlined aria-hidden="true" /> {t("auth.protectedBy")}
@@ -179,7 +180,7 @@ export const LoginPage = () => {
           </>
         ) : null}
 
-        <OidcLogin returnTo={pendingReturnTo} />
+        <LarkLoginButton returnTo={pendingReturnTo} />
 
         <Typography.Text className="login-footer" type="secondary">
           {t("auth.copyright")}

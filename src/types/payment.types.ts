@@ -5,19 +5,28 @@ import type { PaymentStatus } from "./payment.dto";
 export interface Payment {
   id: string;
   status: PaymentStatus;
-  stripePaymentMethodId?: string | null;
-  tenantId: string;
-  description?: string | null;
-  stripePaymentIntentId?: string | null;
-  referenceNumber?: string | null;
-  recordedByUserId?: string | null;
-  recordedAt?: Date | null;
   invoiceId?: string | null;
-  amount: Money;
-  billingAddress: Address;
-  createdAt: Date;
+  invoiceNumber?: number | null;
+  amountAmount?: number | null;
+  amountCurrency?: string | null;
+  description?: string | null;
+  referenceNumber?: string | null;
+  recordedAt?: string | Date | null;
+  billingAddressLine1?: string | null;
+  billingAddressLine2?: string | null;
+  billingAddressCity?: string | null;
+  billingAddressState?: string | null;
+  billingAddressZipCode?: string | null;
+  billingAddressCountry?: string | null;
+  stripePaymentMethodId?: string | null;
+  tenantId?: string;
+  stripePaymentIntentId?: string | null;
+  recordedByUserId?: string | null;
+  amount?: Money;
+  billingAddress?: Address;
+  createdAt?: string | Date;
   createdBy?: string | null;
-  lastModifiedAt?: Date | null;
+  lastModifiedAt?: string | Date | null;
   lastModifiedBy?: string | null;
 }
 
@@ -25,14 +34,14 @@ export interface PaymentLink {
   id: string;
   token: string;
   invoiceId: string;
-  expiresAt: Date;
+  expiresAt: string | Date;
   isActive: boolean;
   createdByUserId: string;
   accessCount: number;
-  lastAccessedAt?: Date | null;
-  createdAt: Date;
+  lastAccessedAt?: string | Date | null;
+  createdAt?: string | Date;
   createdBy?: string | null;
-  lastModifiedAt?: Date | null;
+  lastModifiedAt?: string | Date | null;
   lastModifiedBy?: string | null;
 }
 

@@ -132,6 +132,25 @@ export const createAuthProvider = (
 
   return {
     login: async (params: unknown) => {
+      // Pha callback Lark: backend đã xác thực Lark identity và trả về JWT.
+      if (readStringProperty(params, "mode") === "lark-callback") {
+        const result = await options.sessions.completeLarkLogin();
+        return {
+          success: true,
+          redirectTo: normalizeLocalReturnTo(result.returnTo),
+        };
+      }
+
+      // Pha redirect Lark: chuyển hướng trình duyệt tới Lark OAuth.
+      if (readStringProperty(params, "mode") === "lark-redirect") {
+        const returnTo = extractLoginReturnTo(
+          params,
+          options.location.getCurrentPath(),
+        );
+        options.sessions.startLarkLogin(returnTo);
+        return { success: true };
+      }
+
       // Callback hoàn tất authorization-code flow; các lần login còn lại chỉ
       // khởi tạo redirect sang Identity Server.
       if (readStringProperty(params, "mode") === "callback") {

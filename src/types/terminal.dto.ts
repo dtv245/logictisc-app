@@ -1,4 +1,3 @@
-import type { Address } from "./common.types";
 import type { ISODateTime } from "./api.types";
 
 /**
@@ -14,6 +13,10 @@ export type TerminalType =
   | "AIR_CARGO"
   | "BORDER_CROSSING";
 
+/**
+ * Read model returned by terminal endpoints (`TerminalResponse.java`).
+ * Cấu trúc địa chỉ là các trường phẳng (addressLine1..addressCountry).
+ */
 export interface TerminalResponse {
   id: string;
   name: string;
@@ -21,9 +24,34 @@ export interface TerminalResponse {
   countryCode: string;
   type: TerminalType;
   notes?: string | null;
-  address: Address;
+  addressLine1: string;
+  addressLine2?: string | null;
+  addressCity: string;
+  addressState: string;
+  addressZipCode: string;
+  addressCountry: string;
   createdAt: ISODateTime;
-  createdBy?: string | null;
-  lastModifiedAt?: ISODateTime | null;
-  lastModifiedBy?: string | null;
+  lastModifiedAt: ISODateTime;
 }
+
+/**
+ * Create/update payload for a terminal (`CreateTerminalRequest.java`).
+ */
+export interface CreateTerminalRequest {
+  name: string;
+  code: string;
+  countryCode: string;
+  type: TerminalType;
+  notes?: string | null;
+  addressLine1: string;
+  addressLine2?: string | null;
+  addressCity: string;
+  addressState: string;
+  addressZipCode: string;
+  addressCountry: string;
+}
+
+/**
+ * Update payload for a terminal (`PUT /api/terminals/{id}`).
+ */
+export type UpdateTerminalRequest = Partial<CreateTerminalRequest>;

@@ -9,35 +9,41 @@ export interface Invoice {
   number: number;
   type: InvoiceType;
   status: InvoiceStatus;
-  taxBehavior: TaxBehavior;
+  taxBehavior?: TaxBehavior | string | null;
   taxBreakdownJson?: unknown | null;
   notes?: string | null;
-  dueDate?: Date | null;
+  dueDate?: string | Date | null;
   stripeInvoiceId?: string | null;
-  sentAt?: Date | null;
+  sentAt?: string | Date | null;
   sentToEmail?: string | null;
-  subtotal: Money;
-  taxTotal: Money;
-  total: Money;
+  subtotalAmount?: number | null;
+  subtotalCurrency?: string | null;
+  taxTotalAmount?: number | null;
+  taxTotalCurrency?: string | null;
+  totalAmount?: number | null;
+  totalCurrency?: string | null;
+  subtotal?: Money;
+  taxTotal?: Money;
+  total?: Money;
   loadId?: string | null;
   customerId?: string | null;
   customerName?: string | null;
   employeeId?: string | null;
   employeeName?: string | null;
-  periodStart?: Date | null;
-  periodEnd?: Date | null;
+  periodStart?: string | Date | null;
+  periodEnd?: string | Date | null;
   totalDistanceDriven?: number | null;
   totalHoursWorked?: number | null;
   approvedById?: string | null;
-  approvedAt?: Date | null;
+  approvedAt?: string | Date | null;
   approvalNotes?: string | null;
   rejectionReason?: string | null;
   subscriptionId?: string | null;
-  billingPeriodStart?: Date | null;
-  billingPeriodEnd?: Date | null;
-  createdAt: Date;
+  billingPeriodStart?: string | Date | null;
+  billingPeriodEnd?: string | Date | null;
+  createdAt?: string | Date;
   createdBy?: string | null;
-  lastModifiedAt?: Date | null;
+  lastModifiedAt?: string | Date | null;
   lastModifiedBy?: string | null;
 }
 
@@ -52,12 +58,14 @@ export interface InvoiceLineItem {
   taxRatePercent: number;
   taxAmount: number;
   taxCode?: string | null;
-  amount: Money;
+  amountAmount?: number | null;
+  amountCurrency?: string | null;
+  amount?: Money;
 }
 
 export interface InvoiceWithRelations extends Invoice {
-  lineItems?: InvoiceLineItem[];
-  load?: Load | null;
   customer?: Customer | null;
   employee?: Employee | null;
+  load?: Load | null;
+  lineItems?: InvoiceLineItem[];
 }
