@@ -16,6 +16,7 @@ import type {
   OidcLoginResult,
   OidcUserSnapshot,
 } from "../../types/authSession.types";
+import type { LarkGateway, LarkLoginResult } from "./larkGateway";
 
 const DEFAULT_REFRESH_SKEW_SECONDS = 60;
 const LARK_SESSION_STORAGE_KEY = "logistics_lark_session";
@@ -29,6 +30,7 @@ export class AuthSessionExpiredError extends Error {
 
 export interface AuthSessionManagerOptions {
   readonly oidc: OidcGateway;
+  readonly lark?: LarkGateway;
   readonly tokenVerifier: AccessTokenVerifier;
   readonly refreshSkewSeconds?: number;
   readonly nowEpochSeconds?: () => number;
@@ -47,6 +49,7 @@ const chooseIdentityName = (user: OidcUserSnapshot): string =>
 
 export class AuthSessionManager {
   private readonly oidc: OidcGateway;
+  private readonly lark: LarkGateway | undefined;
   private readonly tokenVerifier: AccessTokenVerifier;
   private readonly refreshSkewSeconds: number;
   private readonly nowEpochSeconds: () => number;
@@ -62,6 +65,7 @@ export class AuthSessionManager {
 
   constructor(options: AuthSessionManagerOptions) {
     this.oidc = options.oidc;
+    this.lark = options.lark;
     this.tokenVerifier = options.tokenVerifier;
     this.refreshSkewSeconds =
       options.refreshSkewSeconds ?? DEFAULT_REFRESH_SKEW_SECONDS;
@@ -115,6 +119,18 @@ export class AuthSessionManager {
     await this.oidc.startLogin(returnTo);
   };
 
+  /**
+   * Pha redirect Lark: chuyển hướng trình duyệt tới backend login URL.
+   * Không async vì redirect xảy ra ngay lập tức; wrapper async để
+   * AuthProvider có thể dùng cùng pattern với OIDC startLogin.
+   */
+  startLarkLogin = (returnTo: string): void => {
+    if (!this.lark) {
+      throw new Error("LARK_GATEWAY_NOT_CONFIGURED");
+    }
+    this.lark.startLogin(returnTo);
+  };
+
   completeLogin = async (
     callbackUrl?: string,
   ): Promise<OidcLoginResult> => {
@@ -123,6 +139,27 @@ export class AuthSessionManager {
       await this.establishSession(result.user);
       this.initialized = true;
 
+      return result;
+    } catch (error) {
+      await this.clearSession();
+      throw error;
+    }
+  };
+
+  /**
+   * Pha callback Lark: gọi backend để đổi authorization code lấy JWT nội bộ.
+   * Backend xác minh danh tính Lark, ánh xạ user/tenant/role, và trả về token
+   * cùng profile tối thiểu. Session được thiết lập qua cùng `establishSession`
+   * như OIDC để đảm bảo nhất quán.
+   */
+  completeLarkLogin = async (): Promise<LarkLoginResult> => {
+    if (!this.lark) {
+      throw new Error("LARK_GATEWAY_NOT_CONFIGURED");
+    }
+    try {
+      const result = await this.lark.completeLogin();
+      await this.establishSession(result.user);
+      this.initialized = true;
       return result;
     } catch (error) {
       await this.clearSession();

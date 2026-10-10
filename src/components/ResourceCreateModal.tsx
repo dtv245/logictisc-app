@@ -22,6 +22,7 @@ interface ResourceCreateModalProps {
 
 export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalProps) => {
   const { t } = useTranslation();
+  const resourceLabel = t(`resources.${resource}`);
 
   const { form, modalProps, formProps, show, formLoading, close } = useModalForm<
     BaseRecord,
@@ -30,7 +31,23 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
   >({
     action: "create",
     resource,
+    mutationMode: "pessimistic",
     warnWhenUnsavedChanges: true,
+    successNotification: () => ({
+      key: `create-${resource}`,
+      message: t("notifications.createSuccess", { resource: resourceLabel }),
+      description: t("notifications.success"),
+      type: "success",
+    }),
+    errorNotification: (error) => ({
+      key: `create-${resource}`,
+      message: t("notifications.createError", {
+        resource: resourceLabel,
+        statusCode: (error as ApiError)?.statusCode ?? 500,
+      }),
+      description: error?.message,
+      type: "error",
+    }),
     // 400 kèm `errors[].field` phải hiện **tại field**, không chỉ một toast chung: người
     // dùng cần biết sửa ô nào. Trước đây `applyBackendFieldErrors` có sẵn mà không nơi
     // nào gọi, nên mọi lỗi validation của backend đều đổ về một thông báo chung.
@@ -56,18 +73,22 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
       {trigger(show)}
       <Modal
         {...modalProps}
-        destroyOnClose
-        width={860}
         onCancel={discardConfirm.onCancel}
-        title={t("crud.createTitle", { resource: t(`resources.${resource}`) })}
+        title={t("crud.createTitle", { resource: resourceLabel })}
         okText={t("actions.create")}
+        cancelText={t("actions.cancel")}
         confirmLoading={formLoading}
+        cancelButtonProps={{ disabled: formLoading }}
+        okButtonProps={{ disabled: formLoading, loading: formLoading }}
+        destroyOnHidden
+        width={720}
       >
         <Form
           {...formProps}
           onFinish={(values) => formProps.onFinish?.(buildResourceMutation(resource, values))}
           initialValues={createResourceFormInitialValues(definition)}
           layout="vertical"
+          disabled={formLoading}
         >
           <ResourceFormFields columns={2} definition={definition} />
         </Form>

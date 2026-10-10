@@ -13,6 +13,7 @@ export interface Conversation {
   isTenantChat: boolean;
   createdAt: string;
   lastMessageAt?: string | null;
+  participantIds?: string[];
 }
 
 /** Tin nhắn được gửi trong một hội thoại. */
@@ -20,6 +21,7 @@ export interface Message {
   id: string;
   conversationId: string;
   senderId: string;
+  senderName?: string | null;
   content: string;
   sentAt: string;
   isDeleted: boolean;
