@@ -24,6 +24,7 @@ import {
   type AxiosRequestConfig,
 } from "axios";
 
+import { guardResourceMutation, type ResourceMutationContract } from "./api/mutation";
 import { ApiHttpError } from "../providers/api/httpError";
 import { isRecord, readPagedResponse } from "../providers/api/envelope";
 import { createLatestRequestCoordinator } from "../providers/api/latestRequest";
@@ -44,6 +45,9 @@ export interface ApiResourceDefinition {
   allowedFilterFields: readonly string[];
   allowedSortFields: readonly string[];
   updateMethod?: ResourceUpdateMethod;
+  mutationContract?: ResourceMutationContract;
+  allowGenericMutation?: boolean;
+  canMutateRecord?: (value: unknown) => boolean;
 }
 
 export interface CreateDataProviderOptions {
@@ -262,10 +266,11 @@ export const createLogisticsDataProvider = ({
       meta,
     }: CreateParams<TVariables>) {
       const definition = getDefinition(resource);
+      if (definition.allowGenericMutation === false) throw new Error("COMMAND_RESOURCE_REQUIRES_FEATURE_ADAPTER");
       const data = await requestRecord<TData>({
         method: "post",
         url: definition.collectionPath,
-        data: variables,
+        data: definition.mutationContract ? guardResourceMutation(definition.mutationContract, variables, false) : variables,
         ...withSignal(readQuerySignal(meta)),
       });
 
@@ -282,10 +287,15 @@ export const createLogisticsDataProvider = ({
       meta,
     }: UpdateParams<TVariables>) {
       const definition = getDefinition(resource);
+      if (definition.allowGenericMutation === false) throw new Error("COMMAND_RESOURCE_REQUIRES_FEATURE_ADAPTER");
+      if (definition.canMutateRecord) {
+        const current = await apiClient.instance.get<unknown>(buildItemPath(definition, id));
+        if (!definition.canMutateRecord(current.data)) throw new ApiHttpError({ statusCode: 409, code: "INVOICE_IMMUTABLE_HISTORY", message: "INVOICE_IMMUTABLE_HISTORY", requestId: null });
+      }
       const data = await requestRecord<TData>({
         method: definition.updateMethod ?? "put",
         url: buildItemPath(definition, id),
-        data: variables,
+        data: definition.mutationContract ? guardResourceMutation(definition.mutationContract, variables, true) : variables,
         ...withSignal(readQuerySignal(meta)),
       });
 
@@ -302,6 +312,7 @@ export const createLogisticsDataProvider = ({
       meta,
     }: DeleteOneParams<TVariables>) {
       const definition = getDefinition(resource);
+      if (definition.allowGenericMutation === false) throw new Error("COMMAND_RESOURCE_REQUIRES_FEATURE_ADAPTER");
       const response = await apiClient.instance.delete<unknown>(
         buildItemPath(definition, id),
         {
@@ -347,6 +358,7 @@ export const createLogisticsDataProvider = ({
         );
       }
 
+      if (meta?.responseMode !== undefined && meta.responseMode !== "raw" && meta.responseMode !== "envelope") throw new Error("INVALID_RESPONSE_MODE");
       const requestHeaders = createRequestHeaders(headers);
       const requestData =
         method === "get" ||
@@ -360,6 +372,10 @@ export const createLogisticsDataProvider = ({
         method,
         ...(requestData === undefined ? {} : { data: requestData }),
         params: serializeCustomQuery(query),
+        // RAW is an endpoint opt-in; generic CRUD continues to require envelopes.
+        ...(meta?.responseMode === "raw"
+          ? { logistics: { responseMode: "raw" as const } }
+          : {}),
         ...(requestHeaders ? { headers: requestHeaders } : {}),
         ...withSignal(readQuerySignal(meta)),
       });

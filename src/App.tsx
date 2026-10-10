@@ -19,7 +19,6 @@ import {
   AppBootstrap,
   type AppBootstrapProps,
 } from "./config";
-import { env } from "./config/env";
 import {
   createFoundationResources,
   foundationApiResources,
@@ -33,10 +32,8 @@ import { createLogisticsDataProvider } from "./providers/dataProvider";
 import {
   browserLocationAdapter,
   createAuthProvider,
-  createDevelopmentAuthProvider,
 } from "./providers/authProvider";
 import { createCurrentUserLoader } from "./providers/auth/currentUser";
-import { DemoAuthSession } from "./providers/auth/demoAuthSession";
 import { createRefineI18nProvider } from "./providers/i18nProvider";
 import { createRemoteJwkAccessTokenVerifier } from "./providers/auth/jwtVerifier";
 import { useAntdNotificationProvider } from "./providers/notificationProvider";
@@ -103,34 +100,11 @@ export function RuntimeApplication({
       tokenVerifier: createRemoteJwkAccessTokenVerifier(authSettings),
       refreshSkewSeconds: authSettings.refreshSkewSeconds,
     });
-    const localSession = new DemoAuthSession();
-    // Local password auth requires all three development gates. Production
-    // builds cannot enable it using runtime configuration alone.
-    const demoEnabled =
-      import.meta.env.DEV &&
-      state.config.featureFlags.demoAuth ==
-        true &&
-      env.demoAuth !== null;
-    const tokenProvider = demoEnabled
-      ? {
-          getAccessToken: () =>
-            localSession.isActive()
-              ? localSession.getAccessToken()
-              : sessions.getAccessToken(),
-          refreshAccessToken: async () =>
-            localSession.isActive()
-              ? localSession.refreshAccessToken()
-              : sessions.refreshAccessToken(),
-          onRefreshFailure: async () => {
-            await localSession.clearSession();
-            await sessions.clearSession();
-          },
-        }
-      : {
-          getAccessToken: sessions.getAccessToken,
-          refreshAccessToken: sessions.refreshAccessToken,
-          onRefreshFailure: sessions.clearSession,
-        };
+    const tokenProvider = {
+      getAccessToken: sessions.getAccessToken,
+      refreshAccessToken: sessions.refreshAccessToken,
+      onRefreshFailure: sessions.clearSession,
+    };
     const apiClient = createApiClient({
       runtimeConfig: {
         apiBaseUrl: state.config.apiBaseUrl,
@@ -142,36 +116,24 @@ export function RuntimeApplication({
     const loadIdentity = createCurrentUserLoader({
       apiClient,
       clearSession: async () => {
-        await localSession.clearSession();
         await sessions.clearSession();
       },
     });
-    const productionAuthProvider = createAuthProvider({
+    const authProvider = createAuthProvider({
       sessions,
       location: browserLocationAdapter,
       loginPath: "/login",
       loadIdentity,
-    });
-    const developmentAuthProvider = createDevelopmentAuthProvider({
       apiClient,
-      localSession,
-      loadIdentity,
-      oidcProvider: productionAuthProvider,
+      larkLoginUrl:
+        import.meta.env.VITE_LARK_LOGIN_URL ??
+        `${state.config.apiBaseUrl.replace(/\/api\/?$/, "").replace(/\/$/, "")}/api/auth/lark/login`,
     });
-    const roleSource = demoEnabled
-      ? {
-          getJwtRoles: async () =>
-            localSession.isActive()
-              ? localSession.getJwtRoles()
-              : sessions.getJwtRoles(),
-        }
-      : sessions;
 
     return {
-      accessControlProvider: createAccessControlProvider(roleSource),
-      authProvider: demoEnabled
-        ? developmentAuthProvider
-        : productionAuthProvider,
+      download: apiClient.download,
+      accessControlProvider: createAccessControlProvider(sessions),
+      authProvider,
       dataProvider: createLogisticsDataProvider({
         apiClient,
         resources: foundationApiResources,
@@ -230,6 +192,7 @@ export function RuntimeApplication({
         }}
       >
         <AppRouter
+          download={runtime.download}
           diagnosticsState={state}
           resourcePageRoutes={foundationResourcePageRoutes}
         />

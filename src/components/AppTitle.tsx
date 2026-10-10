@@ -9,6 +9,6 @@ import { env } from "@config/env";
 
 export const AppTitle = ({ collapsed }: TitleProps) => (
   <Typography.Title className="app-brand" level={4}>
-    {collapsed ? "C" : env.appName}
+    {collapsed ? (env.appName.charAt(0) || "L") : env.appName}
   </Typography.Title>
 );

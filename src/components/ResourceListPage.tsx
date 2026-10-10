@@ -1,9 +1,10 @@
+import { useResourceEditContract } from "./resources/useResourceEditContract";
 import { CreateButton, List, useTable, useModalForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { useShow } from "@refinedev/core";
 import { Modal, Form } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
@@ -17,6 +18,7 @@ import { getResourceCapabilities } from "./resources/resourceCapabilities";
 import { ResourceCreateModal } from "./ResourceCreateModal";
 import { ResourceActionContext } from "./ResourceActionContext";
 import { ResourceFormFields } from "./resources/ResourceFormFields";
+import { ResourceDetailView } from "./resources/ResourceDetailView";
 import {
   isEditableResourceName,
   resourceFormDefinitions,
@@ -26,11 +28,13 @@ import { useLocalizedColumns } from "./useLocalizedColumns";
 interface ResourceListPageProps<TData extends BaseRecord> {
   columns: ColumnsType<TData>;
   resource: string;
+  headerButtons?: ReactNode | ((props: { defaultButtons: ReactNode }) => ReactNode);
 }
 
 export const ResourceListPage = <TData extends BaseRecord>({
   columns,
   resource,
+  headerButtons,
 }: ResourceListPageProps<TData>) => {
   const { t } = useTranslation();
   const localizedColumns = useLocalizedColumns(columns);
@@ -63,8 +67,11 @@ export const ResourceListPage = <TData extends BaseRecord>({
     // Lỗi validation của backend gắn vào đúng field đang sửa — xem `ResourceCreateModal`.
     onMutationError: (error) => {
       applyBackendFieldErrors(editModal.form, error.errors ?? {});
+      editContract.reportError(error);
     },
   });
+
+  const editContract = useResourceEditContract(resource, editModal.form, editModal.queryResult?.data?.data, Boolean(editModal.modalProps.open));
 
   const { queryResult: showQueryResult, showId, setShowId } = useShow<BaseRecord, ApiError>({
     resource,
@@ -104,20 +111,25 @@ export const ResourceListPage = <TData extends BaseRecord>({
     isLoading: showQueryResult?.isFetching ?? false,
   });
 
+  const defaultCreateButton = capabilities.create ? (
+    <ResourceCreateModal
+      resource={resource}
+      trigger={(show) => (
+        <CreateButton onClick={(e) => { e.preventDefault(); show(); }} />
+      )}
+    />
+  ) : null;
+
+  const resolvedHeaderButtons =
+    headerButtons !== undefined
+      ? typeof headerButtons === "function"
+        ? headerButtons({ defaultButtons: defaultCreateButton })
+        : headerButtons
+      : defaultCreateButton;
+
   return (
     <ResourceActionContext.Provider value={actionContext}>
-      <List
-        headerButtons={
-          capabilities.create ? (
-            <ResourceCreateModal
-              resource={resource}
-              trigger={(show) => (
-                <CreateButton onClick={(e) => { e.preventDefault(); show(); }} />
-              )}
-            />
-          ) : null
-        }
-      >
+      <List headerButtons={resolvedHeaderButtons}>
         {entityFilters.controls.length > 0 ? (
           <FilterBar
             controls={entityFilters.controls}
@@ -140,25 +152,30 @@ export const ResourceListPage = <TData extends BaseRecord>({
         />
       </List>
 
-      {isEditable && definition && (
+      {isEditable && capabilities.edit && definition && (
         <Modal
           {...editModal.modalProps}
+          destroyOnClose
+          width={860}
           title={t("crud.editTitle", { resource: resourceLabel })}
           okText={t("actions.save")}
           confirmLoading={editModal.formLoading}
         >
-          <Form {...editModal.formProps} layout="vertical">
-            <ResourceFormFields definition={definition} />
+          {editContract.feedback}
+          <Form {...editModal.formProps} onValuesChange={(changed, values) => { editContract.onValuesChange(changed, values); editModal.formProps.onValuesChange?.(changed, values); }} onFinish={(values) => editModal.formProps.onFinish?.(editContract.prepare(values))} layout="vertical">
+            <ResourceFormFields columns={2} definition={definition} />
           </Form>
         </Modal>
       )}
 
-      {isEditable && definition && (
+      {Boolean(showId) && (
         <Modal
-          open={!!showId}
-          onCancel={() => setShowId(undefined)}
-          title={t("crud.viewTitle", { resource: resourceLabel })}
+          destroyOnClose
           footer={null}
+          onCancel={() => setShowId(undefined)}
+          open={!!showId}
+          title={t("crud.viewTitle", { resource: resourceLabel })}
+          width={860}
         >
           <AsyncStateView
             onRetry={() => void showQueryResult?.refetch()}
@@ -166,9 +183,11 @@ export const ResourceListPage = <TData extends BaseRecord>({
             state={showState}
           >
             {(record) => (
-              <Form initialValues={record} layout="vertical" disabled>
-                <ResourceFormFields definition={definition} />
-              </Form>
+              <ResourceDetailView
+                definition={definition ?? undefined}
+                record={record}
+                resource={resource}
+              />
             )}
           </AsyncStateView>
         </Modal>

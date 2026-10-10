@@ -1,3 +1,3 @@
-/** Hiển thị edit page của Conversation resource. */
-import { ResourceEditPage } from "@components";
-export const ConversationEdit = ResourceEditPage;
+/** Dormant principal-bound Messaging route. */
+import { MessagingPanel } from "@/features/messaging/MessagingPanel";
+export const ConversationEdit = () => <MessagingPanel />;

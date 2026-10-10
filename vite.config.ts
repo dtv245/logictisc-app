@@ -93,22 +93,6 @@ export default defineConfig(({ mode }) => {
               return;
             }
 
-            if (url === '/api/dev-auth/login' && method === 'POST') {
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(
-                JSON.stringify({
-                  accessToken: 'local-dev-mock-token',
-                  tokenType: 'Bearer',
-                  expiresIn: 86400,
-                  subject: '00000000-0000-0000-0000-000000000001',
-                  email: 'admin@logicstic.local',
-                  tenantId: 'local-development',
-                  roles: ['SUPERADMIN'],
-                }),
-              );
-              return;
-            }
-
             if (url === '/api/me' && method === 'GET') {
               res.writeHead(200, { 'Content-Type': 'application/json' });
               res.end(
@@ -295,7 +279,7 @@ export default defineConfig(({ mode }) => {
     exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     setupFiles: ['./src/tests/setup.ts'],
     env: {
-      VITE_API_BASE_URL: 'http://localhost:5173/api',
+      VITE_API_BASE_URL: 'http://localhost:8080/api',
     },
     coverage: {
       provider: 'v8',

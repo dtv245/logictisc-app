@@ -1,61 +1,64 @@
-import type { Address, GeoLocation, Money } from "./common.types";
+import type { GeoLocation } from "./common.types";
 import type { ISODateTime } from "./api.types";
 
-export type LoadType = "container" | "dry_van" | "flatbed" | "reefer" | "vehicle";
-/**
- * Khớp `LoadStatus` của backend (`load/core/LoadStatus.java`), lưu ở cột dạng chữ thường.
- * State machine: `draft → dispatched → picked_up → delivered`, và `cancelled` từ ba trạng thái
- * đầu. `delivered`/`cancelled` là trạng thái kết thúc.
- */
-export type LoadStatus = "draft" | "dispatched" | "picked_up" | "delivered" | "cancelled";
-export type LoadSource = "manual" | "customer_portal" | "load_board" | "api";
-export type ExternalLoadProviderType = "dat" | "truckstop" | "123loadboard" | "other";
-export type HazmatClass = "class_1" | "class_2" | "class_3" | "class_4" | "class_5" | "class_6" | "class_7" | "class_8" | "class_9";
+export type LoadType = string;
+/** CORE status/type are open strings in the verified transport schema. Consequential transitions use explicit known states. */
+export type LoadStatus = string;
+export type LoadSource = string;
+export type ExternalLoadProviderType = string;
+export type HazmatClass = string;
 export type LoadConditionReportType = "pickup" | "delivery" | "return";
 export type LoadExceptionType = "delay" | "damage" | "delivery_failure" | "missing_cargo" | "other";
 export type ConditionDefectSeverity = "minor" | "major" | "critical";
 export type ConditionDefectPartCategory = "body" | "cargo" | "container" | "glass" | "interior" | "seal" | "tires" | "wheels" | "other";
 
+/** Flat LoadView projection from the verified handoff; UI presentation does not add wire fields. */
 export interface LoadResponse {
-  id: string;
-  number: number;
-  name: string;
-  type: LoadType;
-  status: LoadStatus;
-  distance: number;
-  isInProximity: boolean;
-  dispatchedAt?: ISODateTime | null;
-  pickedUpAt?: ISODateTime | null;
-  deliveredAt?: ISODateTime | null;
-  cancelledAt?: ISODateTime | null;
-  customerId: string;
-  customerName?: string;
-  assignedTruckId?: string | null;
-  assignedTruckNumber?: string | null;
   assignedDispatcherId?: string | null;
   assignedDispatcherName?: string | null;
-  source: LoadSource;
-  requestedPickupDate?: ISODateTime | null;
-  requestedDeliveryDate?: ISODateTime | null;
-  notes?: string | null;
+  assignedTruckId?: string | null;
+  assignedTruckNumber?: string | null;
+  cancelledAt?: string | null;
+  customerId: string;
+  customerName?: string | null;
+  deliveredAt?: string | null;
+  deliveryCostAmount?: number | null;
+  deliveryCostCurrency?: string | null;
+  destinationAddressCity?: string | null;
+  destinationAddressCountry?: string | null;
+  destinationAddressLine1?: string | null;
+  destinationAddressLine2?: string | null;
+  destinationAddressState?: string | null;
+  destinationAddressZipCode?: string | null;
+  destinationLocationLatitude?: number | null;
+  destinationLocationLongitude?: number | null;
+  dispatchedAt?: string | null;
+  distance: number;
+  hazmatClass?: string | null;
+  id: string;
   isHazmat: boolean;
-  hazmatClass?: HazmatClass | null;
+  isInProximity: boolean;
+  name: string;
+  notes?: string | null;
+  number: number;
+  originAddressCity?: string | null;
+  originAddressCountry?: string | null;
+  originAddressLine1?: string | null;
+  originAddressLine2?: string | null;
+  originAddressState?: string | null;
+  originAddressZipCode?: string | null;
+  originLocationLatitude?: number | null;
+  originLocationLongitude?: number | null;
+  pickedUpAt?: string | null;
+  pickupBusinessDateChangeId?: string | null;
+  requestedDeliveryDate?: string | null;
+  requestedPickupBusinessDate?: string | null;
+  requestedPickupDate?: string | null;
+  source: string;
+  status: string;
+  type: string;
   unNumber?: string | null;
-  containerId?: string | null;
-  originTerminalId?: string | null;
-  destinationTerminalId?: string | null;
-  externalSourceProvider?: ExternalLoadProviderType | null;
-  externalSourceId?: string | null;
-  externalBrokerReference?: string | null;
-  deliveryCost: Money;
-  destinationAddress: Address;
-  destinationLocation: GeoLocation;
-  originAddress: Address;
-  originLocation: GeoLocation;
-  createdAt: ISODateTime;
-  createdBy?: string | null;
-  lastModifiedAt?: ISODateTime | null;
-  lastModifiedBy?: string | null;
+  version?: number | null;
 }
 
 export interface LoadExceptionResponse {
@@ -103,3 +106,5 @@ export interface LoadConditionReportResponse {
   lastModifiedAt?: ISODateTime | null;
   lastModifiedBy?: string | null;
 }
+
+export type { CreateLoadRequest, UpdateLoadRequest, SetPickupBusinessDateRequest } from "./handoff.generated";

@@ -171,4 +171,135 @@ describe("createAuthProvider", () => {
     });
     expect(logout).toHaveBeenCalledOnce();
   });
+
+  it("redirects to Lark OAuth URL when provider is lark and mode is redirect", async () => {
+    const { manager } = createManager();
+    const assign = vi.fn();
+    const provider = createAuthProvider({
+      sessions: manager,
+      location: {
+        getCurrentPath: () => "/operations",
+        assign,
+      },
+      larkLoginUrl: "https://auth.company.com/api/auth/lark/login",
+    });
+
+    await expect(
+      provider.login({
+        provider: "lark",
+        mode: "redirect",
+        returnTo: "/operations",
+      }),
+    ).resolves.toEqual({ success: true });
+
+    expect(assign).toHaveBeenCalledWith(
+      "https://auth.company.com/api/auth/lark/login?returnTo=%2Foperations",
+    );
+  });
+
+  it("completes Lark callback, establishes session, and returns validated redirect URL", async () => {
+    const { manager } = createManager();
+    const post = vi.fn().mockResolvedValue({
+      data: {
+        accessToken: "lark-jwt-token",
+        tokenType: "Bearer",
+        expiresIn: 3600,
+        subject: "emp-uuid-1",
+        email: "emp1@example.com",
+        tenantId: "tenant-1",
+        roles: ["DISPATCHER"],
+        returnTo: "/loads",
+      },
+    });
+    const apiClient = {
+      instance: { post } as unknown,
+    } as unknown as import("@/types/apiClient.types").LogisticsApiClient;
+
+    const provider = createAuthProvider({
+      sessions: manager,
+      location: { getCurrentPath: () => "/auth/callback" },
+      apiClient,
+    });
+
+    const result = await provider.login({
+      provider: "lark",
+      mode: "callback",
+      code: "auth-code-123",
+      state: "state-token-456",
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      redirectTo: "/loads",
+    });
+    expect(post).toHaveBeenCalledWith(
+      "/api/auth/lark/callback",
+      expect.objectContaining({
+        code: "auth-code-123",
+        state: "state-token-456",
+      }),
+      expect.anything(),
+    );
+    await expect(manager.getAccessToken()).resolves.toBe("lark-jwt-token");
+    await expect(manager.getJwtRoles()).resolves.toEqual(["DISPATCHER"]);
+  });
+
+  it("handles Lark callback cancellation without calling backend", async () => {
+    const { manager } = createManager();
+    const post = vi.fn();
+    const apiClient = {
+      instance: { post } as unknown,
+    } as unknown as import("@/types/apiClient.types").LogisticsApiClient;
+
+    const provider = createAuthProvider({
+      sessions: manager,
+      location: { getCurrentPath: () => "/auth/callback" },
+      apiClient,
+    });
+
+    const result = await provider.login({
+      provider: "lark",
+      mode: "callback",
+      error: "access_denied",
+      errorDescription: "User cancelled authentication",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        name: "LARK_AUTH_CANCELLED",
+        message: "User cancelled authentication",
+      },
+    });
+    expect(post).not.toHaveBeenCalled();
+  });
+
+  it("handles Lark callback API failure and clears session", async () => {
+    const { manager } = createManager();
+    const post = vi
+      .fn()
+      .mockRejectedValue(new Error("No active employee mapped to Lark user"));
+    const apiClient = {
+      instance: { post } as unknown,
+    } as unknown as import("@/types/apiClient.types").LogisticsApiClient;
+
+    const provider = createAuthProvider({
+      sessions: manager,
+      location: { getCurrentPath: () => "/auth/callback" },
+      apiClient,
+    });
+
+    const result = await provider.login({
+      provider: "lark",
+      mode: "callback",
+      code: "code-unmapped",
+      state: "valid-state",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: expect.any(Error),
+    });
+    await expect(manager.getAccessToken()).resolves.toBeNull();
+  });
 });

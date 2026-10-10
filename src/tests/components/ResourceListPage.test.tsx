@@ -47,6 +47,7 @@ const state = vi.hoisted(() => ({
 }));
 
 vi.mock("@refinedev/core", () => ({
+  useDataProvider: () => () => ({ getOne: vi.fn() }),
   useShow: () => ({
     queryResult: state.showQueryResult,
     setShowId: vi.fn(),

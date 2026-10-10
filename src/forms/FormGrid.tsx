@@ -45,6 +45,7 @@ export const FormGrid = ({ columns = 1, items }: FormGridProps) => (
         // `span` cho màn hẹp: 1 cột thì mọi field đã full width sẵn.
         key={item.key}
         lg={columns === 2 && !item.fullWidth ? 12 : 24}
+        md={columns === 2 && !item.fullWidth ? 12 : 24}
         span={24}
       >
         {item.node}

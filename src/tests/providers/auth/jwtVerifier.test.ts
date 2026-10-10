@@ -42,7 +42,7 @@ describe("validateVerifiedAccessTokenClaims", () => {
       expiresAt: 2_000,
       tenantId: "tenant-1",
       subject: "user-1",
-      roles: ["SUPERADMIN", "DISPATCHER"],
+      roles: ["DISPATCHER"],
     });
   });
 

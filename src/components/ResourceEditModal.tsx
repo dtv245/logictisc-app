@@ -4,6 +4,7 @@ import { Form, Modal } from "antd";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
+import { useResourceEditContract } from "./resources/useResourceEditContract";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
@@ -23,7 +24,7 @@ interface ResourceEditModalProps {
 export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEditModalProps) => {
   const { t } = useTranslation();
 
-  const { form, modalProps, formProps, formLoading, close } = useModalForm<
+  const { form, modalProps, formProps, formLoading, close, queryResult } = useModalForm<
     BaseRecord,
     ApiError,
     Record<string, unknown>
@@ -39,8 +40,11 @@ export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEd
     // Lỗi validation của backend gắn vào đúng field đang sửa — xem `ResourceCreateModal`.
     onMutationError: (error) => {
       applyBackendFieldErrors(form, error.errors ?? {});
+      contract.reportError(error);
     },
   });
+
+  const contract = useResourceEditContract(resource, form, queryResult?.data?.data, visible);
 
   // Đóng thật gồm hai phần: `close` để Refine dọn state nội bộ và reset form, còn
   // `onClose` báo cho cha. Cả hai chỉ được chạy **sau** khi người dùng xác nhận bỏ thay
@@ -64,17 +68,22 @@ export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEd
   return (
     <Modal
       {...modalProps}
+      destroyOnClose
+      width={860}
       open={visible}
       onCancel={discardConfirm.onCancel}
       title={t("crud.editTitle", { resource: t(`resources.${resource}`) })}
       okText={t("actions.save")}
       confirmLoading={formLoading}
     >
+      {contract.feedback}
       <Form
         {...formProps}
+        onValuesChange={(changed, values) => { contract.onValuesChange(changed, values); formProps.onValuesChange?.(changed, values); }}
+        onFinish={(values) => formProps.onFinish?.(contract.prepare(values))}
         layout="vertical"
       >
-        <ResourceFormFields definition={definition} />
+        <ResourceFormFields columns={2} definition={definition} />
       </Form>
     </Modal>
   );

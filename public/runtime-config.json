@@ -1,5 +1,5 @@
 {
-  "appName": "Logictics",
+  "appName": "Logistics",
   "environment": "development",
   "apiBaseUrl": "http://localhost:5173",
   "requestTimeoutMs": 15000,
@@ -16,7 +16,6 @@
   },
   "defaultLocale": "vi",
   "featureFlags": {
-    "demoAuth": true,
     "tenantChange": true
   }
 }

@@ -2,6 +2,7 @@ import type { HttpError } from "@refinedev/core";
 
 export type UUID = string;
 export type ISODateTime = string;
+export type ISODate = string;
 
 /**
  * Lỗi chi tiết (DTO) do Spring Boot backend trả về trong mảng `errors`.

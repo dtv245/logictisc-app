@@ -1,9 +1,7 @@
 /**
- * Refine v4 AuthProvider implementations for the application.
+ * Refine v4 AuthProvider implementation for the application.
  *
- * `createAuthProvider` adapts an OIDC session while
- * `createDevelopmentAuthProvider` layers local password login on top of it
- * during development. Both expose the same Refine `AuthProvider` contract.
+ * `createAuthProvider` adapts standard OIDC and Lark SSO sessions.
  */
 
 import type {
@@ -12,17 +10,16 @@ import type {
 } from "@refinedev/core";
 
 import { routes } from "../constants/routes";
-import { isPasswordLoginParams } from "../types/auth.types";
+import type { LarkAuthLoginResponse } from "../types/auth.types";
 import type {
   AuthIdentity,
   BrowserLocationAdapter,
 } from "../types/authSession.types";
 import type { LogisticsApiClient } from "../types/apiClient.types";
 import { translate } from "@locales/translate";
-import { normalizeHttpError } from "../providers/api/httpError";
 import { normalizeLocalReturnTo } from "../providers/auth/oidcGateway";
 import { AuthSessionManager } from "../providers/auth/sessionManager";
-import { DemoAuthSession } from "../providers/auth/demoAuthSession";
+import { env } from "../config/env";
 
 const DEFAULT_LOGIN_PATH = "/login";
 
@@ -33,6 +30,8 @@ export interface AuthProviderOptions {
   readonly loadIdentity?: (
     identity: AuthIdentity,
   ) => Promise<AuthIdentity>;
+  readonly apiClient?: LogisticsApiClient;
+  readonly larkLoginUrl?: string;
 }
 
 const readStringProperty = (
@@ -132,9 +131,105 @@ export const createAuthProvider = (
 
   return {
     login: async (params: unknown) => {
+      const provider = readStringProperty(params, "provider");
+      const mode = readStringProperty(params, "mode");
+
+      if (
+        provider === "lark" ||
+        (mode === "callback" &&
+          Boolean(
+            readStringProperty(params, "code") ||
+              readStringProperty(params, "error") ||
+              readStringProperty(params, "errorDescription"),
+          ))
+      ) {
+        if (mode === "redirect") {
+          const returnTo = extractLoginReturnTo(
+            params,
+            options.location.getCurrentPath(),
+          );
+          const larkLoginBase = options.larkLoginUrl ?? env.larkLoginUrl;
+          const larkUrl = `${larkLoginBase}?returnTo=${encodeURIComponent(returnTo)}`;
+          if (options.location.assign) {
+            options.location.assign(larkUrl);
+          } else {
+            window.location.assign(larkUrl);
+          }
+          return { success: true };
+        }
+
+        if (mode === "callback") {
+          const code = readStringProperty(params, "code");
+          const state = readStringProperty(params, "state");
+          const returnTo = readStringProperty(params, "returnTo");
+          const error = readStringProperty(params, "error");
+          const errorDescription =
+            readStringProperty(params, "errorDescription") ??
+            readStringProperty(params, "error_description");
+
+          if (error) {
+            return {
+              success: false,
+              error: {
+                message: errorDescription || `LARK_AUTH_CANCELLED: ${error}`,
+                name: "LARK_AUTH_CANCELLED",
+              },
+            };
+          }
+
+          if (!code) {
+            return {
+              success: false,
+              error: {
+                message: "Authorization code is missing",
+                name: "LARK_CODE_MISSING",
+              },
+            };
+          }
+
+          try {
+            if (!options.apiClient) {
+              throw new Error("LARK_API_CLIENT_REQUIRED");
+            }
+
+            const response = await options.apiClient.instance.post<unknown>(
+              "/api/auth/lark/callback",
+              {
+                code,
+                state,
+                returnTo,
+                error,
+                errorDescription,
+              },
+              {
+                logistics: { authentication: "none" },
+              },
+            );
+
+            const loginResponse = response.data as LarkAuthLoginResponse;
+            await options.sessions.establishLarkSession(loginResponse);
+
+            return {
+              success: true,
+              redirectTo: normalizeLocalReturnTo(
+                loginResponse.returnTo ?? routes.dashboard,
+                routes.dashboard,
+              ),
+              successNotification: { message: translate("auth.loginSuccess") },
+            };
+          } catch (callbackErr) {
+            await options.sessions.clearSession();
+            return {
+              success: false,
+              error: toProviderError(callbackErr),
+            };
+          }
+        }
+      }
+
       // Callback hoàn tất authorization-code flow; các lần login còn lại chỉ
       // khởi tạo redirect sang Identity Server.
-      if (readStringProperty(params, "mode") === "callback") {
+      if (mode === "callback") {
         const result = await options.sessions.completeLogin();
         return {
           success: true,
@@ -238,94 +333,7 @@ export const createAuthProvider = (
 export const browserLocationAdapter: BrowserLocationAdapter = {
   getCurrentPath: () =>
     `${window.location.pathname}${window.location.search}${window.location.hash}`,
+  assign: (url: string) => {
+    window.location.assign(url);
+  },
 };
-interface CreateDevelopmentAuthProviderOptions {
-  apiClient: LogisticsApiClient;
-  localSession: DemoAuthSession;
-  loadIdentity: (identity: AuthIdentity) => Promise<AuthIdentity>;
-  oidcProvider: AuthProvider;
-}
-
-export const createDevelopmentAuthProvider = ({
-  apiClient,
-  localSession,
-  loadIdentity,
-  oidcProvider,
-}: CreateDevelopmentAuthProviderOptions): AuthProvider => ({
-  async login(params: unknown) {
-    if (!isPasswordLoginParams(params)) {
-      return oidcProvider.login(params);
-    }
-
-    try {
-      await localSession.login(apiClient, params);
-      return {
-        success: true,
-        // Nếu người dùng deep-link tới trang bảo vệ thì quay lại đúng trang đó
-        // sau đăng nhập; nếu không thì về dashboard.
-        redirectTo: normalizeLocalReturnTo(
-          typeof params === "object" &&
-            params !== null &&
-            typeof Reflect.get(params, "returnTo") === "string"
-            ? Reflect.get(params, "returnTo")
-            : routes.dashboard,
-          routes.dashboard,
-        ),
-        successNotification: { message: translate("auth.loginSuccess") },
-      };
-    } catch (error) {
-      await localSession.clearSession();
-      return {
-        success: false,
-        error: normalizeHttpError(error),
-      };
-    }
-  },
-
-  async logout(params: unknown) {
-    if (!localSession.isActive()) {
-      return oidcProvider.logout(params);
-    }
-
-    await localSession.clearSession();
-    return { success: true, redirectTo: routes.login };
-  },
-
-  async check(params: unknown) {
-    if (localSession.isActive()) {
-      return { authenticated: true };
-    }
-    return oidcProvider.check(params);
-  },
-
-  async getIdentity(params: unknown) {
-    const identity = localSession.getIdentity();
-    return identity
-      ? loadIdentity(identity)
-      : oidcProvider.getIdentity?.(params);
-  },
-
-  async getPermissions(params?: Record<string, unknown>) {
-    return localSession.isActive()
-      ? localSession.getJwtRoles()
-      : oidcProvider.getPermissions?.(params);
-  },
-
-  async onError(error: unknown) {
-    if (!localSession.isActive()) {
-      return oidcProvider.onError(error);
-    }
-
-    const apiError = normalizeHttpError(error);
-    if (apiError.statusCode === 401) {
-      await localSession.clearSession();
-      return {
-        logout: true,
-        redirectTo: routes.login,
-        error: apiError,
-      };
-    }
-
-    return { error: apiError };
-  },
-});

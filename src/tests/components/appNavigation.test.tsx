@@ -10,10 +10,12 @@
  * không trùng nhau, và mỗi mục có nhãn dịch được ở cả `vi` lẫn `en`.
  */
 
-import { APP_NAV_ITEMS } from "@components/appNavigation";
+import { APP_NAV_ITEMS, visibleAppNavItems } from "@components/appNavigation";
 import { routes } from "@constants/routes";
 import { enMessages, viMessages } from "@locales";
 import { describe, expect, it } from "vitest";
+import { createAccessControlProvider } from "@providers/accessControlProvider";
+import { normalizeJwtRoles } from "@providers/permissions/jwtRoles";
 
 /** Các route cấp ứng dụng (không phải resource) mà router thật sự khai báo. */
 const APP_ROUTES: readonly string[] = [
@@ -23,7 +25,15 @@ const APP_ROUTES: readonly string[] = [
   routes.forbidden,
   routes.login,
   routes.operations,
+  routes.profile,
+  routes.profitability,
+  routes.payroll,
+  routes.optimization,
+  routes.fleetReport,
+  routes.myPayslips,
   routes.selectTenant,
+  routes.resources.settlements.list,
+  routes.resources.settlements.policies,
 ];
 
 const lookup = (messages: unknown, key: string): unknown =>
@@ -38,6 +48,29 @@ const lookup = (messages: unknown, key: string): unknown =>
     );
 
 describe("điều hướng cấp ứng dụng", () => {
+  it("does not expose the backend-blocked Profile route in application navigation", () => {
+    expect(APP_NAV_ITEMS.some((item) => item.route === routes.profile)).toBe(false);
+  });
+  it.each(["ADMIN", "ACCOUNTANT", "PAYROLL", "PAYROLL_MANAGER", "SUPERADMIN", "OWNER", "MANAGER", "DISPATCHER", "DRIVER", "UNKNOWN"])(
+    "shows finance navigation only with backend capabilities for %s", async (authority) => {
+      const provider = createAccessControlProvider({ getJwtRoles: async () => normalizeJwtRoles(null, [authority]) });
+      const allowed = new Set<string>();
+      for (const item of APP_NAV_ITEMS) {
+        if (item.permission && (await provider.can(item.permission)).can) allowed.add(item.key);
+      }
+      const targets = visibleAppNavItems(allowed).map((item) => item.route);
+      const finance = ["ADMIN", "ACCOUNTANT", "PAYROLL", "PAYROLL_MANAGER"].includes(authority);
+      expect(targets.includes(routes.resources.settlements.list)).toBe(finance);
+      expect(targets.includes(routes.profitability)).toBe(finance);
+      expect(targets.includes(routes.payroll)).toBe(finance);
+      expect(targets.includes(routes.optimization)).toBe(["ADMIN", "DISPATCHER"].includes(authority));
+      expect(targets.includes(routes.fleetReport)).toBe(finance);
+      expect(targets.includes(routes.resources.settlements.policies)).toBe(finance);
+      expect(targets).not.toContain(routes.dashboard);
+      expect(targets).toContain(routes.operations);
+      expect(targets.includes(routes.myPayslips)).toBe(authority !== "UNKNOWN");
+    },
+  );
   it("mọi mục menu đều trỏ tới một route có thật", () => {
     const dangling = APP_NAV_ITEMS.filter(
       (item) => !APP_ROUTES.includes(item.route),
@@ -54,10 +87,10 @@ describe("điều hướng cấp ứng dụng", () => {
     expect(new Set(targets).size).toBe(targets.length);
   });
 
-  it("cả hai màn hình dashboard đều có mặt trong menu", () => {
+  it("keeps Operations enabled while the Executive contract is blocked", () => {
     const targets = APP_NAV_ITEMS.map((item) => item.route);
 
-    expect(targets).toContain(routes.dashboard);
+    expect(targets).not.toContain(routes.dashboard);
     expect(targets).toContain(routes.operations);
   });
 

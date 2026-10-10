@@ -1,0 +1,1695 @@
+{
+  "captured_at": "2026-10-07T04:09:31.977748+07:00",
+  "scope": "READ_ONLY_RUNTIME_DISCOVERY_NOT_INTEGRATION",
+  "openapi_url": "http://localhost:8080/v3/api-docs",
+  "expected": {
+    "paths": 140,
+    "operations": 176,
+    "schemas": 291,
+    "canonical_sha256": "2d10d31b8c7a013fa10aca92b5cf3411cadf8dcd5a1ca88f540201b3771e7774"
+  },
+  "runtime": {
+    "paths": 138,
+    "operations": 174,
+    "schemas": 285,
+    "canonical_sha256": "4f3b8d8c1579208dfa9d62e27fab5e0c1df6b4b1e15505191ed9c85d48fe7244",
+    "file_sha256": "638276b559d328c24d024e620ddcc5ec6dc8845b7347e53c8cdd72a24ecce89d"
+  },
+  "missing_operations": [
+    {
+      "method": "GET",
+      "path": "/api/internal/build"
+    },
+    {
+      "method": "POST",
+      "path": "/api/payments/{id}/cancel"
+    }
+  ],
+  "additional_operations": [],
+  "changed_operations": [
+    {
+      "method": "DELETE",
+      "path": "/api/payments/{id}",
+      "expected_parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "format": "uuid",
+            "type": "string"
+          }
+        }
+      ],
+      "runtime_parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "expected_request": null,
+      "runtime_request": null,
+      "expected_responses": {
+        "200": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponseVoid"
+              }
+            }
+          },
+          "description": "OK"
+        }
+      },
+      "runtime_responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponseVoid"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/payments/{id}",
+      "expected_parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "format": "uuid",
+            "type": "string"
+          }
+        }
+      ],
+      "runtime_parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "expected_request": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UpdatePaymentRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "runtime_request": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreatePaymentRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "expected_responses": {
+        "200": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponsePaymentView"
+              }
+            }
+          },
+          "description": "OK"
+        }
+      },
+      "runtime_responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponsePaymentView"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/trucks/{id}",
+      "expected_parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "format": "uuid",
+            "type": "string"
+          }
+        }
+      ],
+      "runtime_parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "expected_request": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UpdateTruckRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "runtime_request": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateTruckRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "expected_responses": {
+        "200": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponseTruckView"
+              }
+            }
+          },
+          "description": "OK"
+        }
+      },
+      "runtime_responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponseTruckView"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/loads/{id}",
+      "expected_parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "format": "uuid",
+            "type": "string"
+          }
+        }
+      ],
+      "runtime_parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "expected_request": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UpdateLoadRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "runtime_request": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateLoadRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "expected_responses": {
+        "200": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponseLoadView"
+              }
+            }
+          },
+          "description": "OK"
+        }
+      },
+      "runtime_responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponseLoadView"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/trips/{id}",
+      "expected_parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "format": "uuid",
+            "type": "string"
+          }
+        }
+      ],
+      "runtime_parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "expected_request": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UpdateTripRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "runtime_request": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateTripRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "expected_responses": {
+        "200": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponseTripView"
+              }
+            }
+          },
+          "description": "OK"
+        }
+      },
+      "runtime_responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiResponseTripView"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "changed_schemas": {
+    "AcceptRequest": {
+      "expected_fields": [
+        "expectedInputFingerprint",
+        "idempotencyKey"
+      ],
+      "runtime_fields": [
+        "idempotencyKey",
+        "expectedInputFingerprint"
+      ],
+      "expected_required": [
+        "expectedInputFingerprint",
+        "idempotencyKey"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Adjustment": {
+      "expected_fields": [
+        "affectedDocumentId",
+        "idempotencyKey",
+        "reason",
+        "reasonCode"
+      ],
+      "runtime_fields": [
+        "idempotencyKey",
+        "affectedDocumentId",
+        "reasonCode",
+        "reason"
+      ],
+      "expected_required": [
+        "affectedDocumentId",
+        "idempotencyKey",
+        "reason",
+        "reasonCode"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "ApiResponseIdentity": {
+      "expected_fields": [
+        "code",
+        "data",
+        "errors",
+        "message",
+        "meta",
+        "success"
+      ],
+      "runtime_fields": [],
+      "expected_required": [],
+      "runtime_required": [],
+      "missing_in_runtime": true
+    },
+    "Attribute": {
+      "expected_fields": [
+        "actualMiles",
+        "completedAt",
+        "emptyMiles",
+        "loadedMiles",
+        "policyId",
+        "reason",
+        "reasonCode",
+        "source",
+        "sourceEventId",
+        "supersedesId",
+        "tripId",
+        "truckId"
+      ],
+      "runtime_fields": [
+        "policyId",
+        "truckId",
+        "tripId",
+        "completedAt",
+        "loadedMiles",
+        "emptyMiles",
+        "actualMiles",
+        "source",
+        "sourceEventId",
+        "supersedesId",
+        "reasonCode",
+        "reason"
+      ],
+      "expected_required": [
+        "actualMiles",
+        "completedAt",
+        "source",
+        "tripId",
+        "truckId"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "CapacityRequest": {
+      "expected_fields": [
+        "cargo",
+        "truck"
+      ],
+      "runtime_fields": [
+        "cargo",
+        "truck"
+      ],
+      "expected_required": [
+        "cargo",
+        "truck"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Capture": {
+      "expected_fields": [
+        "executionReference",
+        "kind",
+        "loadId",
+        "occurredAt",
+        "policyId",
+        "reason",
+        "reasonCode",
+        "source",
+        "sourceEventId",
+        "status",
+        "supersedesEventId",
+        "tripId",
+        "truckId",
+        "validUntil"
+      ],
+      "runtime_fields": [
+        "policyId",
+        "truckId",
+        "kind",
+        "status",
+        "occurredAt",
+        "validUntil",
+        "source",
+        "sourceEventId",
+        "tripId",
+        "loadId",
+        "executionReference",
+        "supersedesEventId",
+        "reasonCode",
+        "reason"
+      ],
+      "expected_required": [
+        "kind",
+        "occurredAt",
+        "source",
+        "status",
+        "truckId",
+        "validUntil"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "CaptureRequest": {
+      "expected_fields": [
+        "approvalReference",
+        "capacity",
+        "expiresAt",
+        "forecast",
+        "id",
+        "kind",
+        "maxAgeSeconds",
+        "observedAt",
+        "policyId",
+        "qualification",
+        "reason",
+        "reasonCode",
+        "scope",
+        "source",
+        "supersedesInputId",
+        "unit"
+      ],
+      "runtime_fields": [
+        "id",
+        "policyId",
+        "kind",
+        "scope",
+        "source",
+        "unit",
+        "observedAt",
+        "expiresAt",
+        "maxAgeSeconds",
+        "supersedesInputId",
+        "capacity",
+        "qualification",
+        "forecast",
+        "approvalReference",
+        "reasonCode",
+        "reason"
+      ],
+      "expected_required": [
+        "approvalReference",
+        "id",
+        "kind",
+        "observedAt",
+        "policyId",
+        "reason",
+        "reasonCode",
+        "scope",
+        "source",
+        "unit"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "ContractMileageRequest": {
+      "expected_fields": [
+        "componentType",
+        "contractId",
+        "contractVersion",
+        "originalUnit",
+        "originalValue",
+        "provenance"
+      ],
+      "runtime_fields": [
+        "componentType",
+        "contractId",
+        "contractVersion",
+        "originalValue",
+        "originalUnit",
+        "provenance"
+      ],
+      "expected_required": [
+        "componentType",
+        "originalUnit",
+        "originalValue",
+        "provenance"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "CostRequest": {
+      "expected_fields": [
+        "costId",
+        "forecastPolicyCode",
+        "forecastPolicyVersion",
+        "zeroCostReason"
+      ],
+      "runtime_fields": [
+        "costId",
+        "forecastPolicyCode",
+        "forecastPolicyVersion",
+        "zeroCostReason"
+      ],
+      "expected_required": [
+        "costId",
+        "forecastPolicyCode"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "CreatePaymentRequest": {
+      "expected_fields": [
+        "amountAmount",
+        "amountCurrency",
+        "billingAddressCity",
+        "billingAddressCountry",
+        "billingAddressLine1",
+        "billingAddressLine2",
+        "billingAddressState",
+        "billingAddressZipCode",
+        "description",
+        "idempotencyKey",
+        "invoiceId",
+        "recordedAt",
+        "referenceNumber",
+        "status",
+        "stripePaymentIntentId",
+        "stripePaymentMethodId"
+      ],
+      "runtime_fields": [
+        "status",
+        "invoiceId",
+        "amountAmount",
+        "amountCurrency",
+        "description",
+        "referenceNumber",
+        "stripePaymentMethodId",
+        "stripePaymentIntentId",
+        "recordedAt",
+        "billingAddressLine1",
+        "billingAddressLine2",
+        "billingAddressCity",
+        "billingAddressState",
+        "billingAddressZipCode",
+        "billingAddressCountry"
+      ],
+      "expected_required": [
+        "amountAmount",
+        "amountCurrency",
+        "billingAddressCity",
+        "billingAddressCountry",
+        "billingAddressLine1",
+        "billingAddressState",
+        "billingAddressZipCode",
+        "idempotencyKey",
+        "invoiceId",
+        "status"
+      ],
+      "runtime_required": [
+        "amountAmount",
+        "amountCurrency",
+        "billingAddressCity",
+        "billingAddressCountry",
+        "billingAddressLine1",
+        "billingAddressState",
+        "billingAddressZipCode",
+        "status"
+      ],
+      "missing_in_runtime": false
+    },
+    "CreateRequest": {
+      "expected_fields": [
+        "driverIds",
+        "idempotencyKey",
+        "policyId",
+        "sourceSelections",
+        "targets",
+        "truckIds"
+      ],
+      "runtime_fields": [
+        "idempotencyKey",
+        "policyId",
+        "targets",
+        "driverIds",
+        "truckIds",
+        "sourceSelections"
+      ],
+      "expected_required": [
+        "driverIds",
+        "idempotencyKey",
+        "policyId",
+        "sourceSelections",
+        "targets",
+        "truckIds"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Credit": {
+      "expected_fields": [
+        "idempotencyKey",
+        "lines",
+        "reason",
+        "reasonCode",
+        "taxDecision"
+      ],
+      "runtime_fields": [
+        "idempotencyKey",
+        "lines",
+        "taxDecision",
+        "reasonCode",
+        "reason"
+      ],
+      "expected_required": [
+        "idempotencyKey",
+        "lines",
+        "reason",
+        "reasonCode",
+        "taxDecision"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "CreditLine": {
+      "expected_fields": [
+        "amount",
+        "originalLineId",
+        "quantity",
+        "taxAmount"
+      ],
+      "runtime_fields": [
+        "originalLineId",
+        "amount",
+        "taxAmount",
+        "quantity"
+      ],
+      "expected_required": [
+        "amount",
+        "originalLineId",
+        "taxAmount"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "ForecastRequest": {
+      "expected_fields": [
+        "accessorialApplicable",
+        "costs",
+        "permitApplicable"
+      ],
+      "runtime_fields": [
+        "accessorialApplicable",
+        "permitApplicable",
+        "costs"
+      ],
+      "expected_required": [
+        "accessorialApplicable",
+        "costs",
+        "permitApplicable"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "GenerateInvoiceRequest": {
+      "expected_fields": [
+        "idempotencyKey",
+        "lineTaxes",
+        "snapshotId",
+        "taxDecision"
+      ],
+      "runtime_fields": [
+        "idempotencyKey",
+        "snapshotId",
+        "taxDecision",
+        "lineTaxes"
+      ],
+      "expected_required": [
+        "idempotencyKey",
+        "lineTaxes",
+        "snapshotId",
+        "taxDecision"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Identity": {
+      "expected_fields": [
+        "buildId",
+        "builtAt",
+        "dirty",
+        "sourceCommit",
+        "sourceHash",
+        "version"
+      ],
+      "runtime_fields": [],
+      "expected_required": [],
+      "runtime_required": [],
+      "missing_in_runtime": true
+    },
+    "Issue": {
+      "expected_fields": [
+        "idempotencyKey"
+      ],
+      "runtime_fields": [
+        "idempotencyKey"
+      ],
+      "expected_required": [
+        "idempotencyKey"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "LineTax": {
+      "expected_fields": [
+        "componentType",
+        "sourceId",
+        "taxAmount"
+      ],
+      "runtime_fields": [
+        "componentType",
+        "sourceId",
+        "taxAmount"
+      ],
+      "expected_required": [
+        "componentType",
+        "sourceId",
+        "taxAmount"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "LoadView": {
+      "expected_fields": [
+        "assignedDispatcherId",
+        "assignedDispatcherName",
+        "assignedTruckId",
+        "assignedTruckNumber",
+        "cancelledAt",
+        "customerId",
+        "customerName",
+        "deliveredAt",
+        "deliveryCostAmount",
+        "deliveryCostCurrency",
+        "destinationAddressCity",
+        "destinationAddressCountry",
+        "destinationAddressLine1",
+        "destinationAddressLine2",
+        "destinationAddressState",
+        "destinationAddressZipCode",
+        "destinationLocationLatitude",
+        "destinationLocationLongitude",
+        "dispatchedAt",
+        "distance",
+        "hazmatClass",
+        "id",
+        "isHazmat",
+        "isInProximity",
+        "name",
+        "notes",
+        "number",
+        "originAddressCity",
+        "originAddressCountry",
+        "originAddressLine1",
+        "originAddressLine2",
+        "originAddressState",
+        "originAddressZipCode",
+        "originLocationLatitude",
+        "originLocationLongitude",
+        "pickedUpAt",
+        "pickupBusinessDateChangeId",
+        "requestedDeliveryDate",
+        "requestedPickupBusinessDate",
+        "requestedPickupDate",
+        "source",
+        "status",
+        "type",
+        "unNumber",
+        "version"
+      ],
+      "runtime_fields": [
+        "id",
+        "number",
+        "name",
+        "type",
+        "status",
+        "distance",
+        "isInProximity",
+        "dispatchedAt",
+        "pickedUpAt",
+        "deliveredAt",
+        "cancelledAt",
+        "customerId",
+        "customerName",
+        "assignedTruckId",
+        "assignedTruckNumber",
+        "assignedDispatcherId",
+        "assignedDispatcherName",
+        "source",
+        "requestedPickupDate",
+        "requestedDeliveryDate",
+        "notes",
+        "isHazmat",
+        "hazmatClass",
+        "unNumber",
+        "deliveryCostAmount",
+        "deliveryCostCurrency",
+        "originAddressLine1",
+        "originAddressLine2",
+        "originAddressCity",
+        "originAddressState",
+        "originAddressZipCode",
+        "originAddressCountry",
+        "originLocationLatitude",
+        "originLocationLongitude",
+        "destinationAddressLine1",
+        "destinationAddressLine2",
+        "destinationAddressCity",
+        "destinationAddressState",
+        "destinationAddressZipCode",
+        "destinationAddressCountry",
+        "destinationLocationLatitude",
+        "destinationLocationLongitude",
+        "requestedPickupBusinessDate",
+        "pickupBusinessDateChangeId"
+      ],
+      "expected_required": [],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "PickupBusinessDateProvenance": {
+      "expected_fields": [
+        "reason",
+        "reasonCode",
+        "source"
+      ],
+      "runtime_fields": [
+        "reasonCode",
+        "reason",
+        "source"
+      ],
+      "expected_required": [
+        "reason",
+        "reasonCode",
+        "source"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Publish": {
+      "expected_fields": [
+        "activityStates",
+        "approvalReference",
+        "capacityStates",
+        "code",
+        "membershipStates",
+        "sources",
+        "version"
+      ],
+      "runtime_fields": [
+        "code",
+        "version",
+        "membershipStates",
+        "capacityStates",
+        "activityStates",
+        "sources",
+        "approvalReference"
+      ],
+      "expected_required": [
+        "activityStates",
+        "approvalReference",
+        "capacityStates",
+        "code",
+        "membershipStates",
+        "sources"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "PublishRequest": {
+      "expected_fields": [
+        "approvalReference",
+        "code",
+        "eligibilitySourcePolicy",
+        "scoringPolicy",
+        "version"
+      ],
+      "runtime_fields": [
+        "code",
+        "version",
+        "eligibilitySourcePolicy",
+        "scoringPolicy",
+        "approvalReference"
+      ],
+      "expected_required": [
+        "approvalReference",
+        "code",
+        "eligibilitySourcePolicy",
+        "scoringPolicy"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "QualificationRequest": {
+      "expected_fields": [
+        "effectiveFrom",
+        "effectiveUntil",
+        "equipmentMatches",
+        "hazmatDriver",
+        "hazmatRequired",
+        "hazmatTruck",
+        "maintenanceClear",
+        "operational",
+        "qualifiedDriver",
+        "validLicense"
+      ],
+      "runtime_fields": [
+        "qualifiedDriver",
+        "validLicense",
+        "hazmatDriver",
+        "equipmentMatches",
+        "hazmatTruck",
+        "operational",
+        "maintenanceClear",
+        "hazmatRequired",
+        "effectiveFrom",
+        "effectiveUntil"
+      ],
+      "expected_required": [
+        "effectiveFrom",
+        "effectiveUntil",
+        "equipmentMatches",
+        "hazmatDriver",
+        "hazmatRequired",
+        "hazmatTruck",
+        "maintenanceClear",
+        "operational",
+        "qualifiedDriver",
+        "validLicense"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "RateRuleRequest": {
+      "expected_fields": [
+        "baseRate",
+        "contractId",
+        "contractVersion",
+        "currency",
+        "customerId",
+        "effectiveFrom",
+        "effectiveTo",
+        "equipment",
+        "fsc",
+        "lane",
+        "linehaulMileageBasis",
+        "maximumCharge",
+        "method",
+        "minimumCharge",
+        "priority",
+        "service",
+        "tier"
+      ],
+      "runtime_fields": [
+        "priority",
+        "customerId",
+        "contractId",
+        "contractVersion",
+        "lane",
+        "equipment",
+        "service",
+        "tier",
+        "currency",
+        "effectiveFrom",
+        "effectiveTo",
+        "method",
+        "baseRate",
+        "linehaulMileageBasis",
+        "minimumCharge",
+        "maximumCharge",
+        "fsc"
+      ],
+      "expected_required": [
+        "baseRate",
+        "currency",
+        "effectiveFrom",
+        "method",
+        "priority"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "RatingAcceptRequest": {
+      "expected_fields": [
+        "expectedInputHash",
+        "expectedResultHash",
+        "idempotencyKey",
+        "rating",
+        "reason",
+        "reasonCode",
+        "supersedesSnapshotId"
+      ],
+      "runtime_fields": [
+        "idempotencyKey",
+        "rating",
+        "expectedInputHash",
+        "expectedResultHash",
+        "supersedesSnapshotId",
+        "reasonCode",
+        "reason"
+      ],
+      "expected_required": [
+        "expectedInputHash",
+        "expectedResultHash",
+        "idempotencyKey",
+        "rating"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "RatingContractRequest": {
+      "expected_fields": [
+        "currency",
+        "customerId",
+        "effectiveFrom",
+        "effectiveTo"
+      ],
+      "runtime_fields": [
+        "customerId",
+        "currency",
+        "effectiveFrom",
+        "effectiveTo"
+      ],
+      "expected_required": [
+        "currency",
+        "customerId",
+        "effectiveFrom"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "RatingPreviewRequest": {
+      "expected_fields": [
+        "accessorialIds",
+        "contextSource",
+        "contractId",
+        "contractVersion",
+        "currency",
+        "equipment",
+        "fscMileageEvidenceId",
+        "lane",
+        "linehaulMileageEvidenceId",
+        "service",
+        "tier"
+      ],
+      "runtime_fields": [
+        "contractId",
+        "contractVersion",
+        "lane",
+        "equipment",
+        "service",
+        "tier",
+        "currency",
+        "contextSource",
+        "linehaulMileageEvidenceId",
+        "fscMileageEvidenceId",
+        "accessorialIds"
+      ],
+      "expected_required": [
+        "accessorialIds",
+        "contextSource",
+        "currency"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Rebill": {
+      "expected_fields": [
+        "creditEvidenceIds",
+        "generation",
+        "reason",
+        "reasonCode"
+      ],
+      "runtime_fields": [
+        "generation",
+        "creditEvidenceIds",
+        "reasonCode",
+        "reason"
+      ],
+      "expected_required": [
+        "creditEvidenceIds",
+        "generation",
+        "reason",
+        "reasonCode"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Recalculate": {
+      "expected_fields": [
+        "expectedSnapshotId",
+        "idempotencyKey",
+        "reason",
+        "reasonCode"
+      ],
+      "runtime_fields": [
+        "idempotencyKey",
+        "expectedSnapshotId",
+        "reasonCode",
+        "reason"
+      ],
+      "expected_required": [
+        "expectedSnapshotId",
+        "idempotencyKey",
+        "reason",
+        "reasonCode"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Regenerate": {
+      "expected_fields": [
+        "expectedSnapshotId",
+        "generation"
+      ],
+      "runtime_fields": [
+        "expectedSnapshotId",
+        "generation"
+      ],
+      "expected_required": [
+        "expectedSnapshotId",
+        "generation"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Scope": {
+      "expected_fields": [
+        "driverId",
+        "loadId",
+        "tripId",
+        "truckId"
+      ],
+      "runtime_fields": [
+        "loadId",
+        "tripId",
+        "driverId",
+        "truckId"
+      ],
+      "expected_required": [
+        "driverId",
+        "loadId",
+        "tripId",
+        "truckId"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "SendMessageRequest": {
+      "expected_fields": [
+        "content",
+        "conversationId",
+        "senderId"
+      ],
+      "runtime_fields": [
+        "conversationId",
+        "senderId",
+        "content"
+      ],
+      "expected_required": [
+        "content",
+        "conversationId"
+      ],
+      "runtime_required": [
+        "content",
+        "conversationId",
+        "senderId"
+      ],
+      "missing_in_runtime": false
+    },
+    "SetPickupBusinessDateRequest": {
+      "expected_fields": [
+        "expectedChangeId",
+        "provenance",
+        "requestedPickupBusinessDate"
+      ],
+      "runtime_fields": [
+        "requestedPickupBusinessDate",
+        "provenance",
+        "expectedChangeId"
+      ],
+      "expected_required": [
+        "provenance",
+        "requestedPickupBusinessDate"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Source": {
+      "expected_fields": [
+        "classification",
+        "reference",
+        "type",
+        "version"
+      ],
+      "runtime_fields": [
+        "type",
+        "reference",
+        "version",
+        "classification"
+      ],
+      "expected_required": [
+        "classification",
+        "reference",
+        "type",
+        "version"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "SourceSelection": {
+      "expected_fields": [
+        "capacityInputId",
+        "forecastInputId",
+        "qualificationInputId",
+        "scope"
+      ],
+      "runtime_fields": [
+        "scope",
+        "capacityInputId",
+        "qualificationInputId",
+        "forecastInputId"
+      ],
+      "expected_required": [
+        "capacityInputId",
+        "forecastInputId",
+        "qualificationInputId",
+        "scope"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Supplemental": {
+      "expected_fields": [
+        "chargeIds",
+        "generation",
+        "reason",
+        "reasonCode"
+      ],
+      "runtime_fields": [
+        "generation",
+        "chargeIds",
+        "reasonCode",
+        "reason"
+      ],
+      "expected_required": [
+        "chargeIds",
+        "generation",
+        "reason",
+        "reasonCode"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "Target": {
+      "expected_fields": [
+        "loadId",
+        "pickupStopId",
+        "ratingSnapshotId",
+        "tripId"
+      ],
+      "runtime_fields": [
+        "loadId",
+        "tripId",
+        "ratingSnapshotId",
+        "pickupStopId"
+      ],
+      "expected_required": [
+        "loadId",
+        "pickupStopId",
+        "ratingSnapshotId",
+        "tripId"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "TaxAssessmentRequest": {
+      "expected_fields": [
+        "assessedAt",
+        "assessedBy",
+        "assessmentId",
+        "currency",
+        "customerId",
+        "jurisdiction",
+        "loadId",
+        "policyVersion",
+        "sourceReference",
+        "sourceType",
+        "taxAmount",
+        "taxableBasis"
+      ],
+      "runtime_fields": [
+        "assessmentId",
+        "loadId",
+        "customerId",
+        "sourceType",
+        "sourceReference",
+        "jurisdiction",
+        "taxableBasis",
+        "taxAmount",
+        "currency",
+        "policyVersion",
+        "assessedAt",
+        "assessedBy"
+      ],
+      "expected_required": [
+        "currency",
+        "customerId",
+        "jurisdiction",
+        "loadId",
+        "sourceReference",
+        "sourceType",
+        "taxAmount",
+        "taxableBasis"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "TaxDecision": {
+      "expected_fields": [
+        "assessmentId",
+        "reason",
+        "reasonCode",
+        "requirement",
+        "sourceReference"
+      ],
+      "runtime_fields": [
+        "requirement",
+        "reasonCode",
+        "reason",
+        "sourceReference",
+        "assessmentId"
+      ],
+      "expected_required": [
+        "reason",
+        "reasonCode",
+        "requirement",
+        "sourceReference"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "TripView": {
+      "expected_fields": [
+        "cancelledAt",
+        "completedAt",
+        "dispatchedAt",
+        "id",
+        "name",
+        "number",
+        "status",
+        "totalDistance",
+        "truckId",
+        "truckNumber",
+        "version"
+      ],
+      "runtime_fields": [
+        "id",
+        "number",
+        "name",
+        "totalDistance",
+        "status",
+        "dispatchedAt",
+        "completedAt",
+        "cancelledAt",
+        "truckId",
+        "truckNumber"
+      ],
+      "expected_required": [],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "TruckView": {
+      "expected_fields": [
+        "adrEquipmentAllowedClasses",
+        "adrEquipmentIsAdrCertified",
+        "currentLocationLatitude",
+        "currentLocationLongitude",
+        "id",
+        "isHazmatPlacarded",
+        "licensePlate",
+        "licensePlateState",
+        "mainDriverId",
+        "mainDriverName",
+        "make",
+        "model",
+        "number",
+        "secondaryDriverId",
+        "secondaryDriverName",
+        "status",
+        "type",
+        "vehicleCapacity",
+        "version",
+        "vin",
+        "year"
+      ],
+      "runtime_fields": [
+        "id",
+        "number",
+        "type",
+        "vehicleCapacity",
+        "status",
+        "make",
+        "model",
+        "year",
+        "vin",
+        "licensePlate",
+        "licensePlateState",
+        "isHazmatPlacarded",
+        "mainDriverId",
+        "mainDriverName",
+        "secondaryDriverId",
+        "secondaryDriverName",
+        "adrEquipmentIsAdrCertified",
+        "adrEquipmentAllowedClasses",
+        "currentLocationLatitude",
+        "currentLocationLongitude"
+      ],
+      "expected_required": [],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    },
+    "UpdateLoadRequest": {
+      "expected_fields": [
+        "assignedDispatcherId",
+        "assignedTruckId",
+        "containerId",
+        "customerId",
+        "deliveryCostAmount",
+        "deliveryCostCurrency",
+        "destinationAddressCity",
+        "destinationAddressCountry",
+        "destinationAddressLine1",
+        "destinationAddressLine2",
+        "destinationAddressState",
+        "destinationAddressZipCode",
+        "destinationLocationLatitude",
+        "destinationLocationLongitude",
+        "destinationTerminalId",
+        "distance",
+        "expectedVersion",
+        "externalBrokerReference",
+        "externalSourceId",
+        "externalSourceProvider",
+        "hazmatClass",
+        "isHazmat",
+        "isInProximity",
+        "name",
+        "notes",
+        "originAddressCity",
+        "originAddressCountry",
+        "originAddressLine1",
+        "originAddressLine2",
+        "originAddressState",
+        "originAddressZipCode",
+        "originLocationLatitude",
+        "originLocationLongitude",
+        "originTerminalId",
+        "requestedDeliveryDate",
+        "requestedPickupBusinessDate",
+        "requestedPickupDate",
+        "requestedPickupDateProvenance",
+        "source",
+        "status",
+        "type",
+        "unNumber"
+      ],
+      "runtime_fields": [],
+      "expected_required": [
+        "customerId",
+        "deliveryCostAmount",
+        "deliveryCostCurrency",
+        "destinationAddressCity",
+        "destinationAddressCountry",
+        "destinationAddressLine1",
+        "destinationAddressState",
+        "destinationAddressZipCode",
+        "destinationLocationLatitude",
+        "destinationLocationLongitude",
+        "distance",
+        "expectedVersion",
+        "isHazmat",
+        "isInProximity",
+        "name",
+        "originAddressCity",
+        "originAddressCountry",
+        "originAddressLine1",
+        "originAddressState",
+        "originAddressZipCode",
+        "originLocationLatitude",
+        "originLocationLongitude",
+        "source",
+        "status",
+        "type"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": true
+    },
+    "UpdatePaymentRequest": {
+      "expected_fields": [
+        "description",
+        "referenceNumber"
+      ],
+      "runtime_fields": [],
+      "expected_required": [],
+      "runtime_required": [],
+      "missing_in_runtime": true
+    },
+    "UpdateTripRequest": {
+      "expected_fields": [
+        "expectedVersion",
+        "name",
+        "status",
+        "totalDistance",
+        "truckId"
+      ],
+      "runtime_fields": [],
+      "expected_required": [
+        "expectedVersion",
+        "name",
+        "status",
+        "totalDistance"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": true
+    },
+    "UpdateTruckRequest": {
+      "expected_fields": [
+        "adrEquipmentAllowedClasses",
+        "adrEquipmentIsAdrCertified",
+        "adrEquipmentOrangePlateNumber",
+        "expectedVersion",
+        "isHazmatPlacarded",
+        "licensePlate",
+        "licensePlateState",
+        "mainDriverId",
+        "make",
+        "model",
+        "number",
+        "secondaryDriverId",
+        "status",
+        "type",
+        "vehicleCapacity",
+        "vin",
+        "year"
+      ],
+      "runtime_fields": [],
+      "expected_required": [
+        "expectedVersion",
+        "isHazmatPlacarded",
+        "number",
+        "status",
+        "type",
+        "vehicleCapacity"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": true
+    },
+    "WeightRequest": {
+      "expected_fields": [
+        "unit",
+        "value"
+      ],
+      "runtime_fields": [
+        "value",
+        "unit"
+      ],
+      "expected_required": [
+        "unit",
+        "value"
+      ],
+      "runtime_required": [],
+      "missing_in_runtime": false
+    }
+  },
+  "current_user": {
+    "path_available": true,
+    "anonymous_status": 401,
+    "real_identity_verified": false
+  },
+  "integration": "NOT_RUN_ARTIFACT_MISMATCH",
+  "browser_e2e": "NOT_RUN_ARTIFACT_MISMATCH_AND_DETERMINISTIC_IDENTITIES_UNAVAILABLE",
+  "backend_changes": "NONE"
+}

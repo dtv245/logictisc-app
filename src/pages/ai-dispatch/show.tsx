@@ -1,3 +1,5 @@
-/** Hiển thị chi tiết phiên AI Dispatch bằng Refine useShow. */
-import { ResourceShowPage } from "@components";
-export const AiDispatchShow = () => <ResourceShowPage resource="ai-dispatch" />;
+/** Màn hình Chi tiết phiên điều phối AI và kế hoạch di chuyển */
+import { AiDispatchPage } from "./AiDispatchPage";
+
+export const AiDispatchShow = () => <AiDispatchPage />;
+

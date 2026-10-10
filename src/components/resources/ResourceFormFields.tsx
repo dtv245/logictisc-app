@@ -142,14 +142,14 @@ const FieldRenderer = ({ field, listNamePrefix }: FieldRendererProps) => {
   if (field.control === "boolean") {
     control = <Checkbox disabled={isReadOnly} />;
   } else if (field.control === "number") {
-    control = <InputNumber disabled={isReadOnly} max={max} min={field.min} />;
+    control = <InputNumber disabled={isReadOnly} max={max} min={field.min} stringMode={field.stringMode} />;
   } else if (field.control === "select") {
     control = (
       <Select
         allowClear={!field.required}
         disabled={isReadOnly}
         options={field.options?.map((value) => ({
-          label: t(`forms.options.${value}`),
+          label: t(`forms.options.${value}`, { defaultValue: value }),
           value,
         }))}
       />
@@ -176,7 +176,8 @@ const FieldRenderer = ({ field, listNamePrefix }: FieldRendererProps) => {
       <Input
         disabled={isReadOnly}
         maxLength={field.maxLength}
-        type={field.control === "email" ? "email" : field.control === "datetime" ? "datetime-local" : "text"}
+        placeholder={field.control === "datetime" ? t("contractAlignment.instantHelp") : undefined}
+        type={field.control === "email" ? "email" : field.control === "date" ? "date" : "text"}
       />
     );
   }

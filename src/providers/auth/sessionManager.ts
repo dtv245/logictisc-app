@@ -6,6 +6,8 @@
  */
 
 import type { JwtRole } from "../../types/roles.types";
+import type { LarkAuthLoginResponse } from "../../types/auth.types";
+import { normalizeJwtRoles } from "../permissions/jwtRoles";
 import type {
   AccessTokenVerifier,
   AuthIdentity,
@@ -16,6 +18,7 @@ import type {
 } from "../../types/authSession.types";
 
 const DEFAULT_REFRESH_SKEW_SECONDS = 60;
+const LARK_SESSION_STORAGE_KEY = "logistics_lark_session";
 
 export class AuthSessionExpiredError extends Error {
   constructor() {
@@ -29,6 +32,7 @@ export interface AuthSessionManagerOptions {
   readonly tokenVerifier: AccessTokenVerifier;
   readonly refreshSkewSeconds?: number;
   readonly nowEpochSeconds?: () => number;
+  readonly storage?: Storage;
 }
 
 export type AuthSessionListener = (
@@ -46,8 +50,10 @@ export class AuthSessionManager {
   private readonly tokenVerifier: AccessTokenVerifier;
   private readonly refreshSkewSeconds: number;
   private readonly nowEpochSeconds: () => number;
+  private readonly storage?: Storage;
 
   private session: AuthSessionSnapshot | null = null;
+  private isLarkSession = false;
   private initialized = false;
   private bootstrapInFlight: Promise<AuthSessionSnapshot | null> | null =
     null;
@@ -61,7 +67,49 @@ export class AuthSessionManager {
       options.refreshSkewSeconds ?? DEFAULT_REFRESH_SKEW_SECONDS;
     this.nowEpochSeconds =
       options.nowEpochSeconds ?? (() => Math.floor(Date.now() / 1_000));
+    this.storage =
+      options.storage ??
+      (typeof window !== "undefined" && window.sessionStorage
+        ? window.sessionStorage
+        : undefined);
   }
+
+  establishLarkSession = async (
+    larkLogin: LarkAuthLoginResponse,
+  ): Promise<AuthSessionSnapshot> => {
+    if (!larkLogin.accessToken || !larkLogin.accessToken.trim()) {
+      throw new AuthSessionExpiredError();
+    }
+
+    const expiresIn =
+      typeof larkLogin.expiresIn === "number" && larkLogin.expiresIn > 0
+        ? larkLogin.expiresIn
+        : 28800;
+    const expiresAt = this.nowEpochSeconds() + expiresIn;
+    const roles = normalizeJwtRoles(undefined, larkLogin.roles);
+
+    const identity: AuthIdentity = {
+      id: larkLogin.subject,
+      name: larkLogin.email,
+      email: larkLogin.email,
+      tenantId: larkLogin.tenantId,
+      roles,
+    };
+
+    const session: AuthSessionSnapshot = {
+      accessToken: larkLogin.accessToken,
+      expiresAt,
+      tenantId: larkLogin.tenantId,
+      roles,
+      identity,
+    };
+
+    this.isLarkSession = true;
+    this.persistLarkSession(session);
+    this.setSession(session);
+    this.initialized = true;
+    return session;
+  };
 
   startLogin = async (returnTo: string): Promise<void> => {
     await this.oidc.startLogin(returnTo);
@@ -151,21 +199,77 @@ export class AuthSessionManager {
     (await this.getSession())?.identity ?? null;
 
   clearSession = async (): Promise<void> => {
+    this.clearLarkSession();
+    this.isLarkSession = false;
     this.setSession(null);
     this.initialized = true;
     await this.oidc.removeUser();
   };
 
   logout = async (): Promise<boolean> => {
+    this.clearLarkSession();
+    this.isLarkSession = false;
     this.setSession(null);
     this.initialized = true;
     return this.oidc.logout();
   };
 
+  private persistLarkSession = (session: AuthSessionSnapshot): void => {
+    try {
+      this.storage?.setItem(LARK_SESSION_STORAGE_KEY, JSON.stringify(session));
+    } catch {
+      // Storage unavailable or disabled
+    }
+  };
+
+  private clearLarkSession = (): void => {
+    try {
+      this.storage?.removeItem(LARK_SESSION_STORAGE_KEY);
+    } catch {
+      // Storage unavailable or disabled
+    }
+  };
+
+  private readSavedLarkSession = (): AuthSessionSnapshot | null => {
+    try {
+      const raw = this.storage?.getItem(LARK_SESSION_STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as AuthSessionSnapshot;
+      if (
+        typeof parsed === "object" &&
+        parsed !== null &&
+        typeof parsed.accessToken === "string" &&
+        typeof parsed.expiresAt === "number" &&
+        typeof parsed.tenantId === "string" &&
+        Array.isArray(parsed.roles) &&
+        typeof parsed.identity === "object" &&
+        parsed.identity !== null
+      ) {
+        if (parsed.expiresAt - this.nowEpochSeconds() > this.refreshSkewSeconds) {
+          return parsed;
+        }
+      }
+      this.clearLarkSession();
+      return null;
+    } catch {
+      this.clearLarkSession();
+      return null;
+    }
+  };
+
   private performBootstrap = async (): Promise<AuthSessionSnapshot | null> => {
     try {
+      const savedLark = this.readSavedLarkSession();
+      if (savedLark) {
+        this.isLarkSession = true;
+        this.setSession(savedLark);
+        this.initialized = true;
+        return savedLark;
+      }
+
       const user = await this.oidc.getUser();
       if (user) {
+        this.isLarkSession = false;
         await this.establishSession(user);
       } else {
         this.setSession(null);
@@ -183,6 +287,9 @@ export class AuthSessionManager {
   private establishSession = async (
     user: OidcUserSnapshot,
   ): Promise<AuthSessionSnapshot> => {
+    this.isLarkSession = false;
+    this.clearLarkSession();
+
     if (!user.accessToken.trim()) {
       throw new AuthSessionExpiredError();
     }
@@ -253,6 +360,14 @@ export class AuthSessionManager {
   };
 
   private performRefresh = async (): Promise<AuthSessionSnapshot> => {
+    if (this.isLarkSession && this.session) {
+      if (this.session.expiresAt - this.nowEpochSeconds() > 0) {
+        return this.session;
+      }
+      await this.clearSession();
+      throw new AuthSessionExpiredError();
+    }
+
     try {
       const refreshedUser = await this.oidc.renewUser();
       this.initialized = true;

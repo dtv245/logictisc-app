@@ -9,6 +9,8 @@ import { Alert, Button, Descriptions, Empty } from "antd";
 
 import { useTranslation } from "react-i18next";
 
+import { isLegacyDraftInvoice } from "@/features/invoices/invoiceMutability";
+import { getResourceCapabilities } from "./resources/resourceCapabilities";
 import type { ApiError } from "@/types/api.types";
 
 interface ResourceShowPageProps {
@@ -61,11 +63,11 @@ export const ResourceShowPage = ({ resource }: ResourceShowPageProps) => {
   const isEmpty = !queryResult.isLoading && entries.length === 0;
 
   return (
-    <Show isLoading={queryResult.isLoading}>
+    <Show isLoading={queryResult.isLoading} canDelete={getResourceCapabilities(resource).delete} canEdit={getResourceCapabilities(resource).edit && (resource !== "invoices" || isLegacyDraftInvoice(queryResult.data?.data))}>
       {isEmpty ? (
         <Empty />
       ) : (
-        <Descriptions bordered column={1}>
+        <Descriptions bordered column={{ xs: 1, sm: 2, md: 2, lg: 2 }}>
           {entries.map(([field, value]) => (
             <Descriptions.Item key={field} label={field}>
               <TextField value={formatValue(value, emptyValue)} />

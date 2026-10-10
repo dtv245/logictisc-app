@@ -1,43 +1,22 @@
-import type { AuditableEntity, OptionalAddress } from "./common.types";
-
-/**
- * Các Type Enum do Backend quy định.
- */
-export type ApiCustomerStatus = "active" | "inactive" | "suspended";
-
-/**
- * Data Transfer Object (DTO) nhận trực tiếp từ API Backend trả về (Response).
- * Tuyệt đối tôn trọng cấu trúc JSON của Backend ở file này.
- */
-export interface CustomerResponse extends AuditableEntity {
+/** Flat CustomerView projection from the verified handoff; UI presentation does not add wire fields. */
+export interface CustomerResponse {
+  addressCity?: string | null;
+  addressCountry?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  addressState?: string | null;
+  addressZipCode?: string | null;
+  email?: string | null;
   id: string;
-  name: string;
-  email?: string | null;
-  phone?: string | null;
-  status: ApiCustomerStatus;
-  notes?: string | null;
-  taxId?: string | null;
   isVatExempt: boolean;
-  address?: OptionalAddress | null;
+  name: string;
+  notes?: string | null;
+  phone?: string | null;
+  status: string;
+  taxId?: string | null;
 }
 
-/**
- * Payload gửi lên API để tạo mới Customer.
- * Thường sẽ KHÔNG CÓ `id` hay `createdAt`, `updatedAt` vì Backend tự sinh.
- */
-export interface CreateCustomerRequest {
-  name: string;
-  email?: string | null;
-  phone?: string | null;
-  status: ApiCustomerStatus;
-  notes?: string | null;
-  taxId?: string | null;
-  isVatExempt: boolean;
-  address?: OptionalAddress | null;
-}
-
-/**
- * Payload gửi lên API để cập nhật Customer.
- * Sử dụng Partial vì thường Update (PATCH) chỉ cần gửi các trường bị thay đổi.
- */
-export type UpdateCustomerRequest = Partial<CreateCustomerRequest>;
+export type ApiCustomerStatus = string;
+export type { CreateCustomerRequest } from "./handoff.generated";
+// Customer PUT is a full request, not Partial/PATCH.
+export type { CreateCustomerRequest as UpdateCustomerRequest } from "./handoff.generated";

@@ -1,3 +1,3 @@
-/** Hiển thị create page của Payment resource. */
-import { ResourceCreatePage } from "@components";
-export const PaymentCreate = () => <ResourceCreatePage resource="payments" />;
+/** Dedicated pending Payment command route. */
+import { PaymentCommandForm } from "@/features/payments/PaymentCommandForm";
+export const PaymentCreate = () => <PaymentCommandForm action="create" />;

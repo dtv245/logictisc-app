@@ -1,4 +1,4 @@
-# Logictics frontend
+# Logistics frontend
 
 React 18 + TypeScript + Vite application using Refine v4, React Router 6,
 Ant Design 5, Axios, and TanStack Query 4.

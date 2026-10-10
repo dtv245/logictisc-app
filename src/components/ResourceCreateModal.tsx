@@ -4,6 +4,7 @@ import { Form, Modal } from "antd";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { buildResourceMutation } from "./resources/resourceMutation";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
@@ -55,6 +56,8 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
       {trigger(show)}
       <Modal
         {...modalProps}
+        destroyOnClose
+        width={860}
         onCancel={discardConfirm.onCancel}
         title={t("crud.createTitle", { resource: t(`resources.${resource}`) })}
         okText={t("actions.create")}
@@ -62,10 +65,11 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
       >
         <Form
           {...formProps}
+          onFinish={(values) => formProps.onFinish?.(buildResourceMutation(resource, values))}
           initialValues={createResourceFormInitialValues(definition)}
           layout="vertical"
         >
-          <ResourceFormFields definition={definition} />
+          <ResourceFormFields columns={2} definition={definition} />
         </Form>
       </Modal>
     </>

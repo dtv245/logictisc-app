@@ -26,10 +26,7 @@ const normalizeRoleCandidate = (value: unknown): JwtRole | null => {
   const withoutSpringPrefix = trimmedValue
     .toUpperCase()
     .replace(/^ROLE_/, "");
-  const normalizedValue =
-    withoutSpringPrefix === "SUPER_ADMIN"
-      ? "SUPERADMIN"
-      : withoutSpringPrefix;
+  const normalizedValue = withoutSpringPrefix;
 
   return JWT_ROLE_SET.has(normalizedValue)
     ? (normalizedValue as JwtRole)
@@ -46,7 +43,8 @@ const toClaimValues = (claim: unknown): readonly unknown[] => {
 
 /**
  * Đọc đồng thời `role` và `roles` vì backend chấp nhận cả hai claim ở dạng
- * scalar hoặc list. Kết quả chỉ chứa năm JWT role được contract cho phép.
+ * scalar hoặc list. Chỉ giữ các authority được contract cho phép; không alias
+ * ADMIN/ACCOUNTANT/PAYROLL/PAYROLL_MANAGER sang các role legacy.
  */
 export const normalizeJwtRoles = (
   roleClaim: unknown,

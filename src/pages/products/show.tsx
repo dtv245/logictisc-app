@@ -22,7 +22,7 @@ export const ProductShow = () => {
 
   return (
     <Show isLoading={queryResult.isLoading}>
-      <Descriptions bordered column={1}>
+      <Descriptions bordered column={{ xs: 1, sm: 2, md: 2, lg: 2 }}>
         <Descriptions.Item label={t("crud.identifier")}>
           <TextField value={record?.id} />
         </Descriptions.Item>
@@ -32,7 +32,7 @@ export const ProductShow = () => {
         <Descriptions.Item label={t("products.fields.sku")}>
           <TextField value={record?.sku} />
         </Descriptions.Item>
-        <Descriptions.Item label={t("products.fields.description")}>
+        <Descriptions.Item label={t("products.fields.description")} span={2}>
           <TextField value={record?.description ?? t("crud.emptyValue")} />
         </Descriptions.Item>
         <Descriptions.Item label={t("products.fields.price")}>

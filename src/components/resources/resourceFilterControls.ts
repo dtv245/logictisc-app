@@ -27,7 +27,7 @@ import {
   type ResourceFormField,
 } from "./resourceForms";
 
-export type ResourceFilterKind = "search" | "select" | "relation";
+export type ResourceFilterKind = "search" | "text" | "select" | "relation";
 
 export interface ResourceFilterControl {
   /** Query param gửi lên backend; luôn nằm trong `allowedFilterFields`. */
@@ -53,7 +53,6 @@ const filterDeclarations: Readonly<
 > = {
   customers: [{ field: "search" }, { field: "status" }],
   employees: [{ field: "search" }, { field: "status" }, { field: "roleId" }],
-  terminals: [{ field: "search" }, { field: "type" }],
   trucks: [{ field: "search" }, { field: "status" }, { field: "type" }],
   loads: [
     { field: "search" },
@@ -67,7 +66,6 @@ const filterDeclarations: Readonly<
     { field: "status" },
     { field: "type" },
     { field: "customerId" },
-    { field: "employeeId" },
   ],
   payments: [{ field: "status" }, { field: "invoiceId" }],
 };
@@ -83,6 +81,8 @@ const toControl = (
   descriptor: ResourceFormField,
 ): ResourceFilterControl | undefined => {
   const labelKey = `forms.fields.${descriptor.name}`;
+
+  if (descriptor.control === "text") return { field, kind: "text", labelKey };
 
   if (descriptor.control === "select" && descriptor.options) {
     return { field, kind: "select", labelKey, options: descriptor.options };

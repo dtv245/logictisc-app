@@ -1,27 +1,24 @@
 /**
- * Operations Dashboard — màn hình điều phối.
+ * Operations Dashboard — Màn hình điều phối vận hành toàn diện.
  *
- * Trả lời câu hỏi "hôm nay có bao nhiêu xe, bao nhiêu chuyến, xe đang ở đâu" bằng
- * dữ liệu API có thật. Đây KHÔNG phải màn hình của ban điều hành: nó hiển thị
- * bản ghi thô và vị trí gần nhất, không đưa ra kết luận.
- *
- * Hai màn hình cùng tồn tại vì chúng trả lời hai câu hỏi khác nhau. Executive
- * Overview (`DashboardPage.tsx`) không thay thế được màn hình này: nó cần các
- * endpoint tổng hợp chưa có, còn màn hình này chạy được ngay trên CRUD hiện tại.
+ * Tab 1: Tổng quan điều phối (KPIs, Xu hướng tài chính, Chỉ số vận hành, Xếp hạng tài xế & Tuyến xe)
+ * Tab 2: Bản đồ theo dõi xe & Quy mô đội xe (Vehicle Tracking Map & Operations Chart)
  */
-
 import {
   BankOutlined,
   CarOutlined,
+  CompassOutlined,
+  DashboardOutlined,
   EnvironmentOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { useCan, useList } from "@refinedev/core";
-import { Card, Col, Row, Space, Statistic, Tag, Typography } from "antd";
-import { useCallback, useMemo } from "react";
+import { Card, Col, Row, Space, Statistic, Tabs, Tag, Typography } from "antd";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { PageHeader } from "@components/PageHeader";
+import { OperationsDashboardView } from "@features/dashboard";
 import { OperationsChart } from "@features/operations/components/OperationsChart";
 import { VehicleTrackingMap } from "@features/operations/components/VehicleTrackingMap";
 import {
@@ -39,6 +36,7 @@ export const OperationsDashboardPage = () => {
   const currentUser = useCurrentUser();
   const { tenant } = useCurrentTenant();
   const { tenants } = useTenantList();
+  const [activeTab, setActiveTab] = useState("overview");
 
   const trucksAccess = useCan({ action: "list", resource: "trucks" });
   const loadsAccess = useCan({ action: "list", resource: "loads" });
@@ -49,9 +47,6 @@ export const OperationsDashboardPage = () => {
 
   const trucks = useList<OperationsTruckRecord, ApiError>({
     resource: "trucks",
-    // 100 là trần của backend (`Constants.MAX_PAGE_SIZE`). Màn hình này chỉ
-    // hiển thị những gì lấy được trong một trang và nói rõ điều đó ở phần mô tả
-    // bản đồ — không cộng dồn nhiều trang rồi trình bày như số liệu toàn công ty.
     pagination: { current: 1, pageSize: 100 },
     queryOptions: { enabled: canReadTrucks, staleTime: 30_000 },
   });
@@ -71,8 +66,6 @@ export const OperationsDashboardPage = () => {
     [trucks.data?.data],
   );
 
-  // Nhãn trạng thái của xe là chuỗi tự do từ backend, không phải enum — dịch
-  // được thì dịch, không thì giữ nguyên chuỗi gốc thay vì hiện khoá thô.
   const getStatusLabel = useCallback(
     (status: string) =>
       t(`forms.options.${status}`, { defaultValue: status }),
@@ -101,113 +94,147 @@ export const OperationsDashboardPage = () => {
   ];
 
   return (
-    <Space className="ops-page" direction="vertical" size="large">
-      <PageHeader
-        description={t("dashboard.greeting", {
-          name: currentUser.data?.name ?? t("dashboard.fallbackName"),
-        })}
-        extra={
-          <Tag color="blue" icon={<EnvironmentOutlined />}>
-            {t("dashboard.lastKnownData")}
-          </Tag>
-        }
-        title={t("dashboard.operations.pageTitle")}
-      />
+    <div style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <div style={{ padding: "12px 24px 0 24px", backgroundColor: "#ffffff", borderBottom: "1px solid #e5e7eb" }}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          size="middle"
+          items={[
+            {
+              key: "overview",
+              label: (
+                <Space size={6}>
+                  <DashboardOutlined />
+                  <span>Tổng quan điều phối</span>
+                </Space>
+              ),
+            },
+            {
+              key: "tracking",
+              label: (
+                <Space size={6}>
+                  <CompassOutlined />
+                  <span>Bản đồ theo dõi xe ({vehiclePoints.length})</span>
+                </Space>
+              ),
+            },
+          ]}
+        />
+      </div>
 
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} xl={6}>
-          <Card className="ops-card">
-            <Statistic
-              className="ops-statistic"
-              prefix={<BankOutlined />}
-              title={t("dashboard.currentTenant")}
-              value={tenant?.tenantName ?? t("dashboard.noTenant")}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} xl={6}>
-          <Card className="ops-card">
-            <Statistic
-              prefix={<UserOutlined />}
-              title={t("dashboard.tenantCount")}
-              value={tenants.length}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} xl={6}>
-          <Card className="ops-card">
-            <Statistic
-              loading={trucksAccess.isLoading || trucks.isLoading}
-              prefix={<CarOutlined />}
-              title={t("dashboard.vehicleCount")}
-              value={canReadTrucks ? trucks.data?.total ?? 0 : "—"}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} xl={6}>
-          <Card className="ops-card">
-            <Statistic
-              loading={trucksAccess.isLoading || trucks.isLoading}
-              prefix={<EnvironmentOutlined />}
-              title={t("dashboard.locatedVehicleCount")}
-              value={canReadTrucks ? vehiclePoints.length : "—"}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      <Row gutter={[16, 16]}>
-        <Col xs={24} xl={9}>
-          <Card className="ops-card" title={t("dashboard.operations.title")}>
-            <Typography.Text className="ops-card__subtitle" type="secondary">
-              {t("dashboard.operations.description")}
-            </Typography.Text>
-            <OperationsChart
-              isLoading={
-                permissionsLoading ||
-                (canReadTrucks && trucks.isLoading) ||
-                (canReadLoads && loads.isLoading) ||
-                (canReadTrips && trips.isLoading)
-              }
-              items={chartItems}
-              lockedText={t("dashboard.permissionRequired")}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} xl={15}>
-          <Card
-            className="ops-card"
+      {activeTab === "overview" ? (
+        <OperationsDashboardView />
+      ) : (
+        <Space className="ops-page" direction="vertical" size="large" style={{ padding: 24, width: "100%" }}>
+          <PageHeader
+            description={t("dashboard.greeting", {
+              name: currentUser.data?.name ?? t("dashboard.fallbackName"),
+            })}
             extra={
-              <Typography.Text type="secondary">
-                {t("dashboard.map.visibleCount", {
-                  count: vehiclePoints.length,
-                })}
-              </Typography.Text>
+              <Tag color="blue" icon={<EnvironmentOutlined />}>
+                {t("dashboard.lastKnownData")}
+              </Tag>
             }
-            title={t("dashboard.map.title")}
-          >
-            <Typography.Text className="ops-card__subtitle" type="secondary">
-              {t("dashboard.map.description")}
-            </Typography.Text>
-            <VehicleTrackingMap
-              errorMessage={trucks.error?.message}
-              inaccessibleText={
-                trucksAccess.isLoading || canReadTrucks
-                  ? ""
-                  : t("dashboard.permissionRequired")
-              }
-              isLoading={
-                trucksAccess.isLoading || (canReadTrucks && trucks.isLoading)
-              }
-              loadErrorText={t("dashboard.map.loadError")}
-              mapLabel={t("dashboard.map.ariaLabel")}
-              noLocationText={t("dashboard.map.noLocation")}
-              points={vehiclePoints}
-              statusLabel={getStatusLabel}
-            />
-          </Card>
-        </Col>
-      </Row>
-    </Space>
+            title={t("dashboard.operations.pageTitle")}
+          />
+
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} xl={6}>
+              <Card className="ops-card">
+                <Statistic
+                  className="ops-statistic"
+                  prefix={<BankOutlined />}
+                  title={t("dashboard.currentTenant")}
+                  value={tenant?.tenantName ?? t("dashboard.noTenant")}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} xl={6}>
+              <Card className="ops-card">
+                <Statistic
+                  prefix={<UserOutlined />}
+                  title={t("dashboard.tenantCount")}
+                  value={tenants.length}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} xl={6}>
+              <Card className="ops-card">
+                <Statistic
+                  loading={trucksAccess.isLoading || trucks.isLoading}
+                  prefix={<CarOutlined />}
+                  title={t("dashboard.vehicleCount")}
+                  value={canReadTrucks ? trucks.data?.total ?? 0 : "—"}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} xl={6}>
+              <Card className="ops-card">
+                <Statistic
+                  loading={trucksAccess.isLoading || trucks.isLoading}
+                  prefix={<EnvironmentOutlined />}
+                  title={t("dashboard.locatedVehicleCount")}
+                  value={canReadTrucks ? vehiclePoints.length : "—"}
+                />
+              </Card>
+            </Col>
+          </Row>
+
+          <Row gutter={[16, 16]}>
+            <Col xs={24} xl={9}>
+              <Card className="ops-card" title={t("dashboard.operations.title")}>
+                <Typography.Text className="ops-card__subtitle" type="secondary">
+                  {t("dashboard.operations.description")}
+                </Typography.Text>
+                <OperationsChart
+                  isLoading={
+                    permissionsLoading ||
+                    (canReadTrucks && trucks.isLoading) ||
+                    (canReadLoads && loads.isLoading) ||
+                    (canReadTrips && trips.isLoading)
+                  }
+                  items={chartItems}
+                  lockedText={t("dashboard.permissionRequired")}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} xl={15}>
+              <Card
+                className="ops-card"
+                extra={
+                  <Typography.Text type="secondary">
+                    {t("dashboard.map.visibleCount", {
+                      count: vehiclePoints.length,
+                    })}
+                  </Typography.Text>
+                }
+                title={t("dashboard.map.title")}
+              >
+                <Typography.Text className="ops-card__subtitle" type="secondary">
+                  {t("dashboard.map.description")}
+                </Typography.Text>
+                <VehicleTrackingMap
+                  errorMessage={trucks.error?.message}
+                  inaccessibleText={
+                    trucksAccess.isLoading || canReadTrucks
+                      ? ""
+                      : t("dashboard.permissionRequired")
+                  }
+                  isLoading={
+                    trucksAccess.isLoading || (canReadTrucks && trucks.isLoading)
+                  }
+                  loadErrorText={t("dashboard.map.loadError")}
+                  mapLabel={t("dashboard.map.ariaLabel")}
+                  noLocationText={t("dashboard.map.noLocation")}
+                  points={vehiclePoints}
+                  statusLabel={getStatusLabel}
+                />
+              </Card>
+            </Col>
+          </Row>
+        </Space>
+      )}
+    </div>
   );
 };

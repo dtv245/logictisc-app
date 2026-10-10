@@ -20,6 +20,18 @@ export const routes = {
   // Màn hình điều phối, tách khỏi `dashboard` (Executive Overview): hai màn
   // hình trả lời hai câu hỏi khác nhau và cùng tồn tại.
   operations: "/operations",
+  profile: "/profile",
+  profitability: "/finance/profitability",
+  optimization: "/optimization",
+  optimizationRun: "/optimization/runs/:id",
+  fleetReport: "/reports/fleet",
+  payroll: "/payroll",
+  payrollShow: "/payroll/:id",
+  payrollReconciliation: "/payroll/reconciliation",
+  myPayslips: "/profile/payslips",
+  payslipShow: "/payslips/:id",
+  aiDispatch: "/ai-dispatch",
+  aiDispatchShow: "/ai-dispatch/:id",
   selectTenant: "/select-tenant",
   resources: {
     accidents: createCrudRoutes("accidents"),
@@ -39,6 +51,12 @@ export const routes = {
     notifications: createCrudRoutes("notifications"),
     payments: createCrudRoutes("payments"),
     products: createCrudRoutes("products"),
+    settlements: {
+      ...createCrudRoutes("settlements"),
+      show: "/settlements/:id",
+      policies: "/settlements/policies",
+      policyShow: "/settlements/policies/:id",
+    },
     terminals: createCrudRoutes("terminals"),
     trips: createCrudRoutes("trips"),
     trucks: createCrudRoutes("trucks"),

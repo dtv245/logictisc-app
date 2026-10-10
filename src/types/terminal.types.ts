@@ -1,5 +1,6 @@
 import type { Address } from "./common.types";
 import type { TerminalType } from "./terminal.dto";
+import type { ISODateTime } from "./api.types";
 
 export interface Terminal {
   id: string;
@@ -9,8 +10,8 @@ export interface Terminal {
   type: TerminalType;
   notes?: string | null;
   address: Address;
-  createdAt: Date;
+  createdAt: ISODateTime;
   createdBy?: string | null;
-  lastModifiedAt?: Date | null;
+  lastModifiedAt?: ISODateTime | null;
   lastModifiedBy?: string | null;
 }

@@ -1,0 +1,218 @@
+{
+  "method": "Minified emitted JS; static dependency closure only; gzip summed per asset. Dynamic imports and CSS excluded. This measures dependency boundaries, not browser transfer/timing or total route-complete payload.",
+  "bootstrap": {
+    "root": "index-YMCXRdZ_.js",
+    "bytes": 2570990,
+    "gzipBytes": 820894,
+    "files": [
+      "ArrowLeftOutlined-DNXVsKpJ.js",
+      "ArrowRightOutlined-CJt5Ondl.js",
+      "CarOutlined-BfgbI7AT.js",
+      "DriverPayPolicyList-BnmkF9my.js",
+      "DriverPayPolicyShow-Aun8LME-.js",
+      "DriverPayPolicyVersionHistory-Dl1VsACa.js",
+      "EllipsisOutlined-BVwpB8KA.js",
+      "EmptyState-Cn33kOhg.js",
+      "ErrorStates-30Ri4LGs.js",
+      "Input-CoyEVHGR.js",
+      "PageHeader-DlCpf8b2.js",
+      "ProfilePage-B_eGjcAe.js",
+      "ProfitabilitySummary-k-nonnD_.js",
+      "SafetyCertificateOutlined-BZ-D_N9x.js",
+      "SettingOutlined-BPD7bi3L.js",
+      "SettlementList-BayM3Yy9.js",
+      "StatusTag-KlSMIG3-.js",
+      "UserOutlined-B4VhWh3y.js",
+      "alert-DS_RpEfg.js",
+      "app-B35vkabv.js",
+      "avatar--5B0SJ5q.js",
+      "backendFieldErrors-C_hmPwz6.js",
+      "badge-C_03VJ3I.js",
+      "button-WV_O8Bj3.js",
+      "card-BJeC5mHD.js",
+      "components-CWLMPm8P.js",
+      "config-provider-BcF27d2m.js",
+      "date-picker-CKJhCvPC.js",
+      "dateTime-DOyl7I30.js",
+      "dayjs.min-QUnUIOl1.js",
+      "descriptions-BxbfFMTL.js",
+      "dist-CGC-mWeF.js",
+      "dist-CQx86F9D.js",
+      "divider-CvzGfo1d.js",
+      "empty-mwJeyTj8.js",
+      "env-Bo2t4U2C.js",
+      "extendsObject-CtkcbUcF.js",
+      "financialDisplay-CpX0GSOE.js",
+      "flex-cMfkSeZ4.js",
+      "httpError-ohWGf4lY.js",
+      "index-YMCXRdZ_.js",
+      "input-eqVsd4PM.js",
+      "input-number-CSlnbimQ.js",
+      "intlLocale-CfZ4AYTU.js",
+      "jsx-runtime-BhCpYVv4.js",
+      "list-B72wHFG-.js",
+      "modal-CLSliemg.js",
+      "money-CipZlbee.js",
+      "preload-helper-DTer4PMA.js",
+      "result-jUoofl6i.js",
+      "rolldown-runtime-C0FnF6B9.js",
+      "routes-BwcFsrrL.js",
+      "row-B0DAKgFb.js",
+      "row-C_Lc5wYk.js",
+      "schemas-CjHn2siU.js",
+      "settlement.keys-BSwrApJP.js",
+      "skeleton-BXf_xODC.js",
+      "spin-B3Noonof.js",
+      "statistic-DAdQTzxQ.js",
+      "statusTone-CVWxcP4E.js",
+      "style-BC86HvKS.js",
+      "table-D5-Vv0hB.js",
+      "tabs-BtZrGJ3v.js",
+      "tag-tDjxbJXk.js",
+      "typography-C6jZnf13.js",
+      "useBreakpoint-CMtrvHeN.js",
+      "useClosable-BdPWtBi_.js",
+      "useCurrentTenant-DYjvwXUP.js",
+      "useCurrentUser-MSV2VeXU.js",
+      "useIcons-CkGZoCHG.js",
+      "useModal-XdRFYxiL.js",
+      "useSwitchTenant-C8lLrcnQ.js",
+      "useTenantList-n7JI0opc.js",
+      "useVariants-Cfljam1a.js",
+      "validateMessagesContext-iALzKHNW.js"
+    ]
+  },
+  "features": {
+    "DashboardPage": {
+      "root": "DashboardPage-DxxXPuYy.js",
+      "inBootstrap": false,
+      "staticClosure": {
+        "bytes": 1613071,
+        "gzipBytes": 497404
+      },
+      "additionalToBootstrap": {
+        "bytes": 445978,
+        "gzipBytes": 124760
+      },
+      "files": [
+        "DashboardPage-DxxXPuYy.js"
+      ]
+    },
+    "OperationsDashboardPage": {
+      "root": "OperationsDashboardPage-MmYAsrgb.js",
+      "inBootstrap": false,
+      "staticClosure": {
+        "bytes": 819891,
+        "gzipBytes": 266998
+      },
+      "additionalToBootstrap": {
+        "bytes": 7711,
+        "gzipBytes": 3074
+      },
+      "files": [
+        "LockOutlined-VVR_bxki.js",
+        "OperationsDashboardPage-MmYAsrgb.js"
+      ]
+    },
+    "FinancialSection": {
+      "emitted": false
+    },
+    "PayrollRunShow": {
+      "root": "PayrollRunShow-8vJREXSj.js",
+      "inBootstrap": false,
+      "staticClosure": {
+        "bytes": 1511537,
+        "gzipBytes": 489033
+      },
+      "additionalToBootstrap": {
+        "bytes": 17455,
+        "gzipBytes": 6819
+      },
+      "files": [
+        "PayrollActions-DjkMm3NV.js",
+        "PayrollRunShow-8vJREXSj.js",
+        "paymentDisplay-B_VxradW.js",
+        "payroll.api-_CAvpzGC.js",
+        "uuid-C5Y-XXNh.js"
+      ]
+    },
+    "PayslipShow": {
+      "root": "PayslipShow-DBhSWhAe.js",
+      "inBootstrap": false,
+      "staticClosure": {
+        "bytes": 977956,
+        "gzipBytes": 316026
+      },
+      "additionalToBootstrap": {
+        "bytes": 6536,
+        "gzipBytes": 2819
+      },
+      "files": [
+        "PayslipShow-DBhSWhAe.js",
+        "payslip.snapshot-B9UzI-0N.js",
+        "uuid-C5Y-XXNh.js"
+      ]
+    },
+    "leaflet-src": {
+      "root": "leaflet-src-lGhwSwp0.js",
+      "inBootstrap": false,
+      "staticClosure": {
+        "bytes": 150033,
+        "gzipBytes": 43774
+      },
+      "additionalToBootstrap": {
+        "bytes": 148742,
+        "gzipBytes": 43064
+      },
+      "files": [
+        "leaflet-src-lGhwSwp0.js"
+      ]
+    }
+  },
+  "largestChunks": [
+    {
+      "file": "jsx-runtime-BhCpYVv4.js",
+      "bytes": 505644,
+      "gzipBytes": 157673
+    },
+    {
+      "file": "components-CWLMPm8P.js",
+      "bytes": 470154,
+      "gzipBytes": 146450
+    },
+    {
+      "file": "DashboardPage-DxxXPuYy.js",
+      "bytes": 445978,
+      "gzipBytes": 124760
+    },
+    {
+      "file": "index-YMCXRdZ_.js",
+      "bytes": 351295,
+      "gzipBytes": 103152
+    },
+    {
+      "file": "table-D5-Vv0hB.js",
+      "bytes": 295395,
+      "gzipBytes": 88933
+    },
+    {
+      "file": "leaflet-src-lGhwSwp0.js",
+      "bytes": 148742,
+      "gzipBytes": 43064
+    },
+    {
+      "file": "date-picker-CKJhCvPC.js",
+      "bytes": 104308,
+      "gzipBytes": 32774
+    },
+    {
+      "file": "schemas-CjHn2siU.js",
+      "bytes": 89652,
+      "gzipBytes": 25139
+    }
+  ],
+  "totalJavaScript": {
+    "bytes": 3238270,
+    "gzipBytes": 1017603
+  }
+}

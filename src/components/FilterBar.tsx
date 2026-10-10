@@ -1,17 +1,26 @@
 /**
- * FilterBar — thanh lọc phía trên bảng list.
+ * FilterBar — thanh lọc phía trên bảng list dùng chung cho các màn hình.
  *
- * Component này **thuần hiển thị**: nó không biết `useTable`, không biết URL, không
- * biết field nào được phép lọc (việc đó ở `resourceFilterControls.ts`). Nhờ vậy toàn
- * bộ logic "đổi filter thì reset trang" nằm ở một chỗ (`useEntityFilters`) và test
- * được mà không cần dựng cả bảng.
+ * Bố cục sắp xếp theo vector (hàng ngang) với khả năng tự động xuống dòng (wrap).
+ * Mỗi input chia ra theo tỷ lệ 1/3 màn hình (8/24 col trong hệ thống grid của Ant Design),
+ * đảm bảo tính nhất quán trên tất cả các màn hình danh sách.
  *
- * Ô tìm kiếm là control duy nhất có state riêng, vì nó cần debounce: gọi `onChange`
- * theo từng phím gõ là mỗi ký tự một request, và request của tiền tố có thể về sau
- * request của chuỗi đầy đủ. Các control còn lại gọi `onChange` ngay.
+ * Hỗ trợ 2 chế độ:
+ * 1. Khai báo (Declarative): truyền `controls`, `value`, `onChange`, `onReset`
+ *    (được dùng tự động bởi `ResourceListPage` cho hàng loạt màn hình CRUD).
+ * 2. Ghép nối (Children / Compound): truyền `<FilterBar.Item>` hoặc children
+ *    cho các màn hình có bộ lọc tuỳ biến.
  */
-import { Button, Flex, Input, Select } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { Button, Col, Input, Row, Select, type ColProps } from "antd";
+import {
+  Children,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { useTranslation } from "react-i18next";
 
 import { useDebouncedSearch } from "@hooks/useDebouncedSearch";
@@ -19,13 +28,40 @@ import { EntityPicker } from "./EntityPicker";
 import type { ResourceFilterControl } from "./resources/resourceFilterControls";
 
 export interface FilterBarProps {
-  controls: readonly ResourceFilterControl[];
+  /** Danh sách cấu hình control lọc chuẩn (dùng với Refine/resourceFilterControls). */
+  controls?: readonly ResourceFilterControl[];
   /** Gọi khi một filter đổi; `undefined` nghĩa là bỏ filter đó. */
-  onChange: (field: string, value: string | undefined) => void;
-  onReset: () => void;
+  onChange?: (field: string, value: string | undefined) => void;
+  /** Callback xoá tất cả bộ lọc. */
+  onReset?: () => void;
   /** Giá trị đang áp dụng, khoá theo `field` (tên query param). */
-  value: Readonly<Record<string, string | undefined>>;
+  value?: Readonly<Record<string, string | undefined>>;
+  /** Các phần tử lọc tuỳ biến được truyền trực tiếp (children mode). */
+  children?: ReactNode;
+  /** Tuỳ chỉnh colProps cho mỗi ô input (mặc định xs={24} sm={8} md={8} = 1/3 màn hình). */
+  colProps?: ColProps;
+  /** Xác định có filter đang hoạt động hay không (khi dùng children mode mà không có controls). */
+  hasActiveFilter?: boolean;
+  className?: string;
+  style?: CSSProperties;
 }
+
+export interface FilterItemProps extends ColProps {
+  children: ReactNode;
+}
+
+export const FilterItem = ({
+  children,
+  xs = 24,
+  sm = 8,
+  md = 8,
+  style,
+  ...rest
+}: FilterItemProps) => (
+  <Col xs={xs} sm={sm} md={md} style={style} {...rest}>
+    {children}
+  </Col>
+);
 
 interface SearchFieldProps {
   control: ResourceFilterControl;
@@ -39,21 +75,13 @@ const SearchField = ({ control, onChange, value }: SearchFieldProps) => {
   const [draft, setDraft] = useState(applied);
   const debounced = useDebouncedSearch(draft);
 
-  // Điều chỉnh state **ngay trong lúc render** (mẫu "adjusting state when a prop
-  // changes" của React) chứ không trong effect: effect chỉ chạy sau khi commit, tức là
-  // có một nhịp ô nhập hiện chữ cũ trong khi bảng đã bỏ lọc. Đây là nhánh chạy khi cha
-  // đổi giá trị từ bên ngoài — bấm "Xoá bộ lọc", hoặc back/forward vì `useTable` đồng
-  // bộ filter lên URL.
+  // Điều chỉnh state ngay trong lúc render khi cha đổi giá trị từ bên ngoài
   const [lastApplied, setLastApplied] = useState(applied);
   if (applied !== lastApplied) {
     setLastApplied(applied);
     setDraft(applied);
   }
 
-  // `appliedRef` và `onChangeRef` để effect dưới chỉ phụ thuộc `debounced`. Nếu phụ
-  // thuộc `onChange` (call site truyền arrow mới mỗi render) thì effect chạy lại mỗi
-  // render, và ngay sau một lần xoá filter từ bên ngoài nó sẽ đẩy `debounced` cũ —
-  // chưa kịp theo `draft` mới — ngược lên cha, làm filter vừa xoá sống lại.
   const appliedRef = useRef(applied);
   const onChangeRef = useRef(onChange);
 
@@ -79,50 +107,70 @@ const SearchField = ({ control, onChange, value }: SearchFieldProps) => {
       allowClear
       aria-label={label}
       onChange={(event) => setDraft(event.target.value)}
-      placeholder={t("filters.searchPlaceholder")}
-      style={{ minWidth: 220 }}
+      placeholder={control.kind === "search" ? t("filters.searchPlaceholder") : label}
+      style={{ width: "100%" }}
       value={draft}
     />
   );
 };
 
 export function FilterBar({
+  className,
+  colProps,
   controls,
+  hasActiveFilter: customHasActiveFilter,
   onChange,
   onReset,
-  value,
+  style,
+  value = {},
+  children,
 }: FilterBarProps) {
   const { t } = useTranslation();
 
-  if (controls.length === 0) {
+  const hasControls = Boolean(controls && controls.length > 0);
+  const hasChildren = Boolean(children);
+
+  if (!hasControls && !hasChildren) {
     return null;
   }
 
-  // Chỉ hiện nút xoá khi thật sự có gì để xoá — nút luôn hiện nhưng không làm gì là
-  // cách chắc chắn nhất để người dùng ngừng tin nó.
-  const hasActiveFilter = controls.some((control) => {
-    const current = value[control.field];
-    return current !== undefined && current !== "";
-  });
+  // Tỷ lệ 1/3 màn hình: xs=24 (mobile 1 cột), sm=8, md=8 (8/24 col = 1/3 màn hình)
+  const defaultColProps: ColProps = {
+    xs: 24,
+    sm: 8,
+    md: 8,
+    ...colProps,
+  };
+
+  const isResetActive =
+    customHasActiveFilter ??
+    (controls
+      ? controls.some((control) => {
+          const current = value[control.field];
+          return current !== undefined && current !== "";
+        })
+      : false);
 
   return (
-    <Flex
-      align="center"
+    <Row
+      align="middle"
       aria-label={t("filters.ariaLabel")}
-      gap="small"
+      className={className}
+      gutter={[16, 12]}
       role="group"
-      style={{ marginBottom: 16 }}
+      style={{ marginBottom: 16, width: "100%", ...style }}
       wrap
     >
-      {controls.map((control) => {
-        if (control.kind === "search") {
+      {controls?.map((control) => {
+        if (control.kind === "search" || control.kind === "text") {
           return (
-            <SearchField
-              control={control}
-              key={control.field}
-              onChange={(next) => onChange(control.field, next)}
-              value={value[control.field]}
-            />
+            <Col {...defaultColProps} key={control.field}>
+              <SearchField
+                control={control}
+                onChange={(next) => onChange?.(control.field, next)}
+                value={value[control.field]}
+              />
+            </Col>
           );
         }
 
@@ -130,39 +178,61 @@ export function FilterBar({
 
         if (control.kind === "select") {
           return (
-            <Select
-              allowClear
-              aria-label={label}
-              key={control.field}
-              onChange={(next: string | undefined) =>
-                onChange(control.field, next)
-              }
-              options={(control.options ?? []).map((option) => ({
-                label: t(`forms.options.${option}`, { defaultValue: option }),
-                value: option,
-              }))}
-              placeholder={label}
-              style={{ minWidth: 180 }}
-              value={value[control.field]}
-            />
+            <Col {...defaultColProps} key={control.field}>
+              <Select
+                allowClear
+                aria-label={label}
+                onChange={(next: string | undefined) =>
+                  onChange?.(control.field, next)
+                }
+                options={(control.options ?? []).map((option) => ({
+                  label: t(`forms.options.${option}`, { defaultValue: option }),
+                  value: option,
+                }))}
+                placeholder={label}
+                style={{ width: "100%" }}
+                value={value[control.field]}
+              />
+            </Col>
           );
         }
 
         return (
-          <EntityPicker
-            key={control.field}
-            onChange={(next) => onChange(control.field, next)}
-            placeholder={label}
-            resource={control.relationResource ?? ""}
-            value={value[control.field]}
-          />
+          <Col {...defaultColProps} key={control.field}>
+            <EntityPicker
+              onChange={(next) => onChange?.(control.field, next)}
+              placeholder={label}
+              resource={control.relationResource ?? ""}
+              value={value[control.field]}
+            />
+          </Col>
         );
       })}
-      {hasActiveFilter ? (
-        <Button onClick={onReset} type="link">
-          {t("filters.clear")}
-        </Button>
+
+      {Children.map(children, (child) => {
+        if (!child) return null;
+        if (
+          isValidElement(child) &&
+          (child.type === FilterItem ||
+            (child.type as { displayName?: string })?.displayName === "Col")
+        ) {
+          return child;
+        }
+        return <Col {...defaultColProps}>{child}</Col>;
+      })}
+
+      {isResetActive && onReset ? (
+        <Col
+          {...defaultColProps}
+          style={{ display: "flex", alignItems: "center" }}
+        >
+          <Button onClick={onReset} type="link" style={{ paddingLeft: 0 }}>
+            {t("filters.clear")}
+          </Button>
+        </Col>
       ) : null}
-    </Flex>
+    </Row>
   );
 }
+
+FilterBar.Item = FilterItem;

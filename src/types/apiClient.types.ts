@@ -29,6 +29,13 @@ export type ApiAuthenticationMode = "required" | "none";
 
 export type ApiResponseMode = "envelope" | "raw";
 
+/** Explicit success mode for Refine custom operations; errors always use the envelope adapter. */
+export interface CustomResponseMeta {
+  responseMode: ApiResponseMode;
+}
+
+export const RAW_RESPONSE_META = { responseMode: "raw" } as const satisfies CustomResponseMeta;
+
 export interface ApiRequestMetadata {
   authentication?: ApiAuthenticationMode;
   responseMode?: ApiResponseMode;

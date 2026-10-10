@@ -2,9 +2,11 @@
  * Icon thông báo hiển thị trên AppHeader với đếm số thông báo, âm thanh và popover xem nhanh.
  */
 
-import { BellOutlined, CheckOutlined } from "@ant-design/icons";
-import { useList } from "@refinedev/core";
+import { BellOutlined } from "@ant-design/icons";
+import { useCan, useList } from "@refinedev/core";
 import {
+  Alert,
+  Spin,
   Badge,
   Button,
   Divider,
@@ -15,10 +17,12 @@ import {
   Space,
   Typography,
 } from "antd";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { useCurrentTenant } from "@/hooks/useCurrentTenant";
+import { NotificationMarkAllRead } from "./NotificationMarkAllRead";
 import { routes } from "@/constants/routes";
 import type { Notification } from "@/types/notification.types";
 import { playNotificationSound } from "../notificationSound";
@@ -27,24 +31,20 @@ export const NotificationHeaderIcon = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [readIds, setReadIds] = useState<ReadonlySet<string>>(new Set());
+  const { tenant } = useCurrentTenant();
+  const access = useCan({ resource: "notifications", action: "list" });
 
-  const { data } = useList<Notification>({
+  const { data, isLoading, isError, error, refetch, isFetching } = useList<Notification>({
     resource: "notifications",
+    pagination: { current: 1, pageSize: 5 },
     queryOptions: {
       refetchInterval: 10000,
+      enabled: Boolean(tenant?.tenantKey && access.data?.can),
+      queryKey: ["notification-header", tenant?.tenantKey],
     },
   });
 
-  const rawNotifications = useMemo(() => data?.data ?? [], [data?.data]);
-
-  // Quản lý danh sách thông báo và trạng thái đã đọc
-  const notifications = useMemo(() => {
-    return rawNotifications.map((item) => ({
-      ...item,
-      isRead: item.isRead || readIds.has(item.id),
-    }));
-  }, [rawNotifications, readIds]);
+  const notifications = useMemo(() => data?.data ?? [], [data?.data]);
 
   const unreadNotifications = useMemo(
     () => notifications.filter((item) => !item.isRead),
@@ -75,52 +75,34 @@ export const NotificationHeaderIcon = () => {
     }
   }, [unreadCount, notifications.length]);
 
-  const handleMarkAllAsRead = useCallback(() => {
-    const allIds = notifications.map((n) => n.id);
-    setReadIds(new Set(allIds));
-  }, [notifications]);
-
-  const handleNotificationClick = useCallback(
-    (item: Notification) => {
-      setReadIds((prev) => new Set([...prev, item.id]));
-      setOpen(false);
-      navigate(routes.resources.notifications.list);
-    },
-    [navigate],
-  );
+  const handleNotificationClick = () => {
+    // Runtime has no per-notification mark-read endpoint. Navigation never fakes a persisted read.
+    setOpen(false);
+    navigate(routes.resources.notifications.list);
+  };
+  if (access.data?.can !== true) return null;
 
   const popoverContent = (
-    <div style={{ width: 320 }}>
+    <div style={{ width: 320, maxWidth: "calc(100vw - 32px)" }}>
       <Flex align="center" justify="space-between" style={{ paddingBottom: 8 }}>
         <Typography.Text strong>
-          {t("resources.notifications")} {unreadCount > 0 ? `(${unreadCount})` : ""}
+          {t("notifications.recent")}
         </Typography.Text>
-        {unreadCount > 0 && (
-          <Button
-            icon={<CheckOutlined />}
-            onClick={handleMarkAllAsRead}
-            size="small"
-            type="link"
-          >
-            {t("notifications.markAllAsRead")}
-          </Button>
-        )}
+        {unreadCount > 0 && <NotificationMarkAllRead />}
       </Flex>
       <Divider style={{ margin: "4px 0 8px 0" }} />
-      {notifications.length === 0 ? (
+      {isLoading ? <Spin /> : isError ? <Alert type="error" message={error?.message ?? t("queryError.description")} action={<Button disabled={isFetching} onClick={() => void refetch()}>{t("actions.retry")}</Button>} /> : notifications.length === 0 ? (
         <Empty
           description={t("notifications.empty")}
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         />
       ) : (
         <List
-          dataSource={notifications.slice(0, 5)}
+          dataSource={notifications}
           itemLayout="horizontal"
           renderItem={(item) => (
             <List.Item
-              onClick={() => handleNotificationClick(item)}
               style={{
-                cursor: "pointer",
                 padding: "8px 4px",
                 background: item.isRead ? "transparent" : "rgba(24, 144, 255, 0.05)",
                 borderRadius: 4,
@@ -150,12 +132,9 @@ export const NotificationHeaderIcon = () => {
                           }}
                         />
                       )}
-                      <Typography.Text
-                        strong={!item.isRead}
-                        style={{ fontSize: 13 }}
-                      >
-                        {item.title}
-                      </Typography.Text>
+                      <Button type="link" onClick={handleNotificationClick} aria-label={`${item.title} (${t(item.isRead ? "notifications.read" : "notifications.unread")})`} style={{ whiteSpace: "normal", height: "auto", textAlign: "left" }}>
+                        <Typography.Text strong={!item.isRead}>{item.title}</Typography.Text>
+                      </Button>
                     </Space>
                   </Flex>
                 }
@@ -186,7 +165,7 @@ export const NotificationHeaderIcon = () => {
       placement="bottomRight"
       trigger="click"
     >
-      <Badge count={unreadCount} overflowCount={99} size="small">
+      <Badge dot={unreadCount > 0 && !isError} title={t("notifications.recentUnread")} size="small">
         <Button
           aria-label={t("resources.notifications")}
           icon={<BellOutlined style={{ fontSize: 18 }} />}

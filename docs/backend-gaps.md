@@ -4,6 +4,30 @@ This file is the explicit ticket register for backend gaps the frontend depends
 on. Frontend code must fail closed or feature-flag affected behavior; it must
 not invent endpoints or replace backend authorization.
 
+## CURRENT RUNTIME CONTRACT — 2026-10-06
+
+Authoritative active frontend blockers, rechecked against fresh localhost:8080 OpenAPI (137 paths) and current controllers. The historical reporting/deployment evidence below is not an active-contract table. No backend/container/database/migration changes are part of this continuation.
+
+| ID | Current status | Frontend task / genuine gap | Required backend resolution / retained UI |
+|---|---|---|---|
+| BE-020 | BLOCKED_BACKEND | FE-DOC-001 / FE-LOAD-001 upload: POST `/api/documents` multipart absent; GET/DELETE only. | Final file/metadata DTO, ownership/link validation, storage policy, normalized errors/authorization; align retained dormant upload before activation. Document reads/capturedAt remain valid. |
+| BE-021 | BLOCKED_BACKEND | FE-FOUNDATION-002: GET `/api/me` absent. Identity/test environment also blocks authenticated browser E2E. | Return subject/email/tenantId/roles/employeeId consistent with shared JWT/session boundary. Profile component/tests retained; menus/route dormant; no identity fallback. |
+| BE-023 | BLOCKED_BACKEND | FE-COST-001: global shipment-cost collection/detail with server filtering/pagination absent. | Provide authoritative global read contract; keep embedded load-scoped costs. No Load enumeration/fake ledger. |
+| BE-025 | PARTIAL / BLOCKED_BACKEND | FE-SETTLEMENT-003: full planned action/audit acceptance incomplete. | Confirmed submit-review/approve/lock/validation/corrections retained; no reject/generic recalculate/settlement payment aliases. Evidence-based revenue commands are distinct; payment belongs to PayrollItem. |
+| BE-026 | BLOCKED_BACKEND | FE-PAYROLL-001/003: run collection and profile/history/configuration/policy reads absent. | Supported list/filter/page DTO and authoritative editor read state. `/api/payroll/runs` calculate/detail/workflow and append/PUT are insufficient; no ID/period enumeration, fake pagination or tax/country/classification/policy defaults. |
+| BE-028 | PARTIAL / BLOCKED_BACKEND | FE-PAYROLL-004: authorized employee-owned current payment state absent. | Retain payslip snapshot/PDF; supply owned payment status DTO. DRIVER must not use finance-only item-payment endpoint; issuance != PAID. |
+| BE-030 | BLOCKED_BACKEND / BLOCKED_AUTHORIZATION | FE-MSG-001: caller employeeId/senderId/conversationId lacks authenticated principal membership binding. | Server actor derivation, membership/read/write checks and sender binding; messaging stays dormant. REST presence does not satisfy authorization. |
+| BE-031 | PARTIAL / BLOCKED_BACKEND | FE-DASH-001: executive-summary/report compatibility absent; FE-RATE-001: collection/history reads absent. | Executive requires its exact DTO/parameters, not composition of year/month MonthlyFinancialSummary and explicit-scope FleetHistory.Report. Preserve query/metric foundation; Executive rendering/menu dormant. Rating authoring/explicit version GET exists; no guessed list/history. Fleet and Rating preview are independently DONE. |
+| BE-016 | BLOCKED_BACKEND (CRUD scope) | FE-EXPENSE-001 / FE-MAINT-001: Expense collection/detail/create/update and Maintenance CRUD/PM workflows absent. | Reports, individual expense approve/sync do not implement CRUD. Reuse retained orphan screens only after exact contracts are ready. |
+
+FE-LOAD-001 Exceptions also remains BLOCKED_BACKEND: no load-scoped exception object read/action contract. `/api/reports/operations/exceptions-summary` is an aggregate, not workflow evidence.
+
+BE-029 is **RESOLVED / HISTORICAL** for bank cases/reconcile/no-payment-required, Rating, Optimization and Fleet health/history. FE-PAYROLL-005, FE-RATE-002, FE-OPT-001/002 and FE-FLEET-001 are DONE; do not restore their old deployment blockers. Remaining optional profitability dimensions (BE-024) and MANUAL payment completion (BE-027) are separate residual scopes, not regressions of those DONE tasks.
+
+## Existing environment / hardening register
+
+The following original non-feature items were not revalidated in this scoped contract correction. Their recorded environment/security constraints remain; the current execution matrix above governs feature availability.
+
 | ID | Status | Gap | Required resolution |
 |---|---|---|---|
 | BE-001 | BLOCKED | Spring has no CORS configuration. A real preflight from `http://localhost:5173` returns no `Access-Control-Allow-*` headers. | Whitelist exact origins; allow `GET, POST, PUT, DELETE, OPTIONS`; allow `Authorization, Content-Type, X-Request-Id`; expose `Content-Disposition`. Keep credentials disabled for the approved Bearer-only flow. |
@@ -19,8 +43,12 @@ not invent endpoints or replace backend authorization.
 | BE-011 | HARDENING | The JWT converter creates an authority for any role string and `/api/**` has an authenticated fallback. | Whitelist supported roles and require every new API route to have an explicit matcher/method policy. |
 | BE-012 | PHASE 3 | Load-dispatch invoice status comparison is case-sensitive (`Draft` versus `draft`). | Normalize invoice states before frontend relies on automatic issue behavior. |
 | BE-013 | OPEN | Currency strings are not validated as ISO currency codes. | Define currency validation and rounding policy. |
+| BE-022 | RESOLVED (frontend correction) | FE-AUTH-001 now mirrors exact backend ADMIN/ACCOUNTANT/PAYROLL/PAYROLL_MANAGER endpoint authorities/actions alongside retained legacy operational grants. | Preserve accepted/denied authority tests and fail-closed permissions; no semantic aliases or SUPERADMIN bypass. This historical frontend mismatch is not an active backend blocker. |
+| BE-024 | PARTIAL CONTRACT | Runtime GET `/api/reports/profitability/by-load` returns `List<LoadFinancialSummary>` and supports only optional UUID `loadId`; no date/currency/customer/truck filter, customer grouping, pagination or share-of-cost field. GET `/api/loads/{loadId}/financial-summary` returns the distinct `LoadProfitabilityReport` DTO. | FE-PROFIT-001 implements the verified by-load report with loadId filter, explicit DTO projection and backend classification breakdown; no unsupported filters, client totals, inferred share or additional summary request per row. Unsupported planned scopes/filters remain recorded, not silently invented. |
 
-## Executive Overview report endpoints
+## Historical Executive reporting snapshot — superseded contract evidence
+
+> This original reporting/seeder snapshot is retained for audit only. Its six-endpoint claims, legacy DTOs, source/seed descriptions and BE-014–019 resolutions are not current runtime certification. In 2026-10-06 runtime, executive-summary is absent, Fleet history exists with explicit policy/truck/date/zone, and monthly financial requires year/month with a different DTO. Current CRUD scope BE-016 and Executive compatibility BE-031 are in the first table. No seed/database/migration action was performed or authorized here.
 
 The executive dashboard (`src/pages/dashboard/DashboardPage.tsx`) reads its
 numbers from `src/features/executive/executive.queries.ts`, which calls the six
@@ -46,7 +74,7 @@ listed by name in each response's `completeness.unavailableMetrics`, so a
 missing figure can be told apart from a genuine zero without trusting the
 service's word for it.
 
-### Status of this group
+### Historical status of this group (not current runtime)
 
 The six endpoints now exist and are wired. What remains in most rows is **source
 data**, not endpoint surface: several metrics report unavailable because the
@@ -168,3 +196,55 @@ Until an explicit stack migration is approved:
 - this Vite SPA does not use React Router SSR hydration/deserialization;
 - the residual audit result remains a Phase 0 FAIL for a zero-vulnerability
   production gate.
+
+## BE-025 — Settlement planned collection/workflow differences (2026-10-06 current recheck)
+
+**Status: PARTIAL / BLOCKED_BACKEND for full planned acceptance; confirmed commands implemented.** Runtime DriverSettlementController GET collection accepts payPeriodId, driverId, status, settlementType only and returns a list (no currency/server pagination). UI paginates the returned collection, shows per-row currency and never aggregates financial totals. Confirmed detail, submit-review, approve, lock, require-validation, resolve-validation, adjustments and reversal are implemented. There is no generic recalculate, reject, schedule-payment or audit-history endpoint. Recalculate-revenue/billing-adjustments are distinct commands with dedicated evidence contracts, not aliases. Adjustment accepts positive explicit line amounts, optional load/trip, reason and stable idempotencyKey; currency is inherited and original history immutable. No quantity/rate/evidence fields are invented. FE-SETTLEMENT-003 remains BLOCKED_BACKEND for its unsupported planned scope. Payments belong to the payroll item workflow.
+
+## BE-026 — Payroll runtime entry and profile read gaps (2026-10-06 current recheck)
+
+**Status: BLOCKED for collection and profile read scopes.** PayrollRunController confirms POST /api/payroll/runs/calculate, GET /api/payroll/runs/{id}, POST /{id}/recalculate, /submit-review, /approve, /lock. There is no GET /api/payroll/runs or /api/payroll-runs: FE-PAYROLL-001 list cannot be implemented or replaced with client totals. Read/action contract uses IN_REVIEW (not planned REVIEWED), PAYMENT_SCHEDULED and COMPLETED (not assumed PAID). PayrollConfigurationController exposes tenant-default PUT, employee profile append POST and policy-version append POST, but no GET profile/history/tenant-default/policy lookup. Record missing read contracts before declaring FE-PAYROLL-003 complete. Existing detail/calculate endpoints can support an explicit workflow entry without exposing a fictitious collection or client aggregates.
+
+## BE-027 — Payroll payment execution/configuration residual scope (2026-10-05)
+
+**Status: CONFIRMED bank/Stripe surface; BLOCKED MANUAL completion.** Scheduling accepts MANUAL, BANK_TRANSFER, STRIPE. Dispatch explicitly rejects MANUAL; reconcile-bank only accepts BANK_TRANSFER with an existing open case and matching bank destination/evidence. No manual-payment completion endpoint is exposed. Frontend schedules bank/Stripe with explicit provider/destination, shows actual attempt status and bank reconciliation cases; no selectable manual dead-end or fake mark-paid. Registered authoritative provider adapters/statutory calculators require backend configuration; absence is an actionable backend error, never mocked financial success. Retry is a new schedule request only after a failed attempt and resolved evidence; SUCCEEDED/active attempts block new scheduling. Zero-net requires an explicit backend no-payment disposition rather than a transfer; no such transfer is fabricated.
+
+Payroll snapshot resolution uses WORK_PAYROLL_OVERRIDE / EMPLOYEE_PROFILE / TENANT_DEFAULT and carries profile/version evidence. Planned WORK_OVERRIDE must not be sent as an invented enum. Profile/configuration read gaps remain BE-026.
+
+## BE-028 — Payslip self-service current payment evidence (2026-10-06 current recheck)
+
+**Status: PARTIAL / BLOCKED_BACKEND for current payment status; own list/detail/PDF CONFIRMED.** Runtime GET /api/driver/me/payslips, /api/payslips/{id}, /api/payslips/{id}/pdf return immutable PayslipView snapshot/artifact evidence only. The snapshot includes period, amounts, jurisdiction, resolution and policy, but no current payment status; finance-only /api/payroll/items/{id}/payments cannot serve DRIVER self-service. Required resolution: authorized driver-owned payment status endpoint/DTO, including explicit no-payment disposition if relevant. Do not infer payment success from issuedAt/lockedAt or mutate immutable snapshots. Frontend confirmed read/PDF slice is implemented; FE-PAYROLL-004 remains BLOCKED_BACKEND for payment-status requirement.
+
+## Historical runtime mismatch — 2026-10-05
+
+**SUPERSEDED BY 2026-10-06 RUNTIME REFRESH. BE-029: RESOLVED for reconciliation/Rating/Optimization/Fleet.** The following is the original dated evidence, not an active missing-contract assertion.
+
+**Historical status on 2026-10-05: BLOCKED_RUNTIME_ALIGNMENT.** .env API_PROXY_TARGET=http://localhost:8080; Docker logistics-api runs logisticsx-api:local there; no :18080 runtime. Fresh GET /v3/api-docs confirms the payroll/settlement/cost/payslip surfaces used by implemented confirmed slices. It does **not** expose /api/payroll/reconciliation-cases or /api/payroll/payments/{id}/reconcile-bank (also /items/{id}/no-payment-required absent), while latest PayrollPaymentController source has them. Reconciliation UI unit tests against the source contract remain as dormant implementation evidence; production route/link are explicitly gated off. FE-PAYROLL-005 corrected to BLOCKED_BACKEND for reconciliation (scheduling/dispatch available).
+
+The same runtime has **no rating or optimization paths**, and lacks /api/reports/executive-summary and /api/reports/fleet/health (only fleet/fuel and fleet/maintenance appear). Latest backend source/progress Phases 6–8 complete do not certify this running container. FE-RATE-001/002, FE-OPT-001/002, FE-FLEET-001 and FE-DASH-001 are blocked pending aligned runtime; no menu/production call introduced for missing contracts. Rate rules source also lacks planned collection/history GET. This is recorded as a mismatch, not a silent plan change. Backend rebuild/redeploy is separate from authorized frontend implementation; no container restart, database change or source reset was performed.
+
+## BE-030 — Messaging authenticated actor/participant contract (2026-10-06 current recheck)
+
+**Status: BLOCKED_AUTHORIZATION, not missing REST.** Live GET/POST `/api/messages/conversations`, conversation detail, GET/POST `/api/messages` and unread-count exist. MessageController accepts caller `employeeId`, `conversationId` and SendMessageRequest.senderId. ConversationService.listByParticipant/getById and MessageService.listByConversation/send resolve those caller IDs without authenticated employee binding or conversation membership checks. Tenant isolation alone does not establish participant ownership or prevent sender impersonation within a tenant. Required backend contract: derive/validate current persisted employee, enforce conversation membership on reads/writes, bind sender to actor, and define permitted privileged access. Do not expose dormant generic messages pages or enable a specialized production adapter before this contract is confirmed.
+
+## BE-029 runtime recheck — 2026-10-06 (supersedes deployment absence)
+
+Fresh configured localhost:8080 OpenAPI now confirms bank reconciliation cases/command and zero-net disposition, rating rule/contract version authoring/read and Load preview, Optimization run/read/accept, Fleet health/utilization-history (137 paths). The previous missing-runtime blocker is resolved for these operations. Frontend integration/tests have passed for FE-PAYROLL-005, FE-RATE-002, FE-OPT-001/002 and FE-FLEET-001 at their recorded checkpoints; these tasks remain DONE. Endpoint presence alone never auto-completes another task. Global Rating collection/history and executive-summary remain absent and must be tracked separately. No backend/container/data change performed by this frontend continuation.
+
+## BE-031 — Rating collection/history and executive reporting residual contracts (2026-10-06)
+
+**Current status: PARTIAL / BLOCKED_BACKEND for Executive; BLOCKED_BACKEND for Rate collection/history.** BE-029 runtime availability is resolved. FE-RATE-001 still cannot provide the planned rule collection/history: only explicit ID/version GET and authoring POST exist. Do not enumerate guessed versions. FE-DASH-001 still lacks executive-summary; live fleet-health now requires explicit policyId/truckIds and returns FleetHistory.Report, unlike the existing Executive FleetHealthDto/range-only request. Monthly financial also requires year/month and returns MonthlyFinancialSummary rather than the old points DTO. Executive foundation remains preserved per user instruction; record these incompatibilities rather than casting newer report data to legacy DTOs or fabricating metrics. Executive page/menu/resources are dormant; existing `/dashboard` return targets redirect to Operations without mounting its queries. Standalone FE-FLEET-001 is DONE independently using its explicit confirmed contract.
+
+## Remaining-contract recheck — 2026-10-06T03:45:39+07:00
+
+Fresh localhost:8080 OpenAPI (137 paths; SHA256 `9891294e84db060eb30c598fa8b0fbff98057ca03e16c08f67a96be21b169978`) is identical to the prior Oct6 snapshot and remained identical on the final 03:43:04+07:00 check. No gap became READY or resolved in this continuation. Current blocked matrix and per-task evidence are appended at the top of [plan-frontend-progress.md](plan-frontend-progress.md). Runtime/Plan Alignment 2026-10-06 stays COMPLETE; it was not redone.
+
+- BE-021: GET `/api/me` absent. BE-020: `/api/documents` GET only; multipart POST absent. Individual Load exceptions still have only a reports summary, not object read/actions.
+- BE-023: only Load-scoped costs, no global collection/detail/server page/filter contract.
+- BE-025: confirmed commands unchanged; no generic recalculate/reject/settlement-payment/audit-history aliases.
+- BE-026: no run collection GET or current/history/config/policy resolution reads. BE-028: no employee-owned current payment status; PayslipView remains immutable snapshot evidence.
+- BE-031: Rate authoring/explicit version reads exist, collection/history still absent; Executive summary absent and supporting monthly/Fleet DTO/parameters still incompatible with dormant Executive foundation.
+- BE-016 CRUD/PM scope: Expense has only individual approve; Maintenance object CRUD/PM operations absent.
+- BE-030: current MessageController/MessageService/ConversationService and SecurityConfig still provide no authenticated principal membership binding for caller employeeId/senderId/conversationId. REST presence does not resolve authorization; no private-account exploit request was made.
+
+BE-029 remains RESOLVED for accepted reconciliation/preview/Optimization/Fleet. No completed task was downgraded, no blocked task completed/deferred, no production source changed. Frontend source/tests/package and backend source/config hashes match the pre-recheck snapshot; backend read only. Final frontend gates: typecheck PASS; lint PASS; full 115 files / 633 tests PASS; build PASS; git diff --check PASS; authenticated E2E NOT RUN (BE-021/test environment).

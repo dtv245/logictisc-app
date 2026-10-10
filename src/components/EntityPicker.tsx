@@ -79,7 +79,7 @@ export function EntityPicker({
       filterOption={false}
       placeholder={placeholder}
       showSearch
-      style={{ minWidth: 200, width: "100%" }}
+      style={{ width: "100%" }}
     />
   );
 }

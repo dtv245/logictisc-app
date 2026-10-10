@@ -4,26 +4,14 @@
 
 import type {
   AuditableEntity,
-  GeoLocation,
-  OptionalAddress,
 } from "./common.types";
 import type { Employee } from "./employee.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
-export type TruckType =
-  | "box_truck"
-  | "dry_van"
-  | "flatbed"
-  | "reefer"
-  | "tractor";
+export type TruckType = string;
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
-export type TruckStatus =
-  | "available"
-  | "assigned"
-  | "in_transit"
-  | "maintenance"
-  | "out_of_service";
+export type TruckStatus = string;
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type MaintenanceType =
@@ -37,30 +25,29 @@ export type MaintenanceType =
 export type MaintenanceIntervalType = "mileage" | "days" | "engine_hours";
 
 /** Xe tải được tenant quản lý và phân công vận chuyển. */
+/** Flat TruckView projection from the verified handoff; UI presentation does not add wire fields. */
 export interface Truck {
+  adrEquipmentAllowedClasses?: string | null;
+  adrEquipmentIsAdrCertified?: boolean | null;
+  currentLocationLatitude?: number | null;
+  currentLocationLongitude?: number | null;
   id: string;
-  number: string;
-  type: TruckType;
-  vehicleCapacity: number;
-  status: TruckStatus;
-  make?: string | null;
-  model?: string | null;
-  year?: number | null;
-  vin?: string | null;
+  isHazmatPlacarded: boolean;
   licensePlate?: string | null;
   licensePlateState?: string | null;
-  isHazmatPlacarded: boolean;
   mainDriverId?: string | null;
   mainDriverName?: string | null;
+  make?: string | null;
+  model?: string | null;
+  number: string;
   secondaryDriverId?: string | null;
   secondaryDriverName?: string | null;
-  adrEquipmentAdrCertExpiresAt?: string | null;
-  /** Các lớp hàng nguy hiểm ADR, theo định dạng chuỗi do backend cung cấp. */
-  adrEquipmentAllowedClasses: string;
-  adrEquipmentIsAdrCertified: boolean;
-  adrEquipmentOrangePlateNumber?: string | null;
-  currentAddress?: OptionalAddress | null;
-  currentLocation?: GeoLocation | null;
+  status: string;
+  type: string;
+  vehicleCapacity: number;
+  version?: number | null;
+  vin?: string | null;
+  year?: number | null;
 }
 
 /** Quy tắc xác định thời điểm bảo trì tiếp theo của xe tải. */
@@ -131,3 +118,5 @@ export interface MaintenanceRecordWithRelations extends MaintenanceRecord {
   performedBy?: Employee | null;
   parts?: MaintenancePart[];
 }
+
+export type { CreateTruckRequest, UpdateTruckRequest } from "./handoff.generated";

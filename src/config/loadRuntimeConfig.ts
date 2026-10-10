@@ -21,6 +21,37 @@ function defaultConfigUrl(): string {
   return `${import.meta.env.BASE_URL}runtime-config.json`;
 }
 
+function getEnvApiBaseUrl(): string | undefined {
+  const envUrl = import.meta.env?.VITE_API_BASE_URL;
+  if (!envUrl || typeof envUrl !== "string") {
+    return undefined;
+  }
+  const trimmed = envUrl.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  return trimmed.replace(/\/api\/?$/i, "").replace(/\/+$/, "");
+}
+
+function mergeEnvConfig(raw: unknown): unknown {
+  if (typeof raw !== "object" || raw === null) {
+    return raw;
+  }
+  const merged: Record<string, unknown> = { ...(raw as Record<string, unknown>) };
+  const envApiUrl = getEnvApiBaseUrl();
+
+  if (import.meta.env?.VITE_APP_NAME && typeof import.meta.env.VITE_APP_NAME === "string") {
+    merged.appName = import.meta.env.VITE_APP_NAME.trim();
+  }
+
+  // Khi ở development hoặc khi apiBaseUrl bị thiếu, ưu tiên dùng cấu hình từ env để tránh lệch với .env
+  if (envApiUrl && (merged.environment === "development" || !merged.apiBaseUrl)) {
+    merged.apiBaseUrl = envApiUrl;
+  }
+
+  return merged;
+}
+
 /** Tải và validate runtime config thay thế được mà không rebuild frontend. */
 export async function loadRuntimeConfig(
   options: LoadRuntimeConfigOptions = {},
@@ -69,7 +100,8 @@ export async function loadRuntimeConfig(
   }
 
   try {
-    return parseRuntimeConfig(await response.json());
+    const rawJson = await response.json();
+    return parseRuntimeConfig(mergeEnvConfig(rawJson));
   } catch (cause) {
     // Tách JSON hợp lệ nhưng sai schema khỏi JSON hỏng để vận hành biết cần sửa
     // giá trị cấu hình hay cách server/static host trả file.

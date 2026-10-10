@@ -5,3 +5,5 @@ export { AiDispatchEdit } from "./edit";
 export { AiDispatchList } from "./list";
 export { aiDispatchResource } from "@features/ai-dispatch/ai-dispatch.resource";
 export { AiDispatchShow } from "./show";
+export { AiDispatchPage } from "./AiDispatchPage";
+

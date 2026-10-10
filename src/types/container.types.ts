@@ -1,5 +1,6 @@
 import type { ContainerIsoType, ContainerStatus } from "./container.dto";
 import type { Terminal } from "./terminal.types";
+import type { ISODateTime } from "./api.types";
 
 export interface Container {
   id: string;
@@ -13,12 +14,12 @@ export interface Container {
   status: ContainerStatus;
   currentTerminalId?: string | null;
   notes?: string | null;
-  loadedAt?: Date | null;
-  deliveredAt?: Date | null;
-  returnedAt?: Date | null;
-  createdAt: Date;
+  loadedAt?: ISODateTime | null;
+  deliveredAt?: ISODateTime | null;
+  returnedAt?: ISODateTime | null;
+  createdAt: ISODateTime;
   createdBy?: string | null;
-  lastModifiedAt?: Date | null;
+  lastModifiedAt?: ISODateTime | null;
   lastModifiedBy?: string | null;
 }
 

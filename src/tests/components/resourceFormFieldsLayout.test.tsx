@@ -81,14 +81,10 @@ describe("ResourceFormFields — bố cục nhiều cột", () => {
     expect(lgSpanOf(screen.getByLabelText("Ghi chú"))).toBe("24");
   });
 
-  it("danh sách trạm dừng chiếm cả hai cột dù `columns={2}`", () => {
+  it("generic Trip editor excludes nested stops absent from the request contract", () => {
     renderFields("trips", 2);
-
-    // `tripStops` không có nhãn `Form.Item` nên nhận diện qua nút thêm trạm. Khớp theo
-    // regex vì antd chèn icon `PlusOutlined` có `aria-label` vào tên trợ năng của nút.
-    expect(
-      lgSpanOf(screen.getByRole("button", { name: /Thêm điểm dừng/ })),
-    ).toBe("24");
+    expect(screen.queryByRole("button", { name: /Thêm điểm dừng/ })).not.toBeInTheDocument();
+    expect(resourceFormDefinitions.trips.fields.some((field) => field.name === "stops")).toBe(false);
   });
 
   it("không bọc thêm Col nào ngoài số field của định nghĩa", () => {

@@ -31,9 +31,28 @@ export interface PasswordLoginParams {
   returnTo?: string;
 }
 
+export interface LarkAuthLoginResponse {
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+  subject: string;
+  email: string;
+  tenantId: string;
+  roles: string[];
+  returnTo?: string;
+}
+
 export type LarkLoginParams =
-  | { mode: "redirect"; returnTo?: string }
-  | { mode: "callback" };
+  | { provider?: "lark"; mode: "redirect"; returnTo?: string }
+  | {
+      provider?: "lark";
+      mode: "callback";
+      code?: string;
+      state?: string;
+      returnTo?: string;
+      error?: string;
+      errorDescription?: string;
+    };
 
 export type LoginParams = PasswordLoginParams | LarkLoginParams;
 

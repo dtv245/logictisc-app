@@ -6,6 +6,7 @@ import { Edit, useForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { Form } from "antd";
 
+import { useResourceEditContract } from "./resources/useResourceEditContract";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import type { ApiError } from "@/types/api.types";
 import { ResourceFormFields } from "./resources/ResourceFormFields";
@@ -35,8 +36,10 @@ export const ResourceEditPage = ({ resource: resourceProp }: ResourceEditPagePro
     resource: resourceName,
     onMutationError: (error) => {
       applyBackendFieldErrors(form, error.errors ?? {});
+      contract.reportError(error);
     },
   });
+  const contract = useResourceEditContract(resourceName, form, queryResult?.data?.data);
   if (!isEditableResourceName(resourceName)) {
     throw new Error(`RESOURCE_FORM_NOT_CONFIGURED:${resourceName}`);
   }
@@ -46,7 +49,8 @@ export const ResourceEditPage = ({ resource: resourceProp }: ResourceEditPagePro
       isLoading={queryResult?.isLoading}
       saveButtonProps={saveButtonProps}
     >
-      <Form {...formProps} layout="vertical">
+      {contract.feedback}
+      <Form {...formProps} onValuesChange={(changed, values) => { contract.onValuesChange(changed, values); formProps.onValuesChange?.(changed, values); }} onFinish={(values) => formProps.onFinish?.(contract.prepare(values))} layout="vertical">
         {/* Trang route rộng nên xếp 2 cột; modal vẫn 1 cột — xem `ResourceFormFields`. */}
         <ResourceFormFields
           columns={2}

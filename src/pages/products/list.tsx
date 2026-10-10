@@ -4,17 +4,20 @@
 
 import { CreateButton, List, useModalForm, useTable } from "@refinedev/antd";
 import { useShow } from "@refinedev/core";
-import { Form, Input, Modal } from "antd";
+import { Descriptions, Form, Input, Modal, Tag } from "antd";
 import { useTranslation } from "react-i18next";
 
 import type { ApiError } from "@/types/api.types";
 import type { Product, ProductFormValues, ProductSearchValues } from "@/types/product.types";
 import { ProductForm } from "@features/products/components/form";
 import { useProductColumns } from "@features/products/components/columns";
+import { FilterBar } from "@components";
 import { BaseTable } from "@table";
+import { formatMoney } from "@formatters/money";
+import { toIntlLocale } from "@formatters/intlLocale";
 
 export const ProductList = () => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const { searchFormProps, tableProps, tableQueryResult } = useTable<
     Product,
@@ -54,12 +57,17 @@ export const ProductList = () => {
       <List headerButtons={<CreateButton onClick={(e) => { e.preventDefault(); createModal.show(); }} />}>
         <Form<ProductSearchValues>
           {...searchFormProps}
-          layout="inline"
           style={{ marginBottom: 16 }}
         >
-          <Form.Item name="name">
-            <Input placeholder={t("products.searchPlaceholder")} allowClear />
-          </Form.Item>
+          <FilterBar>
+            <Form.Item name="name" noStyle>
+              <Input
+                allowClear
+                placeholder={t("products.searchPlaceholder")}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          </FilterBar>
         </Form>
         <BaseTable<Product>
           columns={columns}
@@ -74,11 +82,14 @@ export const ProductList = () => {
 
       <Modal
         {...createModal.modalProps}
+        destroyOnClose
+        width={860}
         title={t("products.createTitle")}
         okText={t("products.createOk")}
         confirmLoading={createModal.formLoading}
       >
         <ProductForm
+          columns={2}
           formProps={{
             ...createModal.formProps,
             initialValues: { active: true, price: 0, stockQuantity: 0 },
@@ -88,28 +99,64 @@ export const ProductList = () => {
 
       <Modal
         {...editModal.modalProps}
+        destroyOnClose
+        width={860}
         title={t("products.editTitle")}
         okText={t("actions.save")}
         confirmLoading={editModal.formLoading}
       >
-        <ProductForm formProps={editModal.formProps} />
+        <ProductForm columns={2} formProps={editModal.formProps} />
       </Modal>
 
       <Modal
-        open={!!showId}
-        onCancel={() => setShowId(undefined)}
-        title={t("products.viewTitle")}
+        destroyOnClose
         footer={null}
+        onCancel={() => setShowId(undefined)}
+        open={!!showId}
+        title={t("products.viewTitle")}
+        width={860}
       >
         {showQueryResult?.isFetching ? (
           <p>{t("common.loading")}</p>
         ) : (
-          <ProductForm
-            formProps={{
-              initialValues: showQueryResult?.data?.data,
-              disabled: true,
-            }}
-          />
+          <Descriptions
+            bordered
+            column={{ xs: 1, sm: 2, md: 2, lg: 2 }}
+            size="middle"
+            style={{ marginTop: 8 }}
+          >
+            <Descriptions.Item label={t("crud.identifier")}>
+              #{showQueryResult?.data?.data?.id}
+            </Descriptions.Item>
+            <Descriptions.Item label={t("products.fields.name")}>
+              {showQueryResult?.data?.data?.name ?? "—"}
+            </Descriptions.Item>
+            <Descriptions.Item label={t("products.fields.sku")}>
+              {showQueryResult?.data?.data?.sku ?? "—"}
+            </Descriptions.Item>
+            <Descriptions.Item label={t("products.fields.price")}>
+              {showQueryResult?.data?.data?.price === undefined ||
+              showQueryResult?.data?.data?.price === null
+                ? "—"
+                : formatMoney(showQueryResult.data.data.price, {
+                    currency: "VND",
+                    locale: toIntlLocale(i18n.language),
+                  })}
+            </Descriptions.Item>
+            <Descriptions.Item label={t("products.fields.stockQuantity")}>
+              {showQueryResult?.data?.data?.stockQuantity ?? "—"}
+            </Descriptions.Item>
+            <Descriptions.Item label={t("products.columns.active")}>
+              <Tag color={showQueryResult?.data?.data?.active ? "green" : "default"}>
+                {showQueryResult?.data?.data?.active
+                  ? t("products.status.active")
+                  : t("products.status.inactive")}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label={t("products.fields.description")} span={2}>
+              {showQueryResult?.data?.data?.description ?? "—"}
+            </Descriptions.Item>
+          </Descriptions>
         )}
       </Modal>
     </>

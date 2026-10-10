@@ -15,13 +15,6 @@ import {
   AccidentShow,
 } from "./accidents";
 import {
-  AiDispatchCreate,
-  AiDispatchEdit,
-  AiDispatchList,
-  aiDispatchResource,
-  AiDispatchShow,
-} from "./ai-dispatch";
-import {
   ContainerCreate,
   ContainerEdit,
   ContainerList,
@@ -225,7 +218,6 @@ export const appResources: IResourceItem[] = [
   documentsResource,
   conversationsResource,
   notificationsResource,
-  aiDispatchResource,
   terminalsResource,
   containersResource,
   loadBoardResource,
@@ -278,9 +270,6 @@ export const appResourcePageRoutes: ResourcePageRoute[] = [
   ...createResourcePageRoutes(routes.resources.notifications, {
     Create: NotificationCreate, Edit: NotificationEdit, List: NotificationList, Show: NotificationShow,
   }),
-  ...createResourcePageRoutes(routes.resources.aiDispatch, {
-    Create: AiDispatchCreate, Edit: AiDispatchEdit, List: AiDispatchList, Show: AiDispatchShow,
-  }),
   ...createResourcePageRoutes(routes.resources.terminals, {
     Create: TerminalCreate, Edit: TerminalEdit, List: TerminalList, Show: TerminalShow,
   }),
@@ -294,3 +283,11 @@ export const appResourcePageRoutes: ResourcePageRoute[] = [
     Create: ProductCreate, Edit: ProductEdit, List: ProductList, Show: ProductShow,
   }),
 ];
+
+export { ProfilePage } from "./profile/ProfilePage";
+export {
+  DriverPayPolicyList,
+  DriverPayPolicyShow,
+  SettlementList,
+} from "./settlements";
+export { AiDispatchPage } from "./ai-dispatch";

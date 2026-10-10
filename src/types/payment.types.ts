@@ -1,38 +1,21 @@
-import type { Address, Money } from "./common.types";
 import type { Invoice } from "./invoice.types";
-import type { PaymentStatus } from "./payment.dto";
+import type { PaymentResponse } from "./payment.dto";
+import type { ISODateTime } from "./api.types";
 
-export interface Payment {
-  id: string;
-  status: PaymentStatus;
-  stripePaymentMethodId?: string | null;
-  tenantId: string;
-  description?: string | null;
-  stripePaymentIntentId?: string | null;
-  referenceNumber?: string | null;
-  recordedByUserId?: string | null;
-  recordedAt?: Date | null;
-  invoiceId?: string | null;
-  amount: Money;
-  billingAddress: Address;
-  createdAt: Date;
-  createdBy?: string | null;
-  lastModifiedAt?: Date | null;
-  lastModifiedBy?: string | null;
-}
+export type Payment = PaymentResponse;
 
 export interface PaymentLink {
   id: string;
   token: string;
   invoiceId: string;
-  expiresAt: Date;
+  expiresAt: ISODateTime;
   isActive: boolean;
   createdByUserId: string;
   accessCount: number;
-  lastAccessedAt?: Date | null;
-  createdAt: Date;
+  lastAccessedAt?: ISODateTime | null;
+  createdAt: ISODateTime;
   createdBy?: string | null;
-  lastModifiedAt?: Date | null;
+  lastModifiedAt?: ISODateTime | null;
   lastModifiedBy?: string | null;
 }
 

@@ -5,17 +5,15 @@
 import type {
   AuditableEntity,
   DatabaseInterval,
-  Money,
-  OptionalAddress,
 } from "./common.types";
 import type { Document } from "./document.types";
 import type { Invoice } from "./invoice.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
-export type SalaryType = "hourly" | "salary" | "per_mile" | "per_load";
+export type SalaryType = string;
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
-export type EmployeeStatus = "active" | "inactive" | "on_leave" | "terminated";
+export type EmployeeStatus = string;
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type DriverLicenseClass = "A" | "B" | "C";
@@ -27,20 +25,26 @@ export type DriverLicenseStatus = "active" | "expired" | "suspended" | "revoked"
 export type TimeEntryType = "regular" | "overtime" | "break" | "leave";
 
 /** Nhân viên thuộc tenant, bao gồm tài xế và điều phối viên. */
+/** Flat EmployeeView projection from the verified handoff; UI presentation does not add wire fields. */
 export interface Employee {
-  id: string;
+  addressCity?: string | null;
+  addressCountry?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  addressState?: string | null;
+  addressZipCode?: string | null;
   email: string;
   firstName: string;
+  id: string;
+  joinedDate: string;
   lastName: string;
   phoneNumber?: string | null;
-  salaryType: SalaryType;
-  status: EmployeeStatus;
-  joinedDate: string;
-  deviceToken?: string | null;
-  stripeConnectedAccountId?: string | null;
   roleId?: string | null;
-  address?: OptionalAddress | null;
-  salary: Money;
+  roleName?: string | null;
+  salaryAmount?: number | null;
+  salaryCurrency?: string | null;
+  salaryType: string;
+  status: string;
 }
 
 /** Giấy phép lái xe và thời hạn chứng nhận của nhân viên. */

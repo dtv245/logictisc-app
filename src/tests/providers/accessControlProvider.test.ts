@@ -8,7 +8,7 @@ import { createAccessControlProvider } from "@providers/accessControlProvider";
 
 describe("createAccessControlProvider", () => {
   it("delegates permission checks to the role matrix", async () => {
-    const getJwtRoles = vi.fn().mockResolvedValue(["DRIVER"] as const);
+    const getJwtRoles = vi.fn().mockResolvedValue(["DISPATCHER"] as const);
     const provider = createAccessControlProvider({ getJwtRoles });
 
     await expect(

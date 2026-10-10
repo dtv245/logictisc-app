@@ -12,6 +12,14 @@ import type { UseMutationResult } from "@tanstack/react-query";
 
 import type { LarkLoginParams } from "../types/auth.types";
 
+export interface LarkCompleteLoginArgs {
+  code?: string;
+  state?: string;
+  returnTo?: string;
+  error?: string;
+  errorDescription?: string;
+}
+
 /**
  * Viết tay thay vì `ReturnType<typeof useLogin<LarkLoginParams>>`: `useLogin` là hàm
  * overload nên instantiation expression rơi vào overload **cuối** (bản combined), làm
@@ -25,7 +33,7 @@ export type UseLarkLoginResult = UseMutationResult<
   unknown
 > & {
   /** Pha callback: đổi code lấy phiên đăng nhập. */
-  completeLogin: () => void;
+  completeLogin: (params?: LarkCompleteLoginArgs) => void;
   /** Pha redirect: bắt đầu authorization-code flow. */
   startLogin: (returnTo?: string) => void;
 };
@@ -39,16 +47,48 @@ export const useLarkLogin = (): UseLarkLoginResult => {
   // hóa và chặn absolute URL trước khi dùng.
   const startLogin = useCallback(
     (returnTo?: string) => {
-      login.mutate(
-        returnTo ? { mode: "redirect", returnTo } : { mode: "redirect" },
-      );
+      login.mutate({
+        provider: "lark",
+        mode: "redirect",
+        ...(returnTo ? { returnTo } : {}),
+      });
     },
     [login],
   );
 
-  const completeLogin = useCallback(() => {
-    login.mutate({ mode: "callback" });
-  }, [login]);
+  const completeLogin = useCallback(
+    (callbackParams?: LarkCompleteLoginArgs) => {
+      let code = callbackParams?.code;
+      let state = callbackParams?.state;
+      let returnTo = callbackParams?.returnTo;
+      let error = callbackParams?.error;
+      let errorDescription = callbackParams?.errorDescription;
+
+      if (typeof window !== "undefined" && window.location?.search) {
+        const searchParams = new URLSearchParams(window.location.search);
+        code = code ?? searchParams.get("code") ?? undefined;
+        state = state ?? searchParams.get("state") ?? undefined;
+        returnTo = returnTo ?? searchParams.get("returnTo") ?? undefined;
+        error = error ?? searchParams.get("error") ?? undefined;
+        errorDescription =
+          errorDescription ??
+          searchParams.get("error_description") ??
+          searchParams.get("errorDescription") ??
+          undefined;
+      }
+
+      login.mutate({
+        provider: "lark",
+        mode: "callback",
+        code,
+        state,
+        returnTo,
+        error,
+        errorDescription,
+      });
+    },
+    [login],
+  );
 
   return {
     ...login,

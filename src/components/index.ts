@@ -17,3 +17,5 @@ export * from './ResourceShowPage';
 export * from './StatusTag';
 export * from './crudColumns';
 export * from './ResourceCreateModal';
+export * from './ResourceEditModal';
+export * from './resources/ResourceDetailView';

@@ -19,6 +19,7 @@ export type EditableResourceName =
 export type ResourceFormControl =
   | "boolean"
   | "datetime"
+  | "date"
   | "email"
   | "number"
   | "relation"
@@ -50,20 +51,12 @@ export interface ResourceFormField {
   max?: number | (() => number);
   maxLength?: number;
   min?: number;
+  stringMode?: boolean;
   name: string;
   options?: readonly string[];
   pattern?: RegExp;
   required?: boolean;
-  /**
-   * Trường do server sở hữu: hiển thị nhưng không cho người dùng sửa.
-   *
-   * Control được render `disabled`, và antd **vẫn giữ giá trị của field `disabled`
-   * trong form store**, nên khi update giá trị gốc được gửi lại nguyên vẹn thay vì
-   * bị xoá. Đây là chủ ý: repo chưa có `UpdateLoadRequest`/`UpdatePaymentRequest`
-   * nên không xác minh được PUT là full-replace hay partial — gửi lại giá trị cũ
-   * đúng trong cả hai trường hợp. Lúc create, field không có giá trị nên khoá bị bỏ
-   * khỏi payload (`JSON.stringify` bỏ `undefined`) và server tự quyết định.
-   */
+  /** Presentation-only disable; request ownership is enforced by the mutation whitelist. */
   readOnly?: boolean;
   uppercase?: boolean;
   relationResource?: string;
@@ -88,6 +81,7 @@ export interface ResourceFormDefinition {
 const FULL_WIDTH_BY_CONTROL: Record<ResourceFormControl, boolean> = {
   boolean: false,
   datetime: false,
+  date: false,
   email: false,
   number: false,
   relation: false,
@@ -143,21 +137,11 @@ const nextYear = () => new Date().getFullYear() + 1;
  * Trường server sở hữu: hiển thị nhưng không cho sửa. Xem `ResourceFormField.readOnly`.
  * `required` bị xoá vì trường không nhập được thì không thể bắt buộc nhập.
  */
-const readOnly = (field: ResourceFormField): ResourceFormField => ({
-  ...field,
-  readOnly: true,
-  required: false,
-});
 const boolean = (name: string): ResourceFormField => ({
   control: "boolean",
   name,
   required: true,
 });
-const select = (
-  name: string,
-  options: readonly string[],
-  required = true,
-): ResourceFormField => ({ control: "select", name, options, required });
 const textarea = (name: string): ResourceFormField => ({
   control: "textarea",
   name,
@@ -194,7 +178,7 @@ export const resourceFormDefinitions: Readonly<
       text("name", true),
       { control: "email", name: "email" },
       text("phone"),
-      select("status", ["active", "inactive", "suspended"]),
+      text("status", true),
       textarea("notes"),
       text("taxId"),
       boolean("isVatExempt"),
@@ -207,8 +191,8 @@ export const resourceFormDefinitions: Readonly<
       text("firstName", true),
       text("lastName", true),
       text("phoneNumber"),
-      select("salaryType", ["hourly", "salary", "per_mile", "per_load"]),
-      select("status", ["active", "inactive", "on_leave", "terminated"]),
+      text("salaryType", true),
+      text("status", true),
       datetime("joinedDate", true),
       relation("roleId", "roles", false, (r) => r.displayName || r.name || r.id),
       number("salaryAmount", true, 0),
@@ -221,13 +205,7 @@ export const resourceFormDefinitions: Readonly<
       text("name", true),
       { ...text("code", true), pattern: /^[A-Za-z]{5}$/u, uppercase: true },
       { ...text("countryCode", true), pattern: /^[A-Za-z]{2}$/u, uppercase: true },
-      select("type", [
-        "SEA_PORT",
-        "RAIL_TERMINAL",
-        "INLAND_DEPOT",
-        "AIR_CARGO",
-        "BORDER_CROSSING",
-      ]),
+      text("type", true),
       textarea("notes"),
       ...requiredAddress,
     ],
@@ -235,9 +213,9 @@ export const resourceFormDefinitions: Readonly<
   trucks: {
     fields: [
       text("number", true),
-      select("type", ["box_truck", "dry_van", "flatbed", "reefer", "tractor"]),
+      text("type", true),
       number("vehicleCapacity", true, 0),
-      select("status", ["available", "assigned", "in_transit", "maintenance", "out_of_service"]),
+      text("status", true),
       text("make"), text("model"), number("year", false, 1900, nextYear),
       { ...text("vin"), uppercase: true },
       text("licensePlate"), text("licensePlateState"), boolean("isHazmatPlacarded"),
@@ -260,17 +238,17 @@ export const resourceFormDefinitions: Readonly<
   loads: {
     fields: [
       text("name", true),
-      select("type", ["container", "dry_van", "flatbed", "reefer", "vehicle"]),
+      text("type", true),
       // Phải khớp đúng `LoadStatus` (5 giá trị). Thiếu giá trị nào thì load đang ở
       // trạng thái đó mở form edit sẽ ra ô trống và bị ghi đè khi lưu.
       //
       // Lưu ý: KHÔNG suy enum của form từ `src/types/*.dto.ts` — chính DTO từng khai thừa
       // `pending`/`in_transit`, và bản sửa theo DTO đó đã ghi đè mất trạng thái thật.
       // Nguồn sự thật là enum Java của backend; xem `resourceFormEnums.test.ts`.
-      select("status", ["draft", "dispatched", "picked_up", "delivered", "cancelled"]),
+      text("status", true),
       number("distance", true, 0),
       // Server công bố, không phải người dùng khai.
-      readOnly(boolean("isInProximity")),
+      boolean("isInProximity"),
       relation("customerId", "customers", true, (r) => r.name || r.id),
       relation(
         "assignedTruckId",
@@ -284,21 +262,11 @@ export const resourceFormDefinitions: Readonly<
         false,
         (r) => r.firstName ? `${r.firstName} ${r.lastName}` : (r.email || r.id),
       ),
-      select("source", ["manual", "customer_portal", "load_board", "api"]),
+      text("source", true),
       datetime("requestedPickupDate"), datetime("requestedDeliveryDate"), textarea("notes"),
       boolean("isHazmat"), text("hazmatClass"), text("unNumber"), uuid("containerId"),
-      relation(
-        "originTerminalId",
-        "terminals",
-        false,
-        (r) => r.code ? `[${r.code}] ${r.name}` : (r.name || r.id),
-      ),
-      relation(
-        "destinationTerminalId",
-        "terminals",
-        false,
-        (r) => r.code ? `[${r.code}] ${r.name}` : (r.name || r.id),
-      ),
+      uuid("originTerminalId"),
+      uuid("destinationTerminalId"),
       text("externalSourceProvider"),
       text("externalSourceId"), text("externalBrokerReference"),
       number("deliveryCostAmount", true, 0), text("deliveryCostCurrency", true),
@@ -316,52 +284,34 @@ export const resourceFormDefinitions: Readonly<
     fields: [
       text("name", true), number("totalDistance", true, 0),
       // Phải khớp đúng `TripStatus` (4 giá trị) — `trip/TripStatus.java`.
-      select("status", ["draft", "dispatched", "completed", "cancelled"]),
+      text("status", true),
       relation(
         "truckId",
         "trucks",
         false,
         (r) => r.number ? `${r.number} (${r.licensePlate || "Xe"})` : r.id,
       ),
-      { control: "tripStops", name: "stops", required: true },
     ],
   },
   invoices: {
     fields: [
-      select("type", ["customer", "payroll", "subscription", "credit_note"]),
-      select("status", ["draft", "issued", "partially_paid", "paid", "cancelled"]),
-      select("taxBehavior", ["exclusive", "inclusive"], false), textarea("notes"),
+      text("type", true),
+      text("status", true),
+      text("taxBehavior", false), textarea("notes"),
       datetime("dueDate"),
       relation("loadId", "loads", false, (r) => r.name ? `Load #${r.number ?? ""} ${r.name}` : r.id),
       relation("customerId", "customers", false, (r) => r.name || r.id),
-      relation(
-        "employeeId",
-        "employees",
-        false,
-        (r) => r.firstName ? `${r.firstName} ${r.lastName}` : (r.email || r.id),
-      ),
       number("subtotalAmount", true, 0), text("subtotalCurrency", true),
       number("taxTotalAmount", true, 0), text("taxTotalCurrency", true),
       number("totalAmount", true, 0), text("totalCurrency", true),
-      datetime("periodStart"), datetime("periodEnd"), number("totalDistanceDriven", false, 0),
     ],
   },
   payments: {
+    // Dedicated create supplies PENDING/key; metadata editor uses a separate definition.
     fields: [
-      select("status", ["pending", "processing", "succeeded", "failed", "cancelled", "refunded"]),
-      relation(
-        "invoiceId",
-        "invoices",
-        false,
-        (r) => r.number
-          ? translate("crud.invoiceOption", { number: r.number })
-          : (r.id ? translate("crud.invoiceOptionFallback", { id: r.id.slice(0, 8) }) : r.id),
-      ),
-      number("amountAmount", true, 0), text("amountCurrency", true),
+      relation("invoiceId", "invoices", true, (r) => r.number ? translate("crud.invoiceOption", { number: r.number }) : r.id),
+      { ...number("amountAmount", true, 0), stringMode: true }, text("amountCurrency", true),
       textarea("description"), text("referenceNumber"),
-      // Stripe sở hữu hai ID này; UI không dựng luồng thanh toán Stripe.
-      readOnly(text("stripePaymentMethodId")), readOnly(text("stripePaymentIntentId")),
-      datetime("recordedAt"),
       ...requiredAddress.map((field) => ({ ...field, name: `billing${field.name.charAt(0).toUpperCase()}${field.name.slice(1)}` })),
     ],
   },

@@ -7,15 +7,47 @@
  * behavior-compatible with direct `new Date(...)` usage in feature mappers.
  */
 
+import { EMPTY_VALUE_PLACEHOLDER } from "./display";
+
 export type InstantInput = string | Date;
 
 const isoOffsetSuffixPattern = /(Z|[+-]\d{2}:\d{2})$/i;
+const dateOnlyPattern = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 export interface InstantFormatOptions {
   locale: string;
   format: Intl.DateTimeFormatOptions;
   timeZone?: string;
 }
+
+export interface DateTimeFormatOptions {
+  locale?: string;
+  format?: Intl.DateTimeFormatOptions;
+  timeZone?: string;
+  fallback?: string;
+}
+
+export interface DateOnlyFormatOptions {
+  locale?: string;
+  format?: Intl.DateTimeFormatOptions;
+  timeZone?: string;
+  fallback?: string;
+}
+
+const defaultDateTimeFormat: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+};
+
+const defaultDateFormat: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+};
 
 export function parseInstant(value: InstantInput): Date {
   if (typeof value === "string" && !isoOffsetSuffixPattern.test(value)) {
@@ -46,6 +78,106 @@ export function formatInstant(
     ...format,
     ...(timeZone ? { timeZone } : {}),
   }).format(parseInstant(value));
+}
+
+/**
+ * An toàn format date-only string (YYYY-MM-DD) mà không bị lệch ngày theo timezone.
+ * Trả về fallback nếu giá trị null, undefined hoặc không hợp lệ.
+ */
+export function formatDateOnly(
+  value: InstantInput | null | undefined,
+  options: DateOnlyFormatOptions = {},
+): string {
+  const {
+    locale,
+    format = defaultDateFormat,
+    timeZone,
+    fallback = EMPTY_VALUE_PLACEHOLDER,
+  } = options;
+
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+
+  if (typeof value === "string") {
+    const match = value.match(dateOnlyPattern);
+    if (match) {
+      const year = Number(match[1]);
+      const month = Number(match[2]);
+      const day = Number(match[3]);
+      const utcDate = new Date(Date.UTC(year, month - 1, day));
+      if (
+        !Number.isNaN(utcDate.getTime()) &&
+        utcDate.getUTCFullYear() === year &&
+        utcDate.getUTCMonth() === month - 1 &&
+        utcDate.getUTCDate() === day
+      ) {
+        return new Intl.DateTimeFormat(locale, {
+          ...format,
+          timeZone: "UTC",
+        }).format(utcDate);
+      }
+      return fallback;
+    }
+  }
+
+  try {
+    const parsed = value instanceof Date ? value : parseInstant(value);
+    return new Intl.DateTimeFormat(locale, {
+      ...format,
+      ...(timeZone ? { timeZone } : {}),
+    }).format(parsed);
+  } catch {
+    if (typeof value === "string") {
+      const fallbackDate = new Date(value);
+      if (!Number.isNaN(fallbackDate.getTime())) {
+        return new Intl.DateTimeFormat(locale, {
+          ...format,
+          ...(timeZone ? { timeZone } : {}),
+        }).format(fallbackDate);
+      }
+    }
+    return fallback;
+  }
+}
+
+/**
+ * An toàn format datetime string (ISO instant hoặc Date object).
+ * Trả về fallback nếu giá trị null, undefined hoặc không hợp lệ thay vì throw error.
+ */
+export function formatDateTime(
+  value: InstantInput | null | undefined,
+  options: DateTimeFormatOptions = {},
+): string {
+  const {
+    locale,
+    format = defaultDateTimeFormat,
+    timeZone,
+    fallback = EMPTY_VALUE_PLACEHOLDER,
+  } = options;
+
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+
+  try {
+    const parsed = value instanceof Date ? value : parseInstant(value);
+    return new Intl.DateTimeFormat(locale, {
+      ...format,
+      ...(timeZone ? { timeZone } : {}),
+    }).format(parsed);
+  } catch {
+    if (typeof value === "string") {
+      const fallbackDate = new Date(value);
+      if (!Number.isNaN(fallbackDate.getTime())) {
+        return new Intl.DateTimeFormat(locale, {
+          ...format,
+          ...(timeZone ? { timeZone } : {}),
+        }).format(fallbackDate);
+      }
+    }
+    return fallback;
+  }
 }
 
 /**

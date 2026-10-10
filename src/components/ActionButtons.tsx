@@ -1,3 +1,4 @@
+import { isLegacyDraftInvoice } from "@/features/invoices/invoiceMutability";
 import { DeleteButton, EditButton, ShowButton } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { Space } from "antd";
@@ -26,7 +27,7 @@ export const ActionButtons = ({ record, resource }: ActionButtonsProps) => {
           }
         }}
       />
-      {capabilities.edit ? (
+      {capabilities.edit && (resource !== "invoices" || isLegacyDraftInvoice(record)) ? (
         <EditButton
           hideText
           recordItemId={record.id}

@@ -1,25 +1,23 @@
 import type { Address, GeoLocation } from "./common.types";
 import type { ISODateTime } from "./api.types";
 
-/** Khớp `TripStatus` của backend (`trip/TripStatus.java`). */
-export type TripStatus = "draft" | "dispatched" | "completed" | "cancelled";
+/** Open CORE vocabulary follows the verified schema; commands still reject unknown state. */
+export type TripStatus = string;
 export type TripStopType = "pickup" | "delivery" | "break" | "terminal";
 
+/** Flat TripView projection from the verified handoff; UI presentation does not add wire fields. */
 export interface TripResponse {
+  cancelledAt?: string | null;
+  completedAt?: string | null;
+  dispatchedAt?: string | null;
   id: string;
-  number: number;
   name: string;
+  number: number;
+  status: string;
   totalDistance: number;
-  dispatchedAt?: ISODateTime | null;
-  completedAt?: ISODateTime | null;
-  cancelledAt?: ISODateTime | null;
-  status: TripStatus;
   truckId?: string | null;
   truckNumber?: string | null;
-  createdAt: ISODateTime;
-  createdBy?: string | null;
-  lastModifiedAt?: ISODateTime | null;
-  lastModifiedBy?: string | null;
+  version?: number | null;
 }
 
 export interface TripStopResponse {
@@ -32,3 +30,5 @@ export interface TripStopResponse {
   address: Address;
   location: GeoLocation;
 }
+
+export type { CreateTripRequest, UpdateTripRequest } from "./handoff.generated";

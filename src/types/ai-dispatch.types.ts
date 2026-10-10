@@ -87,3 +87,69 @@ export interface AiDispatchDecisionWithRelations extends AiDispatchDecision {
   truck?: Truck | null;
   trip?: Trip | null;
 }
+
+export type AiPlanStopType =
+  | "terminal_origin"
+  | "pickup"
+  | "rest_break"
+  | "delivery"
+  | "terminal_return";
+
+/** Điểm dừng trong lộ trình di chuyển do AI đề xuất */
+export interface AiPlanStop {
+  id: string;
+  order: number;
+  type: AiPlanStopType;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  plannedArrival: string;
+  plannedDeparture: string;
+  distanceFromLastStopMiles: number;
+  durationMinutes: number;
+  dwellTimeMinutes: number;
+  instructions?: string;
+}
+
+/** Kế hoạch di chuyển do AI lập ra để người dùng xem và duyệt */
+export interface AiMovementPlan {
+  id: string;
+  sessionId: string;
+  truckId: string;
+  truckNumber: string;
+  driverId: string;
+  driverName: string;
+  loadId: string;
+  loadNumber: string;
+  totalDistanceMiles: number;
+  deadheadMiles: number;
+  deadheadReductionPercent: number;
+  estimatedDurationHours: number;
+  estimatedRevenue: number;
+  estimatedCost: number;
+  estimatedMargin: number;
+  currency: string;
+  hosStatus: "compliant" | "warning" | "violation";
+  hosRemainingHours: number;
+  aiConfidenceScore: number;
+  aiReasoning: string;
+  status: "proposed" | "approved" | "rejected" | "dispatched";
+  tripId?: string;
+  approvedAt?: string | null;
+  approvedBy?: string | null;
+  rejectionReason?: string | null;
+  stops: AiPlanStop[];
+}
+
+export interface CreateAiDispatchParams {
+  mode: AiDispatchMode;
+  objective: string;
+  modelUsed: string;
+  departureTime?: string;
+  instructions?: string;
+  truckId: string;
+  loadId: string;
+  businessZoneId: string;
+}
+

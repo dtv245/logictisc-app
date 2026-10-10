@@ -55,6 +55,7 @@ vi.mock("@refinedev/core", async () => {
   const { useSyncExternalStore } = await import("react");
 
   return {
+    useDataProvider: () => () => ({ getOne: vi.fn() }),
     useWarnAboutChange: () => ({
       setWarnWhen: store.set,
       warnWhen: useSyncExternalStore(store.subscribe, store.get, store.get),

@@ -1,3 +1,3 @@
-/** Hiển thị create page của Conversation resource. */
-import { ResourceCreatePage } from "@components";
-export const ConversationCreate = ResourceCreatePage;
+/** Dormant principal-bound Messaging route. */
+import { MessagingPanel } from "@/features/messaging/MessagingPanel";
+export const ConversationCreate = () => <MessagingPanel />;

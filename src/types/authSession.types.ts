@@ -87,4 +87,5 @@ export interface AuthSessionSnapshot {
 
 export interface BrowserLocationAdapter {
   getCurrentPath: () => string;
+  assign?: (url: string) => void;
 }

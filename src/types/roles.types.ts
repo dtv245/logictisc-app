@@ -13,6 +13,10 @@ export const JWT_ROLES = [
   "MANAGER",
   "DISPATCHER",
   "DRIVER",
+  "ADMIN",
+  "ACCOUNTANT",
+  "PAYROLL",
+  "PAYROLL_MANAGER",
 ] as const;
 
 export type JwtRole = (typeof JWT_ROLES)[number];
@@ -34,6 +38,17 @@ export const ACCESS_RESOURCES = [
   "messaging",
   "conversations",
   "notifications",
+  "settlements",
+  "payroll",
+  "shipment-costs",
+  "profitability",
+  "accessorials",
+  "driver-pay-policies",
+  "payslips",
+  "rates",
+  "optimization",
+  "fleet-reports",
+  "ai-dispatch",
 ] as const;
 
 export type AccessResource = (typeof ACCESS_RESOURCES)[number];

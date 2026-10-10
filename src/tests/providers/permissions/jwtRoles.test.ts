@@ -13,13 +13,13 @@ describe("normalizeJwtRoles", () => {
     ).toEqual(["OWNER", "DISPATCHER", "DRIVER"]);
   });
 
-  it("normalizes Spring prefixes and SUPER_ADMIN alias", () => {
+  it("normalizes Spring prefixes but rejects semantic SUPER_ADMIN aliases", () => {
     expect(
       normalizeJwtRoles("ROLE_SUPER_ADMIN", [
         "ROLE_MANAGER",
         "ROLE_DRIVER",
       ]),
-    ).toEqual(["SUPERADMIN", "MANAGER", "DRIVER"]);
+    ).toEqual(["MANAGER", "DRIVER"]);
   });
 
   it("deduplicates roles and drops blank, non-string or unknown claims", () => {
@@ -29,5 +29,17 @@ describe("normalizeJwtRoles", () => {
         null,
       ]),
     ).toEqual(["OWNER"]);
+  });
+
+  it("keeps exact backend finance authorities alongside legacy authorities", () => {
+    expect(normalizeJwtRoles("OWNER", [
+      "ROLE_ADMIN", "ACCOUNTANT", "ROLE_PAYROLL", "ROLE_PAYROLL_MANAGER",
+    ])).toEqual(["OWNER", "ADMIN", "ACCOUNTANT", "PAYROLL", "PAYROLL_MANAGER"]);
+  });
+
+  it("does not grant a semantic legacy alias or a fallback role", () => {
+    expect(normalizeJwtRoles(null, ["ROLE_ACCOUNTANT"])).toEqual(["ACCOUNTANT"]);
+    expect(normalizeJwtRoles(null, ["ROLE_ADMIN"])).toEqual(["ADMIN"]);
+    expect(normalizeJwtRoles(null, ["ROLE_UNKNOWN", "EMPLOYEE", "TENANT_ADMIN"])).toEqual([]);
   });
 });

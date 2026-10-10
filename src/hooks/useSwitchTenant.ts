@@ -4,11 +4,10 @@
  */
 
 import { useCallback } from "react";
-import { useGo, useLogin, type AuthActionResponse, type RefineError } from "@refinedev/core";
+import { useLogin, type AuthActionResponse, type RefineError } from "@refinedev/core";
 import type { UseMutationResult } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { env } from "@config/env";
 import { routes } from "@constants/routes";
 import { useCurrentUser } from "./useCurrentUser";
 
@@ -43,18 +42,11 @@ export type UseSwitchTenantResult = Pick<
 
 export const useSwitchTenant = (): UseSwitchTenantResult => {
   const currentUser = useCurrentUser();
-  const go = useGo();
   const login = useLogin<TenantReauthenticationParams>();
   const queryClient = useQueryClient();
 
   const switchTenant = useCallback(
     async () => {
-      if (env.demoAuth) {
-        // Demo chỉ có một tenant cố định, nên không cần tạo OIDC redirect.
-        go({ to: routes.dashboard, type: "replace" });
-        return;
-      }
-
       // Dừng request cũ trước khi xóa cache để response tenant hiện tại không
       // kịp ghi dữ liệu trở lại trong lúc browser đang chuyển sang IdP.
       await queryClient.cancelQueries({
@@ -72,7 +64,7 @@ export const useSwitchTenant = (): UseSwitchTenantResult => {
         forceReauthentication: true,
       });
     },
-    [go, login, queryClient],
+    [login, queryClient],
   );
 
   return {

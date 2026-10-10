@@ -6,6 +6,7 @@ import { Create, useForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { Form } from "antd";
 
+import { buildResourceMutation } from "./resources/resourceMutation";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import type { ApiError } from "@/types/api.types";
 import { ResourceFormFields } from "./resources/ResourceFormFields";
@@ -47,6 +48,7 @@ export const ResourceCreatePage = ({ resource: resourceProp }: ResourceCreatePag
     <Create saveButtonProps={saveButtonProps}>
       <Form
         {...formProps}
+        onFinish={(values) => formProps.onFinish?.(buildResourceMutation(resourceName, values))}
         initialValues={createResourceFormInitialValues(definition)}
         layout="vertical"
       >

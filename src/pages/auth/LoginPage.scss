@@ -48,24 +48,8 @@
   place-items: center;
 }
 
-.login-demo-alert.ant-alert,
-.login-error-alert.ant-alert {
-  margin-bottom: v.$spacing-lg;
-}
-
-.login-form .ant-form-item {
-  margin-bottom: v.$spacing;
-}
-
-.login-form .ant-btn,
 .login-oidc .ant-btn {
   height: 46px;
-}
-
-.login-divider.ant-divider {
-  margin: v.$spacing-lg 0;
-  color: #8b95a7;
-  font-size: 12px;
 }
 
 .login-oidc.ant-space {

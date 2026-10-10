@@ -129,11 +129,12 @@ describe("trường readOnly (server sở hữu)", () => {
     expect(unlocked).toEqual([]);
   });
 
-  it("lúc create không khẳng định giá trị của server", async () => {
+  it("create sends required isInProximity as an explicit input", async () => {
     const definition = resourceFormDefinitions.loads;
     const field = definition.fields.find((item) => item.name === "isInProximity");
 
-    expect(field?.readOnly).toBe(true);
+    expect(field?.readOnly).toBeUndefined();
+    expect(field?.required).toBe(true);
 
     const { payload } = await submitField(
       field as ResourceFormField,
@@ -141,9 +142,9 @@ describe("trường readOnly (server sở hữu)", () => {
     );
 
     // Gửi `false` là client tự khẳng định một sự thật của server rồi khoá nó lại.
-    expect(payload.isInProximity).toBeUndefined();
+    expect(payload.isInProximity).toBe(false);
     // Mức dây: khoá `undefined` biến mất khỏi JSON, server tự quyết định.
-    expect(JSON.stringify(payload)).not.toContain("isInProximity");
+    expect(JSON.stringify(payload)).toContain("isInProximity");
   });
 
   it("field thường không bị khoá", async () => {

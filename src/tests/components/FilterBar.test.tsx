@@ -86,7 +86,7 @@ describe("FilterBar — render", () => {
 
     expect(screen.getByRole("textbox", { name: "Tìm kiếm" })).toBeInTheDocument();
     expect(
-      screen.getByRole("combobox", { name: "Trạng thái" }),
+      screen.getByRole("textbox", { name: "Trạng thái" }),
     ).toBeInTheDocument();
   });
 
@@ -189,3 +189,48 @@ describe("FilterBar — ô tìm kiếm", () => {
     expect(input).toHaveValue("");
   });
 });
+
+describe("FilterBar — bố cục vector 1/3 màn hình và xuống dòng", () => {
+  it("chia mỗi input theo tỷ lệ 1/3 màn hình (col span 8)", () => {
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <AntdLocaleProvider>
+          <FilterBar
+            controls={CONTROLS}
+            onChange={vi.fn()}
+            onReset={vi.fn()}
+            value={{}}
+          />
+        </AntdLocaleProvider>
+      </I18nextProvider>,
+    );
+
+    const cols = container.querySelectorAll(".ant-col-md-8");
+    expect(cols.length).toBe(CONTROLS.length);
+    cols.forEach((col) => {
+      expect(col).toHaveClass("ant-col-xs-24");
+      expect(col).toHaveClass("ant-col-sm-8");
+      expect(col).toHaveClass("ant-col-md-8");
+    });
+  });
+
+  it("hỗ trợ children mode và tự động bọc mỗi item vào cột 1/3", () => {
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <AntdLocaleProvider>
+          <FilterBar onReset={vi.fn()} hasActiveFilter={true}>
+            <input data-testid="custom-1" />
+            <input data-testid="custom-2" />
+          </FilterBar>
+        </AntdLocaleProvider>
+      </I18nextProvider>,
+    );
+
+    const cols = container.querySelectorAll(".ant-col-md-8");
+    // 2 inputs + 1 reset button = 3 cols
+    expect(cols.length).toBe(3);
+    expect(screen.getByTestId("custom-1")).toBeInTheDocument();
+    expect(screen.getByTestId("custom-2")).toBeInTheDocument();
+  });
+});
+

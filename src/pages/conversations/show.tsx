@@ -1,3 +1,3 @@
-/** Hiển thị chi tiết hội thoại bằng Refine useShow. */
-import { ResourceShowPage } from "@components";
-export const ConversationShow = () => <ResourceShowPage resource="conversations" />;
+/** Dormant principal-bound Messaging route. */
+import { MessagingPanel } from "@/features/messaging/MessagingPanel";
+export const ConversationShow = () => <MessagingPanel />;

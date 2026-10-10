@@ -2,25 +2,16 @@
  * Chứa các kiểu dữ liệu của module khách hàng và tài khoản khách hàng.
  */
 
+import type { CustomerResponse } from "./customer.dto";
 import type { AuditableEntity, OptionalAddress } from "./common.types";
 
-export type CustomerStatus = "active" | "inactive" | "suspended";
+export type CustomerStatus = string;
 
 /** 
  * [DOMAIN MODEL] 
  * Khách hàng thuê dịch vụ vận tải của tenant. Dùng chủ yếu cho React Components, Refine Hooks và UI Table.
  */
-export interface Customer extends AuditableEntity {
-  id: string;
-  name: string;
-  email?: string | null;
-  phone?: string | null;
-  status: CustomerStatus;
-  notes?: string | null;
-  taxId?: string | null;
-  isVatExempt: boolean;
-  address?: OptionalAddress | null;
-}
+export type Customer = CustomerResponse;
 
 /** 
  * [DOMAIN MODEL] 
