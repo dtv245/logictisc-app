@@ -81,7 +81,7 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
         cancelButtonProps={{ disabled: formLoading }}
         okButtonProps={{ disabled: formLoading, loading: formLoading }}
         destroyOnHidden
-        width={720}
+        width={860}
       >
         <Form
           {...formProps}

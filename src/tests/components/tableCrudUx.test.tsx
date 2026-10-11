@@ -94,11 +94,11 @@ const renderWithProviders = (node: ReactNode) => {
 describe("Table CRUD UX — ActionButtons & Delete Popconfirm (AC04, AC05, AC07, AC10)", () => {
   it("hiển thị đầy đủ nút Xem, Sửa, Xóa cho resource hỗ trợ đầy đủ CRUD", () => {
     const record: BaseRecord = {
-      id: "load-123",
-      number: "LD-2024-001",
+      id: "cust-123",
+      name: "Công ty TNHH Vận tải ABC",
     };
 
-    const { container } = renderWithProviders(<ActionButtons record={record} resource="loads" />);
+    const { container } = renderWithProviders(<ActionButtons record={record} resource="customers" />);
 
     expect(container.querySelector(".refine-show-button")).toBeInTheDocument();
     expect(container.querySelector(".refine-edit-button")).toBeInTheDocument();

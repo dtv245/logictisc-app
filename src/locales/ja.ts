@@ -42,6 +42,10 @@ const shared = {
   confirm: {
     pendingAnnouncement: "処理を実行中です。",
   },
+  crud: {
+    deleteConfirm: "{{record}} を削除してもよろしいですか？この操作は元に戻せません。",
+    deleteConfirmGeneric: "この項目を削除してもよろしいですか？この操作は元に戻せません。",
+  },
 } as const;
 
 export const jaMessages = {

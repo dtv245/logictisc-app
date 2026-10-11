@@ -803,6 +803,8 @@ export const enMessages = {
       "Your changes have not been saved. Closing now will discard them.",
     discardOk: "Discard",
     discardCancel: "Keep editing",
+    deleteConfirm: "Are you sure you want to delete {{record}}? This action cannot be undone.",
+    deleteConfirmGeneric: "Are you sure you want to delete this item? This action cannot be undone.",
   },
   filters: {
     ariaLabel: "List filters",

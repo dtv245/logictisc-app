@@ -804,6 +804,8 @@ export const viMessages = {
     discardContent: "Thay đổi bạn vừa nhập chưa được lưu. Đóng lại thì sẽ mất.",
     discardOk: "Bỏ thay đổi",
     discardCancel: "Tiếp tục sửa",
+    deleteConfirm: "Bạn có chắc chắn muốn xóa {{record}} không? Hành động này không thể hoàn tác.",
+    deleteConfirmGeneric: "Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể hoàn tác.",
   },
   filters: {
     ariaLabel: "Bộ lọc danh sách",

@@ -94,7 +94,7 @@ export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEd
       cancelButtonProps={{ disabled: formLoading }}
       okButtonProps={{ disabled: formLoading, loading: formLoading }}
       destroyOnHidden
-      width={720}
+      width={860}
     >
       {contract.feedback}
       <Form
