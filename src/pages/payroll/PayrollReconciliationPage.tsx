@@ -25,14 +25,55 @@ export function PayrollReconciliationPage() {
   if (access.data?.can !== true) return <ForbiddenState />;
   if (query.isError) return <QueryErrorState description={query.error.message} onRetry={() => void query.refetch()} retrying={query.isFetching} />;
   return <Space direction="vertical" size="large" style={{ width: "100%" }}><PageHeader title={t("payroll.reconciliation")} /><PayrollActionError error={actions.error} />
-    <Table rowKey="caseEventId" dataSource={query.data?.data.content ?? []} loading={query.isLoading || query.isFetching} scroll={{ x: "max-content" }} locale={{ emptyText: query.isLoading ? null : <EmptyState /> }}
-      pagination={{ current: page + 1, pageSize: size, total: query.data?.data.totalElements ?? 0, showSizeChanger: true, onChange: (nextPage, nextSize) => { setPage(nextSize === size ? nextPage - 1 : 0); setSize(nextSize); } }} columns={[
-        { title: t("payroll.caseId"), dataIndex: "caseEventId" }, { title: t("payroll.paymentId"), dataIndex: "paymentId" },
-        { title: t("payroll.paymentStatus"), dataIndex: "paymentStatus", render: (value: string) => t(`payroll.paymentStates.${value}`, { defaultValue: value }) },
-        { title: t("loads.financial.amount"), render: (_, row) => financialAmount(row.amount, row.currency, i18n.language) },
-        { title: t("payroll.reference"), dataIndex: "providerReference", render: maskPaymentReference },
-        { title: t("finance.reason"), dataIndex: "reason" },
-        { title: t("common.actions"), render: (_, row) => <ReconcilePayrollPaymentModal key={row.caseEventId} evidenceCase={row} actions={actions} /> },
-      ]} />
+    <Table
+      rowKey="caseEventId"
+      dataSource={query.data?.data.content ?? []}
+      loading={query.isLoading || query.isFetching}
+      scroll={{ x: 920 }}
+      locale={{ emptyText: query.isLoading ? null : <EmptyState /> }}
+      pagination={{
+        current: page + 1,
+        pageSize: size,
+        total: query.data?.data.totalElements ?? 0,
+        showSizeChanger: true,
+        responsive: true,
+        onChange: (nextPage, nextSize) => {
+          setPage(nextSize === size ? nextPage - 1 : 0);
+          setSize(nextSize);
+        },
+      }}
+      columns={[
+        { title: t("payroll.caseId"), dataIndex: "caseEventId", width: 180, ellipsis: true },
+        { title: t("payroll.paymentId"), dataIndex: "paymentId", width: 180, ellipsis: true },
+        {
+          title: t("payroll.paymentStatus"),
+          dataIndex: "paymentStatus",
+          width: 140,
+          render: (value: string) => t(`payroll.paymentStates.${value}`, { defaultValue: value }),
+        },
+        {
+          title: t("loads.financial.amount"),
+          width: 130,
+          render: (_, row) => (
+            <strong style={{ whiteSpace: "nowrap" }}>
+              {financialAmount(row.amount, row.currency, i18n.language)}
+            </strong>
+          ),
+        },
+        {
+          title: t("payroll.reference"),
+          dataIndex: "providerReference",
+          width: 150,
+          render: maskPaymentReference,
+        },
+        { title: t("finance.reason"), dataIndex: "reason", width: 180, ellipsis: true },
+        {
+          title: t("common.actions"),
+          width: 160,
+          fixed: "right",
+          render: (_, row) => <ReconcilePayrollPaymentModal key={row.caseEventId} evidenceCase={row} actions={actions} />,
+        },
+      ]}
+    />
   </Space>;
 }

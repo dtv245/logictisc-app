@@ -23,7 +23,17 @@ import type {
 } from "../types";
 import { CURRENCY_OPTIONS } from "../config/rankingWeights";
 
+import "./TopFilterBar.scss";
+
 const { RangePicker } = DatePicker;
+
+const DATE_PRESET_OPTIONS: Array<{ label: string; value: DatePreset }> = [
+  { label: "Hôm nay", value: "today" },
+  { label: "7 ngày", value: "7d" },
+  { label: "30 ngày", value: "30d" },
+  { label: "Tháng này", value: "this_month" },
+  { label: "Tuỳ chọn", value: "custom" },
+];
 
 export interface TopFilterBarProps {
   filters: DashboardFilters;
@@ -107,103 +117,96 @@ export const TopFilterBar: React.FC<TopFilterBarProps> = ({
   }, [lastUpdated]);
 
   return (
-    <div
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        backgroundColor: "#ffffff",
-        borderBottom: "1px solid #e5e7eb",
-        padding: "12px 24px",
-        marginBottom: 16,
-        boxShadow: "0 1px 2px rgba(0, 0, 0, 0.03)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
+    <div className="top-filter-bar">
+      <div className="top-filter-bar__container">
         {/* Title and last updated */}
-        <div>
-          <Space align="center" size={8}>
-            <Typography.Title
-              level={4}
-              style={{ margin: 0, color: "#111827", fontWeight: 700 }}
-            >
+        <div className="top-filter-bar__header">
+          <Space align="center" size={8} wrap>
+            <Typography.Title level={4} className="top-filter-bar__title">
               {title}
             </Typography.Title>
             <Tag icon={<ClockCircleOutlined />} color="default">
               Cập nhật {formattedTime}
             </Tag>
           </Space>
-          <Typography.Text type="secondary" style={{ fontSize: 13, display: "block" }}>
+          <Typography.Text className="top-filter-bar__subtitle" type="secondary">
             {subtitle}
           </Typography.Text>
         </div>
 
         {/* Global Controls & Filters */}
-        <Space wrap size={12} align="center">
-          {/* Date presets */}
-          <Radio.Group
-            value={filters.preset}
-            onChange={(e) => handlePresetChange(e.target.value)}
-            buttonStyle="solid"
-            size="middle"
-          >
-            <Radio.Button value="today">Hôm nay</Radio.Button>
-            <Radio.Button value="7d">7 ngày</Radio.Button>
-            <Radio.Button value="30d">30 ngày</Radio.Button>
-            <Radio.Button value="this_month">Tháng này</Radio.Button>
-            <Radio.Button value="custom">Tuỳ chọn</Radio.Button>
-          </Radio.Group>
+        <div className="top-filter-bar__controls">
+          {/* Mobile Select */}
+          <div className="top-filter-bar__preset-select-wrapper">
+            <Select<DatePreset>
+              value={filters.preset}
+              onChange={handlePresetChange}
+              options={DATE_PRESET_OPTIONS}
+              style={{ width: "100%" }}
+              aria-label="Chọn nhanh mốc ngày"
+            />
+          </div>
+
+          {/* Desktop/Tablet Date presets with intentional horizontal scroll */}
+          <div className="top-filter-bar__preset-radio-wrapper top-filter-bar__presets-container" role="region" aria-label="Chọn nhanh mốc ngày">
+            <Radio.Group
+              value={filters.preset}
+              onChange={(e) => handlePresetChange(e.target.value)}
+              buttonStyle="solid"
+              size="middle"
+            >
+              <Radio.Button value="today">Hôm nay</Radio.Button>
+              <Radio.Button value="7d">7 ngày</Radio.Button>
+              <Radio.Button value="30d">30 ngày</Radio.Button>
+              <Radio.Button value="this_month">Tháng này</Radio.Button>
+              <Radio.Button value="custom">Tuỳ chọn</Radio.Button>
+            </Radio.Group>
+          </div>
 
           {/* Date Range Picker */}
           <RangePicker
+            className="top-filter-bar__range-picker"
             value={rangeValue}
             onChange={handleRangeChange}
             allowClear={false}
             disabled={filters.preset !== "custom"}
-            style={{ width: 240 }}
           />
 
           {/* Currency Selector */}
           <Select<SupportedCurrency>
+            className="top-filter-bar__currency-select top-filter-bar__currency"
             value={filters.currency}
             onChange={(currency) => onChange({ ...filters, currency })}
             options={CURRENCY_OPTIONS}
-            style={{ width: 110 }}
+            aria-label="Chọn loại tiền tệ"
           />
 
           {/* Compare Previous Period */}
-          <Space size={6} align="center">
-            <Typography.Text style={{ fontSize: 13 }}>So sánh kỳ trước:</Typography.Text>
+          <div className="top-filter-bar__compare-switch">
+            <Typography.Text style={{ fontSize: 13, whiteSpace: "nowrap" }}>So sánh:</Typography.Text>
             <Switch
               checked={filters.comparePrevious}
               onChange={(checked) => onChange({ ...filters, comparePrevious: checked })}
             />
-          </Space>
+          </div>
 
-          {/* Refresh button */}
-          <Button
-            icon={<ReloadOutlined spin={isRefreshing} />}
-            onClick={onRefresh}
-            loading={isRefreshing}
-          >
-            Làm mới
-          </Button>
-
-          {/* Export CSV button */}
-          {onExportCsv && (
-            <Button icon={<DownloadOutlined />} onClick={onExportCsv}>
-              Xuất CSV
+          {/* Actions: Refresh & Export */}
+          <div className="top-filter-bar__actions">
+            <Button
+              icon={<ReloadOutlined spin={isRefreshing} />}
+              onClick={onRefresh}
+              loading={isRefreshing}
+            >
+              Làm mới
             </Button>
-          )}
-        </Space>
+
+            {onExportCsv && (
+              <Button icon={<DownloadOutlined />} onClick={onExportCsv}>
+                Xuất CSV
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

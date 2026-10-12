@@ -1,5 +1,5 @@
 import { useCan } from "@refinedev/core";
-import { Button, Card, Col, Form, Input, Row, Space, Spin } from "antd";
+import { Button, Card, Col, Form, Input, Row, Skeleton, Space, theme } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/PageHeader";
@@ -16,8 +16,15 @@ export function OptimizationPage() {
   const { tenant } = useCurrentTenant();
   const access = useCan({ resource: "optimization", action: "OPTIMIZATION_VIEW" });
   const actions = useOptimizationActions();
+  const { token } = theme.useToken();
 
-  if (access.isLoading) return <Spin aria-label={t("asyncState.loading")} />;
+  if (access.isLoading) {
+    return (
+      <div aria-label={t("asyncState.loading")} role="status" style={{ padding: 24 }}>
+        <Skeleton active paragraph={{ rows: 6 }} />
+      </div>
+    );
+  }
   if (!tenant?.tenantKey || access.data?.can !== true) return <ForbiddenState />;
 
   return (
@@ -25,7 +32,11 @@ export function OptimizationPage() {
       <PageHeader title={t("optimization.title")} />
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={8}>
-          <Card title={t("optimization.openRun")}>
+          <Card
+            title={t("optimization.openRun")}
+            style={{ borderRadius: token.borderRadiusLG }}
+            className="optimization-open-card"
+          >
             <Form
               layout="vertical"
               scrollToFirstError={{ behavior: "smooth", block: "center" }}
@@ -45,16 +56,16 @@ export function OptimizationPage() {
                   },
                 ]}
               >
-                <Input placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                <Input placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style={{ width: "100%" }} />
               </Form.Item>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" aria-label={t("common.view")}>
                 {t("common.view")}
               </Button>
             </Form>
           </Card>
         </Col>
         <Col xs={24} lg={16}>
-          <Card title={t("optimization.run")}>
+          <Card title={t("optimization.run")} style={{ borderRadius: token.borderRadiusLG }}>
             <OptimizationRunForm
               actions={actions}
               onCreated={(outcome) => navigate(routes.optimizationRun.replace(":id", outcome.run.id))}

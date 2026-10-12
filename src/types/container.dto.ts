@@ -2,7 +2,15 @@ import type { ISODateTime } from "./api.types";
 
 export type ContainerIsoType = "20GP" | "20HC" | "40GP" | "40HC" | "45HC";
 
-export type ContainerStatus = "available" | "booked" | "in_transit" | "delivered" | "returned";
+export type ContainerStatus =
+  | "available"
+  | "booked"
+  | "in_transit"
+  | "delivered"
+  | "returned"
+  | "empty"
+  | "loaded"
+  | "maintenance";
 
 export interface ContainerResponse {
   id: string;

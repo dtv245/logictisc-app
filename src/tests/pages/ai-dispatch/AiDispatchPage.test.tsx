@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { getStoredAiSettings } from "@/features/ai-dispatch/aiConfigStorage";
 import { AiDispatchPage } from "@/pages/ai-dispatch/AiDispatchPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 
@@ -12,6 +13,7 @@ vi.mock("@/hooks/useCurrentTenant", () => ({
 
 beforeEach(() => {
   session.tenantKey = "tenant-finance";
+  localStorage.clear();
 });
 
 describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di chuyển", () => {
@@ -126,6 +128,34 @@ describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di c
     // Nút footer
     expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Request AI Dispatch Plan" })).toBeInTheDocument();
+  });
+
+  it("cho phép người dùng mở popup Cài đặt AI từ PageHeader và lưu cấu hình API Key", async () => {
+    await renderFinance(<AiDispatchPage />, vi.fn(), { role: "DISPATCHER" });
+
+    // Nút Cài đặt AI trên PageHeader
+    const configBtn = await screen.findByTestId("btn-open-ai-config");
+    expect(configBtn).toBeInTheDocument();
+    fireEvent.click(configBtn);
+
+    // Modal Cài đặt AI xuất hiện
+    expect(await screen.findByText(/AI Model & API Key Configuration/i)).toBeInTheDocument();
+
+    // Điền API Key
+    const apiKeyInput = screen.getByTestId("input-api-key-openai");
+    fireEvent.change(apiKeyInput, { target: { value: "sk-openai-key-from-header" } });
+
+    // Bấm lưu
+    const saveBtn = screen.getByTestId("btn-save-ai-config");
+    fireEvent.click(saveBtn);
+
+    // Cấu hình được lưu vào localStorage
+    expect(getStoredAiSettings().providers.openai.apiKey).toBe("sk-openai-key-from-header");
+
+    // Modal đóng lại
+    await waitFor(() => {
+      expect(screen.queryByTestId("btn-save-ai-config")).not.toBeInTheDocument();
+    });
   });
 
   it("chặn truy cập khi vai trò không có quyền hoặc chưa xác định tenant", async () => {

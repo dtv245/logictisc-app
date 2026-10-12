@@ -172,6 +172,7 @@ export const AppRouter = ({
           được hoàn tất để Authenticated có thể xác nhận người dùng. */}
       <Route path={routes.callback} element={<LarkCallbackPage />} />
       <Route path={routes.forbidden} element={<ForbiddenPage />} />
+      <Route path={routes.notFound} element={<NotFoundPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route path={routes.selectTenant} element={<SelectTenantPage />} />

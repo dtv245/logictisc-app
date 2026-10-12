@@ -63,6 +63,15 @@ export const LoginPage = () => {
   return (
     <main className="login-page">
       <Card className="login-card">
+        <div className="login-heading">
+          <div className="login-mark" aria-hidden="true">
+            LX
+          </div>
+          <Typography.Title level={2}>{t("auth.title")}</Typography.Title>
+          <Typography.Text type="secondary">
+            {t("auth.description")}
+          </Typography.Text>
+        </div>
         <SsoLogin returnTo={pendingReturnTo} />
 
         <Typography.Text className="login-footer" type="secondary">

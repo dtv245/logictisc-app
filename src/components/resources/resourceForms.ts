@@ -42,6 +42,29 @@ export interface RelationRecord {
   [key: string]: unknown;
 }
 
+export type FormFieldComponent =
+  | "input"
+  | "select"
+  | "number"
+  | "switch"
+  | "entityPicker"
+  | "multiSelect";
+
+export interface FieldDependsOn {
+  /** Tên trường được theo dõi để quyết định hiển thị */
+  field: string;
+  /**
+   * Giá trị kỳ vọng để hiển thị trường này.
+   * Nếu không truyền `condition`, so sánh giá trị form với `value`.
+   * Đối với boolean: nếu không truyền `value`, mặc định coi là `true`.
+   */
+  value?: unknown;
+  /** Hàm điều kiện tùy biến nhận vào giá trị trường phụ thuộc và toàn bộ form */
+  condition?: (value: unknown, allValues: Record<string, unknown>) => boolean;
+  /** Tự động reset giá trị của trường này khi bị ẩn. Mặc định `true`. */
+  resetOnHide?: boolean;
+}
+
 export interface ResourceFormField {
   control: ResourceFormControl;
   /**
@@ -62,10 +85,61 @@ export interface ResourceFormField {
   relationResource?: string;
   relationLabelFormat?: (record: RelationRecord) => string | undefined;
   relationLabelField?: string;
+
+  /** Số cột chiếm trên lưới 2 cột: 1 (nửa hàng) hoặc 2 (toàn hàng) */
+  span?: 1 | 2;
+  /** Component tường minh: ghi đè cách render theo control */
+  component?: FormFieldComponent;
+  /** Điều kiện hiển thị phụ thuộc vào field khác */
+  dependsOn?: FieldDependsOn;
+  /** Đơn vị hoặc hậu tố hiển thị (ví dụ "kg", "$") */
+  unit?: string;
+  suffix?: string;
+  /** Khóa i18n cho văn bản hướng dẫn phụ (helper/extra text) */
+  helperTextKey?: string;
+  /** Khóa i18n cho placeholder */
+  placeholderKey?: string;
+  placeholder?: string;
+  /** Giá trị mặc định khi khởi tạo */
+  defaultValue?: unknown;
+}
+
+export interface ResourceFormSection {
+  /** Định danh duy nhất của section */
+  key: string;
+  /** Khóa i18n tiêu đề section */
+  titleKey: string;
+  /** Khóa i18n mô tả phụ của section */
+  descriptionKey?: string;
+  /** Cho phép đóng/mở section */
+  collapsible?: boolean;
+  /** Trạng thái thu gọn mặc định */
+  defaultCollapsed?: boolean;
+  /** Danh sách các field thuộc section này */
+  fields: readonly ResourceFormField[];
 }
 
 export interface ResourceFormDefinition {
   fields: readonly ResourceFormField[];
+  sections?: readonly ResourceFormSection[];
+}
+
+export function findSectionKeyForField(
+  definition: ResourceFormDefinition,
+  fieldName: string | readonly (string | number)[],
+): string | undefined {
+  if (!definition.sections) {
+    return undefined;
+  }
+  const targetName = Array.isArray(fieldName)
+    ? String(fieldName[fieldName.length - 1])
+    : String(fieldName);
+  for (const section of definition.sections) {
+    if (section.fields.some((field) => field.name === targetName)) {
+      return section.key;
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -93,7 +167,7 @@ const FULL_WIDTH_BY_CONTROL: Record<ResourceFormControl, boolean> = {
 };
 
 export const isFullWidthControl = (field: ResourceFormField): boolean =>
-  FULL_WIDTH_BY_CONTROL[field.control];
+  field.span === 2 || FULL_WIDTH_BY_CONTROL[field.control];
 
 const text = (name: string, required = false): ResourceFormField => ({
   control: "text",
@@ -170,6 +244,210 @@ const requiredAddress = [
   text("addressCountry", true),
 ] as const;
 
+export const TRUCK_TYPES = [
+  "SEMI_TRUCK",
+  "FLATBED",
+  "BOX_TRUCK",
+  "TANKER",
+  "REEFER",
+] as const;
+
+export const TRUCK_STATUSES = [
+  "available",
+  "in_use",
+  "maintenance",
+  "out_of_service",
+] as const;
+
+export const ADR_CLASSES = [
+  "CLASS_1",
+  "CLASS_2",
+  "CLASS_3",
+  "CLASS_4",
+  "CLASS_5",
+  "CLASS_6",
+  "CLASS_7",
+  "CLASS_8",
+  "CLASS_9",
+] as const;
+
+export const truckSections: readonly ResourceFormSection[] = [
+  {
+    key: "identification",
+    titleKey: "forms.sections.trucks.identification",
+    descriptionKey: "forms.sections.trucks.identificationDesc",
+    collapsible: false,
+    fields: [
+      {
+        control: "text",
+        name: "number",
+        required: true,
+        span: 2,
+        component: "input",
+        placeholderKey: "forms.placeholders.truckNumber",
+      },
+      {
+        control: "text",
+        name: "licensePlate",
+        span: 1,
+        component: "input",
+        placeholderKey: "forms.placeholders.licensePlate",
+      },
+      {
+        control: "text",
+        name: "licensePlateState",
+        span: 1,
+        component: "input",
+        placeholderKey: "forms.placeholders.licensePlateState",
+      },
+      {
+        control: "text",
+        name: "vin",
+        span: 2,
+        uppercase: true,
+        maxLength: 17,
+        component: "input",
+        helperTextKey: "forms.helper.vin",
+        placeholderKey: "forms.placeholders.vin",
+      },
+    ],
+  },
+  {
+    key: "specs",
+    titleKey: "forms.sections.trucks.specs",
+    descriptionKey: "forms.sections.trucks.specsDesc",
+    collapsible: false,
+    fields: [
+      {
+        control: "select",
+        name: "type",
+        required: true,
+        span: 1,
+        component: "select",
+        options: TRUCK_TYPES,
+        defaultValue: "SEMI_TRUCK",
+      },
+      {
+        control: "select",
+        name: "status",
+        required: true,
+        span: 1,
+        component: "select",
+        options: TRUCK_STATUSES,
+        defaultValue: "available",
+      },
+      {
+        control: "number",
+        name: "vehicleCapacity",
+        required: true,
+        min: 0,
+        span: 1,
+        component: "number",
+        unit: "kg",
+        placeholderKey: "forms.placeholders.vehicleCapacity",
+      },
+      {
+        control: "number",
+        name: "year",
+        min: 1900,
+        max: nextYear,
+        span: 1,
+        component: "number",
+        placeholderKey: "forms.placeholders.year",
+      },
+      {
+        control: "text",
+        name: "make",
+        span: 1,
+        component: "input",
+        placeholderKey: "forms.placeholders.make",
+      },
+      {
+        control: "text",
+        name: "model",
+        span: 1,
+        component: "input",
+        placeholderKey: "forms.placeholders.model",
+      },
+    ],
+  },
+  {
+    key: "drivers",
+    titleKey: "forms.sections.trucks.drivers",
+    descriptionKey: "forms.sections.trucks.driversDesc",
+    collapsible: false,
+    fields: [
+      {
+        control: "relation",
+        name: "mainDriverId",
+        relationResource: "drivers",
+        span: 2,
+        component: "entityPicker",
+        relationLabelFormat: (r) =>
+          r.firstName ? `${r.firstName} ${r.lastName ?? ""} (${r.email ?? r.id})` : (r.email || r.id),
+      },
+      {
+        control: "relation",
+        name: "secondaryDriverId",
+        relationResource: "drivers",
+        span: 2,
+        component: "entityPicker",
+        relationLabelFormat: (r) =>
+          r.firstName ? `${r.firstName} ${r.lastName ?? ""} (${r.email ?? r.id})` : (r.email || r.id),
+      },
+    ],
+  },
+  {
+    key: "hazmatAdr",
+    titleKey: "forms.sections.trucks.hazmatAdr",
+    descriptionKey: "forms.sections.trucks.hazmatAdrDesc",
+    collapsible: true,
+    defaultCollapsed: true,
+    fields: [
+      {
+        control: "boolean",
+        name: "isHazmatPlacarded",
+        span: 1,
+        component: "switch",
+        helperTextKey: "forms.helper.isHazmatPlacarded",
+      },
+      {
+        control: "boolean",
+        name: "adrEquipmentIsAdrCertified",
+        span: 1,
+        component: "switch",
+        helperTextKey: "forms.helper.adrEquipmentIsAdrCertified",
+      },
+      {
+        control: "text",
+        name: "adrEquipmentAllowedClasses",
+        span: 2,
+        component: "multiSelect",
+        options: ADR_CLASSES,
+        helperTextKey: "forms.helper.adrEquipmentAllowedClasses",
+        dependsOn: {
+          field: "adrEquipmentIsAdrCertified",
+          value: true,
+          resetOnHide: true,
+        },
+      },
+      {
+        control: "text",
+        name: "adrEquipmentOrangePlateNumber",
+        span: 2,
+        component: "input",
+        helperTextKey: "forms.helper.adrEquipmentOrangePlateNumber",
+        placeholderKey: "forms.placeholders.adrEquipmentOrangePlateNumber",
+        dependsOn: {
+          field: "adrEquipmentIsAdrCertified",
+          value: true,
+          resetOnHide: true,
+        },
+      },
+    ],
+  },
+];
+
 export const resourceFormDefinitions: Readonly<
   Record<EditableResourceName, ResourceFormDefinition>
 > = {
@@ -211,29 +489,8 @@ export const resourceFormDefinitions: Readonly<
     ],
   },
   trucks: {
-    fields: [
-      text("number", true),
-      text("type", true),
-      number("vehicleCapacity", true, 0),
-      text("status", true),
-      text("make"), text("model"), number("year", false, 1900, nextYear),
-      { ...text("vin"), uppercase: true },
-      text("licensePlate"), text("licensePlateState"), boolean("isHazmatPlacarded"),
-      relation(
-        "mainDriverId",
-        "drivers",
-        false,
-        (r) => r.firstName ? `${r.firstName} ${r.lastName} (${r.email})` : (r.email || r.id),
-      ),
-      relation(
-        "secondaryDriverId",
-        "drivers",
-        false,
-        (r) => r.firstName ? `${r.firstName} ${r.lastName} (${r.email})` : (r.email || r.id),
-      ),
-      boolean("adrEquipmentIsAdrCertified"),
-      text("adrEquipmentAllowedClasses"), text("adrEquipmentOrangePlateNumber"),
-    ],
+    sections: truckSections,
+    fields: truckSections.flatMap((section) => section.fields),
   },
   loads: {
     fields: [
@@ -325,6 +582,10 @@ export const createResourceFormInitialValues = (
     // Không seed trường server sở hữu: gửi `false` lúc create là client tự khẳng
     // định một sự thật của server (ví dụ `isInProximity`).
     if (field.readOnly) {
+      continue;
+    }
+    if (field.defaultValue !== undefined) {
+      entries.push([field.name, field.defaultValue]);
       continue;
     }
     if (field.control === "boolean") {

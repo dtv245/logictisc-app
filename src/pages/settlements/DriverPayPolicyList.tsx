@@ -23,6 +23,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FilterBar } from "@components";
+import { EmptyState } from "@/components/EmptyState";
 
 import {
   useDriverPayPolicies,
@@ -36,6 +37,7 @@ import {
   type DriverPayPolicyRequest,
   type DriverPayPolicyView,
 } from "@/types/driverPayPolicy.dto";
+import "./Settlements.scss";
 
 const { Title, Text } = Typography;
 
@@ -142,16 +144,23 @@ export const DriverPayPolicyList: React.FC = () => {
       title: t("settlements.policyCode", "Policy Code"),
       dataIndex: "policyCode",
       key: "policyCode",
-      render: (code: string) => <Text strong>{code}</Text>,
+      width: 140,
+      minWidth: 120,
+      render: (code: string) => <Text strong className="break-all">{code}</Text>,
     },
     {
       title: t("settlements.policyName", "Policy Name"),
       dataIndex: "name",
       key: "name",
+      width: 180,
+      minWidth: 150,
+      ellipsis: true,
     },
     {
       title: t("settlements.scope", "Driver Scope"),
       key: "scope",
+      width: 160,
+      minWidth: 140,
       render: (_, record) =>
         record.driverId ? (
           <Tag color="purple">{t("settlements.specificDriver", "Specific Driver")}</Tag>
@@ -163,22 +172,27 @@ export const DriverPayPolicyList: React.FC = () => {
       title: t("settlements.payMethod", "Pay Method"),
       dataIndex: "payMethod",
       key: "payMethod",
+      width: 130,
+      minWidth: 110,
       render: (method: string) => <Tag color="blue">{method}</Tag>,
     },
     {
       title: t("settlements.rate", "Current Rate"),
       key: "rate",
-      render: (_, record) => <Text>{renderRateSummary(record)}</Text>,
+      width: 180,
+      minWidth: 150,
+      render: (_, record) => <Text className="break-word">{renderRateSummary(record)}</Text>,
     },
     {
       title: t("settlements.latestVersion", "Latest Version"),
       dataIndex: "policyVersion",
       key: "policyVersion",
       width: 130,
+      minWidth: 110,
       render: (version: number, record) => {
         const totalVersions = groupedPolicies.get(record.policyCode)?.length ?? 1;
         return (
-          <Space size={4}>
+          <Space size={4} wrap>
             <Tag color="geekblue">v{version}</Tag>
             {totalVersions > 1 && (
               <Text type="secondary" style={{ fontSize: 12 }}>
@@ -193,13 +207,17 @@ export const DriverPayPolicyList: React.FC = () => {
       title: t("settlements.effectiveFrom", "Effective From"),
       dataIndex: "effectiveFrom",
       key: "effectiveFrom",
+      width: 140,
+      minWidth: 120,
     },
     {
       title: t("settlements.actions", "Actions"),
       key: "actions",
       width: 280,
+      minWidth: 260,
+      fixed: "right",
       render: (_, record) => (
-        <Space size="small">
+        <Space size="small" wrap>
           <Button
             size="small"
             icon={<EyeOutlined />}
@@ -231,10 +249,10 @@ export const DriverPayPolicyList: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
-      <Card bordered={false}>
-        <Row justify="space-between" align="middle" style={{ marginBottom: 20 }}>
-          <Col>
+    <div className="settlements-container">
+      <Card bordered={false} className="settlement-card">
+        <Row justify="space-between" align="middle" gutter={[16, 16]} className="policy-list__header">
+          <Col xs={24} sm={16} className="policy-list__header-title">
             <Title level={4} style={{ margin: 0 }}>
               {t("settlements.driverPayPoliciesTitle", "Driver Pay Policies")}
             </Title>
@@ -245,12 +263,13 @@ export const DriverPayPolicyList: React.FC = () => {
               )}
             </Text>
           </Col>
-          <Col>
+          <Col xs={24} sm={8} className="policy-list__header-actions">
             <CanAccess resource="driver-pay-policies" action="POLICY_CREATE">
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => setIsCreateModalOpen(true)}
+              className="policy-list__create-btn"
             >
               {t("settlements.createPolicyBtn", "Create Pay Policy")}
             </Button>
@@ -296,14 +315,18 @@ export const DriverPayPolicyList: React.FC = () => {
           />
         </FilterBar>
 
-        <Table<DriverPayPolicyView>
-          rowKey="id"
-          columns={columns}
-          dataSource={filteredData}
-          loading={isLoading}
-          pagination={{ pageSize: 15 }}
-          size="middle"
-        />
+        <div className="settlement-table-wrapper">
+          <Table<DriverPayPolicyView>
+            rowKey="id"
+            columns={columns}
+            dataSource={filteredData}
+            loading={isLoading}
+            pagination={{ pageSize: 15 }}
+            scroll={{ x: 1240 }}
+            size="middle"
+            locale={{ emptyText: <EmptyState description={t("settlements.noPoliciesFound", "No pay policies found")} /> }}
+          />
+        </div>
       </Card>
 
       {/* Modal: Create Policy */}
@@ -312,7 +335,8 @@ export const DriverPayPolicyList: React.FC = () => {
         open={isCreateModalOpen}
         onCancel={() => setIsCreateModalOpen(false)}
         footer={null}
-        width={800}
+        width="min(800px, 95vw)"
+        style={{ maxWidth: "calc(100vw - 32px)", top: 20 }}
         destroyOnClose
       >
         <DriverPayPolicyForm
@@ -329,7 +353,8 @@ export const DriverPayPolicyList: React.FC = () => {
         open={Boolean(versionTargetPolicy)}
         onCancel={() => setVersionTargetPolicy(null)}
         footer={null}
-        width={800}
+        width="min(800px, 95vw)"
+        style={{ maxWidth: "calc(100vw - 32px)", top: 20 }}
         destroyOnClose
       >
         {versionTargetPolicy && (
@@ -358,7 +383,8 @@ export const DriverPayPolicyList: React.FC = () => {
             {t("settlements.closeBtn", "Close")}
           </Button>,
         ]}
-        width={950}
+        width="min(950px, 95vw)"
+        style={{ maxWidth: "calc(100vw - 32px)", top: 20 }}
         destroyOnClose
       >
         {historyTargetCode && (

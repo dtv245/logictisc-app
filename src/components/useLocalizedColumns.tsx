@@ -1,32 +1,17 @@
-/**
- * Dịch `titleKey` (và giá trị enum) của columns do `createCrudColumns` tạo ra.
- *
- * Phải chạy lúc render chứ không phải lúc import module: `AppBootstrap` chỉ gọi
- * `i18n.changeLanguage` sau khi tải xong runtime config, tức là sau khi các file
- * columns đã được import. Dịch ở cấp module sẽ luôn ra sai ngôn ngữ.
- *
- * Cột có cờ `status` được bọc thêm `StatusTag`: màu lấy từ `statusTone` (bảng tra
- * dùng chung), nhãn lấy từ cùng khoá `forms.options.*` mà form select dùng — nên
- * bảng và form không thể lệch chữ.
- */
-
 import type { BaseRecord } from "@refinedev/core";
 import type { ColumnsType } from "antd/es/table";
+import { Tooltip } from "antd";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import { StatusTag } from "./StatusTag";
+import { StatusTag, type StatusStyleConfig, type StatusTone } from "./StatusTag";
 import { statusTone } from "./statusTone";
 
-/**
- * Column có thể mang thêm 3 khoá riêng của `createCrudColumns`. Khai báo dạng này
- * (thay vì `ColumnsType`) vì antd không biết `titleKey`/`options`/`status`; cả ba
- * đều optional nên `ColumnsType` vẫn gán được vào đây.
- */
 type LocalizableColumn<TData extends BaseRecord> = ColumnsType<TData>[number] & {
   titleKey?: string;
   options?: boolean;
-  status?: boolean;
+  status?: boolean | Record<string, StatusTone | "info" | "default" | StatusStyleConfig>;
+  numeric?: boolean;
 };
 
 export const useLocalizedColumns = <TData extends BaseRecord>(
@@ -43,16 +28,41 @@ export const useLocalizedColumns = <TData extends BaseRecord>(
         }
 
         // Bỏ `titleKey`/`options`/`status` để khoá locale không lọt xuống DOM qua antd Table.
-        const { titleKey, options, status, ...rest } = column;
+        const { titleKey, options, status, numeric, ...rest } = column;
         const title = t(titleKey);
 
+        const originalRender = rest.render;
+
+        // Render mặc định cho cell trống: "—" màu nhạt thống nhất
+        const defaultEmptyRender = (
+          <span className="table-cell-empty">{t("crud.emptyValue", "—")}</span>
+        );
+
         if (!options && !status) {
+          if (!originalRender) {
+            return {
+              ...rest,
+              title,
+              render: (value: unknown) => {
+                if (value === null || value === undefined || value === "") {
+                  return defaultEmptyRender;
+                }
+                const text = String(value);
+                if (rest.ellipsis) {
+                  return (
+                    <Tooltip title={text}>
+                      <span className="table-cell-ellipsis">{text}</span>
+                    </Tooltip>
+                  );
+                }
+                return numeric ? <span className="tabular-nums">{text}</span> : text;
+              },
+            };
+          }
           return { ...rest, title };
         }
 
-        // Cột enum: dịch giá trị qua `forms.options.*` (cùng khoá mà form select dùng).
-        // `defaultValue` giữ nguyên giá trị thô nếu backend trả về enum chưa có bản dịch.
-        const originalRender = rest.render;
+        // Cột enum hoặc status:
         return {
           ...rest,
           title,
@@ -61,14 +71,26 @@ export const useLocalizedColumns = <TData extends BaseRecord>(
               return originalRender(value, record, index);
             }
             if (value === null || value === undefined || value === "") {
-              return t("crud.emptyValue");
+              return defaultEmptyRender;
             }
             const label = t(`forms.options.${String(value)}`, {
               defaultValue: String(value),
             });
 
-            // Cột trạng thái hiện thêm màu; giá trị lạ vẫn ra Tag nhưng ở tone neutral.
-            return status ? <StatusTag label={label} tone={statusTone(value)} /> : label;
+            // Cột trạng thái: bọc trong StatusTag với màu ngữ nghĩa
+            if (status) {
+              const customMap = typeof status === "object" ? status : undefined;
+              return (
+                <StatusTag
+                  label={label}
+                  tone={statusTone(value)}
+                  statusKey={String(value)}
+                  statusMap={customMap}
+                />
+              );
+            }
+
+            return label;
           },
         };
       }),

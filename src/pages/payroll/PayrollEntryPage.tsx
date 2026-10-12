@@ -58,7 +58,7 @@ export function PayrollEntryPage() {
 
       <Row gutter={[24, 24]}>
         {/* Open Run Card (1 input <= 7) */}
-        <Col xs={24} lg={8}>
+        <Col xs={24} md={24} lg={8}>
           <Card title={t("payroll.openRun")}>
             <Form<{ id: string }>
               layout="vertical"
@@ -72,7 +72,7 @@ export function PayrollEntryPage() {
               >
                 <Input placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
               </Form.Item>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" style={{ minHeight: 38 }}>
                 {t("common.view")}
               </Button>
             </Form>
@@ -81,7 +81,7 @@ export function PayrollEntryPage() {
 
         {/* Calculate Payroll Card */}
         {actions.canExecute("calculate") && (
-          <Col xs={24} lg={16}>
+          <Col xs={24} md={24} lg={16}>
             <Card title={t("payroll.actions.calculate")}>
               <Form
                 form={form}
@@ -190,12 +190,14 @@ export function PayrollEntryPage() {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 12,
                     marginTop: 24,
                     paddingTop: 16,
                     borderTop: "1px solid #f0f0f0",
                   }}
                 >
-                  <Button onClick={() => form.resetFields()} disabled={actions.pending}>
+                  <Button onClick={() => form.resetFields()} disabled={actions.pending} style={{ minHeight: 38 }}>
                     {t("common.reset")}
                   </Button>
                   <Button
@@ -203,6 +205,7 @@ export function PayrollEntryPage() {
                     htmlType="submit"
                     loading={actions.pending}
                     disabled={actions.pending}
+                    style={{ minHeight: 38 }}
                   >
                     {t("payroll.actions.calculate")}
                   </Button>
@@ -216,6 +219,8 @@ export function PayrollEntryPage() {
       <Modal
         open={Boolean(payload)}
         title={t("payroll.actions.calculate")}
+        width="min(520px, calc(100vw - 24px))"
+        styles={{ body: { maxHeight: "calc(100dvh - 200px)", overflowY: "auto" } }}
         okText={t("actions.confirm")}
         cancelText={t("actions.cancel")}
         confirmLoading={actions.pending}

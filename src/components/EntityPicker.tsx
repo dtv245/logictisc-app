@@ -35,10 +35,13 @@ export interface EntityPickerProps {
   /** Tên resource của Refine, ví dụ `customers`. */
   resource: string;
   value?: string;
+  /** Danh sách các ID giá trị cần loại trừ khỏi options (ví dụ tài xế chính đã chọn) */
+  excludeValues?: readonly (string | number)[];
 }
 
 export function EntityPicker({
   disabled,
+  excludeValues,
   labelField,
   labelFormat,
   onChange,
@@ -66,12 +69,17 @@ export function EntityPicker({
     ...(value === undefined ? {} : { defaultValue: value }),
   });
 
+  const options = excludeValues && excludeValues.length > 0
+    ? selectProps.options?.filter((opt) => !excludeValues.map(String).includes(String(opt.value)))
+    : selectProps.options;
+
   return (
     <Select<string>
       // `useSelect` khai `selectProps.value` là **option object**, nhưng `optionValue`
       // ở trên khiến giá trị thật khi chạy là id dạng chuỗi. Ép kiểu tại đúng chỗ này
       // thay vì để kiểu sai lan ra props của component.
       {...(selectProps as SelectProps<string>)}
+      options={options}
       {...(value === undefined ? {} : { value })}
       {...(onChange === undefined ? {} : { onChange })}
       allowClear={!required}

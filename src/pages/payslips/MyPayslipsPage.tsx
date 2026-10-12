@@ -1,7 +1,7 @@
 /** Self-service listing only requests the employee-bound payslip endpoint. */
 import { RAW_RESPONSE_META } from "@/types/apiClient.types";
 import { useCan, useCustom } from "@refinedev/core";
-import { Button, Spin, Table } from "antd";
+import { Button, Space, Spin, Table } from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
@@ -26,13 +26,78 @@ export function MyPayslipsPage() {
   if (access.data?.can !== true) return <ForbiddenState />;
   if (query.isError) return query.error.statusCode === 403 ? <ForbiddenState /> : <QueryErrorState description={query.error.message} onRetry={() => void query.refetch()} retrying={query.isFetching} />;
   if (query.isLoading) return <Spin />;
-  return <><PageHeader title={t("payslips.mine")} />
-    <Table rowKey="id" dataSource={query.data?.data ?? []} scroll={{ x: "max-content" }} pagination={{ pageSize: 10 }} locale={{ emptyText: <EmptyState /> }} columns={[
-      { title: t("settlements.payPeriod"), render: (_, row) => { const s = readPayslipSnapshot(row.snapshotJson); return s ? `${formatDateOnly(s.periodStart, { locale: i18n.language })} – ${formatDateOnly(s.periodEnd, { locale: i18n.language })}` : "—"; } },
-      { title: t("payroll.grossAmount"), render: (_, row) => { const s = readPayslipSnapshot(row.snapshotJson); return financialAmount(s?.calculation.grossAmount, s?.currency, i18n.language); } },
-      { title: t("payroll.netAmount"), render: (_, row) => { const s = readPayslipSnapshot(row.snapshotJson); return financialAmount(s?.calculation.availability === "AVAILABLE" ? s.calculation.netAmount : null, s?.currency, i18n.language); } },
-      { title: t("payslips.issuedAt"), dataIndex: "issuedAt", render: (value: string) => formatDateTime(value, { locale: i18n.language }) },
-      { title: t("payroll.paymentStatus"), render: () => t("payslips.unavailable") },
-      { title: t("common.actions"), render: (_, row) => <Button disabled={!isUuid(row.id)} onClick={() => navigate(routes.payslipShow.replace(":id", encodeURIComponent(row.id)))}>{t("common.view")}</Button> },
-    ]} /></>;
+  return (
+    <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <PageHeader title={t("payslips.mine")} />
+      <Table
+        rowKey="id"
+        dataSource={query.data?.data ?? []}
+        scroll={{ x: 780 }}
+        pagination={{ pageSize: 10, responsive: true }}
+        locale={{ emptyText: <EmptyState /> }}
+        columns={[
+          {
+            title: t("settlements.payPeriod"),
+            width: 220,
+            render: (_, row) => {
+              const s = readPayslipSnapshot(row.snapshotJson);
+              return s ? (
+                <span style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
+                  {formatDateOnly(s.periodStart, { locale: i18n.language })} – {formatDateOnly(s.periodEnd, { locale: i18n.language })}
+                </span>
+              ) : "—";
+            },
+          },
+          {
+            title: t("payroll.grossAmount"),
+            width: 130,
+            align: "right",
+            render: (_, row) => {
+              const s = readPayslipSnapshot(row.snapshotJson);
+              return financialAmount(s?.calculation.grossAmount, s?.currency, i18n.language);
+            },
+          },
+          {
+            title: t("payroll.netAmount"),
+            width: 130,
+            align: "right",
+            render: (_, row) => {
+              const s = readPayslipSnapshot(row.snapshotJson);
+              return (
+                <strong style={{ color: "#1677ff", whiteSpace: "nowrap" }}>
+                  {financialAmount(s?.calculation.availability === "AVAILABLE" ? s.calculation.netAmount : null, s?.currency, i18n.language)}
+                </strong>
+              );
+            },
+          },
+          {
+            title: t("payslips.issuedAt"),
+            dataIndex: "issuedAt",
+            width: 170,
+            render: (value: string) => formatDateTime(value, { locale: i18n.language }),
+          },
+          {
+            title: t("payroll.paymentStatus"),
+            width: 140,
+            render: () => <span style={{ color: "rgba(0, 0, 0, 0.45)" }}>{t("payslips.unavailable")}</span>,
+          },
+          {
+            title: t("common.actions"),
+            width: 110,
+            fixed: "right",
+            align: "center",
+            render: (_, row) => (
+              <Button
+                disabled={!isUuid(row.id)}
+                onClick={() => navigate(routes.payslipShow.replace(":id", encodeURIComponent(row.id)))}
+                style={{ minHeight: 38, minWidth: 64 }}
+              >
+                {t("common.view")}
+              </Button>
+            ),
+          },
+        ]}
+      />
+    </Space>
+  );
 }

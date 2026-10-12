@@ -29,6 +29,9 @@ export type DvirDefectCategory =
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type DvirDefectSeverity = "minor" | "major" | "out_of_service";
 
+/** Kết quả đánh giá kiểm tra an toàn xe DVIR. */
+export type DvirResult = "safe" | "defect_found" | "out_of_service";
+
 /** Báo cáo kiểm tra phương tiện trước hoặc sau hành trình. */
 export interface DvirReport extends AuditableEntity {
   id: string;
@@ -40,6 +43,7 @@ export interface DvirReport extends AuditableEntity {
   location?: GeoLocation | null;
   odometerReading?: number | null;
   hasDefects: boolean;
+  result?: DvirResult | null;
   driverSignature?: string | null;
   driverNotes?: string | null;
   reviewedById?: string | null;

@@ -11,6 +11,32 @@
   width: 100%;
 }
 
+.ops-tabs-header {
+  padding: 12px 24px 0 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+
+  @media (max-width: 767px) {
+    padding: 8px 16px 0 16px;
+  }
+}
+
+.ops-tracking-content {
+  padding: 24px;
+
+  @media (max-width: 767px) {
+    padding: 16px 12px;
+  }
+}
+
+.ops-overview-content {
+  padding: 0 24px;
+
+  @media (max-width: 767px) {
+    padding: 0 12px;
+  }
+}
+
 .ops-card {
   border-color: v.$color-border-secondary;
   height: 100%;
@@ -18,6 +44,17 @@
 
 .ops-card .ant-card-head {
   min-height: 56px;
+
+  @media (max-width: 767px) {
+    min-height: 48px;
+    padding: 0 12px;
+  }
+}
+
+.ops-card .ant-card-body {
+  @media (max-width: 767px) {
+    padding: 12px;
+  }
 }
 
 .ops-card__subtitle {

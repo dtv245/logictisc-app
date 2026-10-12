@@ -11,14 +11,14 @@ import { PayrollJurisdictionSummary } from "./PayrollJurisdictionSummary";
 export function PayrollItemsTable({ items }: { items: PayrollItem[] }) {
   const { t, i18n } = useTranslation();
   const moneyColumns: ColumnsType<PayrollItem> = (["grossAmount", "incomeTaxAmount", "insuranceAmount", "otherDeductionAmount", "reimbursementAmount", "netAmount"] as const).map((field) => ({
-    key: field, title: t(`payroll.${field}`), render: (_, row) => <span data-testid={`${row.id}-${field}`}>{financialAmount(
+    key: field, title: t(`payroll.${field}`), width: 125, align: "right", render: (_, row) => <span data-testid={`${row.id}-${field}`}>{financialAmount(
       ["incomeTaxAmount", "insuranceAmount", "netAmount"].includes(field) && row.taxAvailability !== "AVAILABLE" ? null : row[field], row.currency, i18n.language)}</span>,
   }));
-  return <Table rowKey="id" dataSource={items} scroll={{ x: "max-content" }} pagination={false} locale={{ emptyText: <EmptyState /> }}
+  return <Table rowKey="id" dataSource={items} scroll={{ x: 1000 }} pagination={false} locale={{ emptyText: <EmptyState /> }}
     expandable={{ expandedRowRender: (item) => <PayrollJurisdictionSummary item={item} /> }} columns={[
-      { title: t("settlements.driver"), dataIndex: "driverId" },
-      { title: t("finance.workflowStatus"), dataIndex: "status", render: (value: string) => <StatusTag tone={statusTone(value)} label={t(`payroll.statuses.${value}`, { defaultValue: value })} /> },
+      { title: t("settlements.driver"), dataIndex: "driverId", width: 150, fixed: "left" },
+      { title: t("finance.workflowStatus"), dataIndex: "status", width: 140, render: (value: string) => <StatusTag tone={statusTone(value)} label={t(`payroll.statuses.${value}`, { defaultValue: value })} /> },
       ...moneyColumns,
-      { title: t("finance.currency"), dataIndex: "currency" },
+      { title: t("finance.currency"), dataIndex: "currency", width: 90 },
     ]} />;
 }

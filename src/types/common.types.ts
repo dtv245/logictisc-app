@@ -51,7 +51,7 @@ export interface Money {
 
 /** Các trường audit dùng chung do backend quản lý. */
 export interface AuditableEntity {
-  createdAt: string;
+  createdAt?: string;
   createdBy?: string | null;
   lastModifiedAt?: string | null;
   lastModifiedBy?: string | null;

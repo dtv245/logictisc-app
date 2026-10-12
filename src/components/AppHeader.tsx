@@ -11,9 +11,11 @@ import {
 } from "@ant-design/icons";
 import { Breadcrumb, useThemedLayoutContext } from "@refinedev/antd";
 import { Avatar, Button, Dropdown, Flex, Layout, Space, Typography } from "antd";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { env } from "@config/env";
 import { routes } from "@constants/routes";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useLogoutUser } from "../hooks/useLogoutUser";
@@ -36,28 +38,63 @@ export const AppHeader = () => {
     setMobileSiderOpen,
   } = useThemedLayoutContext();
 
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleResize = () => setTick((t) => t + 1);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile =
+    typeof window !== "undefined" ? window.innerWidth < 768 : false;
+
+  // Trạng thái mở/đóng điều hướng: trên mobile phụ thuộc Drawer, trên tablet/desktop phụ thuộc Sider
+  const isNavOpen = isMobile ? mobileSiderOpen : !siderCollapsed;
+
+  const handleToggleNavigation = () => {
+    if (isMobile) {
+      setMobileSiderOpen(!mobileSiderOpen);
+    } else {
+      setSiderCollapsed(!siderCollapsed);
+    }
+  };
+
+  const navToggleLabel = t(
+    isNavOpen ? "navigation.collapse" : "navigation.expand",
+  );
+
   return (
     <Layout.Header className="app-header">
-      <Flex align="center" gap="middle">
+      <Flex align="center" className="app-header__left" gap="middle">
         <Button
-          aria-label={t(
-            siderCollapsed ? "navigation.expand" : "navigation.collapse",
-          )}
-          icon={siderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          onClick={() => {
-            if (typeof window !== "undefined" && window.innerWidth < 992) {
-              setMobileSiderOpen(!mobileSiderOpen);
-            } else {
-              setSiderCollapsed(!siderCollapsed);
-            }
-          }}
+          aria-expanded={isMobile ? mobileSiderOpen : !siderCollapsed}
+          aria-label={navToggleLabel}
+          className="app-header__toggle-btn"
+          icon={isNavOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+          onClick={handleToggleNavigation}
           type="text"
         />
-        <Breadcrumb />
+        {/* Brand logo/tên ứng dụng rút gọn trên Mobile khi Sider bị ẩn */}
+        <Typography.Title
+          className="app-header__brand"
+          level={5}
+          onClick={() => navigate("/")}
+          style={{ cursor: "pointer", margin: 0 }}
+        >
+          {env.appName}
+        </Typography.Title>
+        <div className="app-header__breadcrumb">
+          <Breadcrumb />
+        </div>
       </Flex>
-      <Flex align="center" gap="middle">
+
+      <Flex align="center" className="app-header__right" gap="middle">
         <NotificationHeaderIcon />
         <Dropdown
+          placement="bottomRight"
+          trigger={["click", "hover"]}
           menu={{
             items: [
               ...(PROFILE_CONTRACT_CONFIRMED
@@ -82,13 +119,27 @@ export const AppHeader = () => {
             ],
           }}
         >
-          <Flex align="center" className="user-menu" gap="small">
+          <Flex
+            align="center"
+            aria-haspopup="true"
+            aria-label={
+              currentUser.data?.name
+                ? `${currentUser.data.name}`
+                : "Menu người dùng"
+            }
+            className="user-menu"
+            gap="small"
+            role="button"
+            tabIndex={0}
+          >
             <Avatar src={currentUser.data?.avatar}>
               {currentUser.data?.name?.charAt(0)}
             </Avatar>
-            <Space size="small">
-              <Typography.Text>{currentUser.data?.name}</Typography.Text>
-              <DownOutlined />
+            <Space className="user-menu__info" size="small">
+              <Typography.Text className="user-menu__name">
+                {currentUser.data?.name}
+              </Typography.Text>
+              <DownOutlined className="user-menu__arrow" />
             </Space>
           </Flex>
         </Dropdown>

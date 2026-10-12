@@ -4,7 +4,10 @@ import type { Employee } from "./employee.types";
 import type { Load } from "./load.types";
 import type { InvoiceResponse, InvoiceLineItemType } from "./invoice.dto";
 
-export type Invoice = InvoiceResponse;
+export type Invoice = InvoiceResponse & {
+  balance?: number | null;
+  openBalance?: number | null;
+};
 
 export interface InvoiceLineItem {
   id: string;

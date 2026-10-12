@@ -169,8 +169,10 @@ export const ProfitabilityRankingsTable: React.FC<ProfitabilityRankingsTableProp
     {
       title: "Tuyến đường",
       key: "lane",
+      width: 130,
+      fixed: "left",
       render: (_, r) => (
-        <Space size={6} style={{ fontWeight: 600 }}>
+        <Space size={6} style={{ fontWeight: 600, whiteSpace: "nowrap" }}>
           <span>{r.originState ?? "—"}</span>
           <ArrowRightOutlined style={{ fontSize: 10, color: "#9ca3af" }} />
           <span>{r.destinationState ?? "—"}</span>
@@ -227,9 +229,11 @@ export const ProfitabilityRankingsTable: React.FC<ProfitabilityRankingsTableProp
       title: "Đầu xe",
       dataIndex: "truckNumber",
       key: "truckNumber",
+      width: 130,
+      fixed: "left",
       render: (val: string, r) => (
-        <div>
-          <Typography.Text strong style={{ fontSize: 13, color: "#111827", display: "block" }}>
+        <div style={{ minWidth: 0 }}>
+          <Typography.Text strong ellipsis style={{ fontSize: 13, color: "#111827", display: "block", maxWidth: 100 }}>
             {val || r.truckId || "—"}
           </Typography.Text>
           {r.truckId && (
@@ -298,16 +302,19 @@ export const ProfitabilityRankingsTable: React.FC<ProfitabilityRankingsTableProp
       isForbidden={currentQuery.isForbidden}
       onRetry={currentQuery.refetch}
       extra={
-        <Space size={10}>
-          <Radio.Group
-            value={activeTab}
-            onChange={(e) => setActiveTab(e.target.value)}
-            size="small"
-            buttonStyle="solid"
-          >
-            <Radio.Button value="lanes">Tuyến đường (Lanes)</Radio.Button>
-            <Radio.Button value="trucks">Đội xe (Trucks)</Radio.Button>
-          </Radio.Group>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, maxWidth: "100%" }}>
+          <div style={{ overflowX: "auto", maxWidth: "100%", paddingBottom: 2 }}>
+            <Radio.Group
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+              size="small"
+              buttonStyle="solid"
+              style={{ whiteSpace: "nowrap" }}
+            >
+              <Radio.Button value="lanes">Tuyến đường (Lanes)</Radio.Button>
+              <Radio.Button value="trucks">Đội xe (Trucks)</Radio.Button>
+            </Radio.Group>
+          </div>
           <div
             onClick={() => navigate(routes.profitability)}
             style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
@@ -317,7 +324,7 @@ export const ProfitabilityRankingsTable: React.FC<ProfitabilityRankingsTableProp
             <Typography.Link style={{ fontSize: 13 }}>Chi tiết</Typography.Link>
             <RightOutlined style={{ fontSize: 10, color: "#1890ff" }} />
           </div>
-        </Space>
+        </div>
       }
       minHeight={340}
     >
@@ -328,7 +335,7 @@ export const ProfitabilityRankingsTable: React.FC<ProfitabilityRankingsTableProp
           rowKey={(r, i) => `${r.originState}-${r.destinationState}-${i}`}
           pagination={false}
           size="small"
-          scroll={{ x: 600 }}
+          scroll={{ x: 620 }}
           onRow={() => ({
             onClick: () => navigate(routes.profitability),
             style: { cursor: "pointer" },
@@ -341,7 +348,7 @@ export const ProfitabilityRankingsTable: React.FC<ProfitabilityRankingsTableProp
           rowKey={(r, i) => r.truckId || `${r.truckNumber}-${i}`}
           pagination={false}
           size="small"
-          scroll={{ x: 600 }}
+          scroll={{ x: 620 }}
           onRow={() => ({
             onClick: () => navigate(routes.resources.trucks.list),
             style: { cursor: "pointer" },

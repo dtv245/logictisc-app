@@ -33,11 +33,15 @@ export const statusTones: Readonly<Record<string, StatusTone>> = {
   feasible: "success",
   completed: "success",
   delivered: "success",
+  loaded: "success",
   paid: "success",
   succeeded: "success",
   approved: "success",
   verified: "success",
   posted: "success",
+  certified: "success",
+  safe: "success",
+  closed: "success",
 
   // processing — đang trong luồng
   assigned: "processing",
@@ -51,6 +55,9 @@ export const statusTones: Readonly<Record<string, StatusTone>> = {
   in_review: "processing",
   locked: "processing",
   payment_scheduled: "processing",
+  submitted: "processing",
+  reviewed: "processing",
+  minor: "processing",
 
   // warning — đang chờ hoặc đang bị chặn
   maintenance: "warning",
@@ -61,6 +68,9 @@ export const statusTones: Readonly<Record<string, StatusTone>> = {
   suspended: "warning",
   pending_approval: "warning",
   validation_required: "warning",
+  defect_found: "warning",
+  under_review: "warning",
+  moderate: "warning",
 
   // error — kết thúc mà không đạt mục tiêu
   cancelled: "error",
@@ -71,10 +81,17 @@ export const statusTones: Readonly<Record<string, StatusTone>> = {
   infeasible: "error",
   voided: "error",
   reversed: "error",
+  severe: "error",
+  serious: "error",
+  fatal: "error",
+  deleted: "error",
 
   // neutral — chưa bắt đầu hoặc không hoạt động
+  archived: "neutral",
   draft: "neutral",
+  empty: "neutral",
   inactive: "neutral",
+  planned: "neutral",
 };
 
 /**

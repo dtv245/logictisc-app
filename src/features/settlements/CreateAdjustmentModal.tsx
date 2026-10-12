@@ -24,6 +24,7 @@ export function CreateAdjustmentModal({ actions, currency, onCreated }: {
     <Button disabled={actions.pending} onClick={() => setOpen(true)}>{t("settlements.workflow.adjustments")}</Button>
     <Modal open={open} title={t("settlements.workflow.adjustments")} okText={t("actions.confirm")} confirmLoading={actions.pending}
       cancelButtonProps={{ disabled: actions.pending }} maskClosable={!actions.pending} keyboard={!actions.pending}
+      style={{ maxWidth: "calc(100vw - 32px)" }}
       onCancel={() => { if (!actions.pending) setOpen(false); }} onOk={async () => {
         try {
           const values = await form.validateFields();

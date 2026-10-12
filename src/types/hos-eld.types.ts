@@ -19,6 +19,7 @@ export type DutyStatus =
   | "off_duty"
   | "sleeper_berth"
   | "driving"
+  | "on_duty"
   | "on_duty_not_driving";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.

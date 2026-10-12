@@ -16,6 +16,7 @@ import {
   DEFAULT_CURRENCY,
   INITIAL_DASHBOARD_FILTERS,
 } from "../config/rankingWeights";
+import "./OperationsDashboardView.scss";
 
 export interface OperationsDashboardViewProps {
   initialFilters?: Partial<DashboardFilters>;
@@ -96,12 +97,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
   return (
     <div
-      className={className}
-      style={{
-        backgroundColor: "#f8fafc",
-        minHeight: "100vh",
-        paddingBottom: 40,
-      }}
+      className={`ops-dashboard-view ${className ?? ""}`.trim()}
     >
       {/* Sticky Top Filter Bar */}
       <TopFilterBar
@@ -113,7 +109,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         lastUpdated={lastRefreshed}
       />
 
-      <div style={{ padding: "0 24px" }}>
+      <div className="ops-overview-content">
         <Space direction="vertical" size={24} style={{ width: "100%" }}>
           {/* Row 1: KPI Cards (4-6 thẻ) */}
           <KpiCards

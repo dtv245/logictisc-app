@@ -1,24 +1,25 @@
-import { useResourceEditContract } from "./resources/useResourceEditContract";
-import { CreateButton, List, useTable, useModalForm } from "@refinedev/antd";
+import { CreateButton, List, useTable } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { useShow } from "@refinedev/core";
-import { Modal, Form } from "antd";
+import { Button, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useCallback, useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import type { ApiError } from "@/types/api.types";
 import { useEntityFilters } from "@hooks/useEntityFilters";
 import { BaseTable } from "@table";
 import { resolveAsyncState } from "@utils/asyncStateModel";
 import { AsyncStateView } from "./AsyncState";
-import { FilterBar } from "./FilterBar";
+import { ResourceListToolbar } from "./ResourceListToolbar";
 import { getResourceCapabilities } from "./resources/resourceCapabilities";
 import { ResourceCreateModal } from "./ResourceCreateModal";
+import { ResourceEditModal } from "./ResourceEditModal";
+import { ResourceModalFrame } from "./resources/ResourceModalFrame";
 import { ResourceActionContext } from "./ResourceActionContext";
-import { ResourceFormFields } from "./resources/ResourceFormFields";
 import { ResourceDetailView } from "./resources/ResourceDetailView";
+import { StatusTag } from "./StatusTag";
+import { statusTone } from "./statusTone";
 import {
   isEditableResourceName,
   resourceFormDefinitions,
@@ -53,44 +54,24 @@ export const ResourceListPage = <TData extends BaseRecord>({
     syncWithLocation: true,
   });
 
-  // Filter sống trên URL nhờ `syncWithLocation` ở trên; hook chỉ dịch qua lại giữa
-  // `CrudFilter[]` và giá trị `FilterBar` hiển thị được.
   const entityFilters = useEntityFilters(resource, {
     filters,
     setCurrent,
     setFilters,
   });
 
-  const editModal = useModalForm<BaseRecord, ApiError, Record<string, unknown>>({
-    action: "edit",
-    resource,
-    // Lỗi validation của backend gắn vào đúng field đang sửa — xem `ResourceCreateModal`.
-    onMutationError: (error) => {
-      applyBackendFieldErrors(editModal.form, error.errors ?? {});
-      editContract.reportError(error);
-    },
-  });
-
-  const editContract = useResourceEditContract(resource, editModal.form, editModal.queryResult?.data?.data, Boolean(editModal.modalProps.open));
+  const [editId, setEditId] = useState<string | number | null>(null);
 
   const { queryResult: showQueryResult, showId, setShowId } = useShow<BaseRecord, ApiError>({
     resource,
   });
 
   const isEditable = isEditableResourceName(resource);
-  // `isEditableResourceName` là type predicate nên `resource` đã được thu hẹp, không cần ép kiểu.
   const definition = isEditable ? resourceFormDefinitions[resource] : null;
 
-  // Tên resource lấy từ cùng khoá locale mà menu dùng, để tiêu đề modal khớp menu.
   const resourceLabel = t(`resources.${resource}`);
 
-  // `editModal.show` đổi identity mỗi lần render, nên phải bọc `useCallback` trước khi memo
-  // value — nếu không, `ActionButtons` (consumer) re-render theo mọi lần render của list.
-  const { show: showEditModal } = editModal;
-  const showEdit = useCallback(
-    (id: string | number) => showEditModal(id),
-    [showEditModal],
-  );
+  const showEdit = useCallback((id: string | number) => setEditId(id), []);
   const showView = useCallback((id: string | number) => setShowId(id), [setShowId]);
   const actionContext = useMemo(
     () => ({ showEdit, showView }),
@@ -127,54 +108,109 @@ export const ResourceListPage = <TData extends BaseRecord>({
         : headerButtons
       : defaultCreateButton;
 
+  const totalCount =
+    typeof tableProps.pagination === "object" && tableProps.pagination?.total !== undefined
+      ? tableProps.pagination.total
+      : (tableQueryResult.data?.total ?? (Array.isArray(tableProps.dataSource) ? tableProps.dataSource.length : undefined));
+
   return (
     <ResourceActionContext.Provider value={actionContext}>
-      <List headerButtons={resolvedHeaderButtons}>
-        {entityFilters.controls.length > 0 ? (
-          <FilterBar
+      <List
+        breadcrumb={<></>}
+        canCreate={false}
+        headerButtons={<></>}
+        title={<></>}
+        wrapperProps={{ className: "resource-list-page" }}
+      >
+        <div className="resource-list-card">
+          <ResourceListToolbar
             controls={entityFilters.controls}
-            onChange={entityFilters.setFilter}
-            onReset={entityFilters.reset}
-            value={entityFilters.value}
+            filterValues={entityFilters.value}
+            headerButtons={resolvedHeaderButtons}
+            isFetching={tableQueryResult.isFetching}
+            onFilterChange={entityFilters.setFilter}
+            onFilterReset={entityFilters.reset}
+            onRefresh={() => void tableQueryResult.refetch()}
+            resource={resource}
+            resourceLabel={resourceLabel}
+            totalCount={totalCount}
           />
-        ) : null}
 
-        {/* Việc xử lý lỗi/đang tải/rỗng của bảng nằm trong `BaseTable` — xem chú thích
-            ở đó để biết vì sao chỉ nhánh lỗi mới thay hẳn bảng. */}
-        <BaseTable<TData>
-          columns={localizedColumns}
-          queryResult={{
-            error: tableQueryResult.error,
-            isFetching: tableQueryResult.isFetching,
-            refetch: tableQueryResult.refetch,
-          }}
-          tableProps={tableProps}
-        />
+          {/* Việc xử lý lỗi/đang tải/rỗng của bảng nằm trong `BaseTable` — xem chú thích
+              ở đó để biết vì sao chỉ nhánh lỗi mới thay hẳn bảng. */}
+          <BaseTable<TData>
+            columns={localizedColumns}
+            queryResult={{
+              error: tableQueryResult.error,
+              isFetching: tableQueryResult.isFetching,
+              refetch: tableQueryResult.refetch,
+            }}
+            tableProps={tableProps}
+          />
+        </div>
       </List>
 
-      {isEditable && capabilities.edit && definition && (
-        <Modal
-          {...editModal.modalProps}
-          destroyOnClose
-          width={860}
-          title={t("crud.editTitle", { resource: resourceLabel })}
-          okText={t("actions.save")}
-          confirmLoading={editModal.formLoading}
-        >
-          {editContract.feedback}
-          <Form {...editModal.formProps} onValuesChange={(changed, values) => { editContract.onValuesChange(changed, values); editModal.formProps.onValuesChange?.(changed, values); }} onFinish={(values) => editModal.formProps.onFinish?.(editContract.prepare(values))} layout="vertical">
-            <ResourceFormFields columns={2} definition={definition} />
-          </Form>
-        </Modal>
+      {isEditable && capabilities.edit && (
+        <ResourceEditModal
+          id={editId}
+          onClose={() => setEditId(null)}
+          resource={resource}
+          visible={Boolean(editId)}
+        />
       )}
 
       {Boolean(showId) && (
-        <Modal
-          destroyOnClose
-          footer={null}
+        <ResourceModalFrame
+          className="resource-view-modal"
+          destroyOnHidden
+          footer={
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, width: "100%", flexWrap: "wrap" }}>
+              <Button onClick={() => setShowId(undefined)}>
+                {t("actions.cancel", "Đóng")}
+              </Button>
+              {capabilities.edit && isEditable && (
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    const idToEdit = showId;
+                    setShowId(undefined);
+                    if (idToEdit) {
+                      showEdit(idToEdit);
+                    }
+                  }}
+                >
+                  {t("actions.edit", "Sửa")}
+                </Button>
+              )}
+            </div>
+          }
+          formId="view-resource-modal"
+          maskClosable={true}
           onCancel={() => setShowId(undefined)}
           open={!!showId}
-          title={t("crud.viewTitle", { resource: resourceLabel })}
+          title={
+            <Space align="center" wrap>
+              <span>{t("crud.viewTitle", { resource: resourceLabel })}</span>
+              {showQueryResult?.data?.data && (
+                <>
+                  {(showQueryResult.data.data.number || showQueryResult.data.data.name) && (
+                    <span style={{ color: "rgba(0, 0, 0, 0.45)", fontWeight: "normal" }}>
+                      #{String(showQueryResult.data.data.number || showQueryResult.data.data.name)}
+                    </span>
+                  )}
+                  {showQueryResult.data.data.status && (
+                    <StatusTag
+                      label={t(
+                        `forms.options.${String(showQueryResult.data.data.status).toLowerCase()}`,
+                        { defaultValue: String(showQueryResult.data.data.status) },
+                      )}
+                      tone={statusTone(String(showQueryResult.data.data.status))}
+                    />
+                  )}
+                </>
+              )}
+            </Space>
+          }
           width={860}
         >
           <AsyncStateView
@@ -190,7 +226,7 @@ export const ResourceListPage = <TData extends BaseRecord>({
               />
             )}
           </AsyncStateView>
-        </Modal>
+        </ResourceModalFrame>
       )}
     </ResourceActionContext.Provider>
   );

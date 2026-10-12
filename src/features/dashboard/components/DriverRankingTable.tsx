@@ -99,13 +99,16 @@ export const DriverRankingTable: React.FC<DriverRankingTableProps> = ({
     {
       title: "Hạng",
       key: "rank",
-      width: 65,
+      width: 60,
       align: "center",
+      fixed: "left",
       render: (_, record) => getRankBadge(record.rank),
     },
     {
       title: "Tài xế",
       key: "driverName",
+      width: 150,
+      fixed: "left",
       render: (_, record) => (
         <Space size={10}>
           <Avatar
@@ -115,8 +118,8 @@ export const DriverRankingTable: React.FC<DriverRankingTableProps> = ({
           >
             {record.driverName.charAt(0)}
           </Avatar>
-          <div>
-            <Typography.Text strong style={{ fontSize: 13, color: "#111827", display: "block" }}>
+          <div style={{ minWidth: 0 }}>
+            <Typography.Text strong ellipsis style={{ fontSize: 13, color: "#111827", display: "block", maxWidth: 90 }}>
               {record.driverName}
             </Typography.Text>
             <Typography.Text type="secondary" style={{ fontSize: 11 }}>
@@ -215,18 +218,21 @@ export const DriverRankingTable: React.FC<DriverRankingTableProps> = ({
       error={error}
       onRetry={onRetry}
       extra={
-        <Space wrap size={10}>
-          <Radio.Group
-            value={sortBy}
-            onChange={(e) => onSortChange(e.target.value)}
-            size="small"
-            buttonStyle="solid"
-          >
-            <Radio.Button value="score">Điểm tổng hợp</Radio.Button>
-            <Radio.Button value="revenue">Doanh thu</Radio.Button>
-            <Radio.Button value="totalMiles">Dặm</Radio.Button>
-            <Radio.Button value="onTimePercent">Đúng giờ</Radio.Button>
-          </Radio.Group>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, maxWidth: "100%" }}>
+          <div style={{ overflowX: "auto", maxWidth: "100%", paddingBottom: 2 }}>
+            <Radio.Group
+              value={sortBy}
+              onChange={(e) => onSortChange(e.target.value)}
+              size="small"
+              buttonStyle="solid"
+              style={{ whiteSpace: "nowrap" }}
+            >
+              <Radio.Button value="score">Điểm tổng hợp</Radio.Button>
+              <Radio.Button value="revenue">Doanh thu</Radio.Button>
+              <Radio.Button value="totalMiles">Dặm</Radio.Button>
+              <Radio.Button value="onTimePercent">Đúng giờ</Radio.Button>
+            </Radio.Group>
+          </div>
 
           <Button
             type="link"
@@ -236,7 +242,7 @@ export const DriverRankingTable: React.FC<DriverRankingTableProps> = ({
           >
             Tất cả tài xế <RightOutlined style={{ fontSize: 10 }} />
           </Button>
-        </Space>
+        </div>
       }
       minHeight={340}
     >
@@ -246,7 +252,7 @@ export const DriverRankingTable: React.FC<DriverRankingTableProps> = ({
         rowKey="driverId"
         pagination={false}
         size="small"
-        scroll={{ x: 720 }}
+        scroll={{ x: 740 }}
         onRow={() => ({
           onClick: () => navigate(routes.resources.employees.list),
           style: { cursor: "pointer" },

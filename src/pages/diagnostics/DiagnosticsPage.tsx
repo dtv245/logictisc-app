@@ -30,8 +30,8 @@ export function DiagnosticsPage({
   const { t } = useTranslation();
 
   return (
-    <main aria-labelledby={titleId}>
-      <Card>
+    <main aria-labelledby={titleId} className="diagnostics-page">
+      <Card className="diagnostics-card">
         <Flex gap="middle" vertical>
           <PageHeader
             description={t("diagnostics.description")}
@@ -41,10 +41,13 @@ export function DiagnosticsPage({
 
           <Descriptions
             bordered
+            className="diagnostics-descriptions"
             column={{
               xs: 1,
               sm: 2,
+              md: 2,
               lg: 3,
+              xl: 3,
             }}
             layout="vertical"
             size="small"
@@ -52,17 +55,23 @@ export function DiagnosticsPage({
             <Descriptions.Item
               label={t("diagnostics.fields.environment")}
             >
-              {state.config.environment}
+              <Typography.Text className="diagnostics-value">
+                {state.config.environment}
+              </Typography.Text>
             </Descriptions.Item>
             <Descriptions.Item
               label={t("diagnostics.fields.application")}
             >
-              {state.health.application}
+              <Typography.Text className="diagnostics-value">
+                {state.health.application}
+              </Typography.Text>
             </Descriptions.Item>
             <Descriptions.Item
               label={t("diagnostics.fields.profiles")}
             >
-              {state.health.profiles}
+              <Typography.Text className="diagnostics-value">
+                {state.health.profiles}
+              </Typography.Text>
             </Descriptions.Item>
             <Descriptions.Item
               label={t("diagnostics.fields.status")}
@@ -85,6 +94,7 @@ export function DiagnosticsPage({
             >
               <Typography.Text
                 code
+                className="diagnostics-request-id"
                 copyable={{
                   text: state.requestId,
                   tooltips: [

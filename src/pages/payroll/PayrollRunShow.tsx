@@ -30,16 +30,16 @@ function RunDetail({ run }: { run: PayrollRun }) {
     { key: "audit", label: t("settlements.workflow.audit"), view: <><Alert type="info" message={t("payroll.auditLimit")} /><Descriptions bordered column={{ xs: 1, sm: 2 }} items={
       (["calculatedAt", "approvedAt", "lockedAt", "completedAt"] as const).map((field) => ({ key: field, label: t(`payroll.${field}`), children: formatDateTime(run[field], { locale: i18n.language }) }))} /></> }];
   return <Space direction="vertical" size="large" style={{ width: "100%" }}>
-    <PageHeader title={run.runNumber} extra={<Button onClick={() => navigate(routes.payroll)}>{t("payroll.openAnother")}</Button>} />
+    <PageHeader title={<span style={{ wordBreak: "break-all" }}>{run.runNumber}</span>} extra={<Button onClick={() => navigate(routes.payroll)} style={{ minHeight: 38 }}>{t("payroll.openAnother")}</Button>} />
     <Descriptions column={{ xs: 1, sm: 2 }} items={[
       { key: "status", label: t("finance.workflowStatus"), children: <StatusTag tone={statusTone(run.status)} label={t(`payroll.statuses.${run.status}`, { defaultValue: run.status })} /> },
-      { key: "period", label: t("settlements.payPeriod"), children: run.payPeriodId },
+      { key: "period", label: t("settlements.payPeriod"), children: <span style={{ wordBreak: "break-all" }}>{run.payPeriodId}</span> },
       { key: "date", label: t("payroll.effectiveDate"), children: formatDateOnly(run.effectiveDate, { locale: i18n.language }) },
       { key: "currency", label: t("finance.currency"), children: run.currency },
     ]} />
     {!payrollIsValidated(run) && <Alert type="warning" showIcon message={t("payroll.statuses.VALIDATION_REQUIRED")} description={run.validationReason ? t(`payroll.errors.${run.validationReason}`, { defaultValue: run.validationReason }) : t("payroll.validationIncomplete")} />}
     <PayrollActions actions={actions} />
-    <Tabs activeKey={tab} onChange={setTab} items={tabs.map(({ key, label, view }) => ({ key, label, children: tab === key ? view : null }))} />
+    <Tabs activeKey={tab} onChange={setTab} style={{ maxWidth: "100%" }} items={tabs.map(({ key, label, view }) => ({ key, label, children: tab === key ? view : null }))} />
   </Space>;
 }
 export function PayrollRunShow() {

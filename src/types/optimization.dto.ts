@@ -25,23 +25,55 @@ export interface OptimizationProvenance {
   source: { type: string; reference: string; version: string; classification: "AUTHORITATIVE_DB" | "TRUSTED_ADAPTER" }; context: OptimizationScope & { planningStart: string; planningEnd: string };
   evidenceReference: string; evidenceVersion: string; unit: string; observedAt: string; expiresAt: string; maxAgeSeconds: number;
 }
+export type LngLatCoordinate = [number, number];
+export interface RouteGeometryDTO {
+  vehicleCoordinates?: LngLatCoordinate | { lng: number; lat: number } | { longitude: number; latitude: number };
+  pickupCoordinates?: LngLatCoordinate | { lng: number; lat: number } | { longitude: number; latitude: number };
+  deliveryCoordinates?: LngLatCoordinate | { lng: number; lat: number } | { longitude: number; latitude: number };
+  deadheadPolyline?: string | LngLatCoordinate[];
+  loadedPolyline?: string | LngLatCoordinate[];
+}
 export interface OptimizationExplanation {
   context: OptimizationScope & { planningStart: string; planningEnd: string };
-  evidence: { route: { value: { deadhead: { normalizedMiles: OptimizationDecimal | null; originalValue: OptimizationDecimal; originalUnit: string };
-    loadAttributedLoadedMiles: { normalizedMiles: OptimizationDecimal | null; originalValue: OptimizationDecimal; originalUnit: string };
-    appointmentStart: string | null; predictedArrivalAtPickup: string | null; pickupReachable: boolean;
-    simulatedRoutePlanReference: string; simulatedRoutePlanVersion: string }; provenance: OptimizationProvenance } | null };
-  hos: { value: { ruleSetCode: string; ruleSetVersion: string; simulatedRoutePlanReference: string; simulatedRoutePlanVersion: string;
-    driveFeasible: boolean; dutyFeasible: boolean; breakFeasible: boolean; cycleFeasible: boolean; serviceFeasible: boolean;
-    nextAvailableFeasible: boolean; minimumHosHeadroomRatio: OptimizationDecimal | null }; provenance: OptimizationProvenance } | null;
+  evidence: {
+    route: {
+      value: {
+        deadhead: { normalizedMiles: OptimizationDecimal | null; originalValue: OptimizationDecimal; originalUnit: string };
+        loadAttributedLoadedMiles: { normalizedMiles: OptimizationDecimal | null; originalValue: OptimizationDecimal; originalUnit: string };
+        appointmentStart: string | null; predictedArrivalAtPickup: string | null; pickupReachable: boolean;
+        simulatedRoutePlanReference: string; simulatedRoutePlanVersion: string;
+        vehicleCoordinates?: LngLatCoordinate | { lng: number; lat: number } | { longitude: number; latitude: number };
+        pickupCoordinates?: LngLatCoordinate | { lng: number; lat: number } | { longitude: number; latitude: number };
+        deliveryCoordinates?: LngLatCoordinate | { lng: number; lat: number } | { longitude: number; latitude: number };
+        deadheadPolyline?: string | LngLatCoordinate[];
+        loadedPolyline?: string | LngLatCoordinate[];
+      };
+      provenance: OptimizationProvenance;
+    } | null;
+    location?: {
+      value: { latitude: number; longitude: number } | LngLatCoordinate;
+      provenance: OptimizationProvenance;
+    } | null;
+  };
+  hos: {
+    value: {
+      ruleSetCode: string; ruleSetVersion: string; simulatedRoutePlanReference: string; simulatedRoutePlanVersion: string;
+      driveFeasible: boolean; dutyFeasible: boolean; breakFeasible: boolean; cycleFeasible: boolean; serviceFeasible: boolean;
+      nextAvailableFeasible: boolean; minimumHosHeadroomRatio: OptimizationDecimal | null;
+      usedDrivingHours?: number | null; remainingDrivingHours?: number | null; maxDrivingHours?: number | null;
+    };
+    provenance: OptimizationProvenance;
+  } | null;
   forecast: { ratingSnapshotId: string; forecastCostIds: string[]; currency: string; expectedRevenue: OptimizationDecimal | null;
     expectedVariableCost: OptimizationDecimal | null; expectedContributionMargin: OptimizationDecimal | null } | null;
   feasible: boolean; rejectionCodes: string[]; score: OptimizationScore | null; databaseStateFingerprint: string | null;
+  routeGeometry?: RouteGeometryDTO;
 }
 export interface OptimizationCandidate {
   id: string; runId: string; loadId: string; tripId: string; driverId: string; truckId: string; ratingSnapshotId: string | null;
   feasible: boolean; rejectionCodes: string[]; finalScore: OptimizationDecimal | null; rank: number | null;
   inputFingerprint: string; explanation: OptimizationExplanation;
+  routeGeometry?: RouteGeometryDTO;
 }
 export interface OptimizationOutcome {
   run: { id: string; policyId: string; createdAt: string; planningUntil: string; createdBy: string;

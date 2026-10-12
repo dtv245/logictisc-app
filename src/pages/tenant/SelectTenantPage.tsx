@@ -20,7 +20,7 @@ export const SelectTenantPage = () => {
     <main className="auth-page">
       <Card className="tenant-card">
         <Space direction="vertical" size="large" className="full-width">
-          <div>
+          <div className="tenant-card-header">
             <Typography.Title level={2}>{t("tenant.title")}</Typography.Title>
             <Typography.Text type="secondary">
               {t("tenant.description")}
@@ -32,29 +32,42 @@ export const SelectTenantPage = () => {
               type="warning"
               showIcon
             />
+          ) : isLoading ? (
+            <Card loading size="small" className="tenant-item-card" />
           ) : (
-            <Card loading={isLoading} size="small">
-              <Space direction="vertical" size="middle">
-                <Space>
-                  <BankOutlined />
-                  <Typography.Text strong>
-                    {tenants[0]?.tenantName}
-                  </Typography.Text>
-                  <Typography.Text type="secondary">
-                    {tenants[0]?.tenantKey}
-                  </Typography.Text>
-                </Space>
-                <Button
-                  loading={tenantSwitch.isLoading}
-                  onClick={() =>
-                    void tenantSwitch.switchTenant().catch(showApiError)
-                  }
-                  type="primary"
-                >
-                  {t("tenant.reauthenticate")}
-                </Button>
-              </Space>
-            </Card>
+            <div className="tenant-items-list">
+              {tenants.map((tenant) => (
+                <Card key={tenant.tenantKey} size="small" className="tenant-item-card">
+                  <div className="tenant-item-content">
+                    <div className="tenant-item-info">
+                      <BankOutlined className="tenant-item-icon" aria-hidden="true" />
+                      <div className="tenant-item-meta">
+                        <Typography.Text
+                          strong
+                          className="tenant-item-name"
+                          ellipsis={{ tooltip: tenant.tenantName }}
+                        >
+                          {tenant.tenantName}
+                        </Typography.Text>
+                        <Typography.Text type="secondary" className="tenant-item-key">
+                          {tenant.tenantKey}
+                        </Typography.Text>
+                      </div>
+                    </div>
+                    <Button
+                      className="tenant-switch-btn"
+                      loading={tenantSwitch.isLoading}
+                      onClick={() =>
+                        void tenantSwitch.switchTenant().catch(showApiError)
+                      }
+                      type="primary"
+                    >
+                      {t("tenant.reauthenticate")}
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
           )}
         </Space>
       </Card>

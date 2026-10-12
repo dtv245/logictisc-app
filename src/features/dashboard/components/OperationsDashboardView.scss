@@ -1,0 +1,15 @@
+@use "../../../styles/variables" as v;
+
+.ops-dashboard-view {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+.ops-overview-content {
+  padding: 0 24px;
+
+  @media (max-width: 767px) {
+    padding: 0 12px;
+  }
+}

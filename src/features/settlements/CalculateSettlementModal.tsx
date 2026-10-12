@@ -62,6 +62,7 @@ export const CalculateSettlementModal = ({
       cancelButtonProps={{ disabled: isCalculating }}
       maskClosable={!isCalculating}
       keyboard={!isCalculating}
+      style={{ maxWidth: "calc(100vw - 32px)" }}
       okText={t("settlements.calculateAction", "Calculate")}
       cancelText={t("common.cancel", "Cancel")}
     >

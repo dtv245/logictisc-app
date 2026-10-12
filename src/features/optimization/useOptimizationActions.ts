@@ -61,6 +61,6 @@ export function useOptimizationActions(outcome?: OptimizationOutcome) {
       open?.({ type: "error", message: t("optimization.actionFailed"), description: failure.message }); throw failure;
     } finally { flight.current = false; setPending(false); }
   };
-  return { canRun, canAccept, execute, pending, error, accepted };
+  return { canRun, canAccept, execute, pending, error, accepted, conflict };
 }
 export type OptimizationActionsResult = ReturnType<typeof useOptimizationActions>;
