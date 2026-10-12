@@ -14,8 +14,10 @@ const isFormField = (name: unknown): name is keyof EvidenceForm => typeof name =
 export function ReconcilePayrollPaymentModal({ evidenceCase, actions }: { evidenceCase: PayrollReconciliationCase; actions: PayrollPaymentActionsResult }) {
   const { t, i18n } = useTranslation(); const [open, setOpen] = useState(false); const [form] = Form.useForm<EvidenceForm>(); const [key, setKey] = useState(() => crypto.randomUUID());
   if (!actions.canReconcile) return null;
-  return <><Button disabled={actions.pending} onClick={() => setOpen(true)}>{t("payroll.reconcileEvidence")}</Button>
-    <Modal open={open} title={t("payroll.reconcileEvidence")} okText={t("actions.confirm")} confirmLoading={actions.pending} width={640}
+  return <><Button disabled={actions.pending} onClick={() => setOpen(true)} style={{ minHeight: 36 }}>{t("payroll.reconcileEvidence")}</Button>
+    <Modal open={open} title={t("payroll.reconcileEvidence")} okText={t("actions.confirm")} confirmLoading={actions.pending}
+      width="min(640px, calc(100vw - 24px))" style={{ maxWidth: "100%", top: 20 }}
+      styles={{ body: { maxHeight: "calc(100dvh - 200px)", overflowY: "auto", overflowX: "hidden" } }}
       cancelButtonProps={{ disabled: actions.pending }} maskClosable={!actions.pending} keyboard={!actions.pending} onCancel={() => { if (!actions.pending) setOpen(false); }} onOk={async () => {
         try { const values = await form.validateFields(); const result = await actions.execute({ action: "reconcile", paymentId: evidenceCase.paymentId, payload: {
           idempotencyKey: key, caseEventId: evidenceCase.caseEventId, bankSource: values.bankSource.trim(), transactionReference: values.transactionReference.trim(),
@@ -29,7 +31,7 @@ export function ReconcilePayrollPaymentModal({ evidenceCase, actions }: { eviden
           /* Preserve evidence/replay key; show normalized workflow error. */
         }
       }}>
-      <Alert type="warning" showIcon message={t("payroll.reconcileConfirm")} description={financialAmount(evidenceCase.amount, evidenceCase.currency, i18n.language)} />
+      <Alert type="warning" showIcon message={t("payroll.reconcileConfirm")} description={<strong style={{ fontSize: 16 }}>{financialAmount(evidenceCase.amount, evidenceCase.currency, i18n.language)}</strong>} />
       <PayrollActionError error={actions.error} />
       <Form form={form} layout="vertical">
         {(["bankSource", "transactionReference", "counterpartyReference", "evidenceReference", "reason"] as const).map((name) => <Form.Item key={name} name={name} label={t(`payroll.${name}`)} rules={[{ required: true, whitespace: true, max: name === "bankSource" ? 100 : ["evidenceReference", "reason"].includes(name) ? 500 : 200 }]}>

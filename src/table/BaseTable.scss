@@ -1,0 +1,216 @@
+@use "@/styles/variables" as v;
+@use "@/styles/mixins" as m;
+
+.base-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: v.$color-bg-container;
+  border-radius: v.$radius-lg;
+  border: 1px solid v.$color-border-secondary;
+  overflow: hidden;
+  transition: min-height v.$transition-base;
+
+  // Giữ chiều cao tối thiểu để không co giật layout khi tải lại hoặc đổi trang
+  &--loading {
+    min-height: 380px;
+  }
+
+  // Tinh chỉnh Ant Table
+  .ant-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    .ant-table-container {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .ant-table-content {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ant-table {
+      width: 100%;
+      min-width: 0;
+      font-size: v.$font-size-sm;
+      background: v.$color-bg-container;
+
+      // Header neutral nhạt, viền dưới rõ ràng, sticky khi cuộn dọc
+      .ant-table-thead > tr > th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: v.$color-bg-subtle;
+        color: v.$color-text;
+        font-weight: v.$font-weight-semibold;
+        font-size: v.$font-size-sm;
+        padding: 12px 14px;
+        border-bottom: 1px solid v.$color-border;
+        white-space: nowrap;
+
+        &::before {
+          background-color: v.$color-border;
+        }
+
+        &.ant-table-column-has-sorters:hover {
+          background: v.$color-bg-hover;
+        }
+      }
+
+      // Thân bảng & Hàng
+      .ant-table-tbody > tr {
+        transition: background-color v.$transition-fast;
+
+        > td {
+          padding: 12px 14px;
+          border-bottom: 1px solid v.$color-border-light;
+          color: v.$color-text;
+          font-size: v.$font-size-sm;
+
+          // Căn phải dùng tabular-nums
+          &.ant-table-cell-align-right,
+          &[style*="text-align: right"],
+          &.table-cell-numeric {
+            font-variant-numeric: tabular-nums;
+          }
+        }
+
+        &:hover > td {
+          background: v.$color-bg-hover;
+        }
+
+        &:last-child > td {
+          border-bottom: none;
+        }
+      }
+
+      // Cột cố định đổ bóng nhẹ khi cuộn ngang
+      .ant-table-cell-fix-right {
+        background: v.$color-bg-container;
+        box-shadow: -4px 0 8px -2px rgba(15, 23, 42, 0.08);
+      }
+
+      .ant-table-cell-fix-left {
+        background: v.$color-bg-container;
+        box-shadow: 4px 0 8px -2px rgba(15, 23, 42, 0.08);
+      }
+
+      .ant-table-thead .ant-table-cell-fix-right,
+      .ant-table-thead .ant-table-cell-fix-left {
+        background: v.$color-bg-subtle;
+      }
+    }
+
+    // Thanh phân trang căn phải, gọn gàng
+    .ant-pagination {
+      margin: v.$spacing v.$spacing-md;
+      align-items: center;
+
+      .ant-pagination-total-text {
+        font-size: v.$font-size-xs;
+        color: v.$color-text-secondary;
+        font-variant-numeric: tabular-nums;
+        margin-inline-end: auto;
+      }
+
+      .ant-pagination-item-active {
+        font-weight: v.$font-weight-semibold;
+      }
+    }
+  }
+
+  // Cell text ellipsis
+  .base-table-cell-ellipsis {
+    @include m.text-truncate;
+    display: inline-block;
+    max-width: 100%;
+    vertical-align: middle;
+  }
+
+  // Responsive dưới 768px: cuộn ngang mượt mà
+  @media (max-width: v.$breakpoint-md) {
+    border-radius: v.$radius-md;
+
+    .ant-table-wrapper {
+      .ant-table-content {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .ant-pagination {
+        margin: v.$spacing-sm;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: v.$spacing-xs;
+
+        .ant-pagination-total-text {
+          width: 100%;
+          text-align: center;
+          margin-bottom: v.$spacing-xxs;
+        }
+
+        .ant-pagination-options {
+          margin-inline-start: 0;
+        }
+      }
+    }
+  }
+}
+
+// Wrapper căn giữa cho EmptyState trong bảng
+.app-empty-state {
+  padding: v.$spacing-xl v.$spacing-md;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .ant-empty-description {
+    color: v.$color-text-secondary;
+  }
+
+  &__title {
+    font-size: v.$font-size-base;
+    color: v.$color-text;
+  }
+
+  &__description {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-secondary;
+  }
+}
+
+// Wrapper căn giữa cho QueryErrorState
+.query-error-state-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 360px;
+  padding: v.$spacing-lg;
+  background: v.$color-bg-container;
+  border-radius: v.$radius-lg;
+  border: 1px solid v.$color-border-secondary;
+
+  .ant-result-title {
+    color: v.$color-text;
+    font-size: v.$font-size-lg;
+    font-weight: v.$font-weight-semibold;
+  }
+
+  .ant-result-subtitle {
+    color: v.$color-text-secondary;
+    font-size: v.$font-size-base;
+  }
+
+  .ant-btn-primary {
+    &:focus-visible {
+      outline: 2px solid v.$color-primary;
+      outline-offset: 2px;
+    }
+  }
+}

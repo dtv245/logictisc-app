@@ -1,6 +1,6 @@
-/** Explicit candidate/evidence scope; never discovers or prefetches the rest of the application. */
-import { Alert, Button, Card, Divider, Form, Input, Modal, Space, Typography } from "antd";
-import { useState } from "react";
+import { Alert, Button, Card, Divider, Form, Input, Modal, Space, Tag, Typography, theme } from "antd";
+import { useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FormGrid } from "@/forms/FormGrid";
 import { applyBackendFieldErrors, type FormFieldName } from "@/forms/backendFieldErrors";
@@ -55,9 +55,35 @@ export function OptimizationRunForm({
   onCreated: (outcome: OptimizationOutcome) => void;
 }) {
   const { t } = useTranslation();
+  const { token } = theme.useToken();
   const [form] = Form.useForm<RunForm>();
   const [proposal, setProposal] = useState<CreateOptimizationRequest | null>(null);
   const [key, setKey] = useState(() => crypto.randomUUID());
+
+  const location = useLocation();
+  const replay = (location.state as { replayRequest?: CreateOptimizationRequest } | null)?.replayRequest;
+  const initialValues = useMemo(() => {
+    if (replay) {
+      return {
+        policyId: replay.policyId,
+        driverIds: replay.driverIds.join(", "),
+        truckIds: replay.truckIds.join(", "),
+        targets: replay.targets,
+        sourceSelections: replay.sourceSelections,
+      };
+    }
+    return { targets: [{}], sourceSelections: [] };
+  }, [replay]);
+
+  const watchedTargets = Form.useWatch("targets", form);
+  const watchedDrivers = Form.useWatch("driverIds", form);
+  const watchedTrucks = Form.useWatch("truckIds", form);
+
+  const targetCount = Array.isArray(watchedTargets) ? watchedTargets.length : 0;
+  const driverCount = typeof watchedDrivers === "string" ? ids(watchedDrivers).length : 0;
+  const truckCount = typeof watchedTrucks === "string" ? ids(watchedTrucks).length : 0;
+  const candidateCount = targetCount * driverCount * truckCount;
+  const isOverLimit = candidateCount > 200;
 
   const uuidRules = [
     { required: true },
@@ -103,11 +129,44 @@ export function OptimizationRunForm({
         layout="vertical"
         scrollToFirstError={{ behavior: "smooth", block: "center" }}
         disabled={actions.pending}
-        initialValues={{ targets: [{}], sourceSelections: [] }}
+        initialValues={initialValues}
         onValuesChange={() => setKey(crypto.randomUUID())}
         onFinish={submit}
       >
-        <Alert type="info" message={t("optimization.runHelp")} style={{ marginBottom: 20 }} />
+        <Alert type="info" message={t("optimization.runHelp")} style={{ marginBottom: 16 }} />
+
+        {/* Real-time candidate scope scale counter & invariant limit preview */}
+        <div
+          role="status"
+          aria-live="polite"
+          className="optimization-scale-counter"
+          style={{
+            background: isOverLimit ? token.colorErrorBg : token.colorFillAlter,
+            border: `1px solid ${isOverLimit ? token.colorErrorBorder : token.colorBorderSecondary}`,
+            borderRadius: token.borderRadiusLG,
+          }}
+        >
+          <Space wrap size="middle">
+            <Typography.Text strong>
+              {t("optimization.candidateScaleLabel", { defaultValue: "Quy mô ứng viên dự kiến:" })}
+            </Typography.Text>
+            <Tag
+              color={isOverLimit ? "error" : candidateCount > 0 ? "processing" : "default"}
+              className="tabular-nums"
+              style={{ fontSize: 13, padding: "2px 8px" }}
+            >
+              {candidateCount} / 200
+            </Tag>
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+              ({targetCount} {t("optimization.targetsLabel", { defaultValue: "mục tiêu" })} × {driverCount} {t("optimization.driversLabel", { defaultValue: "tài xế" })} × {truckCount} {t("optimization.trucksLabel", { defaultValue: "xe" })})
+            </Typography.Text>
+          </Space>
+          {isOverLimit && (
+            <Typography.Text type="danger" strong>
+              ⚠️ {t("optimization.scopeTooLarge")}
+            </Typography.Text>
+          )}
+        </div>
 
         {/* Section 1: Published Policy & Resource Scope (3 inputs <= 7) */}
         <div style={{ marginBottom: 24 }}>
@@ -130,32 +189,44 @@ export function OptimizationRunForm({
                   </Form.Item>
                 ),
               },
-              ...(["driverIds", "truckIds"] as const).map((name) => ({
-                key: name,
-                node: (
-                  <Form.Item
-                    name={name}
-                    label={t(`optimization.${name}`)}
-                    rules={[
-                      { required: true },
-                      {
-                        validator: async (_, value: string | undefined) => {
-                          const entries = value ? ids(value) : [];
-                          if (
-                            !entries.length ||
-                            entries.some((id) => !isUuid(id)) ||
-                            new Set(entries).size !== entries.length
-                          ) {
-                            throw new Error(t("optimization.invalidIds"));
-                          }
+              ...(["driverIds", "truckIds"] as const).map((name) => {
+                const currentCount = name === "driverIds" ? driverCount : truckCount;
+                return {
+                  key: name,
+                  node: (
+                    <Form.Item
+                      name={name}
+                      label={t(`optimization.${name}`)}
+                      extra={
+                        currentCount > 0 ? (
+                          <Typography.Text type="secondary" className="tabular-nums">
+                            {name === "driverIds"
+                              ? t("optimization.detectedDrivers", { defaultValue: `Đã phát hiện: ${currentCount} tài xế`, count: currentCount })
+                              : t("optimization.detectedTrucks", { defaultValue: `Đã phát hiện: ${currentCount} xe`, count: currentCount })}
+                          </Typography.Text>
+                        ) : undefined
+                      }
+                      rules={[
+                        { required: true },
+                        {
+                          validator: async (_, value: string | undefined) => {
+                            const entries = value ? ids(value) : [];
+                            if (
+                              !entries.length ||
+                              entries.some((id) => !isUuid(id)) ||
+                              new Set(entries).size !== entries.length
+                            ) {
+                              throw new Error(t("optimization.invalidIds"));
+                            }
+                          },
                         },
-                      },
-                    ]}
-                  >
-                    <Input.TextArea rows={2} placeholder="UUID 1, UUID 2..." />
-                  </Form.Item>
-                ),
-              })),
+                      ]}
+                    >
+                      <Input.TextArea rows={2} placeholder="UUID 1, UUID 2..." />
+                    </Form.Item>
+                  ),
+                };
+              }),
             ]}
           />
         </div>
@@ -305,16 +376,12 @@ export function OptimizationRunForm({
 
         {/* Footer: Exactly 1 primary button, separate reset button */}
         <div
+          className="optimization-form-actions"
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginTop: 24,
-            paddingTop: 16,
-            borderTop: "1px solid #f0f0f0",
+            borderTop: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          <Button onClick={() => form.resetFields()} disabled={actions.pending}>
+          <Button onClick={() => form.resetFields()} disabled={actions.pending} aria-label={t("common.reset")}>
             {t("common.reset")}
           </Button>
           <Button
@@ -322,6 +389,7 @@ export function OptimizationRunForm({
             htmlType="submit"
             loading={actions.pending}
             disabled={actions.pending}
+            aria-label={t("optimization.run")}
           >
             {t("optimization.run")}
           </Button>

@@ -73,23 +73,25 @@ export function QueryErrorState({
   const { t } = useTranslation();
 
   return (
-    <StateShell
-      status="error"
-      title={t("queryError.title")}
-      description={description ?? t("queryError.description")}
-      action={
-        onRetry ? (
-          <Button
-            disabled={retrying}
-            loading={retrying}
-            onClick={onRetry}
-            type="primary"
-          >
-            {t("actions.retry")}
-          </Button>
-        ) : undefined
-      }
-    />
+    <div className="query-error-state-wrapper">
+      <StateShell
+        status="error"
+        title={t("queryError.title")}
+        description={description ?? t("queryError.description")}
+        action={
+          onRetry ? (
+            <Button
+              disabled={retrying}
+              loading={retrying}
+              onClick={onRetry}
+              type="primary"
+            >
+              {t("actions.retry")}
+            </Button>
+          ) : undefined
+        }
+      />
+    </div>
   );
 }
 

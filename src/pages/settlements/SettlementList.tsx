@@ -23,6 +23,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import { EmptyState } from "@/components/EmptyState";
 import { CalculateSettlementModal } from "@/features/settlements/CalculateSettlementModal";
 import {
   createSettlementColumns,
@@ -34,6 +35,7 @@ import type {
   DriverSettlementView,
   SettlementFilterParams,
 } from "@/types/settlement.dto";
+import "./Settlements.scss";
 
 const { Title, Text } = Typography;
 
@@ -75,15 +77,16 @@ export const SettlementList: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: 24 }}>
-      <Card bordered={false}>
+    <div className="settlements-container">
+      <Card bordered={false} className="settlement-card">
         {/* Header */}
         <Row
           justify="space-between"
           align="middle"
-          style={{ marginBottom: 20 }}
+          gutter={[16, 16]}
+          className="settlement-list__header"
         >
-          <Col>
+          <Col xs={24} md={12} className="settlement-list__header-title">
             <Title level={4} style={{ margin: 0 }}>
               {t("settlements.title", "Driver Settlements")}
             </Title>
@@ -94,8 +97,8 @@ export const SettlementList: React.FC = () => {
               )}
             </Text>
           </Col>
-          <Col>
-            <Space>
+          <Col xs={24} md={12} className="settlement-list__header-actions">
+            <Space wrap className="settlement-list__actions-space">
               <Button
                 icon={<ReloadOutlined />}
                 onClick={() => refetch()}
@@ -104,29 +107,35 @@ export const SettlementList: React.FC = () => {
                 {t("common.refresh", "Refresh")}
               </Button>
               <CanAccess resource="driver-pay-policies" action="POLICY_VIEW">
-              <Link to={routes.resources.settlements.policies}>
-                <Button icon={<SettingOutlined />}>
-                  {t("settlements.payPoliciesBtn", "Pay Policies")}
-                </Button>
-              </Link>
+                <Link to={routes.resources.settlements.policies}>
+                  <Button icon={<SettingOutlined />}>
+                    {t("settlements.payPoliciesBtn", "Pay Policies")}
+                  </Button>
+                </Link>
               </CanAccess>
               <CanAccess resource="settlements" action="SETTLEMENT_CALCULATE">
-              <Button
-                type="primary"
-                icon={<CalculatorOutlined />}
-                onClick={() => setIsCalcModalOpen(true)}
-              >
-                {t("settlements.calculateBtn", "Calculate Settlement")}
-              </Button>
+                <Button
+                  type="primary"
+                  icon={<CalculatorOutlined />}
+                  onClick={() => setIsCalcModalOpen(true)}
+                >
+                  {t("settlements.calculateBtn", "Calculate Settlement")}
+                </Button>
               </CanAccess>
             </Space>
           </Col>
         </Row>
 
         {/* Quick Stats Summary */}
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col xs={24} sm={8}>
-            <Card size="small"><Statistic title={t("settlements.stats.totalSettlements", "Total Settlements")} value={filteredSettlements.length} prefix={<FileTextOutlined />} /></Card>
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+          <Col xs={24} sm={12} md={8}>
+            <Card size="small">
+              <Statistic
+                title={t("settlements.stats.totalSettlements", "Total Settlements")}
+                value={filteredSettlements.length}
+                prefix={<FileTextOutlined />}
+              />
+            </Card>
           </Col>
         </Row>
 
@@ -139,7 +148,7 @@ export const SettlementList: React.FC = () => {
 
         {/* Search */}
         <Row style={{ marginBottom: 16 }}>
-          <Col xs={24} sm={8} md={8}>
+          <Col xs={24} sm={12} md={8}>
             <Input
               placeholder={t(
                 "settlements.searchPlaceholder",
@@ -149,6 +158,7 @@ export const SettlementList: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               allowClear
+              style={{ width: "100%" }}
             />
           </Col>
         </Row>
@@ -165,29 +175,36 @@ export const SettlementList: React.FC = () => {
         )}
 
         {/* Table */}
-        <Table<DriverSettlementView>
-          rowKey="id"
-          columns={columns}
-          dataSource={filteredSettlements}
-          loading={isLoading}
-          pagination={{
-            pageSize: 15,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "15", "25", "50"],
-          }}
-          scroll={{ x: "max-content" }}
-          size="middle"
-        />
+        <div className="settlement-table-wrapper">
+          <Table<DriverSettlementView>
+            rowKey="id"
+            columns={columns}
+            dataSource={filteredSettlements}
+            loading={isLoading}
+            pagination={{
+              pageSize: 15,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "15", "25", "50"],
+            }}
+            scroll={{ x: 1200 }}
+            size="middle"
+            locale={{
+              emptyText: <EmptyState description={t("settlements.noSettlementsFound", "No settlements found")} />,
+            }}
+          />
+        </div>
       </Card>
 
       {/* Calculate Settlement Modal */}
-      {isCalcModalOpen && <CanAccess resource="settlements" action="SETTLEMENT_CALCULATE">
-      <CalculateSettlementModal
-        open={isCalcModalOpen}
-        onClose={() => setIsCalcModalOpen(false)}
-        onSuccess={() => refetch()}
-      />
-      </CanAccess>}
+      {isCalcModalOpen && (
+        <CanAccess resource="settlements" action="SETTLEMENT_CALCULATE">
+          <CalculateSettlementModal
+            open={isCalcModalOpen}
+            onClose={() => setIsCalcModalOpen(false)}
+            onSuccess={() => refetch()}
+          />
+        </CanAccess>
+      )}
     </div>
   );
 };

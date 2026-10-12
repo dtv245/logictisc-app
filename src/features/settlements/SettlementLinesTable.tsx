@@ -10,17 +10,21 @@ import type { SettlementLineView } from "@/types/settlement.dto";
 export function SettlementLinesTable({ lines, sourceOnly = false }: { lines: SettlementLineView[]; sourceOnly?: boolean }) {
   const { t, i18n } = useTranslation();
   const columns: ColumnsType<SettlementLineView> = sourceOnly ? [
-    { title: t("finance.load"), dataIndex: "loadId", render: (value: string | null) => value ?? "—" },
-    { title: t("settlements.workflow.trip"), dataIndex: "tripId", render: (value: string | null) => value ?? "—" },
-    { title: t("finance.source"), render: (_, row) => `${row.sourceType ?? "—"} / ${row.sourceId ?? "—"}` },
-    { title: t("settlements.workflow.businessDate"), dataIndex: "businessDate", render: (value: string | null) => formatDateOnly(value, { locale: i18n.language }) },
+    { title: t("finance.load"), dataIndex: "loadId", width: 170, minWidth: 140, render: (value: string | null) => <span className="break-all">{value ?? "—"}</span> },
+    { title: t("settlements.workflow.trip"), dataIndex: "tripId", width: 170, minWidth: 140, render: (value: string | null) => <span className="break-all">{value ?? "—"}</span> },
+    { title: t("finance.source"), width: 180, minWidth: 150, render: (_, row) => <span className="break-all">{`${row.sourceType ?? "—"} / ${row.sourceId ?? "—"}`}</span> },
+    { title: t("settlements.workflow.businessDate"), dataIndex: "businessDate", width: 150, minWidth: 130, render: (value: string | null) => <span className="tabular-nums">{formatDateOnly(value, { locale: i18n.language })}</span> },
   ] : [
-    { title: t("settlements.workflow.lineClass"), dataIndex: "lineClass", render: (value: string) => t(`settlements.workflow.lineClasses.${value}`, { defaultValue: value }) },
-    { title: t("settlements.workflow.lineType"), dataIndex: "lineType" },
-    { title: t("settlements.workflow.description"), dataIndex: "description" },
-    { title: t("loads.financial.quantity"), render: (_, row) => `${row.quantity ?? "—"} ${row.unit ?? ""}` },
-    { title: t("settlements.workflow.rate"), render: (_, row) => financialAmount(row.rate, row.currency, i18n.language) },
-    { title: t("loads.financial.amount"), render: (_, row) => financialAmount(row.amount, row.currency, i18n.language) },
+    { title: t("settlements.workflow.lineClass"), dataIndex: "lineClass", width: 150, minWidth: 130, render: (value: string) => t(`settlements.workflow.lineClasses.${value}`, { defaultValue: value }) },
+    { title: t("settlements.workflow.lineType"), dataIndex: "lineType", width: 140, minWidth: 120 },
+    { title: t("settlements.workflow.description"), dataIndex: "description", width: 200, minWidth: 160, ellipsis: true },
+    { title: t("loads.financial.quantity"), width: 130, minWidth: 110, align: "right", render: (_, row) => <span className="tabular-nums">{`${row.quantity ?? "—"} ${row.unit ?? ""}`}</span> },
+    { title: t("settlements.workflow.rate"), width: 130, minWidth: 110, align: "right", render: (_, row) => <span className="tabular-nums">{financialAmount(row.rate, row.currency, i18n.language)}</span> },
+    { title: t("loads.financial.amount"), width: 140, minWidth: 120, align: "right", render: (_, row) => <span className="tabular-nums font-semibold">{financialAmount(row.amount, row.currency, i18n.language)}</span> },
   ];
-  return <Table rowKey="id" dataSource={lines} columns={columns} pagination={false} scroll={{ x: "max-content" }} locale={{ emptyText: <EmptyState /> }} />;
+  return (
+    <div className="settlement-table-wrapper">
+      <Table rowKey="id" dataSource={lines} columns={columns} pagination={false} scroll={{ x: sourceOnly ? 680 : 890 }} locale={{ emptyText: <EmptyState /> }} size="middle" />
+    </div>
+  );
 }

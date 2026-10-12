@@ -44,7 +44,29 @@ const readyHealth: HealthProbeResult = {
 };
 
 describe("App", () => {
-  it("switches from the fallback locale and renders ready diagnostics", async () => {
+  it("switches from the fallback locale and redirects to login when navigating to root", async () => {
+    window.history.pushState({}, "", "/");
+    const i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });
+
+    render(
+      <App
+        i18n={i18n}
+        loadConfig={vi.fn(async () => config)}
+        probeApiHealth={vi.fn(async () => readyHealth)}
+      />,
+    );
+
+    expect(
+      await screen.findByRole("button", {
+        name: "Sign in with Lark",
+      }),
+    ).toBeInTheDocument();
+    expect(i18n.language).toBe("en");
+    expect(document.documentElement.lang).toBe("en");
+  });
+
+  it("renders ready diagnostics when visiting /diagnostics directly", async () => {
+    window.history.pushState({}, "", "/diagnostics");
     const i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });
 
     render(

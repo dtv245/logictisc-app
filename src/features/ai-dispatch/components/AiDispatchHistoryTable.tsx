@@ -17,9 +17,10 @@ export function AiDispatchHistoryTable({ actions, onSelectPlan }: Props) {
 
   return (
     <Table
+      className="ai-history-table"
       rowKey="id"
       dataSource={actions.plans}
-      pagination={{ pageSize: 10 }}
+      pagination={{ pageSize: 10, responsive: true }}
       scroll={{ x: "max-content" }}
       columns={[
         {

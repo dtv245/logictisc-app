@@ -1,12 +1,7 @@
-import { ResourceListPage } from "@components";
-import type { Document } from "@/types/document.types";
-import { documentColumns } from "@features/documents/components/columns";
-import { DocumentUploadModal } from "@features/documents/DocumentUploadModal";
+import { DocumentDropboxView } from "@features/documents/components/DocumentDropboxView";
 
-export const DocumentList = () => (
-  <ResourceListPage<Document>
-    columns={documentColumns}
-    headerButtons={<DocumentUploadModal />}
-    resource="documents"
-  />
-);
+/**
+ * Trang danh sách tài liệu thiết kế theo phong cách Dropbox
+ * Route: /documents?pageSize=10&current=1
+ */
+export const DocumentList = () => <DocumentDropboxView />;

@@ -175,6 +175,12 @@ export default defineConfig(({ mode }) => {
                   { id: 'ffffffff-ffff-ffff-ffff-ffffffffffff', number: 5001, type: 'customer', status: 'sent', customerName: 'Công ty TNHH Logistics Vina', employeeName: 'Quản trị Hệ thống', dueDate: '2026-10-15' },
                 ];
               }
+              if (pathname.startsWith('/api/fleet/policies')) {
+                return [
+                  { id: '11111111-1111-4111-8111-111111111111', code: 'FLEET_POLICY', version: 3, approvalReference: 'APP-001' },
+                  { id: '22222222-1111-4111-8111-111111111111', code: 'STANDARD_FLEET_POLICY', version: 1, approvalReference: 'APP-002' },
+                ];
+              }
               return [];
             }
 

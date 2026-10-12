@@ -36,7 +36,7 @@ export function PayslipShow({ download }: { download?: PayslipDownloader }) {
     catch (cause) { setError(cause instanceof Error ? cause : new Error(t("payslips.pdfError"))); }
     finally { flight.current = false; setPending(false); }
   };
-  return <Space direction="vertical" size="large" style={{ width: "100%" }}><PageHeader title={t("payslips.title")} extra={<Button disabled={pending || !download} loading={pending} onClick={() => void onDownload()}>{t("payslips.downloadPdf")}</Button>} />
+  return <Space direction="vertical" size="large" style={{ width: "100%" }}><PageHeader title={t("payslips.title")} extra={<Button disabled={pending || !download} loading={pending} onClick={() => void onDownload()} style={{ minHeight: 38 }}>{t("payslips.downloadPdf")}</Button>} />
     {error && <Alert type="error" message={error instanceof ApiHttpError ? t(`payslips.errors.${error.code}`, { defaultValue: error.message }) : t("payslips.pdfError")} description={error instanceof ApiHttpError ? `${error.code}${error.requestId ? ` / ${error.requestId}` : ""}` : undefined} />}
     <PayslipSummary payslip={query.data.data} snapshot={snapshot} />
   </Space>;

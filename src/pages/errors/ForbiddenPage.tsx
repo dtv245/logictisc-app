@@ -13,18 +13,23 @@ export const ForbiddenPage = () => {
   const { t } = useTranslation();
 
   return (
-    <Result
-      status="403"
-      title="403"
-      subTitle={t("errors.forbidden")}
-      extra={
-        <Button
-          type="primary"
-          onClick={() => go({ to: routes.dashboard, type: "replace" })}
-        >
-          {t("common.goDashboard")}
-        </Button>
-      }
-    />
+    <div className="system-status-page">
+      <Result
+        className="system-status-result"
+        status="403"
+        title="403"
+        subTitle={t("errors.forbidden")}
+        extra={
+          <Button
+            className="system-status-btn"
+            size="large"
+            type="primary"
+            onClick={() => go({ to: routes.dashboard, type: "replace" })}
+          >
+            {t("common.goDashboard")}
+          </Button>
+        }
+      />
+    </div>
   );
 };

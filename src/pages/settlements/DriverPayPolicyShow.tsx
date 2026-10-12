@@ -27,6 +27,7 @@ import {
   formatPercentDisplay,
   type DriverPayPolicyRequest,
 } from "@/types/driverPayPolicy.dto";
+import "./Settlements.scss";
 
 const { Text } = Typography;
 
@@ -112,9 +113,9 @@ export const DriverPayPolicyShow: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24 }}>
+    <div className="settlements-container">
       {/* Top action bar */}
-      <Space style={{ marginBottom: 16 }}>
+      <Space wrap style={{ marginBottom: 16, width: "100%" }}>
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate("/settlements/policies")}
@@ -177,28 +178,29 @@ export const DriverPayPolicyShow: React.FC = () => {
       {/* Policy Details Card */}
       <Card
         title={
-          <Space size="middle">
-            <span>{policy.name}</span>
+          <div className="policy-show__title-space">
+            <span className="policy-show__title-text">{policy.name}</span>
             <Tag color="geekblue">v{policy.policyVersion}</Tag>
             {isLatest ? (
               <Badge status="success" text={t("settlements.latest", "Latest / Active")} />
             ) : (
               <Tag color="warning">{t("settlements.archived", "Archived (Read-Only)")}</Tag>
             )}
-          </Space>
+          </div>
         }
         bordered={false}
+        className="settlement-card"
         style={{ marginBottom: 24 }}
       >
-        <Descriptions bordered column={{ xs: 1, sm: 2, md: 3 }}>
+        <Descriptions bordered column={{ xs: 1, sm: 2, md: 3 }} className="settlement-descriptions">
           <Descriptions.Item label={t("settlements.policyCode", "Policy Code")}>
-            <Text strong copyable>
+            <Text strong copyable className="break-all">
               {policy.policyCode}
             </Text>
           </Descriptions.Item>
           <Descriptions.Item label={t("settlements.scope", "Driver Scope")}>
             {policy.driverId ? (
-              <Tag color="purple">
+              <Tag color="purple" className="break-all">
                 {t("settlements.driverId", "Driver")}: {policy.driverId}
               </Tag>
             ) : (
@@ -210,7 +212,7 @@ export const DriverPayPolicyShow: React.FC = () => {
           </Descriptions.Item>
 
           <Descriptions.Item label={t("settlements.primaryRate", "Compensation Rate")} span={2}>
-            <Text strong style={{ fontSize: 16 }}>
+            <Text strong className="break-word" style={{ fontSize: 16 }}>
               {renderRateValue()}
             </Text>
           </Descriptions.Item>
@@ -219,10 +221,10 @@ export const DriverPayPolicyShow: React.FC = () => {
           </Descriptions.Item>
 
           <Descriptions.Item label={t("settlements.effectiveFrom", "Effective From")}>
-            {policy.effectiveFrom}
+            <span className="tabular-nums">{policy.effectiveFrom}</span>
           </Descriptions.Item>
           <Descriptions.Item label={t("settlements.effectiveTo", "Effective To")}>
-            {policy.effectiveTo || t("settlements.indefinite", "Present / Indefinite")}
+            <span className="tabular-nums">{policy.effectiveTo || t("settlements.indefinite", "Present / Indefinite")}</span>
           </Descriptions.Item>
           <Descriptions.Item label={t("settlements.status", "Active Status")}>
             {policy.active ? (
@@ -233,20 +235,20 @@ export const DriverPayPolicyShow: React.FC = () => {
           </Descriptions.Item>
 
           <Descriptions.Item label={t("settlements.detentionRate", "Detention Rate")}>
-            {policy.detentionRate ? `${policy.detentionRate} ${policy.currency}/hr` : "-"}
+            <span className="tabular-nums">{policy.detentionRate ? `${policy.detentionRate} ${policy.currency}/hr` : "-"}</span>
           </Descriptions.Item>
           <Descriptions.Item label={t("settlements.detentionFreeMinutes", "Detention Free Time")}>
-            {policy.detentionFreeMinutes ? `${policy.detentionFreeMinutes} mins` : "-"}
+            <span className="tabular-nums">{policy.detentionFreeMinutes ? `${policy.detentionFreeMinutes} mins` : "-"}</span>
           </Descriptions.Item>
           <Descriptions.Item label={t("settlements.detentionBlockMinutes", "Detention Block")}>
-            {policy.detentionBlockMinutes ? `${policy.detentionBlockMinutes} mins` : "-"}
+            <span className="tabular-nums">{policy.detentionBlockMinutes ? `${policy.detentionBlockMinutes} mins` : "-"}</span>
           </Descriptions.Item>
 
           <Descriptions.Item label={t("settlements.layoverRate", "Layover Rate")}>
-            {policy.layoverRate ? `${policy.layoverRate} ${policy.currency}` : "-"}
+            <span className="tabular-nums">{policy.layoverRate ? `${policy.layoverRate} ${policy.currency}` : "-"}</span>
           </Descriptions.Item>
           <Descriptions.Item label={t("settlements.stopPayRate", "Stop Pay Rate")}>
-            {policy.stopPayRate ? `${policy.stopPayRate} ${policy.currency}/stop` : "-"}
+            <span className="tabular-nums">{policy.stopPayRate ? `${policy.stopPayRate} ${policy.currency}/stop` : "-"}</span>
           </Descriptions.Item>
         </Descriptions>
       </Card>
@@ -255,6 +257,7 @@ export const DriverPayPolicyShow: React.FC = () => {
       <Card
         title={t("settlements.versionHistoryTitle", "Version History for this Policy Code")}
         bordered={false}
+        className="settlement-card"
       >
         <DriverPayPolicyVersionHistory
           policyCode={policy.policyCode}
@@ -271,7 +274,8 @@ export const DriverPayPolicyShow: React.FC = () => {
         open={isVersionModalOpen}
         onCancel={() => setIsVersionModalOpen(false)}
         footer={null}
-        width={800}
+        width="min(800px, 95vw)"
+        style={{ maxWidth: "calc(100vw - 32px)", top: 20 }}
         destroyOnClose
       >
         {latestVersion && (

@@ -28,15 +28,15 @@ function PaymentAttempts({ item, run }: { item: PayrollItem; run: PayrollRun }) 
   if (query.isError) return <QueryErrorState description={query.error.message} onRetry={() => void query.refetch()} retrying={query.isFetching} />;
   return <Space direction="vertical" style={{ width: "100%" }}><PayrollActionError error={actions.error} />
     <SchedulePayrollPaymentModal item={item} actions={actions} retry={(query.data?.data ?? []).some((payment) => payment.status === "FAILED")} />
-    <Table rowKey="id" dataSource={query.data?.data ?? []} loading={query.isLoading || query.isFetching} pagination={false} scroll={{ x: "max-content" }} locale={{ emptyText: query.isLoading ? null : <EmptyState /> }} columns={[
-    { title: t("payroll.attempt"), dataIndex: "attemptNumber" },
-    { title: t("payroll.paymentStatus"), dataIndex: "status", render: (value: string) => <StatusTag tone={statusTone(value)} label={t(`payroll.paymentStates.${value}`, { defaultValue: value })} /> },
-    { title: t("loads.financial.amount"), render: (_, row) => financialAmount(row.amount, row.currency, i18n.language) },
-    { title: t("payroll.provider"), dataIndex: "providerKey", render: (value: string | null) => value ?? "—" },
-    { title: t("payroll.reference"), dataIndex: "providerReference", render: maskPaymentReference },
-    { title: t("payroll.failure"), render: (_, row) => row.failureCode ? <Alert type="error" message={t(`payroll.errors.${row.failureCode}`, { defaultValue: row.failureMessage ?? row.failureCode })} description={row.failureCode} /> : "—" },
-    ...(["scheduledAt", "succeededAt"] as const).map((field) => ({ title: t(`payroll.${field}`), dataIndex: field, render: (value: string | null) => formatDateTime(value, { locale: i18n.language }) })),
-    { title: t("common.actions"), render: (_, payment) => actions.canDispatch(payment) ? <ConfirmActionModal disabled={actions.pending} title={t("payroll.dispatchPayment")} triggerLabel={t("payroll.dispatchPayment")} triggerAriaLabel={t("payroll.dispatchPayment")} description={t("payroll.paymentConfirm")} onConfirm={async () => { await actions.execute({ action: "dispatch", payment }); }} /> : "—" },
+    <Table rowKey="id" dataSource={query.data?.data ?? []} loading={query.isLoading || query.isFetching} pagination={false} scroll={{ x: 920 }} locale={{ emptyText: query.isLoading ? null : <EmptyState /> }} columns={[
+    { title: t("payroll.attempt"), dataIndex: "attemptNumber", width: 80 },
+    { title: t("payroll.paymentStatus"), dataIndex: "status", width: 130, render: (value: string) => <StatusTag tone={statusTone(value)} label={t(`payroll.paymentStates.${value}`, { defaultValue: value })} /> },
+    { title: t("loads.financial.amount"), width: 120, render: (_, row) => financialAmount(row.amount, row.currency, i18n.language) },
+    { title: t("payroll.provider"), dataIndex: "providerKey", width: 120, render: (value: string | null) => value ?? "—" },
+    { title: t("payroll.reference"), dataIndex: "providerReference", width: 140, render: maskPaymentReference },
+    { title: t("payroll.failure"), width: 180, render: (_, row) => row.failureCode ? <Alert type="error" message={t(`payroll.errors.${row.failureCode}`, { defaultValue: row.failureMessage ?? row.failureCode })} description={row.failureCode} /> : "—" },
+    ...(["scheduledAt", "succeededAt"] as const).map((field) => ({ title: t(`payroll.${field}`), dataIndex: field, width: 150, render: (value: string | null) => formatDateTime(value, { locale: i18n.language }) })),
+    { title: t("common.actions"), width: 140, fixed: "right" as const, render: (_, payment) => actions.canDispatch(payment) ? <ConfirmActionModal disabled={actions.pending} title={t("payroll.dispatchPayment")} triggerLabel={t("payroll.dispatchPayment")} triggerAriaLabel={t("payroll.dispatchPayment")} description={t("payroll.paymentConfirm")} onConfirm={async () => { await actions.execute({ action: "dispatch", payment }); }} /> : "—" },
   ]} /></Space>;
 }
 export function PayrollPaymentsPanel({ run }: { run: PayrollRun }) {

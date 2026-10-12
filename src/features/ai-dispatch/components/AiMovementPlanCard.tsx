@@ -35,9 +35,12 @@ import { routes } from "@/constants/routes";
 import type { AiMovementPlan, AiPlanStopType } from "@/types/ai-dispatch.types";
 import type { AiDispatchActionsResult } from "../useAiDispatchActions";
 
+import "../ai-dispatch.scss";
+
 interface Props {
   plan: AiMovementPlan | null;
   actions: AiDispatchActionsResult;
+  onNavigateToRun?: () => void;
 }
 
 const getStopTypeTag = (type: AiPlanStopType, label: string) => {
@@ -57,7 +60,7 @@ const getStopTypeTag = (type: AiPlanStopType, label: string) => {
   }
 };
 
-export function AiMovementPlanCard({ plan, actions }: Props) {
+export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -68,8 +71,18 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
 
   if (!plan) {
     return (
-      <Card bordered>
-        <Empty description={t("aiDispatch.noPlanYet")} />
+      <Card bordered className="ai-plan-card">
+        <Empty description={t("aiDispatch.noPlanYet")}>
+          {onNavigateToRun && (
+            <Button
+              type="primary"
+              onClick={onNavigateToRun}
+              style={{ minHeight: 40, marginTop: 8 }}
+            >
+              {t("aiDispatch.runTitle")}
+            </Button>
+          )}
+        </Empty>
       </Card>
     );
   }
@@ -97,8 +110,9 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
       <Card
         size="small"
         bordered
+        className="ai-plan-card"
         title={
-          <Space align="center" wrap>
+          <Space align="center" wrap className="ai-plan-card__status-wrap">
             <RobotOutlined style={{ color: "#1890ff", fontSize: 18 }} />
             <Typography.Text strong style={{ fontSize: 16 }}>
               {t("aiDispatch.planTitle")}
@@ -116,7 +130,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
           </Space>
         }
         extra={
-          <Space wrap>
+          <div className="ai-plan-card__actions">
             {isProposed && (
               <>
                 <Button
@@ -124,6 +138,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
                   icon={<CloseCircleOutlined />}
                   onClick={() => setRejectModalVisible(true)}
                   disabled={actions.pending}
+                  data-testid="btn-reject-movement-plan"
                 >
                   {t("aiDispatch.rejectPlan")}
                 </Button>
@@ -132,6 +147,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
                   icon={<CheckCircleOutlined />}
                   onClick={() => setApproveModalVisible(true)}
                   loading={actions.pending}
+                  data-testid="btn-approve-movement-plan"
                 >
                   {t("aiDispatch.approvePlan")}
                 </Button>
@@ -142,11 +158,12 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
                 type="primary"
                 icon={<RightCircleOutlined />}
                 onClick={() => navigate(routes.resources.trips.list)}
+                data-testid="btn-view-trip"
               >
                 {t("aiDispatch.viewTrip")}
               </Button>
             )}
-          </Space>
+          </div>
         }
       >
         <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
@@ -179,7 +196,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
       {/* 3. KPI Predictions */}
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
-          <Card size="small" bordered>
+          <Card size="small" bordered className="ai-kpi-card">
             <Statistic
               title={t("aiDispatch.totalDistance")}
               value={plan.totalDistanceMiles}
@@ -192,7 +209,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card size="small" bordered>
+          <Card size="small" bordered className="ai-kpi-card">
             <Statistic
               title={t("aiDispatch.estimatedMargin")}
               value={plan.estimatedMargin}
@@ -205,7 +222,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card size="small" bordered>
+          <Card size="small" bordered className="ai-kpi-card">
             <Statistic
               title={t("aiDispatch.aiScore")}
               value={plan.aiConfidenceScore}
@@ -218,7 +235,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card size="small" bordered>
+          <Card size="small" bordered className="ai-kpi-card">
             <Statistic
               title={t("aiDispatch.hosCompliance")}
               value={t("aiDispatch.compliant")}
@@ -235,6 +252,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
       <Card
         size="small"
         bordered
+        className="ai-plan-card"
         title={
           <Space>
             <InfoCircleOutlined style={{ color: "#1890ff" }} />
@@ -242,7 +260,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
           </Space>
         }
       >
-        <Typography.Paragraph style={{ margin: 0, whiteSpace: "pre-line" }}>
+        <Typography.Paragraph style={{ margin: 0, whiteSpace: "pre-line", wordBreak: "break-word" }}>
           {plan.aiReasoning}
         </Typography.Paragraph>
       </Card>
@@ -251,6 +269,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
       <Card
         size="small"
         bordered
+        className="ai-plan-card"
         title={t("aiDispatch.assignedVehicleDriver")}
       >
         <Descriptions
@@ -261,17 +280,29 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
             {
               key: "truck",
               label: t("aiDispatch.truck"),
-              children: `${plan.truckNumber} (${plan.truckId.slice(0, 8)})`,
+              children: (
+                <span style={{ wordBreak: "break-word" }}>
+                  {plan.truckNumber} ({plan.truckId.slice(0, 8)})
+                </span>
+              ),
             },
             {
               key: "driver",
               label: t("aiDispatch.driver"),
-              children: `${plan.driverName} (HOS: ${plan.hosRemainingHours}h)`,
+              children: (
+                <span style={{ wordBreak: "break-word" }}>
+                  {plan.driverName} (HOS: {plan.hosRemainingHours}h)
+                </span>
+              ),
             },
             {
               key: "load",
               label: t("aiDispatch.loadId"),
-              children: `${plan.loadNumber} (${plan.loadId.slice(0, 8)})`,
+              children: (
+                <span style={{ wordBreak: "break-word" }}>
+                  {plan.loadNumber} ({plan.loadId.slice(0, 8)})
+                </span>
+              ),
             },
             {
               key: "duration",
@@ -286,6 +317,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
       <Card
         size="small"
         bordered
+        className="ai-plan-card"
         title={
           <Space>
             <CompassOutlined style={{ color: "#52c41a" }} />
@@ -294,7 +326,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
         }
       >
         <Timeline
-          style={{ marginTop: 16 }}
+          className="ai-plan-timeline"
           items={plan.stops.map((stop) => ({
             color:
               stop.type === "pickup"
@@ -307,61 +339,44 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
             children: (
               <Card
                 size="small"
-                style={{ marginBottom: 12 }}
+                className="ai-plan-stop-card"
                 data-testid={`plan-stop-${stop.order}`}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    flexWrap: "wrap",
-                    gap: 8,
-                    marginBottom: 6,
-                  }}
-                >
-                  <Space align="center" wrap>
+                <div className="ai-plan-stop-card__header">
+                  <div className="ai-plan-stop-card__title-group">
                     <Typography.Text strong style={{ fontSize: 14 }}>
                       #{stop.order}
                     </Typography.Text>
                     {getStopTypeTag(stop.type, t(`aiDispatch.stopType.${stop.type}`))}
-                    <Typography.Text strong>{stop.name}</Typography.Text>
-                    <Typography.Text type="secondary">
+                    <Typography.Text strong className="ai-plan-stop-card__name">
+                      {stop.name}
+                    </Typography.Text>
+                    <Typography.Text type="secondary" className="ai-plan-stop-card__address">
                       📍 {stop.address}, {stop.city}
                     </Typography.Text>
-                  </Space>
-                  <Tag color="cyan">
+                  </div>
+                  <Tag color="cyan" className="ai-plan-stop-card__distance">
                     {t("aiDispatch.distance")}: {stop.distanceFromLastStopMiles} mi
                   </Tag>
                 </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                    gap: 8,
-                    fontSize: 12,
-                    color: "#595959",
-                    paddingTop: 6,
-                    borderTop: "1px solid #f0f0f0",
-                  }}
-                >
+                <div className="ai-plan-stop-card__meta">
                   <div>
                     <Typography.Text type="secondary">{t("aiDispatch.eta")}:</Typography.Text>{" "}
-                    {formatDateTime(stop.plannedArrival, { locale: i18n.language })}
+                    <span>{formatDateTime(stop.plannedArrival, { locale: i18n.language })}</span>
                   </div>
                   <div>
                     <Typography.Text type="secondary">{t("aiDispatch.departure")}:</Typography.Text>{" "}
-                    {formatDateTime(stop.plannedDeparture, { locale: i18n.language })}
+                    <span>{formatDateTime(stop.plannedDeparture, { locale: i18n.language })}</span>
                   </div>
                   <div>
                     <Typography.Text type="secondary">{t("aiDispatch.dwellTime")}:</Typography.Text>{" "}
-                    {stop.dwellTimeMinutes} phút
+                    <span>{stop.dwellTimeMinutes} phút</span>
                   </div>
                 </div>
 
                 {stop.instructions && (
-                  <div style={{ marginTop: 6, fontSize: 12, color: "#1890ff" }}>
+                  <div className="ai-plan-stop-card__instructions">
                     ℹ️ {stop.instructions}
                   </div>
                 )}
@@ -380,6 +395,9 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
         confirmLoading={actions.pending}
         onOk={handleApprove}
         onCancel={() => setApproveModalVisible(false)}
+        width="min(calc(100vw - 32px), 520px)"
+        centered
+        style={{ maxWidth: "calc(100vw - 32px)" }}
       >
         <Space direction="vertical" style={{ width: "100%" }} size="middle">
           <Typography.Paragraph>
@@ -401,6 +419,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
               value={approveNote}
               onChange={(e) => setApproveNote(e.target.value)}
               placeholder={t("aiDispatch.approveNotePlaceholder")}
+              style={{ width: "100%" }}
             />
           </Form.Item>
         </Space>
@@ -416,6 +435,9 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
         confirmLoading={actions.pending}
         onOk={handleReject}
         onCancel={() => setRejectModalVisible(false)}
+        width="min(calc(100vw - 32px), 520px)"
+        centered
+        style={{ maxWidth: "calc(100vw - 32px)" }}
       >
         <Space direction="vertical" style={{ width: "100%" }} size="middle">
           <Form.Item
@@ -428,6 +450,7 @@ export function AiMovementPlanCard({ plan, actions }: Props) {
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder={t("aiDispatch.rejectReasonPlaceholder")}
+              style={{ width: "100%" }}
             />
           </Form.Item>
         </Space>

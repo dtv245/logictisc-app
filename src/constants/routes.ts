@@ -17,6 +17,7 @@ export const routes = {
   diagnostics: "/diagnostics",
   forbidden: "/403",
   login: "/login",
+  notFound: "/404",
   // Màn hình điều phối, tách khỏi `dashboard` (Executive Overview): hai màn
   // hình trả lời hai câu hỏi khác nhau và cùng tồn tại.
   operations: "/operations",
@@ -25,6 +26,7 @@ export const routes = {
   optimization: "/optimization",
   optimizationRun: "/optimization/runs/:id",
   fleetReport: "/reports/fleet",
+  fleetMileageAttributions: "/fleet/mileage-attributions",
   payroll: "/payroll",
   payrollShow: "/payroll/:id",
   payrollReconciliation: "/payroll/reconciliation",

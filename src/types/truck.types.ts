@@ -7,11 +7,18 @@ import type {
 } from "./common.types";
 import type { Employee } from "./employee.types";
 
-// TODO: xác nhận lại danh sách giá trị enum với backend.
-export type TruckType = string;
+export type TruckType =
+  | "SEMI_TRUCK"
+  | "FLATBED"
+  | "BOX_TRUCK"
+  | "TANKER"
+  | "REEFER";
 
-// TODO: xác nhận lại danh sách giá trị enum với backend.
-export type TruckStatus = string;
+export type TruckStatus =
+  | "available"
+  | "in_use"
+  | "maintenance"
+  | "out_of_service";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type MaintenanceType =
@@ -90,6 +97,7 @@ export interface MaintenanceRecord extends AuditableEntity {
   description?: string | null;
   workPerformed?: string | null;
   performedById?: string | null;
+  nextDueDate?: string | null;
 }
 
 /** Linh kiện được sử dụng trong một lần bảo trì. */

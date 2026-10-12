@@ -95,7 +95,7 @@ export const OperationsDashboardPage = () => {
 
   return (
     <div style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      <div style={{ padding: "12px 24px 0 24px", backgroundColor: "#ffffff", borderBottom: "1px solid #e5e7eb" }}>
+      <div className="ops-tabs-header">
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}
@@ -126,7 +126,7 @@ export const OperationsDashboardPage = () => {
       {activeTab === "overview" ? (
         <OperationsDashboardView />
       ) : (
-        <Space className="ops-page" direction="vertical" size="large" style={{ padding: 24, width: "100%" }}>
+        <Space className="ops-page ops-tracking-content" direction="vertical" size="large" style={{ width: "100%" }}>
           <PageHeader
             description={t("dashboard.greeting", {
               name: currentUser.data?.name ?? t("dashboard.fallbackName"),

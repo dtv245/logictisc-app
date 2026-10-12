@@ -20,7 +20,7 @@
  * và hai cột lệch nhau về chiều cao.
  */
 
-import { Col, Row } from "antd";
+import { Col, Form, Row } from "antd";
 import type { ReactNode } from "react";
 
 /** Số cột ở màn rộng. Màn hẹp luôn 1 cột. */
@@ -31,6 +31,7 @@ export interface FormGridItem {
   fullWidth?: boolean;
   key: string;
   node: ReactNode;
+  dependsOn?: { field: string; value: unknown };
 }
 
 export interface FormGridProps {
@@ -40,16 +41,38 @@ export interface FormGridProps {
 
 export const FormGrid = ({ columns = 1, items }: FormGridProps) => (
   <Row gutter={[16, 0]}>
-    {items.map((item) => (
-      <Col
-        // `span` cho màn hẹp: 1 cột thì mọi field đã full width sẵn.
-        key={item.key}
-        lg={columns === 2 && !item.fullWidth ? 12 : 24}
-        md={columns === 2 && !item.fullWidth ? 12 : 24}
-        span={24}
-      >
-        {item.node}
-      </Col>
-    ))}
+    {items.map((item) => {
+      const colNode = (
+        <Col
+          // `span` cho màn hẹp: 1 cột thì mọi field đã full width sẵn.
+          key={item.key}
+          lg={columns === 2 && !item.fullWidth ? 12 : 24}
+          md={columns === 2 && !item.fullWidth ? 12 : 24}
+          span={24}
+        >
+          {item.node}
+        </Col>
+      );
+
+      if (item.dependsOn) {
+        return (
+          <Form.Item
+            key={item.key}
+            noStyle
+            shouldUpdate={(prev, cur) =>
+              prev[item.dependsOn!.field] !== cur[item.dependsOn!.field]
+            }
+          >
+            {({ getFieldValue }) => {
+              const isVisible =
+                getFieldValue(item.dependsOn!.field) === item.dependsOn!.value;
+              return isVisible ? colNode : null;
+            }}
+          </Form.Item>
+        );
+      }
+
+      return colNode;
+    })}
   </Row>
 );

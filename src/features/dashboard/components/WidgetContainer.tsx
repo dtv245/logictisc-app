@@ -2,6 +2,7 @@ import React from "react";
 import { Alert, Button, Card, Empty, Skeleton, Space, Tooltip, Typography } from "antd";
 import { InfoCircleOutlined, LockOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { WidgetError } from "../types";
+import "./WidgetContainer.scss";
 
 export interface WidgetContainerProps {
   title?: React.ReactNode;
@@ -69,7 +70,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     <Card
       title={cardTitle}
       extra={extra}
-      className={className}
+      className={className ? `widget-container ${className}` : "widget-container"}
       bordered
       style={{
         borderRadius: 8,
@@ -77,6 +78,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        minWidth: 0,
         ...style,
       }}
       bodyStyle={{

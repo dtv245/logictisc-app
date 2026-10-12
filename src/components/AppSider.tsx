@@ -10,12 +10,16 @@
  * - Tự động đồng bộ mục được chọn với URL hiện tại và kiểm soát quyền truy cập theo vai trò.
  */
 
-import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+} from "@ant-design/icons";
 import type { RefineThemedLayoutV2SiderProps } from "@refinedev/antd";
 import { useThemedLayoutContext } from "@refinedev/antd";
 import { useCanWithoutCache } from "@refinedev/core";
 import { Button, Drawer, Layout, Menu, type MenuProps } from "antd";
-import { useEffect, useMemo, useState, type FC } from "react";
+import { useEffect, useMemo, useRef, useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -141,7 +145,38 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
     }));
   }, [visibleZones, t, navigate, mobileSiderOpen, setMobileSiderOpen]);
 
-  const renderContent = (isCollapsed: boolean) => (
+  // Tự động đóng Drawer khi URL thay đổi (điều hướng)
+  const prevPathnameRef = useRef(pathname);
+  useEffect(() => {
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      setMobileSiderOpen(false);
+    }
+  }, [pathname, setMobileSiderOpen]);
+
+  // Tự động thu gọn thanh điều hướng thành icon mode trên tablet khi mount
+  const hasCollapsedOnMountRef = useRef(false);
+  useEffect(() => {
+    if (!hasCollapsedOnMountRef.current) {
+      hasCollapsedOnMountRef.current = true;
+      if (typeof window !== "undefined" && window.innerWidth < 992) {
+        setSiderCollapsed(true);
+      }
+    }
+  }, [setSiderCollapsed]);
+
+  // Đóng Drawer khi thay đổi kích thước cửa sổ lên tablet hoặc desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== "undefined" && window.innerWidth >= 768 && mobileSiderOpen) {
+        setMobileSiderOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [mobileSiderOpen, setMobileSiderOpen]);
+
+  const renderContent = (isCollapsed: boolean, isDrawer = false) => (
     <div
       style={{
         display: "flex",
@@ -157,16 +192,28 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
           height: 64,
           display: "flex",
           alignItems: "center",
+          justifyContent: isDrawer ? "space-between" : "flex-start",
           padding: isCollapsed ? "0 24px" : "0 16px",
           borderBottom: "1px solid #f0f0f0",
           backgroundColor: "#ffffff",
           overflow: "hidden",
         }}
       >
-        {TitleComponent ? (
-          <TitleComponent collapsed={isCollapsed} />
-        ) : (
-          <AppTitle collapsed={isCollapsed} />
+        <div style={{ display: "flex", alignItems: "center", minWidth: 0, overflow: "hidden" }}>
+          {TitleComponent ? (
+            <TitleComponent collapsed={isCollapsed} />
+          ) : (
+            <AppTitle collapsed={isCollapsed} />
+          )}
+        </div>
+        {isDrawer && (
+          <Button
+            aria-label={t("common.close", "Đóng")}
+            icon={<CloseOutlined />}
+            onClick={() => setMobileSiderOpen(false)}
+            style={{ minWidth: 40, minHeight: 40 }}
+            type="text"
+          />
         )}
       </div>
 
@@ -184,28 +231,30 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
         />
       </div>
 
-      {/* Sider Footer Collapse/Expand Trigger */}
-      <div
-        className="app-sider__trigger"
-        onClick={() => setSiderCollapsed(!siderCollapsed)}
-        style={{
-          height: 48,
-          borderTop: "1px solid #f0f0f0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: isCollapsed ? "center" : "flex-end",
-          padding: "0 16px",
-          cursor: "pointer",
-        }}
-      >
-        <Button
-          aria-label={t(
-            isCollapsed ? "navigation.expand" : "navigation.collapse",
-          )}
-          icon={isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          type="text"
-        />
-      </div>
+      {/* Sider Footer Collapse/Expand Trigger (chỉ hiển thị trên desktop/tablet Sider, không hiện trong mobile Drawer) */}
+      {!isDrawer && (
+        <div
+          className="app-sider__trigger"
+          onClick={() => setSiderCollapsed(!siderCollapsed)}
+          style={{
+            height: 48,
+            borderTop: "1px solid #f0f0f0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: isCollapsed ? "center" : "flex-end",
+            padding: "0 16px",
+            cursor: "pointer",
+          }}
+        >
+          <Button
+            aria-label={t(
+              isCollapsed ? "navigation.expand" : "navigation.collapse",
+            )}
+            icon={isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            type="text"
+          />
+        </div>
+      )}
     </div>
   );
 
@@ -213,23 +262,32 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
     <>
       {/* Drawer cho màn hình Mobile */}
       <Drawer
+        aria-label={t("navigation.drawerTitle", "Thanh điều hướng")}
+        className="app-sider-drawer"
         closable={false}
+        keyboard={true}
         onClose={() => setMobileSiderOpen(false)}
         open={mobileSiderOpen}
         placement="left"
         styles={{ body: { padding: 0 } }}
-        width={250}
+        width={260}
+        zIndex={1050}
       >
-        {renderContent(false)}
+        {renderContent(false, true)}
       </Drawer>
 
-      {/* Sider Taskbar chính bên trái cho Desktop */}
+      {/* Sider Taskbar chính bên trái cho Desktop và Tablet */}
       <Layout.Sider
         breakpoint="lg"
         className="app-sider"
         collapsed={siderCollapsed}
         collapsedWidth={80}
         collapsible
+        onBreakpoint={(broken) => {
+          if (broken) {
+            setSiderCollapsed(true);
+          }
+        }}
         onCollapse={(collapsed) => setSiderCollapsed(collapsed)}
         style={{
           borderRight: "1px solid #f0f0f0",
@@ -240,13 +298,13 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
           overflow: "hidden",
           position: "sticky",
           top: 0,
-          zIndex: 99,
+          zIndex: 100,
         }}
         theme="light"
         trigger={null}
-        width={250}
+        width={240}
       >
-        {renderContent(siderCollapsed)}
+        {renderContent(siderCollapsed, false)}
       </Layout.Sider>
     </>
   );

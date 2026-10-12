@@ -21,6 +21,7 @@ import { SettlementAudit } from "@/features/settlements/SettlementAudit";
 import { SettlementActions } from "@/features/settlements/SettlementActions";
 import { SettlementAdjustments } from "@/features/settlements/SettlementAdjustments";
 import { CreateAdjustmentModal } from "@/features/settlements/CreateAdjustmentModal";
+import "./Settlements.scss";
 
 function SettlementDetail({ settlement }: { settlement: DriverSettlementView }) {
   const { t } = useTranslation();
@@ -37,27 +38,35 @@ function SettlementDetail({ settlement }: { settlement: DriverSettlementView }) 
     { key: "adjustments", label: t("settlements.workflow.history"), view: <SettlementAdjustments settlement={settlement} onView={onView} /> },
     { key: "audit", label: t("settlements.workflow.audit"), view: <SettlementAudit settlement={settlement} /> },
   ];
-  return <Space direction="vertical" size="large" style={{ width: "100%" }}>
-    <PageHeader title={settlement.settlementNumber} extra={<Button onClick={() => navigate(routes.resources.settlements.list)}>{t("settlements.workflow.back")}</Button>} />
-    <SettlementActions actions={actions} />
-    <Space wrap>
-      <CreateAdjustmentModal key={settlement.id} actions={actions} currency={settlement.currency} onCreated={onView} />
-      {actions.canExecute("reversal") && <Button danger disabled={actions.pending} onClick={() => setReverseOpen(true)}>{t("settlements.workflow.reversal")}</Button>}
-    </Space>
-    <Tabs activeKey={tab} onChange={setTab} items={items.map((item) => ({ key: item.key, label: item.label, children: tab === item.key ? item.view : null }))} />
-    {reverseOpen && <Modal open title={t("settlements.workflow.reversal")} confirmLoading={actions.pending} okText={t("actions.confirm")}
-      cancelButtonProps={{ disabled: actions.pending }} maskClosable={!actions.pending} keyboard={!actions.pending} onCancel={() => { if (!actions.pending) setReverseOpen(false); }}
-      onOk={async () => {
-        try {
-          const values = await form.validateFields();
-          const result = await actions.execute({ action: "reversal", payload: { reason: values.reason.trim() } });
-          if (result) { setReverseOpen(false); form.resetFields(); onView(result.id); }
-        } catch { /* Validation is inline; normalized command error stays visible in SettlementActions. */ }
-      }}>
-      <p>{t("settlements.workflow.correctionNotice")}</p>
-      <Form form={form} layout="vertical"><Form.Item label={t("finance.reason")} name="reason" rules={[{ required: true, whitespace: true, max: 300, message: t("settlements.workflow.reasonRequired") }]}><Input.TextArea maxLength={300} /></Form.Item></Form>
-    </Modal>}
-  </Space>;
+  return (
+    <div className="settlements-container">
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <PageHeader title={settlement.settlementNumber} extra={<Button onClick={() => navigate(routes.resources.settlements.list)}>{t("settlements.workflow.back")}</Button>} />
+        <div className="settlement-detail__actions-container">
+          <SettlementActions actions={actions} />
+          <Space wrap className="settlement-detail__secondary-actions">
+            <CreateAdjustmentModal key={settlement.id} actions={actions} currency={settlement.currency} onCreated={onView} />
+            {actions.canExecute("reversal") && <Button danger disabled={actions.pending} onClick={() => setReverseOpen(true)}>{t("settlements.workflow.reversal")}</Button>}
+          </Space>
+        </div>
+        <Tabs className="settlement-detail__tabs" activeKey={tab} onChange={setTab} items={items.map((item) => ({ key: item.key, label: item.label, children: tab === item.key ? item.view : null }))} />
+        {reverseOpen && <Modal open title={t("settlements.workflow.reversal")} confirmLoading={actions.pending} okText={t("actions.confirm")}
+          cancelButtonProps={{ disabled: actions.pending }} maskClosable={!actions.pending} keyboard={!actions.pending}
+          style={{ maxWidth: "calc(100vw - 32px)" }}
+          onCancel={() => { if (!actions.pending) setReverseOpen(false); }}
+          onOk={async () => {
+            try {
+              const values = await form.validateFields();
+              const result = await actions.execute({ action: "reversal", payload: { reason: values.reason.trim() } });
+              if (result) { setReverseOpen(false); form.resetFields(); onView(result.id); }
+            } catch { /* Validation is inline; normalized command error stays visible in SettlementActions. */ }
+          }}>
+          <p>{t("settlements.workflow.correctionNotice")}</p>
+          <Form form={form} layout="vertical"><Form.Item label={t("finance.reason")} name="reason" rules={[{ required: true, whitespace: true, max: 300, message: t("settlements.workflow.reasonRequired") }]}><Input.TextArea maxLength={300} /></Form.Item></Form>
+        </Modal>}
+      </Space>
+    </div>
+  );
 }
 export function SettlementShow() {
   const { id } = useParams<{ id: string }>();

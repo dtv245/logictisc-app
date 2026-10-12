@@ -36,6 +36,7 @@ export const ROLE_MATRIX = [
   { resources: ["rates"], actions: ["RATE_PREVIEW", "RATE_ACCEPT", "RATE_AUTHOR"], roles: ACCOUNTING },
   { resources: ["optimization"], actions: ["OPTIMIZATION_VIEW", "OPTIMIZATION_RUN", "OPTIMIZATION_ACCEPT"], roles: DISPATCH },
   { resources: ["fleet-reports"], actions: ["FLEET_REPORT_VIEW"], roles: PAYROLL },
+  { resources: ["fleet-reports"], actions: ["FLEET_MILEAGE_ATTRIBUTION"], roles: DISPATCH },
   { resources: ["payslips"], actions: ["PAYSLIP_VIEW"], roles: JWT_ROLES },
   { resources: ["messages", "messaging", "conversations"], actions: [...READ_ACTIONS, "create", "send"], roles: JWT_ROLES },
   { resources: ["conversations"], actions: ["TENANT_CHAT_CREATE"], roles: ["ADMIN"] },

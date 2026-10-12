@@ -13,18 +13,23 @@ export const NotFoundPage = () => {
   const { t } = useTranslation();
 
   return (
-    <Result
-      status="404"
-      title="404"
-      subTitle={t("errors.notFound")}
-      extra={
-        <Button
-          type="primary"
-          onClick={() => go({ to: routes.dashboard, type: "replace" })}
-        >
-          {t("common.goDashboard")}
-        </Button>
-      }
-    />
+    <div className="system-status-page">
+      <Result
+        className="system-status-result"
+        status="404"
+        title="404"
+        subTitle={t("errors.notFound")}
+        extra={
+          <Button
+            className="system-status-btn"
+            size="large"
+            type="primary"
+            onClick={() => go({ to: routes.dashboard, type: "replace" })}
+          >
+            {t("common.goDashboard")}
+          </Button>
+        }
+      />
+    </div>
   );
 };

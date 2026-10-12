@@ -13,7 +13,7 @@ export function SettlementActions({ actions }: { actions: UseSettlementActionsRe
   return <Space direction="vertical" style={{ width: "100%" }}>
     {actions.error && <Alert type="error" showIcon message={actions.error instanceof ApiHttpError ? t(`settlements.workflow.errors.${actions.error.code}`, { defaultValue: actions.error.message }) : actions.error.message}
       description={actions.error instanceof ApiHttpError ? `${actions.error.code}${actions.error.requestId ? ` / ${t("bootstrap.requestId.label")}: ${actions.error.requestId}` : ""}` : undefined} />}
-    <Space wrap>
+    <Space wrap style={{ width: "100%" }}>
       {(["submitReview", "approve", "lock", "resolveValidation"] as const).map((action) => actions.canExecute(action) &&
         <ConfirmActionModal key={action} disabled={actions.pending} title={t(`settlements.workflow.${action}`)}
           triggerLabel={t(`settlements.workflow.${action}`)} triggerAriaLabel={t(`settlements.workflow.${action}`)}
@@ -22,6 +22,7 @@ export function SettlementActions({ actions }: { actions: UseSettlementActionsRe
     </Space>
     {validationOpen && <Modal open title={t("settlements.workflow.requireValidation")} onCancel={() => { if (!actions.pending) setValidationOpen(false); }}
       confirmLoading={actions.pending} cancelButtonProps={{ disabled: actions.pending }} maskClosable={!actions.pending} keyboard={!actions.pending}
+      style={{ maxWidth: "calc(100vw - 32px)" }}
       okText={t("actions.confirm")} onOk={async () => {
         try { const values = await form.validateFields(); await actions.execute({ action: "requireValidation", payload: { reason: values.reason.trim() } }); form.resetFields(); setValidationOpen(false); }
         catch { /* Domain error remains visible; preserve the user's input for correction. */ }

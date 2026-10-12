@@ -14,8 +14,10 @@ export function SchedulePayrollPaymentModal({ item, actions, retry }: { item: Pa
   const { t, i18n } = useTranslation(); const [open, setOpen] = useState(false); const [form] = Form.useForm<PaymentForm>();
   const [key, setKey] = useState(() => crypto.randomUUID()); const method = Form.useWatch("paymentMethod", form);
   if (!actions.canSchedule) return null;
-  return <><Button disabled={actions.pending} onClick={() => setOpen(true)}>{t(retry ? "payroll.retryPayment" : "payroll.schedulePayment")}</Button>
+  return <><Button disabled={actions.pending} onClick={() => setOpen(true)} style={{ minHeight: 36 }}>{t(retry ? "payroll.retryPayment" : "payroll.schedulePayment")}</Button>
     <Modal open={open} title={t(retry ? "payroll.retryPayment" : "payroll.schedulePayment")} okText={t("actions.confirm")} confirmLoading={actions.pending}
+      width="min(520px, calc(100vw - 24px))" style={{ maxWidth: "100%", top: 20 }}
+      styles={{ body: { maxHeight: "calc(100dvh - 200px)", overflowY: "auto", overflowX: "hidden" } }}
       cancelButtonProps={{ disabled: actions.pending }} maskClosable={!actions.pending} keyboard={!actions.pending} onCancel={() => { if (!actions.pending) setOpen(false); }} onOk={async () => {
         try { const values = await form.validateFields(); const result = await actions.execute({ action: "schedule", itemId: item.id, payload: { idempotencyKey: key, paymentMethod: values.paymentMethod,
           providerKey: values.providerKey.trim(), ...(values.destinationReference?.trim() ? { destinationReference: values.destinationReference.trim() } : {}) } });
@@ -28,7 +30,7 @@ export function SchedulePayrollPaymentModal({ item, actions, retry }: { item: Pa
           /* Server error remains visible; retain exact replay identity and user input. */
         }
       }}>
-      <Alert type="info" showIcon message={financialAmount(item.netAmount, item.currency, i18n.language)} description={t("payroll.paymentConfirm")} />
+      <Alert type="info" showIcon message={<strong style={{ fontSize: 16 }}>{financialAmount(item.netAmount, item.currency, i18n.language)}</strong>} description={t("payroll.paymentConfirm")} />
       <PayrollActionError error={actions.error} />
       <Form form={form} layout="vertical">
         <Form.Item name="paymentMethod" label={t("payroll.paymentMethod")} rules={[{ required: true }]}><Select options={[{ value: "BANK_TRANSFER", label: t("payroll.bankTransfer") }, { value: "STRIPE", label: t("payroll.stripe") }]} /></Form.Item>

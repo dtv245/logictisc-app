@@ -1,0 +1,229 @@
+/**
+ * Responsive styling for Driver Settlements & Pay Policies
+ * LogisticsX Settlement Workflow
+ */
+@use "@/styles/variables" as v;
+@use "@/styles/mixins" as m;
+
+.settlements-container {
+  padding: 24px;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  @include m.respond-to("mobile") {
+    padding: 12px;
+  }
+
+  @media (min-width: 768px) and (max-width: 1024px) {
+    padding: 16px;
+  }
+}
+
+.settlement-card {
+  border-radius: 8px;
+
+  .ant-card-body {
+    @include m.respond-to("mobile") {
+      padding: 12px;
+    }
+  }
+}
+
+.settlement-list__header {
+  margin-bottom: 20px;
+
+  @include m.respond-to("mobile") {
+    margin-bottom: 16px;
+  }
+}
+
+.settlement-list__header-title {
+  .ant-typography {
+    word-break: break-word;
+  }
+}
+
+.settlement-list__header-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  @include m.respond-to("mobile") {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
+.settlement-list__actions-space {
+  width: 100%;
+  justify-content: flex-end;
+
+  @include m.respond-to("mobile") {
+    justify-content: flex-start;
+
+    .ant-space-item {
+      flex: 1 1 auto;
+
+      .ant-btn {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.settlement-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  .ant-table-wrapper {
+    max-width: 100%;
+  }
+
+  .ant-table {
+    font-size: 13px;
+  }
+}
+
+.settlement-detail__actions-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+
+  @include m.respond-to("mobile") {
+    flex-direction: column;
+    align-items: stretch;
+
+    .ant-space {
+      width: 100%;
+    }
+
+    .ant-btn {
+      width: 100%;
+    }
+  }
+}
+
+.settlement-detail__secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  @include m.respond-to("mobile") {
+    width: 100%;
+
+    .ant-space-item {
+      flex: 1 1 auto;
+
+      .ant-btn {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.settlement-detail__tabs {
+  max-width: 100%;
+
+  .ant-tabs-nav {
+    max-width: 100%;
+  }
+
+  .ant-tabs-nav-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.settlement-descriptions {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+
+  .ant-descriptions-item-content {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .ant-descriptions-item-label {
+    white-space: normal;
+    min-width: 110px;
+  }
+
+  @include m.respond-to("mobile") {
+    .ant-descriptions-row {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ant-descriptions-item {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+
+.policy-list__header {
+  margin-bottom: 20px;
+
+  @include m.respond-to("mobile") {
+    margin-bottom: 16px;
+  }
+}
+
+.policy-list__header-title {
+  .ant-typography {
+    word-break: break-word;
+  }
+}
+
+.policy-list__header-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  @include m.respond-to("mobile") {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .policy-list__create-btn {
+    @include m.respond-to("mobile") {
+      width: 100%;
+    }
+  }
+}
+
+.policy-show__title-space {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+
+  .policy-show__title-text {
+    word-break: break-word;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.settlement-filter-card {
+  margin-bottom: 16px;
+
+  .ant-card-head-wrapper {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+.break-all {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+.break-word {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}

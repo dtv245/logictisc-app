@@ -201,37 +201,37 @@ export const OperationsSection: React.FC<OperationsSectionProps> = ({
           minHeight={280}
         >
           {/* Status summary tags */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <Tag color="error" icon={<AlertOutlined />}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+            <Tag color="error" icon={<AlertOutlined />} style={{ margin: 0 }}>
               Chưa xử lý: {formatNumber(exceptions.data?.unresolvedExceptions ?? 5)}
             </Tag>
-            <Tag color="success" icon={<CheckCircleOutlined />}>
+            <Tag color="success" icon={<CheckCircleOutlined />} style={{ margin: 0 }}>
               Đã giải quyết: {formatNumber(exceptions.data?.resolvedExceptions ?? 25)}
             </Tag>
-            <Tag color="default" icon={<ClockCircleOutlined />}>
+            <Tag color="default" icon={<ClockCircleOutlined />} style={{ margin: 0 }}>
               Xử lý TB: {formatDurationMinutes(exceptions.data?.averageResolutionMinutes ?? 35)}
             </Tag>
           </div>
 
           {/* Horizontal Bar Chart */}
-          <div style={{ width: "100%", height: 160 }}>
-            <ResponsiveContainer width="100%" height="100%">
+          <div style={{ width: "100%", minWidth: 0, height: 160 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <BarChart
                 data={exceptionBarData}
                 layout="vertical"
-                margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                margin={{ top: 5, right: 12, left: 0, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
-                <XAxis type="number" tick={{ fontSize: 11, fill: "#6b7280" }} />
+                <XAxis type="number" tick={{ fontSize: 10, fill: "#6b7280" }} />
                 <YAxis
                   type="category"
                   dataKey="type"
-                  tick={{ fontSize: 11, fill: "#374151" }}
-                  width={110}
+                  tick={{ fontSize: 10, fill: "#374151" }}
+                  width={100}
                 />
                 <RechartsTooltip
                   formatter={(val: unknown) => [`${val} vụ`, "Số lượng"]}
-                  contentStyle={{ borderRadius: 8, fontSize: 12 }}
+                  contentStyle={{ borderRadius: 8, fontSize: 12, maxWidth: "min(280px, calc(100vw - 32px))" }}
                 />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={16}>
                   {exceptionBarData.map((_, index) => (

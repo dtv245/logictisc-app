@@ -18,4 +18,6 @@ export * from './StatusTag';
 export * from './crudColumns';
 export * from './ResourceCreateModal';
 export * from './ResourceEditModal';
+export * from './ResourceListToolbar';
 export * from './resources/ResourceDetailView';
+export * from './resources/ResourceModalFrame';

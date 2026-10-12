@@ -458,10 +458,108 @@ export const ResourceDetailView = ({
     processedKeys.add(key);
   }
 
+  if (definition?.sections && definition.sections.length > 0) {
+    const itemMap = new Map(items.map((it) => [it.key, it]));
+    const renderedKeys = new Set<string>();
+
+    return (
+      <Space direction="vertical" size="middle" style={{ width: "100%", marginTop: 8 }}>
+        {definition.sections.map((section) => {
+          const sectionItems: DetailItem[] = [];
+          for (const f of section.fields) {
+            const item = itemMap.get(f.name);
+            if (item) {
+              sectionItems.push(item);
+              renderedKeys.add(f.name);
+            } else {
+              sectionItems.push({
+                key: f.name,
+                label: getLabel(f.name),
+                span: f.span ?? 1,
+                value: <Text type="secondary">—</Text>,
+              });
+              renderedKeys.add(f.name);
+            }
+          }
+
+          if (sectionItems.length === 0) return null;
+
+          return (
+            <div
+              key={section.key}
+              style={{
+                background: "#fafafa",
+                padding: "12px 16px",
+                borderRadius: 8,
+                border: "1px solid #f0f0f0",
+              }}
+            >
+              <div style={{ marginBottom: 12 }}>
+                <Typography.Title level={5} style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
+                  {t(section.titleKey, { defaultValue: section.key })}
+                </Typography.Title>
+                {section.descriptionKey && (
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    {t(section.descriptionKey, { defaultValue: "" })}
+                  </Typography.Text>
+                )}
+              </div>
+              <Descriptions
+                bordered
+                className="resource-detail-view"
+                column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }}
+                size="middle"
+              >
+                {sectionItems.map((item) => (
+                  <Descriptions.Item key={item.key} label={item.label} span={item.span}>
+                    {item.value}
+                  </Descriptions.Item>
+                ))}
+              </Descriptions>
+            </div>
+          );
+        })}
+
+        {(() => {
+          const remainingItems = items.filter((it) => !renderedKeys.has(it.key));
+          if (remainingItems.length === 0) return null;
+          return (
+            <div
+              key="systemAuditSection"
+              style={{
+                background: "#fafafa",
+                padding: "12px 16px",
+                borderRadius: 8,
+                border: "1px solid #f0f0f0",
+              }}
+            >
+              <Typography.Title level={5} style={{ margin: "0 0 12px 0", fontSize: 14, fontWeight: 600 }}>
+                {t("sections.systemAudit", { defaultValue: "Thông tin hệ thống & Khác" })}
+              </Typography.Title>
+              <Descriptions
+                bordered
+                className="resource-detail-view"
+                column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }}
+                size="middle"
+              >
+                {remainingItems.map((item) => (
+                  <Descriptions.Item key={item.key} label={item.label} span={item.span}>
+                    {item.value}
+                  </Descriptions.Item>
+                ))}
+              </Descriptions>
+            </div>
+          );
+        })()}
+      </Space>
+    );
+  }
+
   return (
     <Descriptions
       bordered
-      column={{ xs: 1, sm: 2, md: 2, lg: 2 }}
+      className="resource-detail-view"
+      column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }}
       size="middle"
       style={{ marginTop: 8 }}
     >

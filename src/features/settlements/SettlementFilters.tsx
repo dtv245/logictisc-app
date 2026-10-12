@@ -59,8 +59,9 @@ export const SettlementFilters = ({
     <Card
       size="small"
       style={{ marginBottom: 16 }}
+      className="settlement-filter-card"
       title={
-        <Space>
+        <Space wrap>
           <FilterOutlined />
           <span>{t("settlements.filters.title", "Filter Settlements")}</span>
         </Space>
@@ -83,7 +84,7 @@ export const SettlementFilters = ({
         onValuesChange={handleValuesChange}
       >
         <Row gutter={[16, 8]}>
-          <Col xs={24} sm={8} md={8}>
+          <Col xs={24} sm={12} md={6}>
             <Form.Item
               label={t("settlements.payPeriod", "Pay Period")}
               name="payPeriodId"
@@ -103,7 +104,7 @@ export const SettlementFilters = ({
             </Form.Item>
           </Col>
 
-          <Col xs={24} sm={8} md={8}>
+          <Col xs={24} sm={12} md={6}>
             <Form.Item
               label={t("settlements.driver", "Driver")}
               name="driverId"
@@ -129,7 +130,7 @@ export const SettlementFilters = ({
             </Form.Item>
           </Col>
 
-          <Col xs={24} sm={8} md={8}>
+          <Col xs={24} sm={12} md={6}>
             <Form.Item
               label={t("settlements.status", "Status")}
               name="status"
@@ -151,7 +152,7 @@ export const SettlementFilters = ({
             </Form.Item>
           </Col>
 
-          <Col xs={24} sm={8} md={8}>
+          <Col xs={24} sm={12} md={6}>
             <Form.Item
               label={t("settlements.type", "Type")}
               name="settlementType"

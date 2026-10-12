@@ -1,24 +1,42 @@
 @use "../../styles/variables" as v;
 
 .login-page {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
+  min-height: 100dvh;
   padding: v.$spacing-lg;
-  place-items: center;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top, rgb(37 99 235 / 10%), transparent 40%),
     v.$color-bg-layout;
+
+  @media (max-width: 480px) {
+    padding: v.$spacing-md;
+  }
 }
 
 .login-card.ant-card {
   width: min(100%, 420px);
+  max-width: 420px;
+  box-sizing: border-box;
+  margin: auto 0;
   border: 1px solid v.$color-border-secondary;
   border-radius: 18px;
   box-shadow: v.$shadow-secondary;
 }
 
 .login-card > .ant-card-body {
-  padding: 32px;
+  padding: 24px;
+  box-sizing: border-box;
+
+  @media (max-width: 480px) {
+    padding: v.$spacing-md;
+  }
 }
 
 .login-heading {
@@ -28,11 +46,17 @@
 
 .login-heading .ant-typography {
   margin-bottom: 0;
+  word-break: break-word;
 }
 
 .login-heading h2.ant-typography {
   margin-top: v.$spacing;
   color: v.$color-text;
+  font-size: 22px;
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
 }
 
 .login-mark {
@@ -48,17 +72,31 @@
   place-items: center;
 }
 
-.login-oidc .ant-btn {
-  height: 46px;
-}
-
 .login-oidc.ant-space {
   width: 100%;
   text-align: center;
+
+  > .ant-space-item {
+    width: 100%;
+  }
+}
+
+.login-oidc .ant-btn {
+  min-height: 46px;
+  height: auto;
+  padding: 10px 16px;
+  white-space: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  word-break: break-word;
+  line-height: 1.3;
+  width: 100%;
 }
 
 .login-oidc .ant-typography {
   font-size: 12px;
+  word-break: break-word;
 }
 
 .login-footer.ant-typography {
@@ -66,21 +104,75 @@
   margin-top: v.$spacing-lg;
   font-size: 12px;
   text-align: center;
+  word-break: break-word;
 }
 
 .login-callback-card.ant-card {
-  width: min(100%, 420px);
+  width: min(100%, 460px);
+  max-width: 460px;
+  box-sizing: border-box;
+  margin: auto 0;
   border-radius: 18px;
   box-shadow: v.$shadow-secondary;
   text-align: center;
-}
 
-@media (max-width: 480px) {
-  .login-page {
-    padding: v.$spacing-mobile;
+  > .ant-card-body {
+    padding: 24px 20px;
+    box-sizing: border-box;
+
+    @media (max-width: 480px) {
+      padding: 16px 12px;
+    }
   }
 
-  .login-card > .ant-card-body {
-    padding: v.$spacing-lg;
+  .ant-result {
+    padding: 16px 8px;
+
+    .ant-result-icon {
+      margin-bottom: 16px;
+
+      .ant-spin {
+        display: inline-block;
+      }
+    }
+
+    .ant-result-title {
+      font-size: 20px;
+      line-height: 1.3;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+
+      @media (max-width: 480px) {
+        font-size: 18px;
+      }
+    }
+
+    .ant-result-subtitle {
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 0 4px;
+      color: v.$color-text-secondary;
+    }
+
+    .ant-result-extra {
+      margin-top: 20px;
+
+      .ant-btn {
+        min-height: 44px;
+        height: auto;
+        padding: 8px 24px;
+        white-space: normal;
+        word-break: break-word;
+        max-width: 100%;
+
+        @media (max-width: 480px) {
+          width: 100%;
+        }
+      }
+    }
   }
 }

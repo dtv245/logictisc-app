@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { FormGrid } from "@/forms/FormGrid";
 import { isUuid } from "@/utils/uuid";
 import type { CreateAiDispatchParams } from "@/types/ai-dispatch.types";
+import { useAiSettings } from "../aiConfigStorage";
 import type { AiDispatchActionsResult } from "../useAiDispatchActions";
 
 interface RunFormValues {
@@ -23,11 +24,14 @@ interface RunFormValues {
 export function AiDispatchRunForm({
   actions,
   onPlanCreated,
+  onOpenConfig,
 }: {
   actions: AiDispatchActionsResult;
   onPlanCreated?: () => void;
+  onOpenConfig?: () => void;
 }) {
   const { t } = useTranslation();
+  const { activeProviderConfig } = useAiSettings();
   const [form] = Form.useForm<RunFormValues>();
 
   const onFinish = async (values: RunFormValues) => {
@@ -47,7 +51,7 @@ export function AiDispatchRunForm({
   };
 
   return (
-    <Card bordered style={{ width: "100%", maxWidth: "100%" }}>
+    <Card bordered className="ai-run-form-card" style={{ width: "100%", maxWidth: "100%" }}>
       <Form
         form={form}
         layout="vertical"
@@ -118,12 +122,36 @@ export function AiDispatchRunForm({
                     name="modelUsed"
                     label={t("aiDispatch.model")}
                     rules={[{ required: true }]}
+                    extra={
+                      onOpenConfig ? (
+                        <div style={{ marginTop: 4 }}>
+                          <Button
+                            type="link"
+                            size="small"
+                            onClick={onOpenConfig}
+                            style={{ padding: 0, whiteSpace: "normal", textAlign: "left", height: "auto" }}
+                            data-testid="link-quick-ai-config"
+                          >
+                            {t("aiDispatch.quickConfigLink")} ({activeProviderConfig.name}: {activeProviderConfig.model})
+                          </Button>
+                        </div>
+                      ) : undefined
+                    }
                   >
                     <Select
                       options={[
                         { value: "LogisticsX Neural Dispatcher v2", label: t("aiDispatch.modelNeural") },
                         { value: "Gemini 2.5 Pro Logistics", label: t("aiDispatch.modelGemini") },
                         { value: "Claude 3.7 Sonnet Dispatcher", label: t("aiDispatch.modelClaude") },
+                        ...(activeProviderConfig.model &&
+                        !["LogisticsX Neural Dispatcher v2", "Gemini 2.5 Pro Logistics", "Claude 3.7 Sonnet Dispatcher"].includes(activeProviderConfig.model)
+                          ? [
+                              {
+                                value: activeProviderConfig.model,
+                                label: `${activeProviderConfig.name} - ${activeProviderConfig.model}`,
+                              },
+                            ]
+                          : []),
                       ]}
                     />
                   </Form.Item>
@@ -239,25 +267,16 @@ export function AiDispatchRunForm({
         </div>
 
         {/* Footer: Đúng 1 nút primary, nút reset nằm tách riêng */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 12,
-            marginTop: 16,
-            paddingTop: 16,
-            borderTop: "1px solid #f0f0f0",
-          }}
-        >
+        <div className="ai-run-form__footer">
           <Button
+            className="ai-run-form__btn"
             onClick={() => form.resetFields()}
             disabled={actions.pending}
           >
             {t("common.reset")}
           </Button>
           <Button
+            className="ai-run-form__btn"
             type="primary"
             htmlType="submit"
             loading={actions.pending}

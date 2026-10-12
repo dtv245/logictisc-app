@@ -11,6 +11,7 @@ import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
 import { routes } from "@/constants/routes";
 import { WidgetContainer } from "./WidgetContainer";
+import "./KpiCards.scss";
 import type {
   ExpenseSummaryReport,
   KnownOperatingCpmReport,
@@ -109,6 +110,17 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
   const totalLoads = fleetCount.totalLoads || 0;
   const estUtilization = totalTrucks > 0 ? Math.min(100, Math.round((totalLoads / totalTrucks) * 35)) : 78;
 
+  const metricTitleStyle: React.CSSProperties = {
+    margin: 0,
+    fontWeight: 700,
+    color: "#111827",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    fontSize: "clamp(18px, 1.5vw, 24px)",
+    lineHeight: 1.2,
+  };
+
   const renderDelta = (
     deltaResult: { delta: number; percent: number | null },
     reverseMeaning = false, // if true, higher is worse (like cost or CPM)
@@ -122,24 +134,45 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
     const Icon = isPositive ? ArrowUpOutlined : ArrowDownOutlined;
 
     return (
-      <Space size={2} style={{ color, fontSize: 12, fontWeight: 600 }}>
+      <Space size={2} style={{ color, fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>
         <Icon style={{ fontSize: 11 }} />
         <span>{Math.abs(deltaResult.percent)}%</span>
-        <Typography.Text type="secondary" style={{ fontSize: 11, fontWeight: "normal" }}>
+        <Typography.Text type="secondary" style={{ fontSize: 11, fontWeight: "normal", whiteSpace: "nowrap" }}>
           so kỳ trước
         </Typography.Text>
       </Space>
     );
   };
 
+  const financialColProps = {
+    className: `kpi-card-col ${enableFinancials ? "kpi-card-col--6cols" : ""}`,
+    xs: 24,
+    sm: 12,
+    md: 12,
+    lg: 8,
+    xl: 8,
+    xxl: 4,
+  };
+
+  const opsColProps = {
+    className: `kpi-card-col ${enableFinancials ? "kpi-card-col--6cols" : ""}`,
+    xs: 24,
+    sm: 12,
+    md: 12,
+    lg: enableFinancials ? 8 : 12,
+    xl: enableFinancials ? 8 : 12,
+    xxl: enableFinancials ? 4 : 12,
+  };
+
   return (
-    <Row gutter={[16, 16]}>
+    <Row className="kpi-cards-row" gutter={[16, 16]}>
       {/* 1. Doanh thu */}
       {enableFinancials && (
-        <Col xs={24} sm={12} lg={8} xl={4}>
+        <Col {...financialColProps}>
           <div
+            className="kpi-card-wrapper"
             onClick={() => navigate(routes.profitability)}
-            style={{ cursor: "pointer", height: "100%" }}
+            style={{ height: "100%" }}
             role="button"
             tabIndex={0}
             aria-label="Doanh thu - Nhấn để xem chi tiết"
@@ -152,15 +185,15 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
             >
               <Space direction="vertical" size={4} style={{ width: "100%" }}>
                 <Tooltip title={formatCurrency(revenueCurrent, currency, false)}>
-                  <Typography.Title level={3} style={{ margin: 0, fontWeight: 700, color: "#111827" }}>
+                  <Typography.Title level={3} style={metricTitleStyle}>
                     {formatCurrency(revenueCurrent, currency, true)}
                   </Typography.Title>
                 </Tooltip>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
                   {renderDelta(revenueDelta, false)}
                 </div>
-                <div style={{ height: 28, marginTop: 4 }}>
-                  <ResponsiveContainer width="100%" height={28}>
+                <div style={{ height: 28, marginTop: 4, width: "100%", minWidth: 0 }}>
+                  <ResponsiveContainer width="100%" height={28} minWidth={0}>
                     <AreaChart data={revenueSparkline}>
                       <Area
                         type="monotone"
@@ -181,10 +214,11 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
 
       {/* 2. Chi phí */}
       {enableFinancials && (
-        <Col xs={24} sm={12} lg={8} xl={4}>
+        <Col {...financialColProps}>
           <div
+            className="kpi-card-wrapper"
             onClick={() => navigate(routes.resources.expenses.list)}
-            style={{ cursor: "pointer", height: "100%" }}
+            style={{ height: "100%" }}
             role="button"
             tabIndex={0}
             aria-label="Chi phí - Nhấn để xem chi tiết"
@@ -210,15 +244,15 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
             >
               <Space direction="vertical" size={4} style={{ width: "100%" }}>
                 <Tooltip title={formatCurrency(costCurrent, currency, false)}>
-                  <Typography.Title level={3} style={{ margin: 0, fontWeight: 700, color: "#111827" }}>
+                  <Typography.Title level={3} style={metricTitleStyle}>
                     {formatCurrency(costCurrent, currency, true)}
                   </Typography.Title>
                 </Tooltip>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
                   {renderDelta(costDelta, true)}
                 </div>
-                <div style={{ height: 28, marginTop: 4 }}>
-                  <ResponsiveContainer width="100%" height={28}>
+                <div style={{ height: 28, marginTop: 4, width: "100%", minWidth: 0 }}>
+                  <ResponsiveContainer width="100%" height={28} minWidth={0}>
                     <AreaChart data={costSparkline}>
                       <Area
                         type="monotone"
@@ -239,10 +273,11 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
 
       {/* 3. Lợi nhuận & Biên */}
       {enableFinancials && (
-        <Col xs={24} sm={12} lg={8} xl={4}>
+        <Col {...financialColProps}>
           <div
+            className="kpi-card-wrapper"
             onClick={() => navigate(routes.profitability)}
-            style={{ cursor: "pointer", height: "100%" }}
+            style={{ height: "100%" }}
             role="button"
             tabIndex={0}
             aria-label="Lợi nhuận - Nhấn để xem chi tiết"
@@ -254,13 +289,12 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
               minHeight={120}
             >
               <Space direction="vertical" size={4} style={{ width: "100%" }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: 6 }}>
                   <Tooltip title={formatCurrency(profit, currency, false)}>
                     <Typography.Title
                       level={3}
                       style={{
-                        margin: 0,
-                        fontWeight: 700,
+                        ...metricTitleStyle,
                         color: profit >= 0 ? "#10b981" : "#ef4444",
                       }}
                     >
@@ -273,10 +307,10 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
                     </Tag>
                   )}
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
                   {renderDelta(profitDelta, false)}
                 </div>
-                <Typography.Text type="secondary" style={{ fontSize: 12, marginTop: 8 }}>
+                <Typography.Text className="kpi-card__secondary-text" type="secondary">
                   Biên LN gộp mục tiêu: 18.0%
                 </Typography.Text>
               </Space>
@@ -286,10 +320,11 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
       )}
 
       {/* 4. Đúng giờ (OTD) */}
-      <Col xs={24} sm={12} lg={8} xl={enableFinancials ? 4 : 8}>
+      <Col {...opsColProps}>
         <div
+          className="kpi-card-wrapper"
           onClick={() => navigate(routes.resources.loads.list)}
-          style={{ cursor: "pointer", height: "100%" }}
+          style={{ height: "100%" }}
           role="button"
           tabIndex={0}
           aria-label="Tỷ lệ đúng giờ - Nhấn để xem danh sách chuyến"
@@ -305,27 +340,26 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
             minHeight={120}
           >
             <Space direction="vertical" size={4} style={{ width: "100%" }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
                 <Typography.Title
                   level={3}
                   style={{
-                    margin: 0,
-                    fontWeight: 700,
+                    ...metricTitleStyle,
                     color: (otdCurrent ?? 0) >= 95 ? "#10b981" : (otdCurrent ?? 0) >= 90 ? "#2563eb" : "#ef4444",
                   }}
                 >
                   {formatPercent(otdCurrent)}
                 </Typography.Title>
                 {otd.data?.onTimeLoads !== undefined && (
-                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  <Typography.Text type="secondary" style={{ fontSize: 12, whiteSpace: "nowrap" }}>
                     ({formatNumber(otd.data.onTimeLoads)}/{formatNumber(otd.data.totalEligibleLoads)})
                   </Typography.Text>
                 )}
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
                 {renderDelta(otdDelta, false)}
               </div>
-              <Typography.Text type="secondary" style={{ fontSize: 12, marginTop: 8 }}>
+              <Typography.Text className="kpi-card__secondary-text" type="secondary">
                 Mục tiêu SLA cam kết: ≥ 95.0%
               </Typography.Text>
             </Space>
@@ -335,10 +369,11 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
 
       {/* 5. Chi phí / dặm (Operating CPM) */}
       {enableFinancials && (
-        <Col xs={24} sm={12} lg={8} xl={4}>
+        <Col {...financialColProps}>
           <div
+            className="kpi-card-wrapper"
             onClick={() => navigate("/shipment-costs")}
-            style={{ cursor: "pointer", height: "100%" }}
+            style={{ height: "100%" }}
             role="button"
             tabIndex={0}
             aria-label="Chi phí mỗi dặm - Nhấn để xem chi phí"
@@ -355,14 +390,14 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
             >
               <Space direction="vertical" size={4} style={{ width: "100%" }}>
                 <Tooltip title={cpmDisplay.tooltip}>
-                  <Typography.Title level={3} style={{ margin: 0, fontWeight: 700, color: "#111827" }}>
+                  <Typography.Title level={3} style={metricTitleStyle}>
                     {cpmDisplay.display}
                   </Typography.Title>
                 </Tooltip>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
                   {renderDelta(cpmDelta, true)}
                 </div>
-                <Typography.Text type="secondary" style={{ fontSize: 12, marginTop: 8 }}>
+                <Typography.Text className="kpi-card__secondary-text" type="secondary">
                   Định mức mục tiêu: $2.85/mi
                 </Typography.Text>
               </Space>
@@ -372,10 +407,11 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
       )}
 
       {/* 6. Hiệu suất đội xe */}
-      <Col xs={24} sm={12} lg={8} xl={enableFinancials ? 4 : 8}>
+      <Col {...opsColProps}>
         <div
+          className="kpi-card-wrapper"
           onClick={() => navigate(routes.fleetReport)}
-          style={{ cursor: "pointer", height: "100%" }}
+          style={{ height: "100%" }}
           role="button"
           tabIndex={0}
           aria-label="Hiệu suất đội xe - Nhấn để xem báo cáo đội xe"
@@ -387,16 +423,16 @@ export const KpiCards: React.FC<KpiCardsProps> = ({
             minHeight={120}
           >
             <Space direction="vertical" size={4} style={{ width: "100%" }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <Typography.Title level={3} style={{ margin: 0, fontWeight: 700, color: "#111827" }}>
+              <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+                <Typography.Title level={3} style={metricTitleStyle}>
                   {formatNumber(totalTrucks)} xe
                 </Typography.Title>
-                <Tag color="processing">{estUtilization}% sử dụng</Tag>
+                <Tag color="processing" style={{ margin: 0 }}>{estUtilization}% sử dụng</Tag>
               </div>
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              <Typography.Text type="secondary" style={{ fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 Đang xử lý {formatNumber(totalLoads)} đơn vận tải
               </Typography.Text>
-              <Typography.Text type="secondary" style={{ fontSize: 12, marginTop: 4 }}>
+              <Typography.Text className="kpi-card__secondary-text" type="secondary" style={{ marginTop: 4 }}>
                 Tỷ lệ chạy rỗng ước tính: ~12.4%
               </Typography.Text>
             </Space>

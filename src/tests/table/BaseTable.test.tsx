@@ -198,4 +198,65 @@ describe("BaseTable — trạng thái bình thường", () => {
       screen.getByRole("columnheader", { name: "TEN-COT" }),
     ).toBeInTheDocument();
   });
+
+  it("hiển thị trạng thái rỗng khi có bộ lọc (isFiltered) và gọi onResetFilters khi bấm nút", () => {
+    const handleReset = vi.fn();
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AntdLocaleProvider>
+          <BaseTable<Row>
+            columns={columns}
+            isFiltered={true}
+            onResetFilters={handleReset}
+            queryResult={{}}
+            tableProps={{ dataSource: [] }}
+          />
+        </AntdLocaleProvider>
+      </I18nextProvider>,
+    );
+
+    expect(screen.getByText("Không tìm thấy kết quả phù hợp")).toBeInTheDocument();
+    const clearButton = screen.getByRole("button", { name: "Xóa bộ lọc" });
+    expect(clearButton).toBeInTheDocument();
+    clearButton.click();
+    expect(handleReset).toHaveBeenCalledTimes(1);
+  });
+
+  it("tinh chỉnh phân trang: size nhỏ và hiển thị tổng số bản ghi", () => {
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AntdLocaleProvider>
+          <BaseTable<Row>
+            columns={columns}
+            queryResult={{}}
+            tableProps={{
+              dataSource: [{ id: "1", name: "Row 1" }],
+              pagination: { current: 1, pageSize: 10, total: 42 },
+            }}
+          />
+        </AntdLocaleProvider>
+      </I18nextProvider>,
+    );
+
+    expect(screen.getByText(/Hiển thị 1–10 trên tổng số 42/)).toBeInTheDocument();
+  });
+
+  it("giữ min-height cho wrapper khi bảng đang tải để tránh co giật layout", () => {
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <AntdLocaleProvider>
+          <BaseTable<Row>
+            columns={columns}
+            minHeight={400}
+            queryResult={{ isFetching: true }}
+            tableProps={{ dataSource: [], loading: true }}
+          />
+        </AntdLocaleProvider>
+      </I18nextProvider>,
+    );
+
+    const wrapper = container.querySelector(".base-table-wrapper--loading");
+    expect(wrapper).not.toBeNull();
+    expect(wrapper).toHaveStyle({ minHeight: "400px" });
+  });
 });

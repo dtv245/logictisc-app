@@ -64,6 +64,8 @@ const CustomTrendTooltip: React.FC<TrendTooltipProps> = ({ active, payload, labe
           border: "1px solid #e5e7eb",
           borderRadius: 8,
           boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+          maxWidth: "min(320px, calc(100vw - 32px))",
+          wordBreak: "break-word",
         }}
       >
         <Typography.Text strong style={{ display: "block", marginBottom: 6 }}>
@@ -116,6 +118,8 @@ const CustomPieTooltip: React.FC<PieTooltipProps> = ({ active, payload, totalExp
           border: "1px solid #e5e7eb",
           borderRadius: 8,
           boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+          maxWidth: "min(280px, calc(100vw - 32px))",
+          wordBreak: "break-word",
         }}
       >
         <Typography.Text strong style={{ display: "block", fontSize: 13 }}>
@@ -200,23 +204,25 @@ export const FinancialSection: React.FC<FinancialSectionProps> = ({
           }
           minHeight={320}
         >
-          <div style={{ width: "100%", height: 300 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={monthlyTrendPoints} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+          <div style={{ width: "100%", minWidth: 0, height: 300 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <ComposedChart data={monthlyTrendPoints} margin={{ top: 10, right: 8, left: -12, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
-                <XAxis dataKey="label" tick={{ fill: "#6b7280", fontSize: 12 }} axisLine={{ stroke: "#e5e7eb" }} />
+                <XAxis dataKey="label" minTickGap={10} tick={{ fill: "#6b7280", fontSize: 11 }} axisLine={{ stroke: "#e5e7eb" }} />
                 <YAxis
-                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                  tickCount={5}
+                  width={48}
+                  tick={{ fill: "#6b7280", fontSize: 11 }}
                   tickFormatter={(val) => formatCurrency(val, currency, true)}
                   axisLine={{ stroke: "#e5e7eb" }}
                 />
                 <RechartsTooltip content={<CustomTrendTooltip currency={currency} />} />
                 <Legend
-                  wrapperStyle={{ paddingTop: 10, fontSize: 12 }}
+                  wrapperStyle={{ paddingTop: 8, fontSize: 12 }}
                   formatter={(val) => <span style={{ color: "#374151", fontWeight: 500 }}>{val}</span>}
                 />
-                <Bar dataKey="revenue" name="Doanh thu" fill="#2563eb" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                <Bar dataKey="cost" name="Chi phí" fill="#f59e0b" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="revenue" name="Doanh thu" fill="#2563eb" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="cost" name="Chi phí" fill="#f59e0b" radius={[4, 4, 0, 0]} maxBarSize={28} />
                 <Line
                   type="monotone"
                   dataKey="profit"
@@ -254,15 +260,15 @@ export const FinancialSection: React.FC<FinancialSectionProps> = ({
           }
           minHeight={320}
         >
-          <div style={{ width: "100%", height: 240, position: "relative" }}>
-            <ResponsiveContainer width="100%" height="100%">
+          <div style={{ width: "100%", minWidth: 0, height: 240, position: "relative" }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={85}
+                  innerRadius={55}
+                  outerRadius={80}
                   paddingAngle={3}
                   dataKey="value"
                 >
@@ -282,12 +288,13 @@ export const FinancialSection: React.FC<FinancialSectionProps> = ({
                 transform: "translate(-50%, -50%)",
                 textAlign: "center",
                 pointerEvents: "none",
+                maxWidth: 100,
               }}
             >
               <Typography.Text type="secondary" style={{ fontSize: 11, display: "block" }}>
                 Tổng duyệt
               </Typography.Text>
-              <Typography.Text strong style={{ fontSize: 14, color: "#111827" }}>
+              <Typography.Text strong style={{ fontSize: 13, color: "#111827", whiteSpace: "nowrap" }}>
                 {formatCurrency(totalExpenseAmount, currency, true)}
               </Typography.Text>
             </div>
@@ -303,22 +310,24 @@ export const FinancialSection: React.FC<FinancialSectionProps> = ({
                   justifyContent: "space-between",
                   alignItems: "center",
                   fontSize: 12,
+                  gap: 8,
                 }}
               >
-                <Space size={6}>
+                <Space size={6} style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
                   <div
                     style={{
                       width: 8,
                       height: 8,
                       borderRadius: "50%",
                       backgroundColor: CATEGORY_COLORS[idx % CATEGORY_COLORS.length],
+                      flexShrink: 0,
                     }}
                   />
-                  <Typography.Text ellipsis style={{ maxWidth: 130 }}>
+                  <Typography.Text ellipsis style={{ maxWidth: "100%" }}>
                     {item.name}
                   </Typography.Text>
                 </Space>
-                <Typography.Text strong>{formatCurrency(item.value, currency, true)}</Typography.Text>
+                <Typography.Text strong style={{ flexShrink: 0 }}>{formatCurrency(item.value, currency, true)}</Typography.Text>
               </div>
             ))}
           </div>

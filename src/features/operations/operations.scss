@@ -24,6 +24,8 @@
   display: flex;
   gap: v.$spacing;
   justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .operations-chart__track {
@@ -46,10 +48,40 @@
   font-size: 48px;
 }
 
+.vehicle-map-container {
+  width: 100%;
+}
+
+.vehicle-map__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.vehicle-map__filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  padding: 1px 0;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .vehicle-map,
 .vehicle-map__skeleton {
   border-radius: v.$radius-lg;
-  height: 340px !important;
+  /* Viewport-adaptive height: adapts to screen height while respecting minimum and maximum bounds */
+  height: clamp(380px, calc(100dvh - 340px), 720px) !important;
+  min-height: 360px;
   width: 100% !important;
 }
 
@@ -59,6 +91,59 @@
   /* Leaflet tự đặt z-index cao cho các pane của nó; neo lại để bản đồ không
      chồng lên header/Select của app. */
   z-index: 0;
+  position: relative;
+}
+
+/* Tối ưu nút zoom và controls cho cảm ứng (touch targets >= 38px) */
+.leaflet-bar {
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+
+  a {
+    width: 38px !important;
+    height: 38px !important;
+    line-height: 38px !important;
+    font-size: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #1f2937 !important;
+    background-color: #ffffff !important;
+    transition: background-color 150ms ease, color 150ms ease;
+
+    &:hover,
+    &:focus {
+      background-color: #f3f4f6 !important;
+      color: #111827 !important;
+    }
+
+    &:active {
+      background-color: #e5e7eb !important;
+    }
+  }
+}
+
+/* Popup xe thích ứng màn hình, không bị cắt khỏi viewport */
+.vehicle-map__popup {
+  .leaflet-popup-content-wrapper {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16) !important;
+    padding: 2px !important;
+  }
+
+  .leaflet-popup-content {
+    margin: 10px 14px !important;
+    line-height: 1.45 !important;
+    font-size: 13px !important;
+    word-break: break-word !important;
+    max-width: calc(100vw - 48px) !important;
+  }
+
+  .leaflet-popup-tip {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16) !important;
+  }
 }
 
 @media (max-width: 767px) {
@@ -68,7 +153,8 @@
 
   .vehicle-map,
   .vehicle-map__skeleton {
-    height: 300px !important;
+    height: clamp(320px, calc(100dvh - 280px), 520px) !important;
+    min-height: 320px;
   }
 }
 
