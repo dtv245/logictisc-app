@@ -5,11 +5,14 @@
 import type { OpenNotificationParams } from "@refinedev/core";
 import axios from "axios";
 import type { TFunction } from "i18next";
+import type { ReactNode } from "react";
 
+import { compatibilityT } from "@locales/notificationCompatibility";
 import { isRecord, readApiResponse } from "./api/envelope";
 import { ApiHttpError, normalizeHttpError } from "./api/httpError";
 import { resolveApiErrorMessage } from "./api/errorMessages";
 import type { ErrorParams } from "../types/api.types";
+import type { OperationType } from "./notificationCompatibility";
 
 interface NotificationError {
   message: string;
@@ -24,6 +27,31 @@ interface ErrorNotificationContext {
   key?: string;
   operation?: "create" | "update" | "delete";
   resourceLabel?: string;
+}
+
+/** Text-only Refine notifications retain their historical presentation at this boundary. */
+export interface CompatibilityNotificationError {
+  kind: "compatibility";
+  statusCode: number | undefined;
+  rawMessage: string;
+  rawDescription: string;
+  operation: OperationType;
+  resourceLabel: string | undefined;
+  message: ReactNode;
+  description: ReactNode;
+}
+
+interface StructuredNotificationError {
+  kind: "structured";
+  cause: unknown;
+  t: TFunction;
+  context: ErrorNotificationContext;
+}
+
+interface NotificationContent {
+  message: ReactNode;
+  description?: ReactNode;
+  duration?: number;
 }
 
 const ERROR_LOCALE_KEYS: Record<string, string> = {
@@ -110,6 +138,78 @@ const getStatusFallback = (statusCode: number): string => {
   }
 };
 
+/** Shared status mapping; compatibility hints apply only to existing text-only callers. */
+const getNotificationKind = (error: NotificationError, compatibility?: CompatibilityNotificationError): string => {
+  const statusKind = getStatusFallback(error.statusCode);
+  if (!compatibility) return getTransportKind(error) ?? statusKind;
+
+  const { rawMessage, rawDescription: code, operation } = compatibility;
+  if (error.statusCode === 0 || rawMessage === "Network Error"
+      || ["ERR_NETWORK", "ECONNABORTED", "ETIMEDOUT", "NETWORK_ERROR"].includes(code)) {
+    return ["ECONNABORTED", "ETIMEDOUT"].includes(code) || error.statusCode === 504 ? "timeout" : "network";
+  }
+  if (statusKind === "unauthorized" || operation === "auth"
+      || ["UNAUTHORIZED", "AUTH_SESSION_EXPIRED", "TOKEN_REFRESH_RETURNED_NO_TOKEN", "AUTH_REQUEST_FAILED"].includes(code)
+      || code.startsWith("LARK_")) return "unauthorized";
+  if (statusKind === "forbidden" || ["FORBIDDEN", "ACCESS_DENIED"].includes(code)) return "forbidden";
+  if (statusKind === "notFound" || ["NOT_FOUND", "RESOURCE_NOT_FOUND"].includes(code)) return "notFound";
+  // A bare legacy HTTP 504 used the server presentation, unlike a transport timeout.
+  return error.statusCode === 504 ? "server" : statusKind;
+};
+
+const getCompatibilityFailureTitle = (input: CompatibilityNotificationError, server: boolean): ReactNode => {
+  const entry = ([
+    ["There was an error creating", "Create"],
+    ["Error when updating", "Update"],
+    ["Error when deleting", "Delete"],
+  ] as const).find(([prefix]) => input.rawMessage.startsWith(prefix));
+  if (!entry) return input.message;
+  const key = `${server ? "server" : "failure"}${entry[1]}${input.resourceLabel ? "Resource" : ""}`;
+  return compatibilityT(key, { resource: input.resourceLabel });
+};
+
+const getCompatibilityContent = (input: CompatibilityNotificationError, kind: string): NotificationContent => {
+  const { rawDescription: code, statusCode, description } = input;
+  const fallback = (title: string, detail: string): NotificationContent => ({
+    message: compatibilityT(title), description: compatibilityT(detail), duration: 6,
+  });
+  const original = { message: input.message, description, duration: 6 };
+  if (kind === "network" || kind === "timeout") return fallback(`${kind}Title`, `${kind}Description`);
+  if (kind === "unauthorized") {
+    const override = ([
+      ["LARK_AUTH_CANCELLED", "authFailedTitle", "authCancelledDescription"],
+      ["LARK_CODE_MISSING", "authFailedTitle", "authMissingCodeDescription"],
+      ["LARK_API_CLIENT_REQUIRED", "authConfigTitle", "authConfigDescription"],
+    ] as const).find(([candidate]) => code === candidate);
+    if (override) return fallback(override[1], override[2]);
+    if (statusCode === 401 && (code === "UNAUTHORIZED" || !code)) {
+      return fallback("sessionExpiredTitle", "sessionExpiredDescription");
+    }
+    return original;
+  }
+  if (kind === "forbidden") {
+    return !description || description === "FORBIDDEN" || description === "ACCESS_DENIED"
+      ? fallback("forbiddenTitle", "forbiddenDescription") : original;
+  }
+  if (kind === "notFound") {
+    return !description || description === "NOT_FOUND" || description === "RESOURCE_NOT_FOUND"
+      ? fallback("notFoundTitle", "notFoundDescription") : original;
+  }
+  if (kind === "conflict" && statusCode === 409
+      && [code, input.rawMessage].some((value) => ["VERSION_CONFLICT", "CONCURRENT_MODIFICATION_CONFLICT"].includes(value))) {
+    return fallback("conflictTitle", "conflictDescription");
+  }
+  if (kind === "server") {
+    return {
+      message: getCompatibilityFailureTitle(input, true),
+      description: !description || description === "INTERNAL_SERVER_ERROR" || description === "INTERNAL_ERROR"
+        ? compatibilityT("serverDescription", { statusCode }) : description,
+      duration: 6,
+    };
+  }
+  return { message: getCompatibilityFailureTitle(input, false), description, duration: 5.5 };
+};
+
 const getErrorDescription = (error: NotificationError, t: TFunction): string => {
   const transportKind = getTransportKind(error);
   if (transportKind) return t(`notifications.apiFallback.${transportKind}`);
@@ -139,13 +239,17 @@ const getErrorDescription = (error: NotificationError, t: TFunction): string => 
   return code ? resolveApiErrorMessage(code, error.params, localizedFallback, t) : localizedFallback;
 };
 
-export const createApiErrorNotification = (
-  cause: unknown,
-  t: TFunction,
-  context: ErrorNotificationContext = {},
-): OpenNotificationParams => {
-  const error = readNotificationError(cause);
-  const title = getTransportKind(error) ?? getStatusFallback(error.statusCode);
+/** Both structured API errors and compatibility notifications enter the same resolver. */
+export function resolveNotificationError(input: StructuredNotificationError): OpenNotificationParams;
+export function resolveNotificationError(input: CompatibilityNotificationError): NotificationContent;
+export function resolveNotificationError(input: StructuredNotificationError | CompatibilityNotificationError): OpenNotificationParams | NotificationContent {
+  if (input.kind === "compatibility") {
+    const error = { statusCode: input.statusCode ?? Number.NaN, message: input.rawDescription };
+    return getCompatibilityContent(input, getNotificationKind(error, input));
+  }
+  const { t, context } = input;
+  const error = readNotificationError(input.cause);
+  const title = getNotificationKind(error);
   return {
     key: context.key,
     type: "error",
@@ -154,4 +258,10 @@ export const createApiErrorNotification = (
       : t(`notifications.apiTitles.${title}`),
     description: getErrorDescription(error, t),
   };
-};
+}
+
+export const createApiErrorNotification = (
+  cause: unknown,
+  t: TFunction,
+  context: ErrorNotificationContext = {},
+): OpenNotificationParams => resolveNotificationError({ kind: "structured", cause, t, context });
