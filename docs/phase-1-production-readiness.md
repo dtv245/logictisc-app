@@ -91,7 +91,7 @@ lệnh verify của nó chạy sạch.
   - `src/features/notifications/components/NotificationHeaderIcon.tsx` —
     `react-refresh/only-export-components`: file vừa export component vừa export
     hàm `playNotificationSound`.
-    **Đã sửa:** tách hàm sang `src/features/notifications/notificationSound.ts`;
+    **Đã sửa:** tách hàm sang `src/features/notifications/utils/notificationSound.ts`;
     cập nhật `features/notifications/index.ts` và import trong test.
   - Thêm `coverage`, `playwright-report`, `test-results` vào `globalIgnores` của
     `eslint.config.js` (khớp `.gitignore`) — đây là vệ sinh cấu hình cho thư mục

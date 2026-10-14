@@ -7,7 +7,7 @@ import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import type { Notification } from "@/types/notification.types";
 import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
-vi.mock("@/features/notifications/notificationSound", () => ({ playNotificationSound: vi.fn() }));
+vi.mock("@/features/notifications/utils/notificationSound", () => ({ playNotificationSound: vi.fn() }));
 const item: Notification = { id: "notice-101", title: "Recent shipment", message: "Arrival recorded", isRead: false, createdDate: "2026-10-05T08:00:00Z" };
 function listProvider(read: () => Notification[], observe: (params: GetListParams) => void = () => undefined): DataProvider["getList"] {
   // Only this typed HTTP mock adapts the generic Refine result boundary.
