@@ -105,7 +105,6 @@ src/
 │   ├── appNavigation.tsx            # Navigation icons & labels
 │   ├── crudColumns.tsx              # Factory tạo cột antd table từ resource definition
 │   ├── statusTone.ts                # Ánh xạ trạng thái chuỗi -> StatusTone
-│   ├── useLocalizedColumns.tsx      # Hook dịch tự động tiêu đề cột
 │   └── resources/                   # Config fields, filters, forms cho resources
 │       ├── resourceCapabilities.ts
 │       ├── resourceFilterControls.ts
@@ -169,7 +168,8 @@ src/
 │   ├── useLarkLogin.ts              # Hook xác thực Lark SSO (redirect & callback)
 │   ├── useLogoutUser.ts
 │   ├── useSwitchTenant.ts           # Chuyển đổi tenant (buộc tái xác thực IdP)
-│   └── useTenantList.ts
+│   ├── useTenantList.ts
+│   └── useLocalizedColumns.tsx      # Hook dịch tự động tiêu đề cột
 ├── locales/                         # Đa ngôn ngữ (i18next)
 │   ├── en.ts
 │   ├── ja.ts

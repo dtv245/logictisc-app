@@ -4,8 +4,8 @@ import { Tooltip } from "antd";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import { StatusTag, type StatusStyleConfig, type StatusTone } from "./StatusTag";
-import { statusTone } from "./statusTone";
+import { StatusTag, type StatusStyleConfig, type StatusTone } from "../components/StatusTag";
+import { statusTone } from "../components/statusTone";
 
 type LocalizableColumn<TData extends BaseRecord> = ColumnsType<TData>[number] & {
   titleKey?: string;

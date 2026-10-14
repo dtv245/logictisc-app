@@ -15,7 +15,7 @@ import {
   dvirResultMap,
   dvirStatusMap,
 } from "@features/dvir/components/columns";
-import type { DvirReport } from "@/types/dvir.types";
+import type { DvirReport } from "@/features/dvir/types";
 import { defaultStatusStyles } from "@components/StatusTag";
 
 const queryClient = new QueryClient({

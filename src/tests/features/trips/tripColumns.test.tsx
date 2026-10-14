@@ -9,7 +9,7 @@ import { I18nextProvider } from "react-i18next";
 import type { i18n as I18nInstance } from "i18next";
 
 import { initializeAppI18n } from "@locales";
-import { useLocalizedColumns } from "@components/useLocalizedColumns";
+import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import { tripColumns, tripStatusMap } from "@features/trips/components/columns";
 import type { Trip } from "@/types/trip.types";
 

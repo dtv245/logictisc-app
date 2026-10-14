@@ -24,7 +24,7 @@ import {
   isEditableResourceName,
   resourceFormDefinitions,
 } from "./resources/resourceForms";
-import { useLocalizedColumns } from "./useLocalizedColumns";
+import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import { DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE, normalizePage, normalizePageSize } from "@/utils/querySerializer";
 
 interface ResourceListPageProps<TData extends BaseRecord> {
