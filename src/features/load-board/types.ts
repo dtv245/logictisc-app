@@ -8,9 +8,9 @@ import type {
   GeoLocation,
   Money,
   OptionalAddress,
-} from "./common.types";
-import type { Load } from "./load.types";
-import type { Truck } from "./truck.types";
+} from "@/types/common.types";
+import type { Load } from "@/types/load.types";
+import type { Truck } from "@/types/truck.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type LoadBoardProviderType =

@@ -19,7 +19,7 @@ import type { i18n as I18nInstance } from "i18next";
 import { initializeAppI18n } from "@locales";
 import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import { loadBoardColumns } from "@features/load-board/components/columns";
-import type { LoadBoardListing } from "@/types/load-board.types";
+import type { LoadBoardListing } from "@/features/load-board/types";
 
 const queryClient = new QueryClient({
   defaultOptions: {
