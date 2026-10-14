@@ -30,7 +30,7 @@ import {
   formatDurationMinutes,
   HOS_DUTY_STATUS_MAP,
 } from "@features/hos-eld/components/columns";
-import type { HosLog } from "@/types/hos-eld.types";
+import type { HosLog } from "@/features/hos-eld/types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

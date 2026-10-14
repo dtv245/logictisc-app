@@ -2,9 +2,9 @@
  * Chứa các kiểu dữ liệu Hours of Service, ELD và hành vi tài xế.
  */
 
-import type { DatabaseInterval, GeoLocation } from "./common.types";
-import type { Employee } from "./employee.types";
-import type { Truck } from "./truck.types";
+import type { DatabaseInterval, GeoLocation } from "@/types/common.types";
+import type { Employee } from "@/types/employee.types";
+import type { Truck } from "@/types/truck.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type EldProviderType =
