@@ -6,8 +6,8 @@ import {
   NORTH_STAR_METRICS,
   REQUIRED_ENDPOINTS,
   unavailableReasonKey,
-} from "@features/executive/executive.metrics";
-import { runRules } from "@features/executive/executive.rules";
+} from "@features/executive/utils/executive.metrics";
+import { runRules } from "@features/executive/config/executive.rules";
 
 describe("Executive Metrics Configuration", () => {
   it("declares the 6 canonical reporting endpoints under /api/reports/**", () => {

@@ -74,8 +74,8 @@ The following areas are stable and must not be redesigned during feature work:
 src/providers/api/
 src/providers/permissions/roleMatrix.ts
 src/providers/accessControlProvider.ts
-src/features/executive/executive.queries.ts
-src/features/executive/executive.metrics.ts
+src/features/executive/api/executive.queries.ts
+src/features/executive/utils/executive.metrics.ts
 tenant resolution via JWT / currentUser boundary check
 ```
 
@@ -1184,8 +1184,8 @@ Current Executive foundation is retained, but FE-DASH-001 is PARTIAL / BLOCKED_B
 Do not rewrite:
 
 ```text
-src/features/executive/executive.queries.ts
-src/features/executive/executive.metrics.ts
+src/features/executive/api/executive.queries.ts
+src/features/executive/utils/executive.metrics.ts
 ```
 
 The retained query foundation describes six legacy report calls and unavailable semantics. These are intended contracts, not current runtime compatibility. Do not compose monthly financial/Fleet/other reports into a fabricated executive-summary.

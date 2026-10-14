@@ -58,7 +58,7 @@ def mapping(method, path):
     if path in ["/api/reports/fleet/health", "/api/reports/fleet/utilization-history"]:
         return ["src/features/fleet/api/fleetReport.api.ts"], "ACTIVE" if path.endswith("utilization-history") else "NOT_USED_BY_FE", "MATCHED", "Explicit policy/trucks/period/zone; report roles; historical DONE remains distinct from new certification"
     if path.startswith("/api/reports/") or path.endswith("/balance"):
-        return ["src/features/executive/executive.queries.ts"], "DORMANT", "CONTRACT_BLOCKED", "Executive foundation retained; legacy DTO/parameter compatibility and summary missing"
+        return ["src/features/executive/api/executive.queries.ts"], "DORMANT", "CONTRACT_BLOCKED", "Executive foundation retained; legacy DTO/parameter compatibility and summary missing"
     if path.startswith("/api/driver-settlements"):
         if path.endswith(("/recalculate-revenue", "/billing-adjustments")):
             return ["src/features/settlements/api/settlementRevenue.api.ts"], "DORMANT", "FE_PATCHED", "Distinct Recalculate expectedSnapshotId and Adjustment affectedDocumentId; separate outcomes/intent"

@@ -10,7 +10,7 @@ import { isLegacyDraftInvoice } from "@/features/invoices/utils/invoiceMutabilit
 import { getResourceCapabilities } from "@/components/resources/resourceCapabilities";
 import { resourceMutationContracts } from "@/types/handoff.generated";
 import type { ApiResourceDefinition } from "@/types/dataProvider.types";
-import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/executive.contract";
+import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
 import {
   appResourcePageRoutes,
   appResources,

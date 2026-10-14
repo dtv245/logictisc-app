@@ -77,7 +77,7 @@ import { useCurrentUser } from "@hooks/useCurrentUser";
 import { useLogoutUser } from "@hooks/useLogoutUser";
 import { useSwitchTenant } from "@hooks/useSwitchTenant";
 import { NotificationHeaderIcon } from "@features/notifications/components/NotificationHeaderIcon";
-import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/executive.contract";
+import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import type { AccessResource } from "@/types/roles.types";
 import { routes } from "@constants/routes";
