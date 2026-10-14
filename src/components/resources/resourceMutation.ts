@@ -1,7 +1,7 @@
 /** Whitelists full PUT request DTOs and keeps concurrency tied to the form's read snapshot. */
 import { resourceMutationContracts } from "@/types/handoff.generated";
-import { ApiHttpError } from "@/providers/api/httpError";
-import { selectMutationFields } from "@/providers/api/mutationFields";
+import { ApiHttpError } from "@/utils/httpError";
+import { selectMutationFields } from "@/utils/mutationFields";
 
 export function buildResourceMutation(
   resource: string,

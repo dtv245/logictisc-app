@@ -5,7 +5,7 @@ import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LoadDocumentsPanel } from "@/features/loads/LoadDocumentsPanel";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import type { DocumentDto } from "@/types/document.dto";
 

@@ -7,7 +7,7 @@ import { PayrollEntryPage } from "@/pages/payroll/PayrollEntryPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payroll, payrollId } from "@/tests/fixtures/payroll";
 import { settlementId } from "@/tests/fixtures/settlement";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 const page = <Routes><Route path="/payroll" element={<PayrollEntryPage />} /><Route path="/payroll/reconciliation" element={<p>Opened reconciliation</p>} /><Route path="/payroll/:id" element={<p>Opened run</p>} /></Routes>;
 const options = { initialEntries: ["/payroll"] };

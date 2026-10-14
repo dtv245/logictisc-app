@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import {
   ApiHttpError,
   toRefineHttpError,
-} from "@providers/api/httpError";
+} from "@/utils/httpError";
 
 describe("toRefineHttpError", () => {
   it("groups field errors and preserves backend code and request ID", () => {

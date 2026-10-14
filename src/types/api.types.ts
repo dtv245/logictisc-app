@@ -64,3 +64,25 @@ export interface ApiError extends HttpError {
   message: string;
   errors?: ApiValidationErrors;
 }
+
+export type RefineFieldErrors = Record<string, string[]>;
+
+export interface ApiHttpErrorOptions {
+  statusCode: number;
+  message: string;
+  code: string;
+  requestId: string | null;
+  backendErrors?: BackendApiError[] | undefined;
+  fieldErrors?: RefineFieldErrors | undefined;
+  cause?: unknown;
+  params?: ErrorParams;
+  retryAfterSeconds?: number;
+}
+
+export interface ToRefineHttpErrorOptions {
+  fallbackCode?: string | undefined;
+  fallbackMessage?: string | undefined;
+  fallbackRequestId?: string | null | undefined;
+  cause?: unknown;
+  retryAfterSeconds?: number;
+}

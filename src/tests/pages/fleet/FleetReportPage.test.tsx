@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FleetReportPage } from "@/pages/fleet/FleetReportPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { fleetReport, fleetPolicyId, fleetTruckId, otherFleetTruckId } from "@/tests/fixtures/fleet";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import type { Truck } from "@/types/truck.types";
 
 const session = vi.hoisted(() => ({ tenantKey: "tenant-finance" }));

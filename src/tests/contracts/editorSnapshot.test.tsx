@@ -10,7 +10,7 @@ import { createLogisticsDataProvider } from "@/providers/dataProvider";
 import { foundationApiResources } from "@/pages/resourceRegistry";
 import { useResourceEditContract } from "@/components/resources/useResourceEditContract";
 import { buildResourceMutation } from "@/components/resources/resourceMutation";
-import { ApiHttpError, normalizeHttpError } from "@/providers/api/httpError";
+import { ApiHttpError, normalizeHttpError } from "@/utils/httpError";
 import { handoffExamples } from "@/tests/fixtures/handoffExamples";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 

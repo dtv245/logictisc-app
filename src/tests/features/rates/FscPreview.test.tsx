@@ -7,7 +7,7 @@ import { LoadFinancialPanel } from "@/features/loads/LoadFinancialPanel";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { loadId, report } from "@/tests/fixtures/finance";
 import { rating } from "@/tests/fixtures/rating";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 const session = vi.hoisted(() => ({ tenantKey: "tenant-finance" as string | undefined }));
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: session.tenantKey } }) }));
 async function fill() {

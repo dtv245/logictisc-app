@@ -3,7 +3,7 @@ import { Alert, Button, Form, Input, InputNumber, Modal, Select } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { UUID_PATTERN } from "@/utils/uuid";
 import type { SettlementAdjustmentPayload } from "@/types/settlement.dto";
 import type { UseSettlementActionsResult } from "./useSettlementActions";

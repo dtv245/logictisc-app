@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AccessorialChargeView } from "@/types/accessorial.types";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 
 export const useAccessorialApproval = (loadId: string) => {

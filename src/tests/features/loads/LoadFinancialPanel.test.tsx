@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { LoadFinancialPanel } from "@/features/loads/LoadFinancialPanel";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { accessorials, costs, loadId, report, tenantKey } from "@/tests/fixtures/finance";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import type { CustomParams } from "@refinedev/core";
 
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));

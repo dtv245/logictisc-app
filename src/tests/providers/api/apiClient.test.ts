@@ -14,7 +14,7 @@ import {
 } from "axios";
 import { describe, expect, it, vi } from "vitest";
 
-import { ApiHttpError } from "@providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { createApiClient } from "@providers/api/apiClient";
 
 const runtimeConfig = {

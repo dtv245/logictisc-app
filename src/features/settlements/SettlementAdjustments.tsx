@@ -6,7 +6,7 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { EmptyState } from "@/components/EmptyState";
 import { QueryErrorState } from "@/components/ErrorStates";
 import { financialAmount } from "@/features/profitability/financialDisplay";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import type { DriverSettlementView } from "@/types/settlement.dto";
 import { SETTLEMENT_ENDPOINTS } from "./settlement.api";
 import { settlementKeys } from "./settlement.keys";

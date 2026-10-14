@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PayrollPaymentsPanel } from "@/features/payroll/PayrollPaymentsPanel";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payroll, payment } from "@/tests/fixtures/payroll";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 const run = { ...payroll, status: "LOCKED" };
 describe("payment scheduling", () => {

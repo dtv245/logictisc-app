@@ -31,7 +31,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ApiError } from "@/types/api.types";
 import type { OpenNotificationParams } from "@refinedev/core";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 
 /** `onMutationError` mà component truyền xuống hook của Refine. */
 const captured = vi.hoisted(() => ({

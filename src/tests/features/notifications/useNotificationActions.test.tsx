@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { useNotificationActions } from "@/features/notifications/useNotificationActions";
 import { NotificationMarkAllRead } from "@/features/notifications/components/NotificationMarkAllRead";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 function Probe() {
   const actions = useNotificationActions(); const access = useCan({ resource: "notifications", action: "list" });

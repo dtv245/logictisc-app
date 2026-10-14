@@ -1,7 +1,7 @@
 /** Preserves keyed custom command bodies across uncertain outcomes without adding automatic retries. */
 import { useCustomMutation, type BaseRecord, type CustomResponse } from "@refinedev/core";
 import { useRef } from "react";
-import { ApiHttpError, normalizeHttpError } from "@/providers/api/httpError";
+import { ApiHttpError, normalizeHttpError } from "@/utils/httpError";
 import type { CustomResponseMeta } from "@/types/apiClient.types";
 
 interface Command {

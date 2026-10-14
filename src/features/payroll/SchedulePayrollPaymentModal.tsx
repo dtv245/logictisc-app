@@ -1,7 +1,7 @@
 /** Schedules a server-owned net amount using explicit configured provider references. */
 import { Alert, Button, Form, Input, Modal, Select } from "antd";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { PayrollItem, SchedulePayrollPaymentPayload } from "@/types/payroll.dto";

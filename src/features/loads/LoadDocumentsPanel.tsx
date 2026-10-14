@@ -13,7 +13,7 @@ import { DocumentUploadModal } from "@/features/documents/DocumentUploadModal";
 import { formatDateTime } from "@/formatters/dateTime";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { BaseTable } from "@/table/BaseTable";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import type { DocumentDto } from "@/types/document.dto";
 
 export interface LoadDocumentsPanelProps {

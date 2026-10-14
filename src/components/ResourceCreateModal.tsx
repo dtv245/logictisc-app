@@ -15,7 +15,7 @@ import { buildResourceMutation } from "./resources/resourceMutation";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
-import { createApiErrorNotification } from "@/providers/apiErrorNotification";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 import {
   createResourceFormInitialValues,
   findSectionKeyForField,

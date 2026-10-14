@@ -9,30 +9,15 @@ import type {
   CrudFilter,
   CrudFilters,
   CrudSorting,
-  Pagination,
 } from "@refinedev/core";
+
+import type { ListQuerySerializationOptions, QueryParameters, QueryParameterValue } from "@/types/query.types";
 
 import { clampInteger, truncateToInteger } from "@formatters/number";
 
 export const DEFAULT_LIST_PAGE = 1;
 export const DEFAULT_LIST_PAGE_SIZE = 20;
 export const MAX_LIST_PAGE_SIZE = 100;
-
-export type QueryParameterValue =
-  | string
-  | number
-  | boolean
-  | readonly string[];
-
-export type QueryParameters = Record<string, QueryParameterValue>;
-
-export interface ListQuerySerializationOptions {
-  pagination?: Pagination;
-  filters?: CrudFilters;
-  sorters?: CrudSorting;
-  allowedFilterFields: readonly string[];
-  allowedSortFields: readonly string[];
-}
 
 export const normalizePage = (page: number | undefined): number =>
   clampInteger(truncateToInteger(page ?? Number.NaN, DEFAULT_LIST_PAGE), DEFAULT_LIST_PAGE, Number.MAX_SAFE_INTEGER);

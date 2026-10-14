@@ -2,7 +2,7 @@
 import { Alert, Button, DatePicker, Form, Input, InputNumber, Modal, Select } from "antd";
 import type { Dayjs } from "dayjs";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { PayrollReconciliationCase, ReconcileBankPayload } from "@/types/payroll.dto";

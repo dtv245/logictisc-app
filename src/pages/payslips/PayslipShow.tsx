@@ -11,7 +11,7 @@ import { ForbiddenState, NotFoundState, QueryErrorState } from "@/components/Err
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { isUuid } from "@/utils/uuid";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { payslipApi, payslipKeys, downloadPayslipPdf, savePayslipPdf, type PayslipDownloader } from "@/features/payslips/payslip.api";
 import { readPayslipSnapshot } from "@/features/payslips/payslip.snapshot";
 import { PayslipSummary } from "@/features/payslips/PayslipSummary";

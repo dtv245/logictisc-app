@@ -20,9 +20,9 @@ import { useTranslation } from "react-i18next";
 
 import { EmptyState } from "@components/EmptyState";
 import { QueryErrorState } from "@components/ErrorStates";
-import { normalizePage, normalizePageSize } from "@providers/api/querySerializer";
-import { ApiHttpError } from "@providers/api/httpError";
-import { resolveApiErrorMessage } from "@providers/api/errorMessages";
+import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
+import { ApiHttpError } from "@/utils/httpError";
+import { resolveApiErrorMessage } from "@/utils/errorMessages";
 import "./BaseTable.scss";
 
 /**

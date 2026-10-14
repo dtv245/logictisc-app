@@ -23,7 +23,7 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { FormGrid } from "@/forms/FormGrid";
 import { formatDateTime } from "@/formatters/dateTime";
 import { isUuid } from "@/utils/uuid";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import type { FleetReport, FleetReportQuery } from "@/types/fleetReport.dto";
 import type { Truck } from "@/types/truck.types";
 import { fleetReportApi, fleetReportKey } from "@/features/fleet/fleetReport.api";

@@ -51,7 +51,7 @@ describe("Messaging identity and activation", () => {
   });
 
   it("retains message input when membership is denied and does not retry automatically", async () => {
-    const { ApiHttpError } = await import("@/providers/api/httpError");
+    const { ApiHttpError } = await import("@/utils/httpError");
     const request = vi.fn(async (options) => {
       if (options.method === "post") throw new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Nonmember", requestId: "denied" });
       if (options.url.includes("conversations")) return { items: [{ id: "private", name: "Private", isTenantChat: false, createdAt: "2026-10-07T00:00:00Z" }], totalItems: 1, totalPages: 1, currentPage: 1, pageSize: 20 };

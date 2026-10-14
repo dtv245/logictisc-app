@@ -1,4 +1,4 @@
-import { toWireDecimal } from "@/providers/api/decimal";
+import { toWireDecimal } from "@/utils/decimal";
 /** Accounting supplies an explicit tax decision for a server-accepted snapshot; no local financial calculation. */
 import { useCan, useDataProvider } from "@refinedev/core";
 import { Alert, Button, Form, Input, InputNumber, Select, Space } from "antd";
@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
-import { normalizeHttpError, type ApiHttpError } from "@/providers/api/httpError";
+import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
 import type { AcceptedRatingSnapshot, BillingInvoice, GenerateInvoiceRequest, LineTax } from "@/types/handoff.generated";
 import { createInvoiceCommand, createPrimaryInvoice, BILLING_COMMANDS_RUNTIME_VERIFIED } from "./billingCommands";
 

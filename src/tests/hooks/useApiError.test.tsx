@@ -8,7 +8,7 @@ import { I18nextProvider, initReactI18next } from "react-i18next";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { useApiError } from "@/hooks/useApiError";
 import { enMessages } from "@/locales/en";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 
 let translations: i18n;
 beforeAll(async () => {

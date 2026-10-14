@@ -1,7 +1,7 @@
 /** Revenue correction commands keep snapshot concurrency distinct from billing-document recovery identity. */
 import type { DataProvider } from "@refinedev/core";
 import type { Adjustment, DriverSettlementView, Impact, Recalculate } from "@/types/handoff.generated";
-import { createCommandIntent } from "@/providers/api/commandIntent";
+import { createCommandIntent } from "@/utils/commandIntent";
 
 export const settlementRevenueApi = {
   recalculate: (id: string) => `/api/driver-settlements/${encodeURIComponent(id)}/recalculate-revenue`,

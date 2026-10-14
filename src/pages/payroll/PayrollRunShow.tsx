@@ -15,7 +15,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateOnly, formatDateTime } from "@/formatters/dateTime";
 import type { PayrollRun } from "@/types/payroll.dto";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import { payrollApi, payrollKeys } from "@/features/payroll/payroll.api";
 import { usePayrollActions, payrollIsValidated } from "@/features/payroll/usePayrollActions";
 import { PayrollActions } from "@/features/payroll/PayrollActions";

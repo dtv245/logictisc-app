@@ -11,7 +11,7 @@ import { formatDateTime } from "@/formatters/dateTime";
 import { financialAmount } from "@/features/profitability/financialDisplay";
 import { financialQueryKeys } from "@/features/profitability/profitability.api";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import type { ShipmentCostView } from "@/types/shipmentCost.types";
 
 export const ShipmentCostTable = ({ loadId }: { loadId: string }) => {

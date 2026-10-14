@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { readApiResponse, readPagedResponse } from "@providers/api/envelope";
+import { readApiResponse, readPagedResponse } from "@/utils/envelope";
 
 const meta = {
   timestamp: "2026-07-27T03:00:00Z",

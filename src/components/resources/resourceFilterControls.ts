@@ -5,7 +5,7 @@
  *
  * - **Field nào được lọc** — `allowedFilterFields` trong `resourceRegistry.ts`.
  *   `serializeFilters` ném `FILTER_FIELD_NOT_ALLOWED` khi gặp field ngoài allowlist
- *   (`providers/api/querySerializer.ts:96`), nên đây không phải chuyện gọn gàng mà là
+ *   (`utils/querySerializer.ts`), nên đây không phải chuyện gọn gàng mà là
  *   điều kiện để list tải được: một filter sai làm hỏng cả query, không chỉ filter đó.
  *   Test `resourceFilterControls.test.ts` khoá bất biến này.
  * - **Field đó là loại gì** — `resourceFormDefinitions`. `select` mượn `options`,

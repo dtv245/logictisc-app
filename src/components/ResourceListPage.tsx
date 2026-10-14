@@ -25,7 +25,7 @@ import {
   resourceFormDefinitions,
 } from "./resources/resourceForms";
 import { useLocalizedColumns } from "./useLocalizedColumns";
-import { DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE, normalizePage, normalizePageSize } from "@providers/api/querySerializer";
+import { DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE, normalizePage, normalizePageSize } from "@/utils/querySerializer";
 
 interface ResourceListPageProps<TData extends BaseRecord> {
   columns: ColumnsType<TData>;

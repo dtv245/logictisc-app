@@ -16,7 +16,7 @@ import { financialAmount } from "@/features/profitability/financialDisplay";
 import { payslipApi, payslipKeys } from "@/features/payslips/payslip.api";
 import { readPayslipSnapshot } from "@/features/payslips/payslip.snapshot";
 import type { PayslipDto } from "@/types/payslip.dto";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 export function MyPayslipsPage() {
   const { t, i18n } = useTranslation(); const navigate = useNavigate(); const { tenant } = useCurrentTenant(); const user = useCurrentUser();
   const access = useCan({ resource: "payslips", action: "PAYSLIP_VIEW" });

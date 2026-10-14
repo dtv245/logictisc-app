@@ -10,7 +10,7 @@ import {
   normalizePageSize,
   serializeCustomQuery,
   serializeListQuery,
-} from "@providers/api/querySerializer";
+} from "@/utils/querySerializer";
 
 describe("list query serialization", () => {
   it("normalizes one-based pagination and clamps page size", () => {

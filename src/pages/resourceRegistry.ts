@@ -9,7 +9,7 @@ import type { TFunction } from "i18next";
 import { isLegacyDraftInvoice } from "@/features/invoices/invoiceMutability";
 import { getResourceCapabilities } from "@/components/resources/resourceCapabilities";
 import { resourceMutationContracts } from "@/types/handoff.generated";
-import type { ApiResourceDefinition } from "../providers/dataProvider";
+import type { ApiResourceDefinition } from "@/types/dataProvider.types";
 import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/executive.contract";
 import {
   appResourcePageRoutes,

@@ -40,7 +40,7 @@ import { createRemoteJwkAccessTokenVerifier } from "./providers/auth/jwtVerifier
 import { useAntdNotificationProvider } from "./providers/notificationProvider";
 import { createBrowserOidcGateway } from "./providers/auth/oidcGateway";
 import { createLarkGateway } from "./providers/auth/larkGateway";
-import { shouldRetryQuery, queryRetryDelay } from "./providers/api/retryPolicy";
+import { shouldRetryQuery, queryRetryDelay } from "@/utils/retryPolicy";
 import { AuthSessionManager } from "./providers/auth/sessionManager";
 
 export interface AppProps

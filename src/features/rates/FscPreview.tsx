@@ -9,7 +9,7 @@ import { ForbiddenState } from "@/components/ErrorStates";
 import { FormGrid } from "@/forms/FormGrid";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { financialAmount } from "@/features/profitability/financialDisplay";
 import { formatDateOnly, formatDateTime } from "@/formatters/dateTime";
 import { formatMoney } from "@/formatters/money";

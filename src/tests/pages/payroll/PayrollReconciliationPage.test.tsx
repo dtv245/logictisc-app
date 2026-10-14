@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PayrollReconciliationPage } from "@/pages/payroll/PayrollReconciliationPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payment } from "@/tests/fixtures/payroll";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 const evidenceCase = { caseEventId: "88888888-8888-4888-8888-888888888888", paymentId: payment.id, paymentStatus: "PROCESSING", sourceKey: "case-source", providerKey: "configured-bank", outcome: "SUCCEEDED", amount: "811.21", currency: "EUR", providerReference: "sensitive-bank-ref-987654321", occurredAt: "2026-10-02T10:00:00Z", reason: "Verify bank evidence" };
 const cases = { content: [evidenceCase], totalElements: 52, number: 0, size: 25 };

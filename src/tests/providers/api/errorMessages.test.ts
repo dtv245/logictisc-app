@@ -1,9 +1,9 @@
 /** Contracts for code-based messages, interpolation and legacy error envelopes. */
 import { beforeAll, describe, expect, it } from "vitest";
 import { initializeAppI18n } from "@locales";
-import { resolveApiErrorMessage } from "@providers/api/errorMessages";
-import { toRefineHttpError } from "@providers/api/httpError";
-import { createApiErrorNotification } from "@providers/apiErrorNotification";
+import { resolveApiErrorMessage } from "@/utils/errorMessages";
+import { toRefineHttpError } from "@/utils/httpError";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 
 let i18n: Awaited<ReturnType<typeof initializeAppI18n>>;
 beforeAll(async () => { i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" }); });

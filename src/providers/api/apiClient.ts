@@ -16,12 +16,12 @@ import {
   ApiHttpError,
   normalizeHttpError,
   toRefineHttpError,
-} from "./httpError";
-import { readApiResponse } from "./envelope";
+} from "@/utils/httpError";
+import { readApiResponse } from "@/utils/envelope";
 import {
   assertRelativeApiPath,
   normalizeApiBaseUrl,
-} from "./path";
+} from "@/utils/apiPath";
 import type {
   AccessTokenProvider,
   CreateApiClientOptions,

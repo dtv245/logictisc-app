@@ -3,7 +3,7 @@ import { Button, Card, Col, DatePicker, Divider, Form, Input, Modal, Row, Space,
 import type { Dayjs } from "dayjs";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { FormGrid } from "@/forms/FormGrid";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { useState } from "react";
 import { useCan } from "@refinedev/core";
 import { useNavigate } from "react-router-dom";

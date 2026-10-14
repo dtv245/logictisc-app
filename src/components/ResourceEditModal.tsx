@@ -13,7 +13,7 @@ import { statusTone } from "@/components/statusTone";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
-import { createApiErrorNotification } from "@/providers/apiErrorNotification";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 import {
   ResourceFormFields,
   useResourceFormSections,

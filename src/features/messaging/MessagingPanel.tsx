@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { ForbiddenState } from "@/components/ErrorStates";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
-import { normalizeHttpError, type ApiHttpError } from "@/providers/api/httpError";
+import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
 import type { PagedResponse } from "@/types/api.types";
 import type { ConversationView, MessageView } from "@/types/handoff.generated";
 import { createMessagingCommands, messagingApi, messagingKeys, MESSAGING_RUNTIME_VERIFIED } from "./messaging.api";

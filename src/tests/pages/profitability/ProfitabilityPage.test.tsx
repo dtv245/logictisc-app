@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ProfitabilityPage } from "@/pages/profitability/ProfitabilityPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { loadId, summaryRow, tenantKey } from "@/tests/fixtures/finance";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import type { CustomParams } from "@refinedev/core";
 
 const identity = vi.hoisted(() => ({ tenantKey: "tenant-finance" as string | undefined }));

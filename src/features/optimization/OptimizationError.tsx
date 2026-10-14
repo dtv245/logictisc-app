@@ -1,7 +1,7 @@
 import { Alert, Button, Space } from "antd";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { routes } from "@/constants/routes";
 import type { OptimizationOutcome } from "@/types/optimization.dto";
 

@@ -2,11 +2,11 @@
 
 import { describe, expect, it } from "vitest";
 
-import { ApiHttpError } from "@providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import {
   MAX_TRANSIENT_QUERY_RETRIES,
   shouldRetryQuery,
-} from "@providers/api/retryPolicy";
+} from "@/utils/retryPolicy";
 
 const error = (statusCode: number, code = `HTTP_${statusCode}`) =>
   new ApiHttpError({

@@ -2,7 +2,7 @@
  * Hợp đồng giữa khai báo filter và allowlist của backend.
  *
  * Lỗi mà test này chặn không phải "ô lọc hiện sai" mà là **hỏng cả danh sách**:
- * `serializeFilters` (`providers/api/querySerializer.ts:96`) ném
+ * `serializeFilters` (`utils/querySerializer.ts`) ném
  * `FILTER_FIELD_NOT_ALLOWED` khi gặp field ngoài `allowedFilterFields`, và lỗi đó
  * làm rơi toàn bộ query chứ không riêng filter vi phạm.
  *

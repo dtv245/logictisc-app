@@ -1,8 +1,8 @@
 /** Provider backoff affects safe read retries without creating an authentication replay. */
 import { describe, expect, it } from "vitest";
 import { AxiosError, AxiosHeaders } from "axios";
-import { ApiHttpError, normalizeHttpError } from "@providers/api/httpError";
-import { queryRetryDelay, shouldRetryQuery } from "@providers/api/retryPolicy";
+import { ApiHttpError, normalizeHttpError } from "@/utils/httpError";
+import { queryRetryDelay, shouldRetryQuery } from "@/utils/retryPolicy";
 
 describe("Retry-After contract",()=>{
   it("preserves rate-limit headers and enforces their minimum wait",()=>{

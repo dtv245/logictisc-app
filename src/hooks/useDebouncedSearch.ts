@@ -3,7 +3,7 @@
  *
  * Lý do tồn tại: gõ "abc" mà không debounce là 3 request, và request của "a" có thể
  * về **sau** request của "abc" — bảng hiện dữ liệu cũ. Repo đã có nửa còn lại của
- * lời giải ở `providers/api/latestRequest.ts` (huỷ response cũ theo key), nhưng nửa
+ * lời giải ở `providers/dataProvider.ts` (huỷ response cũ theo key), nhưng nửa
  * này thì chưa: trước hook này, toàn bộ `src/` không có một `setTimeout` nào.
  *
  * Hai cơ chế bù nhau chứ không thay nhau: debounce **giảm số request**, coordinator

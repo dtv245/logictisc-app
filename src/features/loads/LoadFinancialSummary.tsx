@@ -6,7 +6,7 @@ import { QueryErrorState } from "@/components/ErrorStates";
 import { ProfitabilitySummary } from "@/features/profitability/ProfitabilitySummary";
 import { financialQueryKeys, PROFITABILITY_ENDPOINTS } from "@/features/profitability/profitability.api";
 import type { LoadProfitabilityReportDto } from "@/types/profitability.dto";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 
 export const LoadFinancialSummary = ({ loadId }: { loadId: string }) => {

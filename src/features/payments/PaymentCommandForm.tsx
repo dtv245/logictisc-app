@@ -10,7 +10,7 @@ import { ForbiddenState } from "@/components/ErrorStates";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
-import { normalizeHttpError, type ApiHttpError } from "@/providers/api/httpError";
+import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
 import type { PaymentResponse } from "@/types/payment.dto";
 import { createPaymentCommands, PAYMENT_COMMANDS_RUNTIME_VERIFIED, type PaymentCreateValues } from "./paymentCommands";
 

@@ -6,9 +6,9 @@ import { useCallback } from "react";
 import { App } from "antd";
 import { useTranslation } from "react-i18next";
 
-import type { ApiHttpError } from "../providers/api/httpError";
-import { normalizeHttpError } from "../providers/api/httpError";
-import { createApiErrorNotification } from "../providers/apiErrorNotification";
+import type { ApiHttpError } from "@/utils/httpError";
+import { normalizeHttpError } from "@/utils/httpError";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 
 export interface UseApiErrorResult {
   /** Chuẩn hoá lỗi, hiện notification, và trả về lỗi đã chuẩn hoá để gọi tiếp. */

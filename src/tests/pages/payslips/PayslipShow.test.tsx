@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { PayslipShow } from "@/pages/payslips/PayslipShow";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payslip, payslipId } from "@/tests/fixtures/payslip";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import type { PayslipDownloader } from "@/features/payslips/payslip.api";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => ({ data: { employeeId: "own-employee" } }) }));

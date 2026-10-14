@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { applyBackendFieldErrors, type FormFieldName } from "@/forms/backendFieldErrors";
-import { normalizeHttpError, type ApiHttpError } from "@/providers/api/httpError";
+import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
 import type { Load } from "@/types/load.types";
 
 type Values = { requestedPickupBusinessDate: string; reasonCode: string; reason: string; source: string };

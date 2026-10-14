@@ -6,7 +6,7 @@ import { EllipsisOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { createApiErrorNotification } from "@/providers/apiErrorNotification";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 import { getResourceCapabilities } from "./resources/resourceCapabilities";
 import { useResourceAction } from "./ResourceActionContext";
 

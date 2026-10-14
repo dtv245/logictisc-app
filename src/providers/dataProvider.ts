@@ -24,36 +24,89 @@ import {
   type AxiosRequestConfig,
 } from "axios";
 
-import { guardResourceMutation, type ResourceMutationContract } from "./api/mutation";
-import { ApiHttpError } from "../providers/api/httpError";
-import { isRecord, readPagedResponse } from "../providers/api/envelope";
-import { createLatestRequestCoordinator } from "../providers/api/latestRequest";
+import { ApiHttpError } from "@/utils/httpError";
+import { isRecord, readPagedResponse } from "@/utils/envelope";
 import {
   assertRelativeApiPath,
   joinApiItemPath,
-} from "../providers/api/path";
+} from "@/utils/apiPath";
 import {
   serializeCustomQuery,
   serializeListQuery,
-} from "../providers/api/querySerializer";
-import type { LogisticsApiClient } from "../types/apiClient.types";
+} from "@/utils/querySerializer";
+import { selectMutationFields } from "@/utils/mutationFields";
+import type {
+  ApiResourceDefinition,
+  CreateDataProviderOptions,
+  LatestRequestCoordinator,
+  ResourceMutationContract,
+} from "@/types/dataProvider.types";
+export type { ApiResourceDefinition, CreateDataProviderOptions, ResourceUpdateMethod } from "@/types/dataProvider.types";
 
-export type ResourceUpdateMethod = "put" | "patch";
-
-export interface ApiResourceDefinition {
-  collectionPath: string;
-  allowedFilterFields: readonly string[];
-  allowedSortFields: readonly string[];
-  updateMethod?: ResourceUpdateMethod;
-  mutationContract?: ResourceMutationContract;
-  allowGenericMutation?: boolean;
-  canMutateRecord?: (value: unknown) => boolean;
+/** Validates injected generic CRUD contracts without importing business features. */
+function guardResourceMutation(contract: ResourceMutationContract, values: unknown, update: boolean): Record<string, unknown> {
+  if (typeof values !== "object" || values === null || Array.isArray(values)) throw new Error("INVALID_MUTATION_BODY");
+  const input = Object.fromEntries(Object.entries(values));
+  const fields = update ? contract.updateFields : contract.createFields;
+  const required = update ? contract.requiredUpdate : contract.requiredCreate;
+  const missing = required.filter((name) => input[name] === null || input[name] === undefined);
+  if (missing.length || (update && contract.versioned && (typeof input.expectedVersion !== "number" || !Number.isSafeInteger(input.expectedVersion) || input.expectedVersion < 0))) {
+    throw new ApiHttpError({ statusCode: 400, code: "VALIDATION_FAILED", message: "VALIDATION_FAILED", requestId: null,
+      fieldErrors: Object.fromEntries(missing.map((name) => [name, ["Required"]])) });
+  }
+  return selectMutationFields(input, fields);
 }
 
-export interface CreateDataProviderOptions {
-  apiClient: LogisticsApiClient;
-  resources: Readonly<Record<string, ApiResourceDefinition>>;
-}
+/** Cancels stale requests for the same key while preserving upstream cancellation. */
+export const createLatestRequestCoordinator =
+  (): LatestRequestCoordinator => {
+    const controllers = new Map<string, AbortController>();
+
+    const cancel = (key: string): void => {
+      controllers.get(key)?.abort();
+      controllers.delete(key);
+    };
+
+    return {
+      begin(key, upstreamSignal) {
+        cancel(key);
+
+        const controller = new AbortController();
+        controllers.set(key, controller);
+
+        const forwardAbort = (): void => {
+          controller.abort(upstreamSignal?.reason);
+        };
+
+        if (upstreamSignal?.aborted) {
+          forwardAbort();
+        } else {
+          upstreamSignal?.addEventListener("abort", forwardAbort, {
+            once: true,
+          });
+        }
+
+        return {
+          signal: controller.signal,
+          release() {
+            upstreamSignal?.removeEventListener("abort", forwardAbort);
+
+            if (controllers.get(key) === controller) {
+              controllers.delete(key);
+            }
+          },
+        };
+      },
+      cancel,
+      cancelAll() {
+        for (const controller of controllers.values()) {
+          controller.abort();
+        }
+
+        controllers.clear();
+      },
+    };
+  };
 
 const readQuerySignal = (
   meta: MetaQuery | undefined,

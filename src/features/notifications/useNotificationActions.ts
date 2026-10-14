@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 export function useNotificationActions() {
   const { tenant } = useCurrentTenant(); const { t } = useTranslation(); const { open } = useNotification();
   const access = useCan({ resource: "notifications", action: "markAllRead" }); // The command returns an integer; Refine constrains result types to BaseRecord.

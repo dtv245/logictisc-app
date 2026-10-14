@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PayrollRunShow } from "@/pages/payroll/PayrollRunShow";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payroll, payrollId, payment } from "@/tests/fixtures/payroll";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 const page = <Routes><Route path="/payroll/:id" element={<PayrollRunShow />} /></Routes>;
 const options = { initialEntries: [`/payroll/${payrollId}`] };

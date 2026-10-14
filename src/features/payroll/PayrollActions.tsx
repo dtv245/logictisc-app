@@ -2,7 +2,7 @@
 import { Alert, Space } from "antd";
 import { useTranslation } from "react-i18next";
 import { ConfirmActionModal } from "@/components/ConfirmActionModal";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import type { PayrollActionsResult } from "./usePayrollActions";
 export function PayrollActionError({ error }: { error: Error | null }) {
   const { t, i18n } = useTranslation();

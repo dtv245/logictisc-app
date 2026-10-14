@@ -8,7 +8,7 @@ import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payroll, payrollId, payment } from "@/tests/fixtures/payroll";
 import { settlementId } from "@/tests/fixtures/settlement";
 import { tenantKey } from "@/tests/fixtures/finance";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import type { PayrollPayment } from "@/types/payroll.dto";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 const locked = { ...payroll, status: "LOCKED" };

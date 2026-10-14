@@ -6,53 +6,12 @@ import type { OpenNotificationParams } from "@refinedev/core";
 import axios from "axios";
 import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
+import type { CompatibilityNotificationError, ErrorNotificationContext, NotificationContent, NotificationError, StructuredNotificationError } from "@/types/notificationProvider.types";
 
 import { compatibilityT } from "@locales/notificationCompatibility";
-import { isRecord, readApiResponse } from "./api/envelope";
-import { ApiHttpError, normalizeHttpError } from "./api/httpError";
-import { resolveApiErrorMessage } from "./api/errorMessages";
-import type { ErrorParams } from "../types/api.types";
-import type { OperationType } from "./notificationCompatibility";
-
-interface NotificationError {
-  message: string;
-  statusCode: number;
-  code?: string;
-  cause?: unknown;
-  params?: ErrorParams;
-  hasMachineParams?: boolean;
-}
-
-interface ErrorNotificationContext {
-  key?: string;
-  operation?: "create" | "update" | "delete";
-  resourceLabel?: string;
-}
-
-/** Text-only Refine notifications retain their historical presentation at this boundary. */
-export interface CompatibilityNotificationError {
-  kind: "compatibility";
-  statusCode: number | undefined;
-  rawMessage: string;
-  rawDescription: string;
-  operation: OperationType;
-  resourceLabel: string | undefined;
-  message: ReactNode;
-  description: ReactNode;
-}
-
-interface StructuredNotificationError {
-  kind: "structured";
-  cause: unknown;
-  t: TFunction;
-  context: ErrorNotificationContext;
-}
-
-interface NotificationContent {
-  message: ReactNode;
-  description?: ReactNode;
-  duration?: number;
-}
+import { isRecord, readApiResponse } from "@/utils/envelope";
+import { ApiHttpError, normalizeHttpError } from "@/utils/httpError";
+import { resolveApiErrorMessage } from "@/utils/errorMessages";
 
 const ERROR_LOCALE_KEYS: Record<string, string> = {
   ERR_NETWORK: "notifications.apiFallback.network",

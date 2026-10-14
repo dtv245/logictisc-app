@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { isUuid } from "@/utils/uuid";
 import { formatDateTime } from "@/formatters/dateTime";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import type { OptimizationOutcome } from "@/types/optimization.dto";
 import { routes } from "@/constants/routes";
 import { optimizationApi, optimizationKeys } from "@/features/optimization/optimization.api";

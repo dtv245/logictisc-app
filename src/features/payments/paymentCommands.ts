@@ -3,9 +3,9 @@ import Decimal from "decimal.js";
 import type { CustomParams, DataProvider } from "@refinedev/core";
 import type { CreatePaymentRequest, UpdatePaymentRequest } from "@/types/handoff.generated";
 import type { PaymentResponse } from "@/types/payment.dto";
-import { createCommandIntent } from "@/providers/api/commandIntent";
-import { toWireDecimal } from "@/providers/api/decimal";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { createCommandIntent } from "@/utils/commandIntent";
+import { toWireDecimal } from "@/utils/decimal";
+import { ApiHttpError } from "@/utils/httpError";
 
 export const PAYMENT_COMMANDS_RUNTIME_VERIFIED = false;
 export const paymentApi = {

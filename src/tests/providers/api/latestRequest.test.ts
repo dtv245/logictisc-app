@@ -4,7 +4,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 
-import { createLatestRequestCoordinator } from "@providers/api/latestRequest";
+import { createLatestRequestCoordinator } from "@providers/dataProvider";
 
 describe("createLatestRequestCoordinator", () => {
   it("aborts the previous request for the same key", () => {

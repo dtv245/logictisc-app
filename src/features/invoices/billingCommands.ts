@@ -1,7 +1,7 @@
 /** Immutable rating acceptance and billing commands consume server hashes/snapshots and explicit tax evidence. */
 import type { DataProvider } from "@refinedev/core";
 import type { AcceptedRatingSnapshot, BillingInvoice, Credit, GenerateInvoiceRequest, Issue, RatingAcceptRequest, RatingPreviewRequest, Rebill, Regenerate, Supplemental } from "@/types/handoff.generated";
-import { createCommandIntent } from "@/providers/api/commandIntent";
+import { createCommandIntent } from "@/utils/commandIntent";
 
 export const BILLING_COMMANDS_RUNTIME_VERIFIED = false;
 export const billingApi = {

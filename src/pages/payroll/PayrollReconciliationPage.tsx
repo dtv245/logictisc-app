@@ -15,7 +15,7 @@ import { usePayrollPaymentActions } from "@/features/payroll/usePayrollPaymentAc
 import { ReconcilePayrollPaymentModal } from "@/features/payroll/ReconcilePayrollPaymentModal";
 import { maskPaymentReference } from "@/features/payroll/paymentDisplay";
 import type { PayrollCasesPage } from "@/types/payroll.dto";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 export function PayrollReconciliationPage() {
   const { t, i18n } = useTranslation(); const { tenant } = useCurrentTenant(); const access = useCan({ resource: "payroll", action: "PAYROLL_VIEW" });
   const [page, setPage] = useState(0); const [size, setSize] = useState(25); const actions = usePayrollPaymentActions();

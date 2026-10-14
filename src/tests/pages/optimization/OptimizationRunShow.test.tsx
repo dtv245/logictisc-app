@@ -7,7 +7,7 @@ import { OptimizationRunShow } from "@/pages/optimization/OptimizationRunShow";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { candidate, candidateId, optimization, optimizationAccepted, optimizationRunId, rejectedCandidate } from "@/tests/fixtures/optimization";
 import { loadId, tenantKey } from "@/tests/fixtures/finance";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import { optimizationKeys } from "@/features/optimization/optimization.api";
 const session = vi.hoisted(() => ({ tenantKey: "tenant-finance" as string | undefined }));
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: session.tenantKey } }) }));

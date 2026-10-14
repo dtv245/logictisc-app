@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { SettlementShow } from "@/pages/settlements/SettlementShow";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { settlement, settlementId } from "@/tests/fixtures/settlement";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 const page = <Routes><Route path="/settlements/:id" element={<SettlementShow />} /></Routes>;
 const options = { initialEntries: [`/settlements/${settlementId}`] };

@@ -7,7 +7,7 @@ import { SettlementActions } from "@/features/settlements/SettlementActions";
 import { useSettlementActions } from "@/features/settlements/useSettlementActions";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { settlement, settlementId } from "@/tests/fixtures/settlement";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 function Probe({ onCreated = () => undefined }: { onCreated?: (id: string) => void }) {
   const actions = useSettlementActions({ ...settlement, status: "LOCKED" });

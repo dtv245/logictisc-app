@@ -8,24 +8,9 @@
 import type { HttpError } from "@refinedev/core";
 import axios, { AxiosHeaders } from "axios";
 
-import { isRecord, readApiResponse } from "./envelope";
-import type { BackendApiError } from "../../types/api.types";
-import type { ErrorParams } from "../../types/api.types";
-import { resolveApiErrorMessage } from "./errorMessages";
-
-export type RefineFieldErrors = Record<string, string[]>;
-
-export interface ApiHttpErrorOptions {
-  statusCode: number;
-  message: string;
-  code: string;
-  requestId: string | null;
-  backendErrors?: BackendApiError[] | undefined;
-  fieldErrors?: RefineFieldErrors | undefined;
-  cause?: unknown;
-  params?: ErrorParams;
-  retryAfterSeconds?: number;
-}
+import { isRecord, readApiResponse } from "@/utils/envelope";
+import type { ApiHttpErrorOptions, BackendApiError, ErrorParams, RefineFieldErrors, ToRefineHttpErrorOptions } from "@/types/api.types";
+import { resolveApiErrorMessage } from "@/utils/errorMessages";
 
 export class ApiHttpError extends Error implements HttpError {
   readonly statusCode: number;
@@ -81,13 +66,7 @@ const groupFieldErrors = (
 export const toRefineHttpError = (
   statusCode: number,
   body: unknown,
-  options?: {
-    fallbackCode?: string | undefined;
-    fallbackMessage?: string | undefined;
-    fallbackRequestId?: string | null | undefined;
-    cause?: unknown;
-    retryAfterSeconds?: number;
-  },
+  options?: ToRefineHttpErrorOptions,
 ): ApiHttpError => {
   // readApiResponse xử lý envelope thành công/lỗi theo cùng contract, còn các
   // fallback giữ được thông tin transport khi body trống hoặc không hợp lệ.

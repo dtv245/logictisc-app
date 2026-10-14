@@ -11,7 +11,7 @@ import type {
   PagedResponse,
   ResponseMeta,
   ErrorParams,
-} from "../../types/api.types";
+} from "@/types/api.types";
 
 export const isRecord = (
   value: unknown,

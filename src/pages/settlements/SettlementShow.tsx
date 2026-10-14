@@ -11,7 +11,7 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { routes } from "@/constants/routes";
 import { isUuid } from "@/utils/uuid";
 import type { DriverSettlementView } from "@/types/settlement.dto";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import { SETTLEMENT_ENDPOINTS } from "@/features/settlements/settlement.api";
 import { settlementKeys } from "@/features/settlements/settlement.keys";
 import { useSettlementActions } from "@/features/settlements/useSettlementActions";

@@ -11,7 +11,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { financialAmount } from "@/features/profitability/financialDisplay";
 import { formatDateTime } from "@/formatters/dateTime";
-import type { ApiHttpError } from "@/providers/api/httpError";
+import type { ApiHttpError } from "@/utils/httpError";
 import type { PayrollItem, PayrollPayment, PayrollRun } from "@/types/payroll.dto";
 import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { PayrollActionError } from "./PayrollActions";

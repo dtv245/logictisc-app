@@ -5,8 +5,8 @@ import type { FormInstance } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { ApiError } from "@/types/api.types";
-import { normalizeHttpError } from "@/providers/api/httpError";
-import { createApiErrorNotification } from "@/providers/apiErrorNotification";
+import { normalizeHttpError } from "@/utils/httpError";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 import { buildResourceMutation } from "./resourceMutation";
 
 type Values = Record<string, unknown>;

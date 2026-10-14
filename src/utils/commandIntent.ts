@@ -1,5 +1,5 @@
 /** Freezes one consequential command across double submission, token replay and unknown outcomes. */
-import { ApiHttpError } from "./httpError";
+import { ApiHttpError } from "@/utils/httpError";
 
 export function createCommandIntent<TPayload, TResult>(send: (payload: TPayload) => Promise<TResult>) {
   let frozen: TPayload | undefined;

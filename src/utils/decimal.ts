@@ -1,6 +1,6 @@
 /** Serializes OAS numeric decimals without silently changing a string-mode input's value. */
 import Decimal from "decimal.js";
-import { ApiHttpError } from "./httpError";
+import { ApiHttpError } from "@/utils/httpError";
 
 export function toWireDecimal(value: string | number): number {
   const exact = new Decimal(value);

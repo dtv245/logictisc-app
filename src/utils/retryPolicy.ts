@@ -2,7 +2,7 @@
  * Defines Refine query retry decisions without duplicating Axios 401 replay.
  */
 
-import { ApiHttpError, normalizeHttpError } from "./httpError";
+import { ApiHttpError, normalizeHttpError } from "@/utils/httpError";
 
 export const MAX_TRANSIENT_QUERY_RETRIES = 2;
 

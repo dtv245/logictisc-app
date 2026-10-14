@@ -6,7 +6,7 @@ import { OptimizationPage } from "@/pages/optimization/OptimizationPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { optimization, optimizationRunId } from "@/tests/fixtures/optimization";
 import { loadId } from "@/tests/fixtures/finance";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 const page = <Routes><Route path="/optimization" element={<OptimizationPage />} /><Route path="/optimization/runs/:id" element={<p>Opened optimization</p>} /></Routes>;
 const options = { initialEntries: ["/optimization"] };

@@ -11,8 +11,8 @@ import { I18nextProvider, initReactI18next, useTranslation } from "react-i18next
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { enMessages } from "@/locales/en";
-import { createApiErrorNotification } from "@/providers/apiErrorNotification";
-import { ApiHttpError, toRefineHttpError } from "@/providers/api/httpError";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
+import { ApiHttpError, toRefineHttpError } from "@/utils/httpError";
 import { useAntdNotificationProvider } from "@/providers/notificationProvider";
 
 let translations: i18n;

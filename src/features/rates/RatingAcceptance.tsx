@@ -9,7 +9,7 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { BILLING_COMMANDS_RUNTIME_VERIFIED, createRatingAcceptance, freezeRatingAcceptance } from "@/features/invoices/billingCommands";
 import type { AcceptedRatingSnapshot, RatingPreviewRequest } from "@/types/handoff.generated";
-import { normalizeHttpError, type ApiHttpError } from "@/providers/api/httpError";
+import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
 
 export function RatingAcceptance({ loadId, request, preview, onFrozen, runtimeVerified = BILLING_COMMANDS_RUNTIME_VERIFIED }: { loadId: string; request: RatingPreviewRequest; preview: { inputHash: string; resultHash: string }; onFrozen?: () => void; runtimeVerified?: boolean }) {
   const { t } = useTranslation(); const provider = useDataProvider(); const { tenant } = useCurrentTenant(); const user = useCurrentUser(); const client = useQueryClient(); const invalidate = useInvalidate();

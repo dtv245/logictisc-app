@@ -7,7 +7,7 @@ import { useAccessorialApproval } from "@/features/accessorials/useAccessorialAp
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { financialQueryKeys } from "@/features/profitability/profitability.api";
 import { loadId, tenantKey } from "@/tests/fixtures/finance";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 function Probe() {

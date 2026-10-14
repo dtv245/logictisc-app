@@ -13,7 +13,7 @@ import { ProfitabilitySummary } from "@/features/profitability/ProfitabilitySumm
 import { ProfitabilityBreakdownTable } from "@/features/profitability/ProfitabilityBreakdownTable";
 import { financialAmount, financialMetricValue } from "@/features/profitability/financialDisplay";
 import { financialQueryKeys, PROFITABILITY_ENDPOINTS, toLoadProfitabilityReport } from "@/features/profitability/profitability.api";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 import type { LoadFinancialSummaryDto } from "@/types/profitability.dto";
 
 export function ProfitabilityPage() {

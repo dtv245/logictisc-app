@@ -6,8 +6,8 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { enMessages } from "@/locales/en";
 import { viMessages } from "@/locales/vi";
 import { jaMessages } from "@/locales/ja";
-import { createApiErrorNotification } from "@/providers/apiErrorNotification";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
+import { ApiHttpError } from "@/utils/httpError";
 
 let translations: i18n;
 beforeAll(async () => {

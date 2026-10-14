@@ -8,7 +8,7 @@ import type { DriverSettlementView, SettlementStatus } from "@/types/settlement.
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { settlement, settlementId } from "@/tests/fixtures/settlement";
 import { tenantKey, loadId } from "@/tests/fixtures/finance";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 function Probe({ value = settlement, command = { action: "submitReview" } }: { value?: DriverSettlementView; command?: SettlementCommand }) {
   const actions = useSettlementActions(value);

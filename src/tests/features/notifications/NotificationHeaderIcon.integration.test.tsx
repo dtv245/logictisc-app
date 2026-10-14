@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { NotificationHeaderIcon } from "@/features/notifications/components/NotificationHeaderIcon";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import type { Notification } from "@/types/notification.types";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 vi.mock("@/features/notifications/notificationSound", () => ({ playNotificationSound: vi.fn() }));
 const item: Notification = { id: "notice-101", title: "Recent shipment", message: "Arrival recorded", isRead: false, createdDate: "2026-10-05T08:00:00Z" };

@@ -8,7 +8,7 @@ import type { PayrollRun } from "@/types/payroll.dto";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payroll, payrollId } from "@/tests/fixtures/payroll";
 import { tenantKey } from "@/tests/fixtures/finance";
-import { ApiHttpError } from "@/providers/api/httpError";
+import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 function Probe({ run = payroll, command = { action: "submit-review" } }: { run?: PayrollRun; command?: PayrollCommand }) {
   const actions = usePayrollActions(run); const access = useCan({ resource: "payroll", action: "PAYROLL_VIEW" });
