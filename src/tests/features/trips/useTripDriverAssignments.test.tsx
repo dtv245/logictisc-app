@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as refineCore from "@refinedev/core";
 import { useTripDriverAssignments } from "@/features/trips/hooks/useTripDriverAssignments";
-import type { TripDriverAssignment } from "@/types/tripExecution.types";
+import type { TripDriverAssignment } from "@/features/trips/types";
 
 vi.mock("@refinedev/core", () => ({
   useCustom: vi.fn(),

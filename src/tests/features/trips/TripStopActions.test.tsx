@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { TripStopActions } from "@/features/trips/components/TripStopActions";
-import type { TripStopExecution } from "@/types/tripExecution.types";
+import type { TripStopExecution } from "@/features/trips/types";
 
 const createMockStop = (status: string): TripStopExecution => ({
   id: "stop-123",

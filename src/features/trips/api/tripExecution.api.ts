@@ -1,7 +1,7 @@
 import type {
   TripAssignmentType,
   TripStopExecutionStatus,
-} from "@/types/tripExecution.types";
+} from "../types";
 
 export const TRIP_EXECUTION_ENDPOINTS = {
   drivers: (tripId: string) => `/api/trips/${encodeURIComponent(tripId)}/drivers`,

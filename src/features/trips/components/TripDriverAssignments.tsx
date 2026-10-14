@@ -23,7 +23,7 @@ import { formatDateTime } from "@/formatters/dateTime";
 import type {
   AssignDriverPayload,
   TripDriverAssignment,
-} from "@/types/tripExecution.types";
+} from "../types";
 import { TRIP_ASSIGNMENT_TYPES } from "../api/tripExecution.api";
 import { useTripDriverAssignments } from "../hooks/useTripDriverAssignments";
 

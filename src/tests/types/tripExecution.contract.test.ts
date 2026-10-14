@@ -4,7 +4,7 @@ import { ALLOWED_NEXT_ACTIONS, TRIP_ASSIGNMENT_TYPES } from "@/features/trips/ap
 import type {
   TripDriverAssignment,
   TripStopExecution,
-} from "@/types/tripExecution.types";
+} from "@/features/trips/types";
 
 describe("Trip Execution contract tests", () => {
   it("verifies TripDriverAssignment contract with ISO timestamps and active flag", () => {

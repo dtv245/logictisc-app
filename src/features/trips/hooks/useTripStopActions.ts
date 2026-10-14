@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { ApiError } from "@/types/api.types";
-import type { TripStopExecution } from "@/types/tripExecution.types";
+import type { TripStopExecution } from "../types";
 import { TRIP_EXECUTION_ENDPOINTS } from "../api/tripExecution.api";
 
 export type TripStopAction = "arrive" | "startService" | "completeService" | "depart";

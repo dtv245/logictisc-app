@@ -6,7 +6,7 @@ import type { ApiError } from "@/types/api.types";
 import type {
   AssignDriverPayload,
   TripDriverAssignment,
-} from "@/types/tripExecution.types";
+} from "../types";
 import { TRIP_EXECUTION_ENDPOINTS } from "../api/tripExecution.api";
 
 export interface UseTripDriverAssignmentsReturn {
