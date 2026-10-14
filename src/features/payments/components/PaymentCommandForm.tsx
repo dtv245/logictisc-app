@@ -12,7 +12,7 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
 import type { PaymentResponse } from "@/types/payment.dto";
-import { createPaymentCommands, PAYMENT_COMMANDS_RUNTIME_VERIFIED, type PaymentCreateValues } from "./paymentCommands";
+import { createPaymentCommands, PAYMENT_COMMANDS_RUNTIME_VERIFIED, type PaymentCreateValues } from "../api/paymentCommands";
 
 export function PaymentCommandForm({ action, id, runtimeVerified = PAYMENT_COMMANDS_RUNTIME_VERIFIED }: { action: "create" | "edit" | "cancel"; id?: string; runtimeVerified?: boolean }) {
   const { t } = useTranslation(); const provider = useDataProvider(); const invalidate = useInvalidate(); const client = useQueryClient();

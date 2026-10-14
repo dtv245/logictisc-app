@@ -28,7 +28,7 @@ def mapping(method, path):
         return ["src/features/messaging/messaging.api.ts", "src/features/messaging/MessagingPanel.tsx"], "DORMANT", "FE_PATCHED", "Mapped employee/self reads; omit sender/participants; membership gate remains runtime-unverified"
     if path.startswith("/api/payments"):
         if method == "DELETE": return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "Deprecated: authorized server command always rejects PAYMENT_DELETE_FORBIDDEN; UI delete removed"
-        return ["src/features/payments/paymentCommands.ts", "src/features/payments/PaymentCommandForm.tsx", "src/types/payment.dto.ts"], "ACTIVE" if method == "GET" else "DORMANT", "FE_PATCHED", "Flat view/create; PENDING/invoice/key; frozen replay; metadata omission/null; query cancellation"
+        return ["src/features/payments/api/paymentCommands.ts", "src/features/payments/components/PaymentCommandForm.tsx", "src/types/payment.dto.ts"], "ACTIVE" if method == "GET" else "DORMANT", "FE_PATCHED", "Flat view/create; PENDING/invoice/key; frozen replay; metadata omission/null; query cancellation"
     if "/requested-pickup-business-date" in path:
         return ["src/features/loads/PickupBusinessDateForm.tsx"], "DORMANT", "FE_PATCHED", "Independent LocalDate/provenance/expectedChangeId; never appointment conversion"
     if path.endswith("/rating/preview"):
