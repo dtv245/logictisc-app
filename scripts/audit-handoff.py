@@ -30,7 +30,7 @@ def mapping(method, path):
         if method == "DELETE": return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "Deprecated: authorized server command always rejects PAYMENT_DELETE_FORBIDDEN; UI delete removed"
         return ["src/features/payments/api/paymentCommands.ts", "src/features/payments/components/PaymentCommandForm.tsx", "src/types/payment.dto.ts"], "ACTIVE" if method == "GET" else "DORMANT", "FE_PATCHED", "Flat view/create; PENDING/invoice/key; frozen replay; metadata omission/null; query cancellation"
     if "/requested-pickup-business-date" in path:
-        return ["src/features/loads/PickupBusinessDateForm.tsx"], "DORMANT", "FE_PATCHED", "Independent LocalDate/provenance/expectedChangeId; never appointment conversion"
+        return ["src/features/loads/components/PickupBusinessDateForm.tsx"], "DORMANT", "FE_PATCHED", "Independent LocalDate/provenance/expectedChangeId; never appointment conversion"
     if path.endswith("/rating/preview"):
         return ["src/features/rates/components/FscPreview.tsx", "src/types/rateRule.dto.ts"], "ACTIVE", "FE_PATCHED", "Ephemeral preview; optional selectors omitted; freeze request/server hashes for acceptance"
     if path.endswith("/rating/accept"):
@@ -48,7 +48,7 @@ def mapping(method, path):
     if path.startswith("/api/trips/") and path.endswith(("/drivers", "/unassign", "/stops")) or path.startswith("/api/trip-stops/") and "calculate-detention" not in path:
         return ["src/features/trips/api/tripExecution.api.ts", "src/features/trips/hooks/useTripDriverAssignments.ts", "src/features/trips/hooks/useTripStopActions.ts"], "ACTIVE", "MATCHED", "Existing execution commands; no collection creation/nested stop mutation"
     if path.endswith("/timeline"):
-        return ["src/features/loads/LoadTimelinePanel.tsx"], "ACTIVE", "MATCHED", "Tenant/Load scoped read; original occurrence times"
+        return ["src/features/loads/components/LoadTimelinePanel.tsx"], "ACTIVE", "MATCHED", "Tenant/Load scoped read; original occurrence times"
     if "accessorial" in path or "calculate-detention" in path:
         return ["src/features/accessorials/accessorials.api.ts"], "ACTIVE", "MATCHED", "Independent customer/company/driver amounts; explicit approve and measured detention"
     if "/costs" in path and path.startswith("/api/loads/"):

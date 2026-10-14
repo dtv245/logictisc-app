@@ -653,12 +653,12 @@ existing CRUD actions
 ### Create feature components
 
 ```text
-src/features/loads/LoadOverviewPanel.tsx
-src/features/loads/LoadTimelinePanel.tsx
-src/features/loads/LoadTripPanel.tsx
-src/features/loads/LoadDocumentsPanel.tsx
-src/features/loads/LoadExceptionsPanel.tsx
-src/features/loads/LoadFinancialPanel.tsx
+src/features/loads/components/LoadOverviewPanel.tsx
+src/features/loads/components/LoadTimelinePanel.tsx
+src/features/loads/components/LoadTripPanel.tsx
+src/features/loads/components/LoadDocumentsPanel.tsx
+src/features/loads/components/LoadExceptionsPanel.tsx
+src/features/loads/components/LoadFinancialPanel.tsx
 ```
 
 Modify actual Load Show page:

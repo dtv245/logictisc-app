@@ -192,7 +192,7 @@ Before unblocking any task, verify live method/path/query parameters/request and
 - **Contract Status:** CONFIRMED GET `/api/documents` with loadId and server page/pageSize; BLOCKED POST upload. Rechecked configured localhost:8080 OpenAPI and DocumentController/DocumentView. Running backend still lacks identity/upload, Rating/Optimization, latest reconciliation and required fleet endpoints.
 - **Backend Dependency:** Existing DocumentController search and DocumentView; no backend change or production stub. User confirmed frontend-only scope; backend implementation/runtime alignment remains outside this task. Missing contracts keep their BLOCKED_BACKEND/BLOCKED_AUTHORIZATION states.
 - **Route:** Existing lazy Documents tab at `/loads/show/:id`; no new route/menu.
-- **Files:** `src/features/loads/LoadDocumentsPanel.tsx`, `src/types/document.dto.ts`, LoadShow keyed panel, locales vi/en/ja; `src/tests/features/loads/LoadDocumentsPanel.test.tsx`; contract follow-up at `docs/frontend-backend-unblock.md`.
+- **Files:** `src/features/loads/components/LoadDocumentsPanel.tsx`, `src/types/document.dto.ts`, LoadShow keyed panel, locales vi/en/ja; `src/tests/features/loads/LoadDocumentsPanel.test.tsx`; contract follow-up at `docs/frontend-backend-unblock.md`.
 - **Implemented:** Reuse Refine useList and BaseTable, server page size 20/total, loadId-only filter, permission/tenant gate, tenant/load/page cache key, reset on load change, separate loading/error/empty/forbidden/retry, central StatusTag/statusTone, responsive horizontal scroll. Only the selected tab mounts/fetches; no per-row getOne or screen prefetch.
 - **Mismatch:** Existing panel hid server pagination and showed createdAt under Uploaded At even though DocumentView has neither upload nor creation timestamp. Added exact DTO and display capturedAt as Captured at; never relabel it as upload time. Known document status/type labels localized; no generic provider/API/auth/tenant foundation rewrite.
 - **Query / Mutation:** Current load's requested page only; upload remains fully dormant, no mutation enabled.
@@ -525,12 +525,12 @@ Before unblocking any task, verify live method/path/query parameters/request and
   - `src/types/loadTimeline.types.ts` (`LoadTimelineResponse`, `LoadEventView`)
   - `src/types/shipmentCost.types.ts` (`ShipmentCostView`)
   - `src/types/accessorial.types.ts` (`AccessorialChargeView`)
-  - `src/features/loads/LoadOverviewPanel.tsx` (general info, schedules, addresses, hazmat, notes)
-  - `src/features/loads/LoadTimelinePanel.tsx` (chronological events, transitions, timestamps, locations)
-  - `src/features/loads/LoadFinancialPanel.tsx` (costs table, accessorials table, revenue/costs/margin statistics, approve action)
-  - `src/features/loads/LoadDocumentsPanel.tsx` (documents table, integrated `DocumentUploadModal`)
-  - `src/features/loads/LoadTripPanel.tsx` (assigned truck, transit status, truck link)
-  - `src/features/loads/LoadExceptionsPanel.tsx` (explicit `BLOCKED_BACKEND` notice, zero redundant API requests)
+  - `src/features/loads/components/LoadOverviewPanel.tsx` (general info, schedules, addresses, hazmat, notes)
+  - `src/features/loads/components/LoadTimelinePanel.tsx` (chronological events, transitions, timestamps, locations)
+  - `src/features/loads/components/LoadFinancialPanel.tsx` (costs table, accessorials table, revenue/costs/margin statistics, approve action)
+  - `src/features/loads/components/LoadDocumentsPanel.tsx` (documents table, integrated `DocumentUploadModal`)
+  - `src/features/loads/components/LoadTripPanel.tsx` (assigned truck, transit status, truck link)
+  - `src/features/loads/components/LoadExceptionsPanel.tsx` (explicit `BLOCKED_BACKEND` notice, zero redundant API requests)
   - `src/pages/loads/show.tsx` (tabbed view with tab-scoped lazy fetching)
   - `src/locales/en.ts`
   - `src/locales/vi.ts`

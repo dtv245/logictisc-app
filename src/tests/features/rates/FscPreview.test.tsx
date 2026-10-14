@@ -3,7 +3,7 @@ import type { CustomParams } from "@refinedev/core";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FscPreview, RatingPreviewSummary } from "@/features/rates/components/FscPreview";
-import { LoadFinancialPanel } from "@/features/loads/LoadFinancialPanel";
+import { LoadFinancialPanel } from "@/features/loads/components/LoadFinancialPanel";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { loadId, report } from "@/tests/fixtures/finance";
 import { rating } from "@/tests/fixtures/rating";

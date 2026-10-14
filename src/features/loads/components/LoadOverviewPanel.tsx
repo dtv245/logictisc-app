@@ -1,5 +1,5 @@
 import { PickupBusinessDateForm } from "./PickupBusinessDateForm";
-import { PICKUP_BUSINESS_DATE_RUNTIME_VERIFIED } from "./pickupBusinessDate.api";
+import { PICKUP_BUSINESS_DATE_RUNTIME_VERIFIED } from "../api/pickupBusinessDate.api";
 import { Card, Descriptions, Space, Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 

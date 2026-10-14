@@ -4,7 +4,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LoadDocumentsPanel } from "@/features/loads/LoadDocumentsPanel";
+import { LoadDocumentsPanel } from "@/features/loads/components/LoadDocumentsPanel";
 import { ApiHttpError } from "@/utils/httpError";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import type { DocumentDto } from "@/types/document.dto";

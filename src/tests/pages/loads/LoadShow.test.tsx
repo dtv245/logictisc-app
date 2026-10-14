@@ -52,13 +52,13 @@ vi.mock("@refinedev/antd", () => ({
   TextField: ({ value }: { value: unknown }) => <span>{String(value)}</span>,
 }));
 
-vi.mock("@/features/loads/LoadTimelinePanel", () => ({
+vi.mock("@/features/loads/components/LoadTimelinePanel", () => ({
   LoadTimelinePanel: ({ loadId }: { loadId: string }) => (
     <div data-testid="mock-timeline-panel">Timeline for {loadId}</div>
   ),
 }));
 
-vi.mock("@/features/loads/LoadFinancialPanel", () => ({
+vi.mock("@/features/loads/components/LoadFinancialPanel", () => ({
   LoadFinancialPanel: ({ loadId }: { loadId: string }) => (
     <div data-testid="mock-financial-panel">Financial for {loadId}</div>
   ),

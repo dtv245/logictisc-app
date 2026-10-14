@@ -1,7 +1,7 @@
 /** Verifies backend-owned summary values, lazy tabs, mixed currencies and fail-closed access. */
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { LoadFinancialPanel } from "@/features/loads/LoadFinancialPanel";
+import { LoadFinancialPanel } from "@/features/loads/components/LoadFinancialPanel";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { accessorials, costs, loadId, report, tenantKey } from "@/tests/fixtures/finance";
 import { ApiHttpError } from "@/utils/httpError";

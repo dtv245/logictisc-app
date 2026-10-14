@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as refineCore from "@refinedev/core";
-import { LoadTimelinePanel } from "@/features/loads/LoadTimelinePanel";
+import { LoadTimelinePanel } from "@/features/loads/components/LoadTimelinePanel";
 import type { LoadTimelineResponse } from "@/types/loadTimeline.types";
 
 vi.mock("@refinedev/core", () => ({
