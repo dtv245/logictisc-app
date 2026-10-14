@@ -1,7 +1,7 @@
 /** Read-only authored policy: backend V1 supports INDEX_BASED_MPG only. */
 import { Descriptions } from "antd";
 import { useTranslation } from "react-i18next";
-import { financialAmount } from "@/features/profitability/financialDisplay";
+import { financialAmount } from "@/features/profitability/utils/financialDisplay";
 import type { IndexBasedFscPolicy } from "@/types/rateRule.dto";
 
 export function FscPolicyFields({ policy }: { policy: IndexBasedFscPolicy }) {

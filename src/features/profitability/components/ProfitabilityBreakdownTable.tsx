@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { StatusTag } from "@/components/StatusTag";
 import type { ClassifiedCostDto } from "@/types/profitability.dto";
-import { financialAmount } from "./financialDisplay";
+import { financialAmount } from "../utils/financialDisplay";
 
 export function ProfitabilityBreakdownTable({ costs }: { costs: ClassifiedCostDto[] }) {
   const { t, i18n } = useTranslation();

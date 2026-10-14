@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { QueryErrorState } from "@/components/ErrorStates";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
-import { financialAmount } from "@/features/profitability/financialDisplay";
+import { financialAmount } from "@/features/profitability/utils/financialDisplay";
 import { formatDateTime } from "@/formatters/dateTime";
 import type { ApiHttpError } from "@/utils/httpError";
 import type { PayrollItem, PayrollPayment, PayrollRun } from "@/types/payroll.dto";

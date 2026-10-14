@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ForbiddenState, QueryErrorState } from "@/components/ErrorStates";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
-import { financialAmount } from "@/features/profitability/financialDisplay";
+import { financialAmount } from "@/features/profitability/utils/financialDisplay";
 import { PayrollActionError } from "@/features/payroll/PayrollActions";
 import { usePayrollPaymentActions } from "@/features/payroll/usePayrollPaymentActions";
 import { ReconcilePayrollPaymentModal } from "@/features/payroll/ReconcilePayrollPaymentModal";

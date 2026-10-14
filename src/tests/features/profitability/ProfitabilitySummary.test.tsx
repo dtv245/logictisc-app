@@ -1,9 +1,9 @@
 /** Authoritative money/availability/policy presentation, including zero and missing data. */
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { ProfitabilitySummary } from "@/features/profitability/ProfitabilitySummary";
-import { ProfitabilityMetricCard } from "@/features/profitability/ProfitabilityMetricCard";
-import { financialAmount, financialMetricValue } from "@/features/profitability/financialDisplay";
+import { ProfitabilitySummary } from "@/features/profitability/components/ProfitabilitySummary";
+import { ProfitabilityMetricCard } from "@/features/profitability/components/ProfitabilityMetricCard";
+import { financialAmount, financialMetricValue } from "@/features/profitability/utils/financialDisplay";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { metric, report } from "@/tests/fixtures/finance";
 

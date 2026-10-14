@@ -1,7 +1,7 @@
 /** Classification detail preserves backend behavior, source evidence and currency per row. */
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { ProfitabilityBreakdownTable } from "@/features/profitability/ProfitabilityBreakdownTable";
+import { ProfitabilityBreakdownTable } from "@/features/profitability/components/ProfitabilityBreakdownTable";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import type { ClassifiedCostDto } from "@/types/profitability.dto";
 

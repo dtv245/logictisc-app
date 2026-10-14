@@ -3,7 +3,7 @@ import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
-import { financialAmount } from "@/features/profitability/financialDisplay";
+import { financialAmount } from "@/features/profitability/utils/financialDisplay";
 import { formatDateOnly } from "@/formatters/dateTime";
 import type { SettlementLineView } from "@/types/settlement.dto";
 

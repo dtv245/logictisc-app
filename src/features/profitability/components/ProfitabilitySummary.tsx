@@ -2,7 +2,7 @@
 import { Alert, Card, Col, Row, Statistic, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import type { LoadProfitabilityReportDto } from "@/types/profitability.dto";
-import { financialAmount } from "./financialDisplay";
+import { financialAmount } from "../utils/financialDisplay";
 import { ProfitabilityMetricCard } from "./ProfitabilityMetricCard";
 
 export const ProfitabilitySummary = ({ report }: { report: LoadProfitabilityReportDto }) => {

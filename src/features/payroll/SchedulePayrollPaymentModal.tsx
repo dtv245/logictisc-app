@@ -5,7 +5,7 @@ import { ApiHttpError } from "@/utils/httpError";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { PayrollItem, SchedulePayrollPaymentPayload } from "@/types/payroll.dto";
-import { financialAmount } from "@/features/profitability/financialDisplay";
+import { financialAmount } from "@/features/profitability/utils/financialDisplay";
 import { PayrollActionError } from "./PayrollActions";
 import type { PayrollPaymentActionsResult } from "./usePayrollPaymentActions";
 type PaymentForm = Omit<SchedulePayrollPaymentPayload, "idempotencyKey">;

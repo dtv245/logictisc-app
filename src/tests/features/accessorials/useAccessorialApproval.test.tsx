@@ -5,7 +5,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useAccessorialApproval } from "@/features/accessorials/hooks/useAccessorialApproval";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
-import { financialQueryKeys } from "@/features/profitability/profitability.api";
+import { financialQueryKeys } from "@/features/profitability/api/profitability.api";
 import { loadId, tenantKey } from "@/tests/fixtures/finance";
 import { ApiHttpError } from "@/utils/httpError";
 

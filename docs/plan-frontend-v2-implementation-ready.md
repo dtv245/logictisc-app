@@ -1064,12 +1064,12 @@ detention reason/policy displayed when supplied
 ```text
 src/pages/profitability/ProfitabilityPage.tsx
 
-src/features/profitability/profitability.api.ts
+src/features/profitability/api/profitability.api.ts
 src/features/profitability/profitability.query.ts
-src/features/profitability/ProfitabilityFilters.tsx
-src/features/profitability/ProfitabilitySummary.tsx
-src/features/profitability/ProfitabilityBreakdownTable.tsx
-src/features/profitability/ProfitabilityMetricCard.tsx
+src/features/profitability/components/ProfitabilityFilters.tsx
+src/features/profitability/components/ProfitabilitySummary.tsx
+src/features/profitability/components/ProfitabilityBreakdownTable.tsx
+src/features/profitability/components/ProfitabilityMetricCard.tsx
 
 src/types/profitability.dto.ts
 
