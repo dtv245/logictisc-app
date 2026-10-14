@@ -737,13 +737,13 @@ src/types/trip.types.ts
 Create:
 
 ```text
-src/features/trips/TripDriverAssignments.tsx
-src/features/trips/TripMileageSummary.tsx
-src/features/trips/TripStopsTimeline.tsx
-src/features/trips/TripStopActions.tsx
-src/features/trips/tripExecution.api.ts
-src/features/trips/useTripDriverAssignments.ts
-src/features/trips/useTripStopActions.ts
+src/features/trips/components/TripDriverAssignments.tsx
+src/features/trips/components/TripMileageSummary.tsx
+src/features/trips/components/TripStopsTimeline.tsx
+src/features/trips/components/TripStopActions.tsx
+src/features/trips/api/tripExecution.api.ts
+src/features/trips/hooks/useTripDriverAssignments.ts
+src/features/trips/hooks/useTripStopActions.ts
 ```
 
 Modify:

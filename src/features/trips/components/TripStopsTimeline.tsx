@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { formatDateTime } from "@/formatters/dateTime";
 import type { TripStopExecution } from "@/types/tripExecution.types";
 import { TripStopActions } from "./TripStopActions";
-import { useTripStopActions } from "./useTripStopActions";
+import { useTripStopActions } from "../hooks/useTripStopActions";
 
 export interface TripStopsTimelineProps {
   tripId: string;

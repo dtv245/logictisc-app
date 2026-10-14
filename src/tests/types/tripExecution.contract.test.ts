@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatDateTime } from "@formatters/dateTime";
-import { ALLOWED_NEXT_ACTIONS, TRIP_ASSIGNMENT_TYPES } from "@/features/trips/tripExecution.api";
+import { ALLOWED_NEXT_ACTIONS, TRIP_ASSIGNMENT_TYPES } from "@/features/trips/api/tripExecution.api";
 import type {
   TripDriverAssignment,
   TripStopExecution,

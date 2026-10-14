@@ -48,13 +48,13 @@ vi.mock("@refinedev/antd", () => ({
   TextField: ({ value }: { value: unknown }) => <span>{String(value)}</span>,
 }));
 
-vi.mock("@/features/trips/TripStopsTimeline", () => ({
+vi.mock("@/features/trips/components/TripStopsTimeline", () => ({
   TripStopsTimeline: ({ tripId }: { tripId: string }) => (
     <div data-testid="mock-stops-timeline">Stops Timeline for {tripId}</div>
   ),
 }));
 
-vi.mock("@/features/trips/TripDriverAssignments", () => ({
+vi.mock("@/features/trips/components/TripDriverAssignments", () => ({
   TripDriverAssignments: ({ tripId }: { tripId: string }) => (
     <div data-testid="mock-driver-assignments">Driver Assignments for {tripId}</div>
   ),

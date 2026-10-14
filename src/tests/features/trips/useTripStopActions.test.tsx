@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as refineCore from "@refinedev/core";
-import { useTripStopActions } from "@/features/trips/useTripStopActions";
+import { useTripStopActions } from "@/features/trips/hooks/useTripStopActions";
 import type { TripStopExecution } from "@/types/tripExecution.types";
 
 vi.mock("@refinedev/core", () => ({

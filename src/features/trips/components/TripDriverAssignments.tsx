@@ -24,8 +24,8 @@ import type {
   AssignDriverPayload,
   TripDriverAssignment,
 } from "@/types/tripExecution.types";
-import { TRIP_ASSIGNMENT_TYPES } from "./tripExecution.api";
-import { useTripDriverAssignments } from "./useTripDriverAssignments";
+import { TRIP_ASSIGNMENT_TYPES } from "../api/tripExecution.api";
+import { useTripDriverAssignments } from "../hooks/useTripDriverAssignments";
 
 export interface TripDriverAssignmentsProps {
   tripId: string;

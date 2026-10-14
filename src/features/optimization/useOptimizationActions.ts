@@ -8,7 +8,7 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { ApiHttpError } from "@/utils/httpError";
 import type { AcceptOptimizationRequest, CreateOptimizationRequest, OptimizationAccepted, OptimizationCandidate, OptimizationOutcome } from "@/types/optimization.dto";
 import { optimizationApi, optimizationKeys } from "./optimization.api";
-import { TRIP_EXECUTION_ENDPOINTS } from "@/features/trips/tripExecution.api";
+import { TRIP_EXECUTION_ENDPOINTS } from "@/features/trips/api/tripExecution.api";
 export type OptimizationCommand = { action: "run"; payload: CreateOptimizationRequest } |
   { action: "accept"; candidate: OptimizationCandidate; payload: AcceptOptimizationRequest };
 export function useOptimizationActions(outcome?: OptimizationOutcome) {

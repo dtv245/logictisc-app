@@ -7,7 +7,7 @@ import type {
   AssignDriverPayload,
   TripDriverAssignment,
 } from "@/types/tripExecution.types";
-import { TRIP_EXECUTION_ENDPOINTS } from "./tripExecution.api";
+import { TRIP_EXECUTION_ENDPOINTS } from "../api/tripExecution.api";
 
 export interface UseTripDriverAssignmentsReturn {
   drivers: TripDriverAssignment[];

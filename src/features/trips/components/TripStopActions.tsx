@@ -2,8 +2,8 @@ import { Button, Tag } from "antd";
 import { useTranslation } from "react-i18next";
 
 import type { TripStopExecution } from "@/types/tripExecution.types";
-import { ALLOWED_NEXT_ACTIONS } from "./tripExecution.api";
-import type { TripStopAction } from "./useTripStopActions";
+import { ALLOWED_NEXT_ACTIONS } from "../api/tripExecution.api";
+import type { TripStopAction } from "../hooks/useTripStopActions";
 
 export interface TripStopActionsProps {
   stop: TripStopExecution;

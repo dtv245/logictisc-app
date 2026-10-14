@@ -46,7 +46,7 @@ def mapping(method, path):
             note += "; authoritative pre-read permits legacy DRAFT only, rated/issued guarded"
         return ["src/pages/resourceRegistry.ts", "src/providers/dataProvider.ts"], "ACTIVE", status, note
     if path.startswith("/api/trips/") and path.endswith(("/drivers", "/unassign", "/stops")) or path.startswith("/api/trip-stops/") and "calculate-detention" not in path:
-        return ["src/features/trips/tripExecution.api.ts", "src/features/trips/useTripDriverAssignments.ts", "src/features/trips/useTripStopActions.ts"], "ACTIVE", "MATCHED", "Existing execution commands; no collection creation/nested stop mutation"
+        return ["src/features/trips/api/tripExecution.api.ts", "src/features/trips/hooks/useTripDriverAssignments.ts", "src/features/trips/hooks/useTripStopActions.ts"], "ACTIVE", "MATCHED", "Existing execution commands; no collection creation/nested stop mutation"
     if path.endswith("/timeline"):
         return ["src/features/loads/LoadTimelinePanel.tsx"], "ACTIVE", "MATCHED", "Tenant/Load scoped read; original occurrence times"
     if "accessorial" in path or "calculate-detention" in path:

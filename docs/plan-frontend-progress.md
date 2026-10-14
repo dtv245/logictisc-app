@@ -478,13 +478,13 @@ Before unblocking any task, verify live method/path/query parameters/request and
 - **Files**:
   - `src/types/tripExecution.types.ts` (`TripDriverAssignment`, `TripStopExecution`, `AssignDriverPayload`, statuses)
   - `src/types/trip.types.ts` (added `plannedDistanceMiles`, `actualDistanceMiles`, `loadedMiles`, `emptyMiles`)
-  - `src/features/trips/tripExecution.api.ts` (endpoint constants & transition state matrix)
-  - `src/features/trips/useTripDriverAssignments.ts` (`useCustom` + `useCustomMutation` POST unassign, never DELETE)
-  - `src/features/trips/useTripStopActions.ts` (action transitions `arrive`, `startService`, `completeService`, `depart`)
-  - `src/features/trips/TripMileageSummary.tsx` (4 separate distance metrics, handles unavailable null without defaulting to 0)
-  - `src/features/trips/TripStopActions.tsx` (state-driven action buttons, no dropdowns)
-  - `src/features/trips/TripStopsTimeline.tsx` (sequential timeline with order, type, timestamps, dwell, and actions)
-  - `src/features/trips/TripDriverAssignments.tsx` (assignment table, history preservation, popconfirm unassign, assignment modal)
+  - `src/features/trips/api/tripExecution.api.ts` (endpoint constants & transition state matrix)
+  - `src/features/trips/hooks/useTripDriverAssignments.ts` (`useCustom` + `useCustomMutation` POST unassign, never DELETE)
+  - `src/features/trips/hooks/useTripStopActions.ts` (action transitions `arrive`, `startService`, `completeService`, `depart`)
+  - `src/features/trips/components/TripMileageSummary.tsx` (4 separate distance metrics, handles unavailable null without defaulting to 0)
+  - `src/features/trips/components/TripStopActions.tsx` (state-driven action buttons, no dropdowns)
+  - `src/features/trips/components/TripStopsTimeline.tsx` (sequential timeline with order, type, timestamps, dwell, and actions)
+  - `src/features/trips/components/TripDriverAssignments.tsx` (assignment table, history preservation, popconfirm unassign, assignment modal)
   - `src/pages/trips/show.tsx` (lazy tabbed display: Stops Timeline, Driver Assignments, Full Details)
   - `src/locales/en.ts`
   - `src/locales/vi.ts`
