@@ -3,7 +3,7 @@ import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ProfitabilitySummary } from "@/features/profitability/components/ProfitabilitySummary";
 import { ProfitabilityMetricCard } from "@/features/profitability/components/ProfitabilityMetricCard";
-import { financialAmount, financialMetricValue } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount, financialMetricValue } from "@formatters/financialDisplay";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { metric, report } from "@/tests/fixtures/finance";
 

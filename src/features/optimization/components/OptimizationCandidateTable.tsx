@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { EmptyState } from "@/components/EmptyState";
-import { financialAmount } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount } from "@formatters/financialDisplay";
 import type { OptimizationCandidate, OptimizationOutcome } from "@/types/optimization.dto";
 import type { OptimizationActionsResult } from "../hooks/useOptimizationActions";
 import { OptimizationCandidateDrawer } from "./OptimizationCandidateDrawer";

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
-import { financialAmount } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount } from "@formatters/financialDisplay";
 import type { PayrollItem } from "@/types/payroll.dto";
 import { PayrollJurisdictionSummary } from "./PayrollJurisdictionSummary";
 export function PayrollItemsTable({ items }: { items: PayrollItem[] }) {

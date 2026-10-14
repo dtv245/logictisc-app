@@ -1,5 +1,5 @@
 /** Financial display formatting only; missing values are never replaced by zero. */
-import { formatMoney, toMoneyDecimal } from "@/formatters/money";
+import { formatMoney, toMoneyDecimal } from "./money";
 import type { FinancialDecimal, ProfitabilityMetricDto } from "@/types/profitability.dto";
 
 export function financialAmount(value: FinancialDecimal | null | undefined, currency: string | null | undefined, locale: string): string {

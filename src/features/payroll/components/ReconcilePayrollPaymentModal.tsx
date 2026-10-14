@@ -6,7 +6,7 @@ import { ApiHttpError } from "@/utils/httpError";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { PayrollReconciliationCase, ReconcileBankPayload } from "@/types/payroll.dto";
-import { financialAmount } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount } from "@formatters/financialDisplay";
 import { PayrollActionError } from "./PayrollActions";
 import type { PayrollPaymentActionsResult } from "../hooks/usePayrollPaymentActions";
 type EvidenceForm = Omit<ReconcileBankPayload, "idempotencyKey" | "caseEventId" | "occurredAt"> & { occurredAt: Dayjs };

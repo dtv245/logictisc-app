@@ -10,7 +10,7 @@ import { FormGrid } from "@/forms/FormGrid";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { ApiHttpError } from "@/utils/httpError";
-import { financialAmount } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount } from "@formatters/financialDisplay";
 import { formatDateOnly, formatDateTime } from "@/formatters/dateTime";
 import { formatMoney } from "@/formatters/money";
 import type { RatingPreview, RatingPreviewRequest } from "@/types/rateRule.dto";

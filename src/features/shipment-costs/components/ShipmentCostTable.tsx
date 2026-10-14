@@ -8,7 +8,7 @@ import { QueryErrorState } from "@/components/ErrorStates";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateTime } from "@/formatters/dateTime";
-import { financialAmount } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount } from "@formatters/financialDisplay";
 import { financialQueryKeys } from "@/features/profitability/api/profitability.api";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import type { ApiHttpError } from "@/utils/httpError";

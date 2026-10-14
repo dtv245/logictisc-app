@@ -3,7 +3,7 @@ import { Alert, Descriptions } from "antd";
 import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
-import { financialAmount } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount } from "@formatters/financialDisplay";
 import type { DriverSettlementView } from "@/types/settlement.dto";
 
 export function SettlementSummary({ settlement: s }: { settlement: DriverSettlementView }) {

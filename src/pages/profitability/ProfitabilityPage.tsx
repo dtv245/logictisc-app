@@ -11,7 +11,7 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { ProfitabilityFilters, type ProfitabilityFilterValues } from "@/features/profitability/components/ProfitabilityFilters";
 import { ProfitabilitySummary } from "@/features/profitability/components/ProfitabilitySummary";
 import { ProfitabilityBreakdownTable } from "@/features/profitability/components/ProfitabilityBreakdownTable";
-import { financialAmount, financialMetricValue } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount, financialMetricValue } from "@formatters/financialDisplay";
 import { financialQueryKeys, PROFITABILITY_ENDPOINTS, toLoadProfitabilityReport } from "@/features/profitability/api/profitability.api";
 import { ApiHttpError } from "@/utils/httpError";
 import type { LoadFinancialSummaryDto } from "@/types/profitability.dto";

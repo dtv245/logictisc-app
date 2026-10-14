@@ -9,7 +9,7 @@ import { QueryErrorState } from "@/components/ErrorStates";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateTime } from "@/formatters/dateTime";
-import { financialAmount } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount } from "@formatters/financialDisplay";
 import { financialQueryKeys } from "@/features/profitability/api/profitability.api";
 import { ApiHttpError } from "@/utils/httpError";
 import type { AccessorialChargeView } from "@/types/accessorial.types";

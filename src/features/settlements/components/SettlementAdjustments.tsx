@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { EmptyState } from "@/components/EmptyState";
 import { QueryErrorState } from "@/components/ErrorStates";
-import { financialAmount } from "@/features/profitability/utils/financialDisplay";
+import { financialAmount } from "@formatters/financialDisplay";
 import type { ApiHttpError } from "@/utils/httpError";
 import type { DriverSettlementView } from "@/types/settlement.dto";
 import { SETTLEMENT_ENDPOINTS } from "../api/settlement.api";
