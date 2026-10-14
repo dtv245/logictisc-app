@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatDateTime } from "@formatters/dateTime";
 import type { AccessorialChargeView } from "@/types/accessorial.types";
-import type { LoadTimelineResponse } from "@/types/loadTimeline.types";
+import type { LoadTimelineResponse } from "@/features/loads/types";
 import type { ShipmentCostView } from "@/types/shipmentCost.types";
 
 describe("Load Timeline and Costs contract tests", () => {

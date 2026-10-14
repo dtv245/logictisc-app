@@ -1,4 +1,4 @@
-import type { ISODateTime } from "./api.types";
+import type { ISODateTime } from "@/types/api.types";
 
 export interface LoadEventView {
   id: string;
