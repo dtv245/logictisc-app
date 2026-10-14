@@ -6,7 +6,7 @@ import { createCrudColumns } from "@components/crudColumns";
 import { formatDateTime } from "@formatters/dateTime";
 import type { StatusTone } from "@components/StatusTag";
 import type { Document } from "@/types/document.types";
-import { formatFileSize } from "../utils/documentUtils";
+import { formatFileSize } from "./documentUtils";
 
 /**
  * Tách tên file và phần mở rộng để phục vụ hiển thị ellipsis thông minh:

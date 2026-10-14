@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 import { useCustomMutation, useInvalidate } from "@refinedev/core";
-import { buildDocumentFormData, type DocumentUploadPayload } from "./documents.api";
+import { buildDocumentFormData, type DocumentUploadPayload } from "../api/documents.api";
 import type { Document } from "@/types/document.types";
 import type { ApiError } from "@/types/api.types";
 

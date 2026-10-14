@@ -37,7 +37,7 @@ import { DocumentDropboxTable } from "./DocumentDropboxTable";
 import { DocumentDropboxDrawer } from "./DocumentDropboxDrawer";
 import {
   DOCUMENT_CATEGORY_OPTIONS,
-} from "../utils/documentUtils";
+} from "./documentUtils";
 
 const { Text, Title } = Typography;
 

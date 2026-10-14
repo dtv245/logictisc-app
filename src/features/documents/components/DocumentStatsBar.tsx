@@ -7,7 +7,7 @@ import {
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { formatFileSize } from "../utils/documentUtils";
+import { formatFileSize } from "./documentUtils";
 
 const { Text, Title } = Typography;
 

@@ -548,9 +548,9 @@ Do not modify generic dataProvider just for multipart.
 Create:
 
 ```text
-src/features/documents/DocumentUploadModal.tsx
-src/features/documents/documents.api.ts
-src/features/documents/useDocumentUpload.ts
+src/features/documents/components/DocumentUploadModal.tsx
+src/features/documents/api/documents.api.ts
+src/features/documents/hooks/useDocumentUpload.ts
 src/tests/features/documents/DocumentUploadModal.test.tsx
 src/tests/features/documents/useDocumentUpload.test.tsx
 ```

@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { ForbiddenState } from "@/components/ErrorStates";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
-import { DocumentUploadModal } from "@/features/documents/DocumentUploadModal";
+import { DocumentUploadModal } from "@/features/documents/components/DocumentUploadModal";
 import { formatDateTime } from "@/formatters/dateTime";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { BaseTable } from "@/table/BaseTable";

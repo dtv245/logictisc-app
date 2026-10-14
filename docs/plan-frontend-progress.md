@@ -442,9 +442,9 @@ Before unblocking any task, verify live method/path/query parameters/request and
 - **Route**: `/documents`
 - **Files**:
   - `src/components/ResourceListPage.tsx` (supported custom `headerButtons`)
-  - `src/features/documents/documents.api.ts` (added `DocumentUploadPayload` & `buildDocumentFormData`)
-  - `src/features/documents/useDocumentUpload.ts` (`useCustomMutation` + `useInvalidate` + double-submit guard)
-  - `src/features/documents/DocumentUploadModal.tsx` (`Upload.Dragger`, type selector, metadata fields, backend error mapping)
+  - `src/features/documents/api/documents.api.ts` (added `DocumentUploadPayload` & `buildDocumentFormData`)
+  - `src/features/documents/hooks/useDocumentUpload.ts` (`useCustomMutation` + `useInvalidate` + double-submit guard)
+  - `src/features/documents/components/DocumentUploadModal.tsx` (`Upload.Dragger`, type selector, metadata fields, backend error mapping)
   - `src/pages/documents/list.tsx` (integrated upload modal via `headerButtons`)
   - `src/locales/en.ts`
   - `src/locales/vi.ts`
