@@ -3,7 +3,7 @@ import { useCan } from "@refinedev/core";
 import { QueryClient } from "@tanstack/react-query";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { useAccessorialApproval } from "@/features/accessorials/useAccessorialApproval";
+import { useAccessorialApproval } from "@/features/accessorials/hooks/useAccessorialApproval";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { financialQueryKeys } from "@/features/profitability/profitability.api";
 import { loadId, tenantKey } from "@/tests/fixtures/finance";

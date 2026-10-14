@@ -4,7 +4,7 @@ import { Spin, Tabs } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ForbiddenState } from "@/components/ErrorStates";
-import { AccessorialChargesTable } from "@/features/accessorials/AccessorialChargesTable";
+import { AccessorialChargesTable } from "@/features/accessorials/components/AccessorialChargesTable";
 import { ShipmentCostTable } from "@/features/shipment-costs/components/ShipmentCostTable";
 import { LoadFinancialSummary } from "./LoadFinancialSummary";
 import { FscPreview } from "@/features/rates/FscPreview";

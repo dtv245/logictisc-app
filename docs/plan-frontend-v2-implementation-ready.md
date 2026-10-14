@@ -992,7 +992,7 @@ optional dedicated finance list if backend supports it
 ```text
 src/features/accessorials/accessorial.api.ts
 src/features/accessorials/accessorial.query.ts
-src/features/accessorials/AccessorialChargesTable.tsx
+src/features/accessorials/components/AccessorialChargesTable.tsx
 src/features/accessorials/AccessorialChargeDetail.tsx
 src/features/accessorials/AccessorialApprovalActions.tsx
 src/types/accessorialCharge.dto.ts

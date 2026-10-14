@@ -13,7 +13,7 @@ import { financialAmount } from "@/features/profitability/financialDisplay";
 import { financialQueryKeys } from "@/features/profitability/profitability.api";
 import { ApiHttpError } from "@/utils/httpError";
 import type { AccessorialChargeView } from "@/types/accessorial.types";
-import { useAccessorialApproval } from "./useAccessorialApproval";
+import { useAccessorialApproval } from "../hooks/useAccessorialApproval";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 
 export const AccessorialChargesTable = ({ loadId }: { loadId: string }) => {
