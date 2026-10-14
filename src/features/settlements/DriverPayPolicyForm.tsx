@@ -139,7 +139,7 @@ export const DriverPayPolicyForm: React.FC<DriverPayPolicyFormProps> = ({
   };
 
   return (
-    <Card bordered={false}>
+    <Card variant="borderless">
       {isNewVersionMode && previousPolicy && (
         <Alert
           type="info"

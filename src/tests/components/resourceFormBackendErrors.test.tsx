@@ -30,9 +30,12 @@ import { I18nextProvider } from "react-i18next";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ApiError } from "@/types/api.types";
+import type { OpenNotificationParams } from "@refinedev/core";
+import { ApiHttpError } from "@/providers/api/httpError";
 
 /** `onMutationError` mà component truyền xuống hook của Refine. */
 const captured = vi.hoisted(() => ({
+  errorNotification: undefined as ((error?: ApiError) => OpenNotificationParams) | undefined,
   onMutationError: undefined as
     | ((error: unknown, variables: unknown, context: unknown) => void)
     | undefined,
@@ -63,7 +66,8 @@ vi.mock("@refinedev/antd", async () => {
         saveButtonProps: {},
       };
     },
-    useModalForm: (props: { onMutationError?: typeof captured.onMutationError }) => {
+    useModalForm: (props: { onMutationError?: typeof captured.onMutationError; errorNotification?: typeof captured.errorNotification }) => {
+      captured.errorNotification = props.errorNotification;
       const form = useFormInstance(props.onMutationError);
       return {
         form,
@@ -84,6 +88,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   captured.onMutationError = undefined;
+  captured.errorNotification = undefined;
 });
 
 /** Lỗi 400 đúng hình dạng `ApiHttpError` mà tầng transport dựng ra. */
@@ -194,5 +199,15 @@ describe.each(forms)("$name — lỗi field từ backend", ({ render: renderForm
     ).not.toThrow();
 
     expect(screen.getByLabelText("Tên")).toBeInTheDocument();
+  });
+});
+
+describe.each(forms.slice(0, 2))("$name — error notification callback", ({ render: renderForm }) => {
+  it("preserves a known business code's specific backend message", async () => {
+    await renderForm();
+    const message = "Invoice 401: amount 1500 exceeds remaining balance 1000.";
+    const failure = new ApiHttpError({ statusCode: 409, code: "PAYMENT_EXCEEDS_INVOICE_BALANCE", message, requestId: "backend-request" });
+    expect(captured.errorNotification).toBeTypeOf("function");
+    expect(captured.errorNotification?.(failure)).toEqual(expect.objectContaining({ type: "error", description: message }));
   });
 });

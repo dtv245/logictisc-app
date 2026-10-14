@@ -10,7 +10,7 @@ import { createLogisticsDataProvider } from "@/providers/dataProvider";
 import { foundationApiResources } from "@/pages/resourceRegistry";
 import { useResourceEditContract } from "@/components/resources/useResourceEditContract";
 import { buildResourceMutation } from "@/components/resources/resourceMutation";
-import { normalizeHttpError } from "@/providers/api/httpError";
+import { ApiHttpError, normalizeHttpError } from "@/providers/api/httpError";
 import { handoffExamples } from "@/tests/fixtures/handoffExamples";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 
@@ -40,7 +40,7 @@ describe("CORE read snapshot and request DTOs", () => {
     const apiClient = createApiClient({ runtimeConfig: { apiBaseUrl: "http://localhost:8080", healthPath: "/api/health", requestTimeoutMs: 5000 }, tokenProvider: { getAccessToken: () => "fixture", refreshAccessToken: async () => null }, adapter });
     await renderFinance(<Editor />, vi.fn(), { providerOverride: createLogisticsDataProvider({ apiClient, resources: foundationApiResources }) });
     fireEvent.change(screen.getByLabelText("Name"), { target: { value: "My draft" } }); fireEvent.click(screen.getByText("Save"));
-    await screen.findByText("This record changed while you were editing.");
+    await screen.findByText("stale");
     expect(payloads[0]?.expectedVersion).toBe(2); expect(screen.getByLabelText("Name")).toHaveValue("My draft");
     fireEvent.click(screen.getByText("Background refetch")); await waitFor(() => expect(screen.getByLabelText("Name")).toHaveValue("My draft"));
     fireEvent.click(screen.getByText("Save")); await waitFor(() => expect(payloads).toHaveLength(2)); expect(payloads[1]?.expectedVersion).toBe(2);
@@ -58,5 +58,31 @@ describe("CORE read snapshot and request DTOs", () => {
     expect(buildResourceMutation("loads", { ...record, name: "draft" }, record)).not.toHaveProperty("containerId");
     expect(buildResourceMutation("trips", { name: "trip", status: "draft", totalDistance: 1, stops: [{ loadId: "load" }] }, { version: 2 })).toEqual({ name: "trip", status: "draft", totalDistance: 1, expectedVersion: 2 });
     expect(buildResourceMutation("invoices", { status: "DRAFT", type: "CUSTOMER", employeeId: "driver", periodStart: "2026-10-07", totalDistanceDriven: 100 })).toEqual({ status: "DRAFT", type: "CUSTOMER" });
+  });
+});
+
+function ConflictFeedback({ failure }: { failure: ApiHttpError }) {
+  const [form] = Form.useForm<Record<string, unknown>>();
+  const contract = useResourceEditContract("loads", form, record);
+  return <>{contract.feedback}<Form form={form} initialValues={record}><Form.Item name="name" label="Name"><Input /></Form.Item></Form>
+    <Button onClick={() => contract.reportError(failure)}>Report error</Button></>;
+}
+
+describe("edit conflict feedback", () => {
+  it.each(["PAYMENT_IDEMPOTENCY_CONFLICT", "LOAD_PICKUP_DATE_CONFLICT"])("does not offer version comparison for business conflict %s", async (code) => {
+    const message = "Backend details: invoice 401, amount 1500, remaining 1000.";
+    await renderFinance(<ConflictFeedback failure={new ApiHttpError({ statusCode: 409, code, message, requestId: null })} />, vi.fn());
+    fireEvent.click(screen.getByText("Report error"));
+    expect(await screen.findByText(message)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Compare current values" })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Name")).toHaveValue(String(record.name));
+  });
+
+  it("offers version comparison only for confirmed concurrency while keeping backend details", async () => {
+    const message = "Load load changed from version 2 to 4.";
+    await renderFinance(<ConflictFeedback failure={new ApiHttpError({ statusCode: 409, code: "CONCURRENT_MODIFICATION_CONFLICT", message, requestId: null })} />, vi.fn());
+    fireEvent.click(screen.getByText("Report error"));
+    expect(await screen.findByText(message)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Compare current values" })).toBeInTheDocument();
   });
 });

@@ -77,6 +77,8 @@ export interface ResourceFormField {
   stringMode?: boolean;
   name: string;
   options?: readonly string[];
+  /** Cho phép nhập một giá trị mở ngoài các gợi ý Select đã khai báo. */
+  selectMode?: "multiple" | "tags";
   pattern?: RegExp;
   required?: boolean;
   /** Presentation-only disable; request ownership is enforced by the mutation whitelist. */
@@ -495,14 +497,24 @@ export const resourceFormDefinitions: Readonly<
   loads: {
     fields: [
       text("name", true),
-      text("type", true),
+      {
+        ...text("type", true),
+        component: "select",
+        options: ["STANDARD", "EXPEDITED", "REEFER", "FLATBED"],
+        selectMode: "tags",
+      },
       // Phải khớp đúng `LoadStatus` (5 giá trị). Thiếu giá trị nào thì load đang ở
       // trạng thái đó mở form edit sẽ ra ô trống và bị ghi đè khi lưu.
       //
       // Lưu ý: KHÔNG suy enum của form từ `src/types/*.dto.ts` — chính DTO từng khai thừa
       // `pending`/`in_transit`, và bản sửa theo DTO đó đã ghi đè mất trạng thái thật.
       // Nguồn sự thật là enum Java của backend; xem `resourceFormEnums.test.ts`.
-      text("status", true),
+      {
+        ...text("status", true),
+        component: "select",
+        options: ["draft", "dispatched", "picked_up", "delivered", "cancelled"],
+        selectMode: "tags",
+      },
       number("distance", true, 0),
       // Server công bố, không phải người dùng khai.
       boolean("isInProximity"),
@@ -519,9 +531,17 @@ export const resourceFormDefinitions: Readonly<
         false,
         (r) => r.firstName ? `${r.firstName} ${r.lastName}` : (r.email || r.id),
       ),
-      text("source", true),
+      {
+        ...text("source", true),
+        component: "select",
+        options: ["MANUAL", "EDI", "DAT", "TRUCKSTOP", "CUSTOMER_PORTAL", "LOAD_BOARD", "API"],
+        selectMode: "tags",
+      },
       datetime("requestedPickupDate"), datetime("requestedDeliveryDate"), textarea("notes"),
-      boolean("isHazmat"), text("hazmatClass"), text("unNumber"), uuid("containerId"),
+      boolean("isHazmat"), text("hazmatClass"), text("unNumber"),
+      // Containers/terminals have UI files but are absent from the active API
+      // provider allowlist. Keep raw optional IDs until their list endpoints are enabled.
+      uuid("containerId"),
       uuid("originTerminalId"),
       uuid("destinationTerminalId"),
       text("externalSourceProvider"),

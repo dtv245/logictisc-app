@@ -3,6 +3,7 @@ import { useCan, useShow } from "@refinedev/core";
 import { Alert, Button, Space, Tabs, Tag, Typography } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 
 import { LoadDocumentsPanel } from "@/features/loads/LoadDocumentsPanel";
 import { LoadExceptionsPanel } from "@/features/loads/LoadExceptionsPanel";
@@ -18,7 +19,14 @@ import { statusTone } from "@/components/statusTone";
 
 export const LoadShow = () => {
   const { t } = useTranslation();
-  const { queryResult } = useShow<Load, ApiError>({ resource: "loads" });
+  const { id } = useParams<{ id: string }>();
+  const { queryResult } = useShow<Load, ApiError>({
+    resource: "loads",
+    id,
+    queryOptions: {
+      enabled: Boolean(id),
+    },
+  });
   const [activeTab, setActiveTab] = useState<string>("overview");
   const costAccess = useCan({ resource: "shipment-costs", action: "COST_VIEW" });
   const accessorialAccess = useCan({ resource: "accessorials", action: "ACCESSORIAL_VIEW" });

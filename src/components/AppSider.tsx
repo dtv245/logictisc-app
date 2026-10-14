@@ -101,16 +101,18 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
   }, [allowedKeys]);
 
   // Xác định mục đang active và khu vực chứa mục đó dựa trên pathname
-  let activeMatch: { zoneKey: string; itemKey: string } | undefined;
+  let activeMatch: { zoneKey: string; itemKey: string; routeLength: number } | undefined;
   for (const zone of visibleZones) {
     for (const item of zone.items) {
       if (pathname === item.route || pathname.startsWith(item.route + "/")) {
-        activeMatch = { zoneKey: zone.key, itemKey: item.key };
-        break;
+        if (!activeMatch || item.route.length > activeMatch.routeLength) {
+          activeMatch = {
+            zoneKey: zone.key,
+            itemKey: item.key,
+            routeLength: item.route.length,
+          };
+        }
       }
-    }
-    if (activeMatch) {
-      break;
     }
   }
 

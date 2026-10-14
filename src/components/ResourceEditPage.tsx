@@ -50,7 +50,7 @@ export const ResourceEditPage = ({ resource: resourceProp }: ResourceEditPagePro
       saveButtonProps={saveButtonProps}
     >
       {contract.feedback}
-      <Form {...formProps} onValuesChange={(changed, values) => { contract.onValuesChange(changed, values); formProps.onValuesChange?.(changed, values); }} onFinish={(values) => formProps.onFinish?.(contract.prepare(values))} layout="vertical">
+      <Form form={form} {...formProps} onValuesChange={(changed, values) => { contract.onValuesChange(changed, values); formProps.onValuesChange?.(changed, values); }} onFinish={(values) => formProps.onFinish?.(contract.prepare(values))} layout="vertical">
         {/* Trang route rộng nên xếp 2 cột; modal vẫn 1 cột — xem `ResourceFormFields`. */}
         <ResourceFormFields
           columns={2}

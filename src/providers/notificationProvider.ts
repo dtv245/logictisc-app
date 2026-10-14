@@ -1,6 +1,7 @@
 /**
  * Bọc Ant Design notification thành NotificationProvider của Refine.
  * Chuẩn hóa các exception, lỗi CRUD, lỗi đăng nhập và mất kết nối server thành thông báo rõ ràng, dễ hiểu.
+ * Giữ nguyên thông điệp từ backend cho các lỗi 4xx.
  */
 
 import { createElement, isValidElement, useMemo, type ReactNode } from "react";
@@ -55,6 +56,7 @@ export const ERROR_CODE_TRANSLATIONS: Record<string, string> = {
   FORBIDDEN: "Bạn không có quyền hạn thực hiện thao tác này.",
 
   // Lỗi CRUD, dữ liệu & xung đột
+  VERSION_CONFLICT: "Dữ liệu đã bị thay đổi bởi người dùng khác hoặc phiên bản không khớp. Vui lòng tải lại trang.",
   CONCURRENT_MODIFICATION_CONFLICT: "Dữ liệu đã bị thay đổi bởi người dùng khác hoặc phiên bản không khớp. Vui lòng tải lại trang.",
   INVOICE_IMMUTABLE_HISTORY: "Hóa đơn đã chốt trong lịch sử tài chính, không thể chỉnh sửa trực tiếp. Vui lòng dùng lệnh điều chỉnh billing.",
   PAYMENT_AMOUNT_INVALID: "Số tiền thanh toán không hợp lệ. Vui lòng nhập số tiền dương với tối đa 2 chữ số thập phân.",
@@ -140,11 +142,10 @@ export const detectOperation = (key?: string, message?: string): OperationType =
   return "unknown";
 };
 
-/** Trích xuất mã trạng thái HTTP (status code) nếu có */
+/** Trích xuất mã trạng thái HTTP (status code) nếu có tiền tố tường minh */
 export const extractStatusCode = (message?: string, description?: string): number | undefined => {
   const combined = `${message ?? ""} ${description ?? ""}`;
-  const match = combined.match(/(?:status code:?|mã:?|http_?|mã trạng thái:?)\s*(\d{3})/i) ||
-                combined.match(/\b(400|401|403|404|409|422|500|502|503|504)\b/);
+  const match = combined.match(/(?:status code:?|mã:?|http_?|mã trạng thái:?)\s*(\d{3})/i);
   if (match) {
     return parseInt(match[1], 10);
   }
@@ -201,12 +202,6 @@ export const formatDescriptionContent = (rawDescription: unknown): ReactNode => 
       return ERROR_CODE_TRANSLATIONS[trimmed];
     }
 
-    for (const [code, trans] of Object.entries(ERROR_CODE_TRANSLATIONS)) {
-      if (trimmed.includes(code)) {
-        return trans;
-      }
-    }
-
     return trimmed;
   }
 
@@ -221,53 +216,50 @@ export const resolveNotificationContent = (params: OpenNotificationParams): {
 } => {
   const { type, message: rawMessage, description: rawDescription, key } = params;
   const messageStr = typeof rawMessage === "string" ? rawMessage : "";
-  const descStr = typeof rawDescription === "string" ? rawDescription : "";
+  const descStr = typeof rawDescription === "string" ? rawDescription.trim() : "";
   const operation = detectOperation(key, messageStr);
   const resourceName = detectResourceName(key, messageStr);
   const statusCode = extractStatusCode(messageStr, descStr);
 
   const isNetworkError =
     statusCode === 0 ||
-    messageStr.includes("Network Error") ||
-    descStr.includes("Network Error") ||
-    descStr.includes("ERR_NETWORK") ||
-    descStr.includes("ECONNABORTED") ||
-    descStr.includes("ETIMEDOUT") ||
-    descStr.includes("timeout") ||
-    messageStr.includes("mất kết nối") ||
-    descStr.includes("mất kết nối");
+    messageStr === "Network Error" ||
+    descStr === "ERR_NETWORK" ||
+    descStr === "ECONNABORTED" ||
+    descStr === "ETIMEDOUT" ||
+    descStr === "NETWORK_ERROR";
 
   const isTimeout =
-    descStr.includes("ECONNABORTED") ||
-    descStr.includes("ETIMEDOUT") ||
-    descStr.includes("timeout") ||
-    messageStr.includes("timeout") ||
+    descStr === "ECONNABORTED" ||
+    descStr === "ETIMEDOUT" ||
     statusCode === 504;
 
   const isAuthError =
     operation === "auth" ||
     statusCode === 401 ||
-    messageStr.includes("401") ||
-    descStr.includes("401") ||
-    descStr.includes("UNAUTHORIZED") ||
-    descStr.includes("LARK_") ||
-    descStr.includes("AUTH_REQUEST_FAILED");
+    descStr === "UNAUTHORIZED" ||
+    descStr === "AUTH_SESSION_EXPIRED" ||
+    descStr === "TOKEN_REFRESH_RETURNED_NO_TOKEN" ||
+    descStr === "AUTH_REQUEST_FAILED" ||
+    descStr.startsWith("LARK_");
 
   const isForbidden =
     statusCode === 403 ||
-    messageStr.includes("403") ||
-    descStr.includes("FORBIDDEN") ||
-    descStr.includes("ACCESS_DENIED");
+    descStr === "FORBIDDEN" ||
+    descStr === "ACCESS_DENIED";
 
   const isNotFound =
     statusCode === 404 ||
-    messageStr.includes("404") ||
-    descStr.includes("NOT_FOUND");
+    descStr === "NOT_FOUND" ||
+    descStr === "RESOURCE_NOT_FOUND";
 
-  const isConflict =
-    statusCode === 409 ||
-    messageStr.includes("409") ||
-    descStr.includes("CONCURRENT_MODIFICATION_CONFLICT");
+  // 409 chỉ coi là xung đột phiên bản khi code = VERSION_CONFLICT (hoặc CONCURRENT_MODIFICATION_CONFLICT)
+  const isVersionConflict =
+    statusCode === 409 &&
+    (descStr === "VERSION_CONFLICT" ||
+     descStr === "CONCURRENT_MODIFICATION_CONFLICT" ||
+     messageStr === "VERSION_CONFLICT" ||
+     messageStr === "CONCURRENT_MODIFICATION_CONFLICT");
 
   const isServerError =
     statusCode !== undefined &&
@@ -278,16 +270,18 @@ export const resolveNotificationContent = (params: OpenNotificationParams): {
   // Xử lý thông báo thành công (Success)
   if (type === "success") {
     let title: ReactNode = rawMessage;
-    if (operation === "create") {
-      title = resourceName ? `Tạo mới ${resourceName} thành công` : "Tạo mới thành công";
-    } else if (operation === "update") {
-      title = resourceName ? `Cập nhật ${resourceName} thành công` : "Cập nhật thành công";
-    } else if (operation === "delete") {
-      title = resourceName ? `Xóa ${resourceName} thành công` : "Xóa thành công";
-    } else if (operation === "auth") {
-      title = "Đăng nhập thành công";
-    } else if (messageStr.startsWith("Successfully") || messageStr === "success" || messageStr === "Successful") {
-      title = "Thao tác thành công";
+    if (messageStr.startsWith("Successfully") || messageStr === "success" || messageStr === "Successful") {
+      if (operation === "create") {
+        title = resourceName ? `Tạo mới ${resourceName} thành công` : "Tạo mới thành công";
+      } else if (operation === "update") {
+        title = resourceName ? `Cập nhật ${resourceName} thành công` : "Cập nhật thành công";
+      } else if (operation === "delete") {
+        title = resourceName ? `Xóa ${resourceName} thành công` : "Xóa thành công";
+      } else if (operation === "auth") {
+        title = "Đăng nhập thành công";
+      } else {
+        title = "Thao tác thành công";
+      }
     }
     return {
       message: title,
@@ -321,41 +315,42 @@ export const resolveNotificationContent = (params: OpenNotificationParams): {
 
     // 2. Lỗi đăng nhập & xác thực
     if (isAuthError) {
-      if (descStr.includes("LARK_AUTH_CANCELLED")) {
+      if (descStr === "LARK_AUTH_CANCELLED") {
         finalTitle = "Đăng nhập không thành công";
         finalDesc = "Quá trình đăng nhập qua Lark SSO đã bị hủy hoặc bạn đã từ chối cấp quyền.";
-      } else if (descStr.includes("LARK_CODE_MISSING")) {
+      } else if (descStr === "LARK_CODE_MISSING") {
         finalTitle = "Đăng nhập không thành công";
         finalDesc = "Không nhận được mã xác thực từ dịch vụ Lark. Vui lòng thử đăng nhập lại.";
-      } else if (descStr.includes("LARK_API_CLIENT_REQUIRED")) {
+      } else if (descStr === "LARK_API_CLIENT_REQUIRED") {
         finalTitle = "Lỗi cấu hình xác thực";
         finalDesc = "Cấu hình kết nối đăng nhập Lark chưa sẵn sàng. Vui lòng liên hệ quản trị hệ thống.";
-      } else if (statusCode === 401 || descStr.includes("SESSION_EXPIRED") || descStr.includes("TOKEN_REFRESH")) {
+      } else if (statusCode === 401 && (descStr === "UNAUTHORIZED" || !descStr)) {
         finalTitle = "Hết hạn phiên đăng nhập";
         finalDesc = "Phiên làm việc đã hết hạn hoặc thông tin xác thực không hợp lệ. Vui lòng đăng nhập lại.";
-      } else {
-        finalTitle = "Đăng nhập không thành công";
-        finalDesc = "Tài khoản hoặc mật khẩu không chính xác, hoặc không thể xác thực danh tính.";
       }
       return { message: finalTitle, description: finalDesc, duration: 6 };
     }
 
     // 3. Lỗi không có quyền (403)
     if (isForbidden) {
-      finalTitle = "Không có quyền truy cập";
-      finalDesc = "Tài khoản của bạn không có quyền hạn thực hiện thao tác này. Vui lòng liên hệ quản trị viên.";
+      if (!finalDesc || finalDesc === "FORBIDDEN" || finalDesc === "ACCESS_DENIED") {
+        finalTitle = "Không có quyền truy cập";
+        finalDesc = "Tài khoản của bạn không có quyền hạn thực hiện thao tác này. Vui lòng liên hệ quản trị viên.";
+      }
       return { message: finalTitle, description: finalDesc, duration: 6 };
     }
 
     // 4. Lỗi không tìm thấy (404)
     if (isNotFound) {
-      finalTitle = "Không tìm thấy dữ liệu";
-      finalDesc = "Bản ghi yêu cầu không tồn tại hoặc đã bị xóa trước đó.";
+      if (!finalDesc || finalDesc === "NOT_FOUND" || finalDesc === "RESOURCE_NOT_FOUND") {
+        finalTitle = "Không tìm thấy dữ liệu";
+        finalDesc = "Bản ghi yêu cầu không tồn tại hoặc đã bị xóa trước đó.";
+      }
       return { message: finalTitle, description: finalDesc, duration: 6 };
     }
 
-    // 5. Xung đột dữ liệu / Concurrency (409)
-    if (isConflict) {
+    // 5. Xung đột dữ liệu / Concurrency (409 chỉ khi code = VERSION_CONFLICT hoặc CONCURRENT_MODIFICATION_CONFLICT)
+    if (isVersionConflict) {
       finalTitle = "Xung đột dữ liệu";
       finalDesc = "Dữ liệu đã bị thay đổi bởi người dùng khác hoặc phiên bản không khớp. Vui lòng tải lại trang để lấy dữ liệu mới nhất.";
       return { message: finalTitle, description: finalDesc, duration: 6 };
@@ -363,51 +358,26 @@ export const resolveNotificationContent = (params: OpenNotificationParams): {
 
     // 6. Lỗi máy chủ nội bộ (500, 502, 503)
     if (isServerError) {
-      if (operation === "create") {
+      if (messageStr.startsWith("There was an error creating")) {
         finalTitle = resourceName ? `Tạo mới ${resourceName} thất bại (Lỗi máy chủ)` : "Tạo mới thất bại (Lỗi máy chủ)";
-      } else if (operation === "update") {
+      } else if (messageStr.startsWith("Error when updating")) {
         finalTitle = resourceName ? `Cập nhật ${resourceName} thất bại (Lỗi máy chủ)` : "Cập nhật thất bại (Lỗi máy chủ)";
-      } else if (operation === "delete") {
+      } else if (messageStr.startsWith("Error when deleting")) {
         finalTitle = resourceName ? `Xóa ${resourceName} thất bại (Lỗi máy chủ)` : "Xóa dữ liệu thất bại (Lỗi máy chủ)";
-      } else if (operation === "read") {
-        finalTitle = resourceName ? `Tải danh sách ${resourceName} thất bại (Lỗi máy chủ)` : "Tải dữ liệu thất bại (Lỗi máy chủ)";
-      } else {
-        finalTitle = `Lỗi hệ thống máy chủ (${statusCode})`;
       }
-      finalDesc = `Máy chủ đang gặp sự cố nội bộ (mã ${statusCode}). Đội ngũ kỹ thuật đang xử lý, vui lòng thử lại sau giây lát.`;
+      if (!finalDesc || finalDesc === "INTERNAL_SERVER_ERROR" || finalDesc === "INTERNAL_ERROR") {
+        finalDesc = `Máy chủ đang gặp sự cố nội bộ (mã ${statusCode}). Đội ngũ kỹ thuật đang xử lý, vui lòng thử lại sau giây lát.`;
+      }
       return { message: finalTitle, description: finalDesc, duration: 6 };
     }
 
-    // 7. Lỗi CRUD thông thường (Create / Update / Delete / Read)
-    if (operation === "create") {
+    // 7. Chuẩn hóa tiêu đề Refine mặc định nếu gặp mẫu tiếng Anh mặc định của Refine
+    if (messageStr.startsWith("There was an error creating")) {
       finalTitle = resourceName ? `Tạo mới ${resourceName} thất bại` : "Tạo mới thất bại";
-      if (!finalDesc || finalDesc === messageStr || finalDesc === rawDescription) {
-        finalDesc = formatDescriptionContent(rawDescription) || "Dữ liệu gửi lên không hợp lệ hoặc máy chủ từ chối yêu cầu. Vui lòng kiểm tra lại.";
-      }
-    } else if (operation === "update") {
+    } else if (messageStr.startsWith("Error when updating")) {
       finalTitle = resourceName ? `Cập nhật ${resourceName} thất bại` : "Cập nhật thất bại";
-      if (!finalDesc || finalDesc === messageStr || finalDesc === rawDescription) {
-        finalDesc = formatDescriptionContent(rawDescription) || "Không thể lưu thông tin cập nhật. Vui lòng kiểm tra lại dữ liệu và thử lại.";
-      }
-    } else if (operation === "delete") {
+    } else if (messageStr.startsWith("Error when deleting")) {
       finalTitle = resourceName ? `Xóa ${resourceName} thất bại` : "Xóa dữ liệu thất bại";
-      if (!finalDesc || finalDesc === messageStr || finalDesc === rawDescription) {
-        finalDesc = formatDescriptionContent(rawDescription) || "Không thể xóa bản ghi này (có thể do ràng buộc dữ liệu hoặc quyền hạn).";
-      }
-    } else if (operation === "read") {
-      finalTitle = resourceName ? `Tải danh sách ${resourceName} thất bại` : "Tải dữ liệu thất bại";
-      if (!finalDesc || finalDesc === messageStr || finalDesc === rawDescription) {
-        finalDesc = formatDescriptionContent(rawDescription) || "Không thể tải dữ liệu từ máy chủ. Vui lòng thử tải lại trang.";
-      }
-    } else {
-      if (
-        messageStr.includes("There was an error creating") ||
-        messageStr.startsWith("Error when updating") ||
-        messageStr.startsWith("Error (status code")
-      ) {
-        finalTitle = "Thao tác không thành công";
-      }
-      finalDesc = formatDescriptionContent(rawDescription) || "Đã xảy ra lỗi trong quá trình xử lý yêu cầu. Vui lòng thử lại.";
     }
 
     return {

@@ -78,7 +78,7 @@ export const SettlementList: React.FC = () => {
 
   return (
     <div className="settlements-container">
-      <Card bordered={false} className="settlement-card">
+      <Card variant="borderless" className="settlement-card">
         {/* Header */}
         <Row
           justify="space-between"

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { ApiError } from "@/types/api.types";
 import { normalizeHttpError } from "@/providers/api/httpError";
+import { createApiErrorNotification } from "@/providers/apiErrorNotification";
 import { buildResourceMutation } from "./resourceMutation";
 
 type Values = Record<string, unknown>;
@@ -62,11 +63,12 @@ export function useResourceEditContract(resource: string, form: FormInstance<Val
     form.resetFields(); Object.entries(server).forEach(([name, value]) => form.setFieldValue(name, value)); setError(null); setServer(null);
   };
   const code = error?.code ?? "";
-  const isConflict = error?.statusCode === 409;
+  // Only a confirmed version conflict permits comparing and replacing a draft.
+  const isConflict = error?.statusCode === 409 && code === "CONCURRENT_MODIFICATION_CONFLICT";
   const changed = server ? Object.keys(server).filter((key) => key !== "version" && JSON.stringify(server[key]) !== JSON.stringify(form.getFieldValue(key))) : [];
   const feedback = error && <Space direction="vertical" style={{ width: "100%", marginBottom: 16 }}>
-    <Alert type="error" showIcon message={t(`contractErrors.${code}`, { defaultValue: error.message })}
-      description={isConflict ? t("contractAlignment.draftKept") : error.message}
+    <Alert type="error" showIcon message={createApiErrorNotification(error, t).description}
+      description={isConflict ? t("contractAlignment.draftKept") : undefined}
       action={isConflict ? <Button loading={reading} onClick={() => void readServer()}>{t("contractAlignment.compareServer")}</Button> : undefined} />
     {server && <><Descriptions bordered size="small" column={1} items={changed.map((key) => ({ key, label: t(`forms.fields.${key}`, { defaultValue: key }),
       children: `${t("contractAlignment.draft")}: ${String(form.getFieldValue(key) ?? "—")} / ${t("contractAlignment.server")}: ${String(server[key] ?? "—")}` }))} />

@@ -10,6 +10,7 @@ import {
   Checkbox,
   Col,
   Divider,
+  DatePicker,
   Form,
   Input,
   InputNumber,
@@ -21,6 +22,7 @@ import {
   Typography,
 } from "antd";
 import type { Rule } from "antd/es/form";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -242,10 +244,40 @@ const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProp
             Array.isArray(value) ? value.join(", ") : value,
         }
       : {}),
+    ...(field.control === "datetime" || field.control === "date"
+      ? {
+          getValueProps: (value: unknown) => {
+            if (value === null || value === undefined || value === "") {
+              return { value: undefined };
+            }
+            const parsed = dayjs.isDayjs(value)
+              ? value
+              : typeof value === "string" || typeof value === "number" || value instanceof Date
+                ? dayjs(value)
+                : undefined;
+            return { value: parsed?.isValid() ? parsed : undefined };
+          },
+          normalize: (value: unknown) => {
+            if (!dayjs.isDayjs(value) || !value.isValid()) return value;
+            return field.control === "date"
+              ? value.format("YYYY-MM-DD")
+              : value.toISOString();
+          },
+        }
+      : {}),
     ...(field.uppercase
       ? {
           normalize: (value: unknown) =>
             typeof value === "string" ? value.toUpperCase() : value,
+        }
+      : {}),
+    ...(field.selectMode === "tags"
+      ? {
+          getValueProps: (value: unknown) => ({
+            value: Array.isArray(value) ? value : value == null || value === "" ? [] : [value],
+          }),
+          normalize: (value: unknown) =>
+            Array.isArray(value) ? value.at(-1) : value,
         }
       : {}),
   };
@@ -279,9 +311,8 @@ const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProp
   } else if (field.control === "boolean" || componentType === "checkbox") {
     control = <Checkbox disabled={isReadOnly} />;
   } else if (field.control === "number" || componentType === "number") {
-    control = (
+    const inputNumberNode = (
       <InputNumber
-        addonAfter={field.unit}
         disabled={isReadOnly}
         max={max}
         min={field.min}
@@ -290,11 +321,20 @@ const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProp
         style={{ width: "100%" }}
       />
     );
+    control = field.unit ? (
+      <Space.Compact style={{ width: "100%" }}>
+        {inputNumberNode}
+        <span className="ant-input-group-addon">{field.unit}</span>
+      </Space.Compact>
+    ) : (
+      inputNumberNode
+    );
   } else if (field.control === "select" || componentType === "select") {
     control = (
       <Select
         allowClear={!field.required}
         disabled={isReadOnly}
+        mode={field.selectMode}
         options={field.options?.map((value) => ({
           label: t(`forms.options.${value}`, { defaultValue: value }),
           value,
@@ -331,6 +371,16 @@ const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProp
         style={{ width: "100%" }}
       />
     );
+  } else if (field.control === "datetime" || field.control === "date") {
+    control = (
+      <DatePicker
+        disabled={isReadOnly}
+        format={field.control === "date" ? "YYYY-MM-DD" : "YYYY-MM-DD HH:mm"}
+        placeholder={placeholder}
+        showTime={field.control === "datetime"}
+        style={{ width: "100%" }}
+      />
+    );
   } else {
     control = (
       <Input
@@ -338,7 +388,7 @@ const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProp
         maxLength={field.maxLength}
         placeholder={placeholder}
         style={{ width: "100%", ...(field.uppercase ? { textTransform: "uppercase" } : {}) }}
-        type={field.control === "email" ? "email" : field.control === "date" ? "date" : "text"}
+        type={field.control === "email" ? "email" : "text"}
       />
     );
   }

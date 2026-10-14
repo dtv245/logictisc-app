@@ -90,11 +90,13 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
         flexDirection: "column",
         cursor: "pointer",
       }}
-      bodyStyle={{
-        padding: 16,
-        display: "flex",
-        flexDirection: "column",
-        flex: 1,
+      styles={{
+        body: {
+          padding: 16,
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+        },
       }}
       onClick={() => onPreview(doc)}
       tabIndex={0}

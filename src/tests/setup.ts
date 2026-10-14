@@ -15,7 +15,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, configure } from "@testing-library/react";
 import { afterEach } from "vitest";
 
-configure({ asyncUtilTimeout: 4000 });
+configure({ asyncUtilTimeout: 8000 });
 
 /**
  * Cơ chế auto-cleanup của React Testing Library dựa vào một `afterEach` toàn

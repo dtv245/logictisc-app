@@ -20,6 +20,9 @@ import { useTranslation } from "react-i18next";
 
 import { EmptyState } from "@components/EmptyState";
 import { QueryErrorState } from "@components/ErrorStates";
+import { normalizePage, normalizePageSize } from "@providers/api/querySerializer";
+import { ApiHttpError } from "@providers/api/httpError";
+import { resolveApiErrorMessage } from "@providers/api/errorMessages";
 import "./BaseTable.scss";
 
 /**
@@ -193,6 +196,18 @@ const BaseTableComponent = <TData extends BaseRecord>({
           defaultValue: `${range[0]}–${range[1]} / ${totalCount}`,
         }),
       ...paginationObj,
+      // The URL may contain zero/NaN even when the API serializer sends valid numbers.
+      // Preserve uncontrolled local tables; adding current=1 would freeze their navigation.
+      ...(paginationObj.current !== undefined ? { current: Math.max(1, normalizePage(paginationObj.current)) } : {}),
+      ...(paginationObj.defaultCurrent !== undefined ? { defaultCurrent: Math.max(1, normalizePage(paginationObj.defaultCurrent)) } : {}),
+      ...(paginationObj.pageSize !== undefined ? { pageSize: normalizePageSize(paginationObj.pageSize) } : {}),
+      ...(paginationObj.onChange !== undefined
+        ? {
+            onChange: (page: number, pageSize: number) => {
+              paginationObj.onChange?.(Math.max(1, page || 1), pageSize);
+            },
+          }
+        : {}),
     };
   }, [tableProps.pagination, isMobile, t]);
 
@@ -206,7 +221,8 @@ const BaseTableComponent = <TData extends BaseRecord>({
 
   // 1. Nhánh lỗi: thay hẳn bảng bằng QueryErrorState
   if (error !== undefined && error !== null) {
-    const description = error instanceof Error ? error.message : undefined;
+    const description = error instanceof ApiHttpError ? resolveApiErrorMessage(error.code, error.params, error.message, t)
+      : error instanceof Error ? error.message : undefined;
 
     return (
       <QueryErrorState
@@ -218,6 +234,16 @@ const BaseTableComponent = <TData extends BaseRecord>({
   }
 
   const isLoading = Boolean(tableProps.loading || isFetching);
+
+  const handleTableChange: TableProps<TData>["onChange"] = (pagination, filters, sorter, extra) => {
+    const safePagination = pagination
+      ? {
+          ...pagination,
+          current: pagination.current !== undefined ? Math.max(1, pagination.current) : 1,
+        }
+      : pagination;
+    tableProps.onChange?.(safePagination, filters, sorter, extra);
+  };
 
   return (
     <ConfigProvider theme={TABLE_THEME}>
@@ -231,6 +257,7 @@ const BaseTableComponent = <TData extends BaseRecord>({
           locale={{
             emptyText: resolvedEmptyText,
           }}
+          onChange={handleTableChange}
           pagination={processedPagination}
           rowKey={rowKey}
           scroll={resolvedScroll}

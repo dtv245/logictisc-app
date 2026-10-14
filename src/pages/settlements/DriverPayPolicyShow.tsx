@@ -188,7 +188,7 @@ export const DriverPayPolicyShow: React.FC = () => {
             )}
           </div>
         }
-        bordered={false}
+        variant="borderless"
         className="settlement-card"
         style={{ marginBottom: 24 }}
       >
@@ -256,7 +256,7 @@ export const DriverPayPolicyShow: React.FC = () => {
       {/* Version History Table */}
       <Card
         title={t("settlements.versionHistoryTitle", "Version History for this Policy Code")}
-        bordered={false}
+        variant="borderless"
         className="settlement-card"
       >
         <DriverPayPolicyVersionHistory

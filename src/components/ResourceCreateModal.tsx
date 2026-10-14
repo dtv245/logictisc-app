@@ -15,6 +15,7 @@ import { buildResourceMutation } from "./resources/resourceMutation";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
+import { createApiErrorNotification } from "@/providers/apiErrorNotification";
 import {
   createResourceFormInitialValues,
   findSectionKeyForField,
@@ -31,6 +32,7 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
   const { t } = useTranslation();
   const resourceLabel = t(`resources.${resource}`);
   const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Lấy định nghĩa form nếu resource hợp lệ
   const isEditable = isEditableResourceName(resource);
@@ -55,19 +57,22 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
       description: t("notifications.success"),
       type: "success",
     }),
-    errorNotification: (error) => ({
-      key: `create-${resource}`,
-      message: t("notifications.createError", {
-        resource: resourceLabel,
-        statusCode: (error as ApiError)?.statusCode ?? 500,
-      }),
-      description: error?.message,
-      type: "error",
-    }),
+    errorNotification: (error) => {
+      // Dùng form.setFields để hiện lỗi dưới đúng ô nhập, không hiện notification chung
+      if (error?.errors && Object.keys(error.errors).length > 0) {
+        return false;
+      }
+      return createApiErrorNotification(error, t, {
+        key: `create-${resource}`,
+        operation: "create",
+        resourceLabel,
+      });
+    },
     // Khi nhận lỗi 400 kèm `errors[].field` từ backend:
     // Nếu field lỗi nằm trong section đang thu gọn (ví dụ ADR), tự động mở section đó ra,
     // sau đó gắn lỗi ngay dưới field và cuộn/focus vào field lỗi đầu tiên.
     onMutationError: (error) => {
+      setSubmitting(false);
       const backendErrors = error.errors ?? {};
       const firstErrorField = Object.keys(backendErrors)[0];
       if (firstErrorField && definition) {
@@ -154,6 +159,8 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
   // trước khi đưa qua buildResourceMutation chuẩn hóa payload.
   const handleFinish = useCallback(
     async (values: Record<string, unknown>) => {
+      if (submitting) return;
+      setSubmitting(true);
       try {
         const sanitized = { ...values };
         if (!sanitized.adrEquipmentIsAdrCertified) {
@@ -163,9 +170,11 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
         await formProps.onFinish?.(buildResourceMutation(resource, sanitized));
       } catch {
         // Handled by Refine onMutationError and notificationFailed
+      } finally {
+        setSubmitting(false);
       }
     },
-    [formProps, resource],
+    [formProps, resource, submitting],
   );
 
   if (!isEditable || !definition) {
@@ -194,13 +203,16 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
       {trigger(handleShow)}
       <ResourceModalFrame
         cancelText={t("actions.cancel")}
-        confirmLoading={formLoading}
+        confirmLoading={formLoading || submitting}
         destroyOnHidden
         formId={formId}
         maskClosable={!warnWhen}
         okText={okText}
         onCancel={discardConfirm.onCancel}
-        onOk={() => form.submit()}
+        onOk={() => {
+          if (submitting || formLoading) return;
+          form.submit();
+        }}
         open={modalProps.open}
         subtitle={modalSubtitle}
         title={modalTitle}

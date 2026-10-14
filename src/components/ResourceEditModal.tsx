@@ -13,6 +13,7 @@ import { statusTone } from "@/components/statusTone";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
+import { createApiErrorNotification } from "@/providers/apiErrorNotification";
 import {
   ResourceFormFields,
   useResourceFormSections,
@@ -61,14 +62,10 @@ export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEd
       description: t("notifications.success"),
       type: "success",
     }),
-    errorNotification: (error) => ({
+    errorNotification: (error) => createApiErrorNotification(error, t, {
       key: `edit-${resource}`,
-      message: t("notifications.editError", {
-        resource: resourceLabel,
-        statusCode: (error as ApiError)?.statusCode ?? 500,
-      }),
-      description: error?.message,
-      type: "error",
+      operation: "update",
+      resourceLabel,
     }),
     onMutationError: (error) => {
       const backendErrors = error.errors ?? {};

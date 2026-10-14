@@ -60,7 +60,7 @@ export const TruckShow = () => {
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Card 1: Thông số kỹ thuật */}
         <Card
-          bordered={false}
+          variant="borderless"
           style={{
             borderRadius: 8,
             boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
@@ -94,7 +94,7 @@ export const TruckShow = () => {
 
         {/* Card 2: Tài xế phụ trách */}
         <Card
-          bordered={false}
+          variant="borderless"
           style={{
             borderRadius: 8,
             boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
@@ -113,7 +113,7 @@ export const TruckShow = () => {
 
         {/* Card 3: Tiêu chuẩn an toàn & ADR */}
         <Card
-          bordered={false}
+          variant="borderless"
           style={{
             borderRadius: 8,
             boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",

@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 
 import type { ApiHttpError } from "../providers/api/httpError";
 import { normalizeHttpError } from "../providers/api/httpError";
+import { createApiErrorNotification } from "../providers/apiErrorNotification";
 
 export interface UseApiErrorResult {
   /** Chuẩn hoá lỗi, hiện notification, và trả về lỗi đã chuẩn hoá để gọi tiếp. */
@@ -22,10 +23,8 @@ export const useApiError = (): UseApiErrorResult => {
   const showApiError = useCallback(
     (error: unknown) => {
       const apiError = normalizeHttpError(error);
-      notification.error({
-        message: t("errors.httpStatus", { code: apiError.statusCode }),
-        description: apiError.message,
-      });
+      const { key, message, description } = createApiErrorNotification(apiError, t);
+      notification.error({ key, message, description });
       return apiError;
     },
     [notification, t],

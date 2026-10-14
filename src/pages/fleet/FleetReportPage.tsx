@@ -320,7 +320,7 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
                         placeholder={t("fleet.selectPolicyPlaceholder")}
                         options={policyOptions}
                         loading={policiesQuery.isLoading}
-                        onDropdownVisibleChange={(open) => {
+                        onOpenChange={(open) => {
                           if (open) setLoadPolicies(true);
                         }}
                         onSearch={() => setLoadPolicies(true)}
@@ -392,7 +392,7 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
                         options={truckOptions}
                         loading={trucksQuery.isLoading}
                         maxTagCount={10}
-                        onDropdownVisibleChange={(open) => {
+                        onOpenChange={(open) => {
                           if (open) setLoadTrucks(true);
                         }}
                         onSearch={() => setLoadTrucks(true)}

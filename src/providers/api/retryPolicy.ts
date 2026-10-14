@@ -6,6 +6,12 @@ import { ApiHttpError, normalizeHttpError } from "./httpError";
 
 export const MAX_TRANSIENT_QUERY_RETRIES = 2;
 
+// Applies only to read queries. Financial commands keep their explicit idempotent retry flow.
+export const queryRetryDelay = (attempt: number, error: unknown): number => {
+  const apiError = error instanceof ApiHttpError ? error : normalizeHttpError(error);
+  return Math.max(Math.min(1000 * 2 ** attempt, 30_000), (apiError.retryAfterSeconds ?? 0) * 1000);
+};
+
 export const shouldRetryQuery = (
   failureCount: number,
   error: unknown,

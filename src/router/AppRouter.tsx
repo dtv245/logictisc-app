@@ -144,7 +144,7 @@ export const AppRouter = ({
     <Routes>
       <Route
         index
-        element={<Navigate to={routes.diagnostics} replace />}
+        element={<Navigate to={routes.login} replace />}
       />
       {diagnosticsState ? (
         <Route

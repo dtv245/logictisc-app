@@ -10,6 +10,8 @@ import axios, { AxiosHeaders } from "axios";
 
 import { isRecord, readApiResponse } from "./envelope";
 import type { BackendApiError } from "../../types/api.types";
+import type { ErrorParams } from "../../types/api.types";
+import { resolveApiErrorMessage } from "./errorMessages";
 
 export type RefineFieldErrors = Record<string, string[]>;
 
@@ -21,6 +23,8 @@ export interface ApiHttpErrorOptions {
   backendErrors?: BackendApiError[] | undefined;
   fieldErrors?: RefineFieldErrors | undefined;
   cause?: unknown;
+  params?: ErrorParams;
+  retryAfterSeconds?: number;
 }
 
 export class ApiHttpError extends Error implements HttpError {
@@ -28,7 +32,15 @@ export class ApiHttpError extends Error implements HttpError {
   readonly code: string;
   readonly requestId: string | null;
   readonly backendErrors: BackendApiError[];
-  readonly errors?: RefineFieldErrors;
+  readonly params: ErrorParams;
+  readonly hasMachineParams: boolean;
+  readonly retryAfterSeconds: number | undefined;
+  private readonly fallbackFieldErrors: RefineFieldErrors | undefined;
+
+  // Resolve on access so cached form errors follow the current locale.
+  get errors(): RefineFieldErrors | undefined {
+    return this.backendErrors.length ? groupFieldErrors(this.backendErrors) : this.fallbackFieldErrors;
+  }
 
   constructor(options: ApiHttpErrorOptions) {
     super(options.message, { cause: options.cause });
@@ -37,9 +49,10 @@ export class ApiHttpError extends Error implements HttpError {
     this.code = options.code;
     this.requestId = options.requestId;
     this.backendErrors = options.backendErrors ?? [];
-    if (options.fieldErrors) {
-      this.errors = options.fieldErrors;
-    }
+    this.params = options.params ?? {};
+    this.hasMachineParams = options.params !== undefined;
+    this.retryAfterSeconds = options.retryAfterSeconds;
+    this.fallbackFieldErrors = options.fieldErrors;
   }
 }
 
@@ -56,7 +69,7 @@ const groupFieldErrors = (
     const messages = grouped.get(error.field) ?? [];
     // Một field có thể có nhiều constraint lỗi; giữ toàn bộ thay vì chỉ lấy
     // message cuối để Ant Design hiển thị đúng phản hồi backend.
-    messages.push(error.message);
+    messages.push(resolveApiErrorMessage(error.code, error.params, error.message, undefined, "fields"));
     grouped.set(error.field, messages);
   }
 
@@ -73,6 +86,7 @@ export const toRefineHttpError = (
     fallbackMessage?: string | undefined;
     fallbackRequestId?: string | null | undefined;
     cause?: unknown;
+    retryAfterSeconds?: number;
   },
 ): ApiHttpError => {
   // readApiResponse xử lý envelope thành công/lỗi theo cùng contract, còn các
@@ -87,12 +101,14 @@ export const toRefineHttpError = (
   return new ApiHttpError({
     statusCode,
     code,
-    message,
+    message, // Preserve backend details; standalone codes are localized at display time.
     requestId:
       envelope?.meta.requestId ?? options?.fallbackRequestId ?? null,
     backendErrors,
     fieldErrors: groupFieldErrors(backendErrors),
     cause: options?.cause,
+    ...(envelope?.params !== undefined ? { params: envelope.params } : {}),
+    ...(options?.retryAfterSeconds !== undefined ? { retryAfterSeconds: options.retryAfterSeconds } : {}),
   });
 };
 
@@ -134,6 +150,7 @@ export const normalizeHttpError = (error: unknown): ApiHttpError => {
       fallbackMessage: error.message,
       fallbackRequestId: requestId,
       cause: error,
+      ...(readRetryAfter(error.response?.headers) !== undefined ? { retryAfterSeconds: readRetryAfter(error.response?.headers) } : {}),
     });
   }
 
@@ -154,4 +171,13 @@ export const normalizeHttpError = (error: unknown): ApiHttpError => {
     requestId: null,
     cause: error,
   });
+};
+
+const readRetryAfter = (headers: unknown): number | undefined => {
+  const raw = headers instanceof AxiosHeaders ? headers.get("retry-after")
+    : isRecord(headers) ? headers["retry-after"] ?? headers["Retry-After"] : undefined;
+  if (typeof raw !== "string" && typeof raw !== "number") return undefined;
+  const text = String(raw);
+  const seconds = /^\d+$/.test(text) ? Number(text) : Math.ceil((Date.parse(text) - Date.now()) / 1000);
+  return Number.isFinite(seconds) && seconds >= 0 && seconds <= 86400 ? seconds : undefined;
 };

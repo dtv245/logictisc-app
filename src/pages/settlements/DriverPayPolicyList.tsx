@@ -250,7 +250,7 @@ export const DriverPayPolicyList: React.FC = () => {
 
   return (
     <div className="settlements-container">
-      <Card bordered={false} className="settlement-card">
+      <Card variant="borderless" className="settlement-card">
         <Row justify="space-between" align="middle" gutter={[16, 16]} className="policy-list__header">
           <Col xs={24} sm={16} className="policy-list__header-title">
             <Title level={4} style={{ margin: 0 }}>

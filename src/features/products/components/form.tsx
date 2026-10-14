@@ -7,6 +7,7 @@ import {
   Input,
   InputNumber,
   Switch,
+  type FormInstance,
   type FormProps,
 } from "antd";
 import { useTranslation } from "react-i18next";
@@ -20,10 +21,11 @@ interface ProductFormProps {
    * Số cột ở màn rộng. Mặc định `1` cho modal; trang create/edit truyền `2`.
    */
   columns?: FormGridColumns;
+  form?: FormInstance<ProductFormValues>;
   formProps: FormProps<ProductFormValues>;
 }
 
-export const ProductForm = ({ columns = 1, formProps }: ProductFormProps) => {
+export const ProductForm = ({ columns = 1, form, formProps }: ProductFormProps) => {
   const { t } = useTranslation();
 
   // `description` là `TextArea` nên chiếm cả chiều ngang — cùng quy tắc với
@@ -103,7 +105,7 @@ export const ProductForm = ({ columns = 1, formProps }: ProductFormProps) => {
   ];
 
   return (
-    <Form<ProductFormValues> {...formProps} layout="vertical">
+    <Form<ProductFormValues> form={form ?? formProps.form} {...formProps} layout="vertical">
       <FormGrid columns={columns} items={items} />
     </Form>
   );

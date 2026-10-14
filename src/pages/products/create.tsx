@@ -10,7 +10,7 @@ import type { Product, ProductFormValues } from "@/types/product.types";
 
 export const ProductCreate = () => {
   // useForm kết nối validation, mutation và redirect với Product resource.
-  const { formProps, saveButtonProps } = useForm<
+  const { form, formProps, saveButtonProps } = useForm<
     Product,
     ApiError,
     ProductFormValues
@@ -24,6 +24,7 @@ export const ProductCreate = () => {
     <Create saveButtonProps={saveButtonProps}>
       <ProductForm
         columns={2}
+        form={form}
         formProps={{
           ...formProps,
           initialValues: {
