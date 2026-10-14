@@ -1,7 +1,7 @@
 /**
  * API endpoints và dữ liệu mẫu cho AI Dispatch.
  */
-import type { AiMovementPlan, CreateAiDispatchParams } from "@/types/ai-dispatch.types";
+import type { AiMovementPlan, CreateAiDispatchParams } from "@/features/ai-dispatch/types/ai-dispatch.types";
 
 export const aiDispatchEndpoints = {
   sessions: "/api/ai-dispatch/sessions",

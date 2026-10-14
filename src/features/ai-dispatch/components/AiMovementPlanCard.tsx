@@ -32,7 +32,7 @@ import { useNavigate } from "react-router-dom";
 import { StatusTag } from "@/components/StatusTag";
 import { formatDateTime } from "@/formatters/dateTime";
 import { routes } from "@/constants/routes";
-import type { AiMovementPlan, AiPlanStopType } from "@/types/ai-dispatch.types";
+import type { AiMovementPlan, AiPlanStopType } from "@/features/ai-dispatch/types/ai-dispatch.types";
 import type { AiDispatchActionsResult } from "../hooks/useAiDispatchActions";
 
 import "../styles/ai-dispatch.scss";

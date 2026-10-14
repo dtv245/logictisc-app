@@ -38,7 +38,7 @@ import {
   type AiProviderConfig,
   type AiProviderId,
   type AiSettings,
-} from "@/types/aiConfig.types";
+} from "@/features/ai-dispatch/types/aiConfig.types";
 import {
   testAiConnection,
   useAiSettings,

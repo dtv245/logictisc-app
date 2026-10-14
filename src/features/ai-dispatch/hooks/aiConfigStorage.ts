@@ -2,7 +2,7 @@
  * Quản lý lưu trữ và tải cấu hình AI từ LocalStorage.
  */
 import { useEffect, useState } from "react";
-import { DEFAULT_AI_SETTINGS, type AiProviderConfig, type AiProviderId, type AiSettings } from "@/types/aiConfig.types";
+import { DEFAULT_AI_SETTINGS, type AiProviderConfig, type AiProviderId, type AiSettings } from "@/features/ai-dispatch/types/aiConfig.types";
 
 const STORAGE_KEY = "logistics_ai_dispatch_settings";
 const CONFIG_UPDATE_EVENT = "logistics_ai_config_updated";

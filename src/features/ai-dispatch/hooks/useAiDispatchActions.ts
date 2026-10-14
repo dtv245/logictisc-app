@@ -5,7 +5,7 @@ import { useCan, useInvalidate, useNotification } from "@refinedev/core";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
-import type { AiMovementPlan, CreateAiDispatchParams } from "@/types/ai-dispatch.types";
+import type { AiMovementPlan, CreateAiDispatchParams } from "@/features/ai-dispatch/types/ai-dispatch.types";
 import {
   generateAiMovementPlan,
   initialMovementPlan,
