@@ -1767,11 +1767,11 @@ or route matching current navigation model.
 src/pages/payslips/PayslipShow.tsx
 src/pages/payslips/MyPayslipsPage.tsx
 
-src/features/payslips/payslip.api.ts
+src/features/payslips/api/payslip.api.ts
 src/features/payslips/payslip.query.ts
-src/features/payslips/PayslipSummary.tsx
+src/features/payslips/components/PayslipSummary.tsx
 src/features/payslips/PayslipEarningsTable.tsx
-src/features/payslips/PayslipPaymentStatus.tsx
+src/features/payslips/components/PayslipPaymentStatus.tsx
 
 src/types/payslip.dto.ts
 

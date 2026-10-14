@@ -73,7 +73,7 @@ def mapping(method, path):
         if path.endswith("/payslips"): return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "Lock issues slips atomically; no standalone browser reissuance"
         return ["src/features/payroll/payroll.api.ts", "src/features/payroll/usePayrollActions.ts", "src/features/payroll/usePayrollPaymentActions.ts"], "ACTIVE", "FE_PATCHED", "Explicit RAW adapter; run/item/payment semantics distinct; keyed commands frozen; reconciliation Spring page 0-based"
     if path.startswith("/api/payslips") or path == "/api/driver/me/payslips":
-        return ["src/features/payslips/payslip.api.ts", "src/pages/payslips/MyPayslipsPage.tsx", "src/pages/payslips/PayslipShow.tsx"], "ACTIVE", "FE_PATCHED", "RAW metadata/self list; PDF blob/no-store; employee ownership; no current payment claim"
+        return ["src/features/payslips/api/payslip.api.ts", "src/pages/payslips/MyPayslipsPage.tsx", "src/pages/payslips/PayslipShow.tsx"], "ACTIVE", "FE_PATCHED", "RAW metadata/self list; PDF blob/no-store; employee ownership; no current payment claim"
     if path.startswith("/api/optimization/runs"):
         return ["src/features/optimization/optimization.api.ts", "src/features/optimization/useOptimizationActions.ts"], "ACTIVE", "FE_PATCHED", "Server rank/score/fingerprint; frozen command; scoped resource/version refresh; conflict guard"
     if path == "/api/notifications/mark-all-read":
