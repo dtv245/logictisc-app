@@ -2,8 +2,8 @@
  * Chứa các kiểu dữ liệu hội thoại, tin nhắn và trạng thái đã đọc.
  */
 
-import type { Employee } from "./employee.types";
-import type { Load } from "./load.types";
+import type { Employee } from "@/types/employee.types";
+import type { Load } from "@/types/load.types";
 
 /** Hội thoại giữa các nhân viên hoặc liên quan đến một chuyến hàng. */
 export interface Conversation {

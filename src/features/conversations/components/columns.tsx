@@ -1,6 +1,6 @@
 /** Định nghĩa columns cho Conversation resource. */
 import { createCrudColumns } from "@components/crudColumns";
-import type { Conversation } from "@/types/chat.types";
+import type { Conversation } from "../types";
 export const conversationColumns = createCrudColumns<Conversation>("conversations", [
   { dataIndex: "name", titleKey: "columns.conversations.name", sorter: true },
   { dataIndex: "loadId", titleKey: "columns.conversations.loadId" },
