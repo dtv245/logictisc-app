@@ -16,7 +16,7 @@ import { formatMoney } from "@/formatters/money";
 import type { RatingPreview, RatingPreviewRequest } from "@/types/rateRule.dto";
 import { isUuid } from "@/utils/uuid";
 import { FscPolicyFields } from "./FscPolicyFields";
-import { rateRuleApi } from "./rateRule.api";
+import { rateRuleApi } from "../api/rateRule.api";
 
 const textFields = ["currency", "contextSource", "contractId", "lane", "equipment", "service", "tier", "linehaulMileageEvidenceId", "fscMileageEvidenceId", "accessorialIds"] as const;
 type PreviewForm = Partial<Omit<RatingPreviewRequest, "accessorialIds">> & { accessorialIds?: string };

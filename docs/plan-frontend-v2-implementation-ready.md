@@ -1884,7 +1884,7 @@ locked payroll not automatically paid
 src/pages/rates/RateRuleList.tsx
 src/pages/rates/RateRuleShow.tsx
 
-src/features/rates/rateRule.api.ts
+src/features/rates/api/rateRule.api.ts
 src/features/rates/rateRule.query.ts
 src/features/rates/rateRule.columns.tsx
 src/features/rates/RateRuleForm.tsx
@@ -1936,8 +1936,8 @@ customer lookup
 ## Files
 
 ```text
-src/features/rates/FscPolicyFields.tsx
-src/features/rates/FscPreview.tsx
+src/features/rates/components/FscPolicyFields.tsx
+src/features/rates/components/FscPreview.tsx
 src/tests/features/rates/FscPolicyFields.test.tsx
 src/tests/features/rates/FscPreview.test.tsx
 ```

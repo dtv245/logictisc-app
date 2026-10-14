@@ -32,9 +32,9 @@ def mapping(method, path):
     if "/requested-pickup-business-date" in path:
         return ["src/features/loads/PickupBusinessDateForm.tsx"], "DORMANT", "FE_PATCHED", "Independent LocalDate/provenance/expectedChangeId; never appointment conversion"
     if path.endswith("/rating/preview"):
-        return ["src/features/rates/FscPreview.tsx", "src/types/rateRule.dto.ts"], "ACTIVE", "FE_PATCHED", "Ephemeral preview; optional selectors omitted; freeze request/server hashes for acceptance"
+        return ["src/features/rates/components/FscPreview.tsx", "src/types/rateRule.dto.ts"], "ACTIVE", "FE_PATCHED", "Ephemeral preview; optional selectors omitted; freeze request/server hashes for acceptance"
     if path.endswith("/rating/accept"):
-        return ["src/features/invoices/api/billingCommands.ts", "src/features/rates/RatingAcceptance.tsx"], "DORMANT", "FE_PATCHED", "Frozen preview request and server hashes; actor from identity"
+        return ["src/features/invoices/api/billingCommands.ts", "src/features/rates/components/RatingAcceptance.tsx"], "DORMANT", "FE_PATCHED", "Frozen preview request and server hashes; actor from identity"
     if path.startswith("/api/invoices/billing"):
         return ["src/features/invoices/api/billingCommands.ts", "src/features/invoices/components/PrimaryInvoiceForm.tsx"], "DORMANT", "FE_PATCHED", "Snapshot identity invoiceId; explicit tax evidence; 120-character invoice key; typed correction commands"
     if group in ["customers", "employees", "trucks", "loads", "trips", "invoices", "roles", "drivers", "documents", "notifications"] and re.fullmatch(r"/api/[\w-]+(?:/\{id\})?", path):

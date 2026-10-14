@@ -7,7 +7,7 @@ import { ForbiddenState } from "@/components/ErrorStates";
 import { AccessorialChargesTable } from "@/features/accessorials/components/AccessorialChargesTable";
 import { ShipmentCostTable } from "@/features/shipment-costs/components/ShipmentCostTable";
 import { LoadFinancialSummary } from "./LoadFinancialSummary";
-import { FscPreview } from "@/features/rates/FscPreview";
+import { FscPreview } from "@/features/rates/components/FscPreview";
 
 export const LoadFinancialPanel = ({ loadId }: { loadId: string }) => {
   const { t } = useTranslation();

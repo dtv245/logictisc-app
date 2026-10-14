@@ -166,7 +166,7 @@ Before unblocking any task, verify live method/path/query parameters/request and
 - **Contract Status:** CONFIRMED POST `/api/loads/{id}/rating/preview`; current RatingPreviewRequest/RatingPreview/FuelSurchargeResult and controller/service checked. V1 supports linehaul FLAT/PER_MILE and FSC INDEX_BASED_MPG only. No hypothetical FSC methods exposed.
 - **Backend Dependency:** Existing versioned rule/contract, business pickup date, authoritative mileage/accessorial evidence and eligible fuel-index source. Exact ADMIN/ACCOUNTANT access; backend resolves persisted customer/date.
 - **Route:** Existing `/loads/show/:id` → Financial → Rating/FSC Preview; permission-guarded tab, no new global route.
-- **Files:** types/rateRule.dto.ts; features/rates/rateRule.api.ts, FscPolicyFields.tsx, FscPreview.tsx; LoadFinancialPanel; exact rates/RATE_PREVIEW permission and tests; vi/en/ja; fixtures/rating and preview/locale tests.
+- **Files:** types/rateRule.dto.ts; features/rates/api/rateRule.api.ts, FscPolicyFields.tsx, FscPreview.tsx; LoadFinancialPanel; exact rates/RATE_PREVIEW permission and tests; vi/en/ja; fixtures/rating and preview/locale tests.
 - **Query / Mutation:** Explicit preview POST only on submit; shared single-flight, disabled pending form, no startup/tab-open fetch, no unrelated invalidation or financial write. Old results removed on input change. Money/date formatter reuse; no local formula/totals, no null-zero fallback.
 - **Tests:** Targeted 30 PASS; typecheck/lint/build PASS; full 105 files / 566 tests PASS. Added 14 tests, no tests removed.
 - **Blocker:** No backend blocker for this read-only preview. Rate list/history and E2E identity separately blocked.
