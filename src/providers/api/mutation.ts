@@ -1,5 +1,6 @@
 /** Validates injected generic CRUD contracts without importing business features. */
 import { ApiHttpError } from "./httpError";
+import { selectMutationFields } from "./mutationFields";
 
 export interface ResourceMutationContract {
   createFields: readonly string[];
@@ -19,5 +20,5 @@ export function guardResourceMutation(contract: ResourceMutationContract, values
     throw new ApiHttpError({ statusCode: 400, code: "VALIDATION_FAILED", message: "VALIDATION_FAILED", requestId: null,
       fieldErrors: Object.fromEntries(missing.map((name) => [name, ["Required"]])) });
   }
-  return Object.fromEntries(fields.filter((name) => input[name] !== undefined).map((name) => [name, input[name]]));
+  return selectMutationFields(input, fields);
 }
