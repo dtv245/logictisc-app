@@ -4,7 +4,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { NotificationHeaderIcon } from "@/features/notifications/components/NotificationHeaderIcon";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
-import type { Notification } from "@/types/notification.types";
+import type { Notification } from "@/features/notifications/types";
 import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 vi.mock("@/features/notifications/utils/notificationSound", () => ({ playNotificationSound: vi.fn() }));
