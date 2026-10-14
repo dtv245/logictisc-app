@@ -31,7 +31,7 @@ import {
   Typography,
   message,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   DEFAULT_AI_SETTINGS,
@@ -59,26 +59,31 @@ const PROVIDER_ORDER: AiProviderId[] = [
 ];
 
 export function AiConfigModal({ open, onClose }: AiConfigModalProps) {
-  const { t } = useTranslation();
   const { settings, updateSettings } = useAiSettings();
 
+  return open ? (
+    <AiConfigModalContent settings={settings} updateSettings={updateSettings} onClose={onClose} />
+  ) : null;
+}
+
+function AiConfigModalContent({
+  settings,
+  updateSettings,
+  onClose,
+}: {
+  settings: AiSettings;
+  updateSettings: (settings: AiSettings) => void;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
   const [draftSettings, setDraftSettings] = useState<AiSettings>(settings);
-  const [activeTab, setActiveTab] = useState<string>("openai");
+  const [activeTab, setActiveTab] = useState<string>(settings.activeProvider);
   const [testingProvider, setTestingProvider] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<{
     providerId: string;
     success: boolean;
     message: string;
   } | null>(null);
-
-  // Đồng bộ draft khi mở modal
-  useEffect(() => {
-    if (open) {
-      setDraftSettings(settings);
-      setActiveTab(settings.activeProvider);
-      setTestResult(null);
-    }
-  }, [open, settings]);
 
   const handleProviderConfigChange = (
     providerId: AiProviderId,
@@ -442,7 +447,7 @@ export function AiConfigModal({ open, onClose }: AiConfigModalProps) {
 
   return (
     <Modal
-      open={open}
+      open
       onCancel={onClose}
       destroyOnHidden
       className="ai-config-modal"

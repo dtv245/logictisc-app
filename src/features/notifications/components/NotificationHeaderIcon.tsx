@@ -1,5 +1,5 @@
 /**
- * Icon thông báo hiển thị trên AppHeader với đếm số thông báo, âm thanh và popover xem nhanh.
+ * Nút thông báo dùng chung với dấu chưa đọc, âm thanh và popover xem nhanh.
  */
 
 import { BellOutlined } from "@ant-design/icons";
@@ -14,6 +14,7 @@ import {
   Flex,
   List,
   Popover,
+  type PopoverProps,
   Space,
   Typography,
 } from "antd";
@@ -27,7 +28,7 @@ import { routes } from "@/constants/routes";
 import type { Notification } from "@/types/notification.types";
 import { playNotificationSound } from "../notificationSound";
 
-export const NotificationHeaderIcon = () => {
+export const NotificationHeaderIcon = ({ placement = "bottomRight" }: Pick<PopoverProps, "placement">) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -162,7 +163,7 @@ export const NotificationHeaderIcon = () => {
       content={popoverContent}
       onOpenChange={setOpen}
       open={open}
-      placement="bottomRight"
+      placement={placement}
       trigger="click"
     >
       <Badge dot={unreadCount > 0 && !isError} title={t("notifications.recentUnread")} size="small">

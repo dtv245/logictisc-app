@@ -485,7 +485,17 @@ export const resourceFormDefinitions: Readonly<
       text("name", true),
       { ...text("code", true), pattern: /^[A-Za-z]{5}$/u, uppercase: true },
       { ...text("countryCode", true), pattern: /^[A-Za-z]{2}$/u, uppercase: true },
-      text("type", true),
+      {
+        ...text("type", true),
+        component: "select",
+        options: [
+          "SEA_PORT",
+          "RAIL_TERMINAL",
+          "INLAND_DEPOT",
+          "AIR_CARGO",
+          "BORDER_CROSSING",
+        ],
+      },
       textarea("notes"),
       ...requiredAddress,
     ],

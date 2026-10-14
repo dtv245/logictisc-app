@@ -68,6 +68,11 @@ const filterDeclarations: Readonly<
     { field: "customerId" },
   ],
   payments: [{ field: "status" }, { field: "invoiceId" }],
+  terminals: [
+    { field: "search" },
+    { field: "type" },
+    { field: "countryCode" },
+  ],
 };
 
 const findField = (

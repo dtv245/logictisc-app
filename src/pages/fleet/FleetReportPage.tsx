@@ -66,8 +66,21 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
   const { tenant } = useCurrentTenant();
   const { token } = theme.useToken();
   const [form] = Form.useForm<ScopeForm>();
-  const [scope, setScope] = useState<FleetReportQuery | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const scope = useMemo<FleetReportQuery | null>(() => {
+    const policyId = searchParams.get("policyId");
+    const truckIds = searchParams.get("truckIds");
+    const firstDate = searchParams.get("firstDate");
+    const exclusiveLastDate = searchParams.get("exclusiveLastDate");
+    if (!policyId || !truckIds || !firstDate || !exclusiveLastDate) return null;
+    return {
+      policyId,
+      truckIds: truckIds.split(/[\s,]+/).filter(Boolean).join(","),
+      firstDate,
+      exclusiveLastDate,
+      businessZoneId: searchParams.get("businessZoneId") || "Asia/Ho_Chi_Minh",
+    };
+  }, [searchParams]);
   const access = useCan({ resource: "fleet-reports", action: "FLEET_REPORT_VIEW" });
   const [loadPolicies, setLoadPolicies] = useState(Boolean(propPolicies));
   const [loadTrucks, setLoadTrucks] = useState(Boolean(propTrucks));
@@ -169,14 +182,6 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
         dateRange: initialRange,
         businessZoneId: zone,
       });
-
-      setScope({
-        policyId: pId,
-        truckIds: truckIdList.join(","),
-        firstDate: fDate,
-        exclusiveLastDate: eDate,
-        businessZoneId: zone,
-      });
     } else {
       if (!form.getFieldValue("businessZoneId")) {
         form.setFieldValue("businessZoneId", zone);
@@ -244,8 +249,6 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
       businessZoneId: zone,
     };
 
-    setScope(newScope);
-
     // Đồng bộ lên URL query parameters
     setSearchParams(
       {
@@ -262,7 +265,6 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
   const handleReset = () => {
     form.resetFields();
     form.setFieldValue("businessZoneId", "Asia/Ho_Chi_Minh");
-    setScope(null);
     setSearchParams({}, { replace: true });
   };
 
@@ -399,8 +401,8 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
                         filterOption={(input, option) => {
                           const queryText = input.toLowerCase();
                           const label = option?.label ? String(option.label).toLowerCase() : "";
-                          const lp = (option as any)?.licensePlate ? String((option as any).licensePlate).toLowerCase() : "";
-                          const num = (option as any)?.truckNumber ? String((option as any).truckNumber).toLowerCase() : "";
+                          const lp = option?.licensePlate?.toLowerCase() ?? "";
+                          const num = option?.truckNumber?.toLowerCase() ?? "";
                           return label.includes(queryText) || lp.includes(queryText) || num.includes(queryText);
                         }}
                       />

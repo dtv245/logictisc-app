@@ -19,6 +19,9 @@
   --color-neutral-bg: #{v.$color-neutral-bg};
 
   --color-bg-layout: #{v.$color-bg-layout};
+  --color-bg-canvas: #{v.$color-bg-canvas};
+  --color-bg-beige: #{v.$color-bg-beige};
+  --color-bg-charcoal: #{v.$color-bg-charcoal};
   --color-bg-container: #{v.$color-bg-container};
   --color-bg-subtle: #{v.$color-bg-subtle};
   --color-border: #{v.$color-border};
@@ -42,7 +45,7 @@
 
   font-family: v.$font-family-base;
   color: v.$color-text;
-  background: v.$color-bg-layout;
+  background: v.$color-bg-canvas;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -59,8 +62,9 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
   color: v.$color-text;
-  background-color: v.$color-bg-layout;
+  background-color: v.$color-bg-canvas;
   font-family: v.$font-family-base;
   font-size: v.$font-size-base;
   line-height: v.$line-height-base;
@@ -75,6 +79,7 @@ textarea {
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }

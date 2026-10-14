@@ -1,9 +1,9 @@
 /** Khai báo Terminal resource cho Refine. */
-import { BankOutlined } from "@ant-design/icons";
+import { EnvironmentOutlined } from "@ant-design/icons";
 import { routes } from "../../constants/routes";
 import { createResourceConfig } from "@pages/resourceConfig";
 export const terminalsResource = createResourceConfig({
-  icon: BankOutlined,
+  icon: EnvironmentOutlined,
   label: "Terminal",
   name: "terminals",
   routes: routes.resources.terminals,

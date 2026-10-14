@@ -37,6 +37,8 @@ export interface EntityPickerProps {
   value?: string;
   /** Danh sách các ID giá trị cần loại trừ khỏi options (ví dụ tài xế chính đã chọn) */
   excludeValues?: readonly (string | number)[];
+  /** Số bản ghi mỗi trang (mặc định theo Refine useSelect) */
+  pageSize?: number;
 }
 
 export function EntityPicker({
@@ -45,6 +47,7 @@ export function EntityPicker({
   labelField,
   labelFormat,
   onChange,
+  pageSize,
   placeholder,
   required,
   resource,
@@ -57,6 +60,7 @@ export function EntityPicker({
       String(item[labelField ?? "name"] ?? item.id ?? ""),
     optionValue: (item: BaseRecord) => String(item.id ?? ""),
     debounce: 300,
+    ...(pageSize ? { pagination: { pageSize } } : {}),
     onSearch: (value) => [
       {
         field: "search",

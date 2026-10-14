@@ -6,6 +6,7 @@ import { CreateButton, List, useModalForm, useTable } from "@refinedev/antd";
 import { useShow } from "@refinedev/core";
 import { Descriptions, Form, Input, Modal, Tag } from "antd";
 import { useTranslation } from "react-i18next";
+import { useCallback } from "react";
 
 import type { ApiError } from "@/types/api.types";
 import type { Product, ProductFormValues, ProductSearchValues } from "@/types/product.types";
@@ -19,7 +20,7 @@ import { toIntlLocale } from "@formatters/intlLocale";
 export const ProductList = () => {
   const { i18n, t } = useTranslation();
 
-  const { searchFormProps, tableProps, tableQueryResult } = useTable<
+  const { searchFormProps, tableProps, tableQueryResult, pageSize, setPageSize, setCurrent } = useTable<
     Product,
     ApiError,
     ProductSearchValues
@@ -32,6 +33,13 @@ export const ProductList = () => {
         ? [{ field: "name", operator: "contains", value: name }]
         : [],
   });
+
+  // Đồng bộ số dòng tự động vào phân trang server thay vì chỉ cắt dữ liệu trên UI.
+  const handleAdaptivePageSizeChange = useCallback((nextPageSize: number) => {
+    if (nextPageSize === pageSize) return;
+    setPageSize(nextPageSize);
+    setCurrent(1);
+  }, [pageSize, setPageSize, setCurrent]);
 
   const createModal = useModalForm<Product, ApiError, ProductFormValues>({
     resource: "products",
@@ -70,6 +78,8 @@ export const ProductList = () => {
           </FilterBar>
         </Form>
         <BaseTable<Product>
+          fitToShell
+          onAdaptivePageSizeChange={handleAdaptivePageSizeChange}
           columns={columns}
           queryResult={{
             error: tableQueryResult.error,

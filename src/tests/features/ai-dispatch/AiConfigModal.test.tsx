@@ -3,10 +3,35 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AiConfigModal } from "@/features/ai-dispatch/components/AiConfigModal";
 import { getStoredAiSettings } from "@/features/ai-dispatch/aiConfigStorage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
+import { useState } from "react";
+
+function ReopenableConfigModal() {
+  const [open, setOpen] = useState(true);
+  return (
+    <>
+      <button onClick={() => setOpen(true)}>Reopen configuration</button>
+      <AiConfigModal open={open} onClose={() => setOpen(false)} />
+    </>
+  );
+}
 
 describe("AiConfigModal — Popup cấu hình mô hình AI & API Key", () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  it("discards unsaved draft and tab selection when reopened", async () => {
+    await renderFinance(<ReopenableConfigModal />, vi.fn());
+    const originalKey = getStoredAiSettings().providers.openai.apiKey;
+    fireEvent.change(await screen.findByTestId("input-api-key-openai"), {
+      target: { value: "unsaved-key" },
+    });
+    fireEvent.click(screen.getByRole("tab", { name: /Google/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.click(screen.getByRole("button", { name: "Reopen configuration" }));
+
+    expect(await screen.findByTestId("input-api-key-openai")).toHaveValue(originalKey);
+    expect(screen.getByRole("tab", { name: /OpenAI/i })).toHaveAttribute("aria-selected", "true");
   });
 
   it("hiển thị modal với các tab nhà cung cấp và ô nhập API Key", async () => {

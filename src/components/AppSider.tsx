@@ -1,31 +1,483 @@
+/* eslint-disable react-refresh/only-export-components */
 /**
- * AppSider — Thanh Taskbar điều hướng bên trái ứng dụng.
+ * AppSider — Thanh điều hướng bên trái ứng dụng (dạng Rail thu gọn).
  *
- * Cấu trúc:
- * - Nằm cố định ở cạnh trái layout (Left Sider).
- * - Hiển thị phân tầng (Hierarchical / Multi-tier): Cấp 1 là các Khu vực chức năng (SubMenu),
- *   cấp 2 là các màn hình chức năng chi tiết.
- * - Phân loại theo từng khu vực nghiệp vụ Logistics (Điều hành, Vận tải, Đội xe, Tài chính, Đối tác, Quản trị).
- * - Sắp xếp theo lớp với khả năng thu gọn / mở rộng (Collapse/Expand) linh hoạt.
- * - Tự động đồng bộ mục được chọn với URL hiện tại và kiểm soát quyền truy cập theo vai trò.
+ * Nguyên tắc sắp xếp: theo CÔNG VIỆC của nhân viên logistics, không theo cách hệ thống được xây dựng.
+ *   Đơn hàng -> chuyến xe -> container/bến bãi -> đội xe -> hóa đơn -> lương.
+ *
+ * Cấu trúc 3 tầng:
+ *   Thẻ trắng (app-sider__group)  ->  Khu vực (icon trên rail)  ->  Mục nhỏ (tiêu đề trong menu nổi)  ->  Màn hình
+ *
+ * 1. Thẻ "Điều hành & Vận tải":
+ *    - Điều hành: Trung tâm điều hành, Dashboard quản lý | AI điều phối, Tối ưu điều phối
+ *    - Vận tải:   Bảng điều phối, Đơn hàng, Chuyến xe | Container, Bến bãi
+ * 2. Thẻ "Đội xe & Khách hàng":
+ *    - Đội xe & An toàn:      Xe tải, Bảo trì | HOS/ELD, DVIR, Tai nạn | Báo cáo đội xe
+ *    - Khách hàng & Hàng hóa: Khách hàng, Hàng hóa
+ * 3. Thẻ "Tài chính & Lương":
+ *    - Hóa đơn & Thu chi: Hóa đơn, Thanh toán, Chi phí | Báo cáo lợi nhuận
+ *    - Lương & Quyết toán: Quyết toán, Chính sách lương | Bảng lương, Đối soát | Phiếu lương của tôi
+ * 4. Khối tiện ích: Thông báo, Quản trị (Nhân viên, Hồ sơ & tài liệu).
+ *
+ * Quy tắc hiển thị:
+ * - Mỗi icon trên rail mở một menu nổi. Trong menu nổi, các màn hình cùng việc được gom dưới một tiêu đề nhỏ.
+ * - Khu vực chỉ có 1 mục nhỏ thì hiển thị danh sách phẳng, không có tiêu đề.
+ * - Mục nhỏ nào không còn màn hình nào được phép xem thì tự ẩn; khu vực rỗng cũng tự ẩn.
+ * - Nhãn lấy từ i18n: navigation.zones.*, navigation.sections.*, navigation.items.*
+ *   (xem file navigation.i18n.json).
+ * - Mục đang chọn tự đồng bộ theo URL; quyền truy cập kiểm tra theo vai trò.
  */
 
 import {
-  CloseOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
+  AccountBookOutlined,
+  AppstoreOutlined,
+  AuditOutlined,
+  BarChartOutlined,
+  CarOutlined,
+  ClockCircleOutlined,
+  CodeSandboxOutlined,
+  CompassOutlined,
+  ContactsOutlined,
+  ControlOutlined,
+  CreditCardOutlined,
+  DashboardOutlined,
+  DesktopOutlined,
+  DollarOutlined,
+  EnvironmentOutlined,
+  FileTextOutlined,
+  FolderOpenOutlined,
+  InboxOutlined,
+  LineChartOutlined,
+  LogoutOutlined,
+  ReconciliationOutlined,
+  RiseOutlined,
+  RobotOutlined,
+  RocketOutlined,
+  SafetyCertificateOutlined,
+  SendOutlined,
+  SettingOutlined,
+  ShopOutlined,
+  ShoppingOutlined,
+  TeamOutlined,
+  ToolOutlined,
+  TransactionOutlined,
+  UserOutlined,
+  WalletOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import type { RefineThemedLayoutV2SiderProps } from "@refinedev/antd";
-import { useThemedLayoutContext } from "@refinedev/antd";
 import { useCanWithoutCache } from "@refinedev/core";
-import { Button, Drawer, Layout, Menu, type MenuProps } from "antd";
-import { useEffect, useMemo, useRef, useState, type FC } from "react";
+import { Avatar, Button, Dropdown, Layout, Menu, Tooltip, type MenuProps } from "antd";
+import type { TFunction } from "i18next";
+import { useEffect, useMemo, useState, type FC, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useCurrentUser } from "@hooks/useCurrentUser";
-import { NAV_ZONES } from "./appNavigation";
+import { useLogoutUser } from "@hooks/useLogoutUser";
+import { useSwitchTenant } from "@hooks/useSwitchTenant";
+import { NotificationHeaderIcon } from "@features/notifications/components/NotificationHeaderIcon";
+import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/executive.contract";
+import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/payroll.api";
+import type { AccessResource } from "@/types/roles.types";
+import { routes } from "@constants/routes";
 import { AppTitle } from "./AppTitle";
+import "./AppSider.scss";
+
+export interface NavZoneItem {
+  icon: ReactNode;
+  key: string;
+  labelKey: string;
+  route: string;
+  permission?: { resource: AccessResource; action: string };
+  resource?: string;
+  /**
+   * Mục nhỏ trong menu nổi, ví dụ "dispatch" -> navigation.sections.dispatch.
+   * Các màn hình liền nhau có cùng sectionKey sẽ được gom dưới một tiêu đề.
+   */
+  sectionKey?: string;
+}
+
+export interface NavZone {
+  icon: ReactNode;
+  key: string;
+  labelKey: string;
+  items: readonly NavZoneItem[];
+}
+
+type MenuItems = NonNullable<MenuProps["items"]>;
+
+/**
+ * Thứ tự khu vực và màn hình đi theo luồng công việc thực tế.
+ * Mỗi icon trong file này chỉ dùng cho đúng một màn hình để nhìn là nhận ra.
+ */
+export const NAV_ZONES: readonly NavZone[] = [
+  {
+    key: "zone:operations",
+    labelKey: "navigation.zones.operations",
+    icon: <DashboardOutlined />,
+    items: [
+      {
+        icon: <DesktopOutlined />,
+        key: "app:operations",
+        labelKey: "navigation.items.operations",
+        route: routes.operations,
+        sectionKey: "monitor",
+      },
+      ...(EXECUTIVE_CONTRACT_CONFIRMED
+        ? [
+            {
+              icon: <BarChartOutlined />,
+              key: "app:dashboard",
+              labelKey: "navigation.items.dashboard",
+              route: routes.dashboard,
+              sectionKey: "monitor",
+            },
+          ]
+        : []),
+      {
+        icon: <RobotOutlined />,
+        key: "res:ai-dispatch",
+        labelKey: "navigation.items.ai-dispatch",
+        route: routes.aiDispatch,
+        permission: { resource: "ai-dispatch", action: "AI_DISPATCH_VIEW" },
+        sectionKey: "smart-tools",
+      },
+      {
+        icon: <RocketOutlined />,
+        key: "app:optimization",
+        labelKey: "navigation.items.optimization",
+        route: routes.optimization,
+        permission: { resource: "optimization", action: "OPTIMIZATION_VIEW" },
+        sectionKey: "smart-tools",
+      },
+    ],
+  },
+  {
+    key: "zone:transport",
+    labelKey: "navigation.zones.transport",
+    icon: <SendOutlined />,
+    items: [
+      {
+        icon: <AppstoreOutlined />,
+        key: "res:load-board",
+        labelKey: "navigation.items.load-board",
+        route: routes.resources.loadBoard.list,
+        resource: "load-board",
+        sectionKey: "dispatch",
+      },
+      {
+        icon: <InboxOutlined />,
+        key: "res:loads",
+        labelKey: "navigation.items.loads",
+        route: routes.resources.loads.list,
+        resource: "loads",
+        sectionKey: "dispatch",
+      },
+      {
+        icon: <CompassOutlined />,
+        key: "res:trips",
+        labelKey: "navigation.items.trips",
+        route: routes.resources.trips.list,
+        resource: "trips",
+        sectionKey: "dispatch",
+      },
+      {
+        icon: <CodeSandboxOutlined />,
+        key: "res:containers",
+        labelKey: "navigation.items.containers",
+        route: routes.resources.containers.list,
+        resource: "containers",
+        sectionKey: "cargo",
+      },
+      {
+        icon: <EnvironmentOutlined />,
+        key: "res:terminals",
+        labelKey: "navigation.items.terminals",
+        route: routes.resources.terminals.list,
+        resource: "terminals",
+        sectionKey: "cargo",
+      },
+    ],
+  },
+  {
+    key: "zone:fleet",
+    labelKey: "navigation.zones.fleet",
+    icon: <CarOutlined />,
+    items: [
+      {
+        icon: <CarOutlined />,
+        key: "res:trucks",
+        labelKey: "navigation.items.trucks",
+        route: routes.resources.trucks.list,
+        resource: "trucks",
+        sectionKey: "vehicles",
+      },
+      {
+        icon: <ToolOutlined />,
+        key: "res:maintenance",
+        labelKey: "navigation.items.maintenance",
+        route: routes.resources.maintenance.list,
+        resource: "maintenance",
+        sectionKey: "vehicles",
+      },
+      {
+        icon: <ClockCircleOutlined />,
+        key: "res:hos-eld",
+        labelKey: "navigation.items.hos-eld",
+        route: routes.resources.hosEld.list,
+        resource: "hos-eld",
+        sectionKey: "safety",
+      },
+      {
+        icon: <SafetyCertificateOutlined />,
+        key: "res:dvir",
+        labelKey: "navigation.items.dvir",
+        route: routes.resources.dvir.list,
+        resource: "dvir",
+        sectionKey: "safety",
+      },
+      {
+        icon: <WarningOutlined />,
+        key: "res:accidents",
+        labelKey: "navigation.items.accidents",
+        route: routes.resources.accidents.list,
+        resource: "accidents",
+        sectionKey: "safety",
+      },
+      {
+        icon: <LineChartOutlined />,
+        key: "app:fleet-report",
+        labelKey: "navigation.items.fleet-report",
+        route: routes.fleetReport,
+        permission: { resource: "fleet-reports", action: "FLEET_REPORT_VIEW" },
+        sectionKey: "reports",
+      },
+    ],
+  },
+  {
+    key: "zone:partners",
+    labelKey: "navigation.zones.partners",
+    icon: <ShopOutlined />,
+    items: [
+      {
+        icon: <ContactsOutlined />,
+        key: "res:customers",
+        labelKey: "navigation.items.customers",
+        route: routes.resources.customers.list,
+        resource: "customers",
+      },
+      {
+        icon: <ShoppingOutlined />,
+        key: "res:products",
+        labelKey: "navigation.items.products",
+        route: routes.resources.products.list,
+        resource: "products",
+      },
+    ],
+  },
+  {
+    key: "zone:finance",
+    labelKey: "navigation.zones.finance",
+    icon: <AccountBookOutlined />,
+    items: [
+      {
+        icon: <FileTextOutlined />,
+        key: "res:invoices",
+        labelKey: "navigation.items.invoices",
+        route: routes.resources.invoices.list,
+        resource: "invoices",
+        sectionKey: "cashflow",
+      },
+      {
+        icon: <CreditCardOutlined />,
+        key: "res:payments",
+        labelKey: "navigation.items.payments",
+        route: routes.resources.payments.list,
+        resource: "payments",
+        sectionKey: "cashflow",
+      },
+      {
+        icon: <TransactionOutlined />,
+        key: "res:expenses",
+        labelKey: "navigation.items.expenses",
+        route: routes.resources.expenses.list,
+        resource: "expenses",
+        sectionKey: "cashflow",
+      },
+      {
+        icon: <RiseOutlined />,
+        key: "app:profitability",
+        labelKey: "navigation.items.profitability",
+        route: routes.profitability,
+        permission: { resource: "profitability", action: "PROFITABILITY_VIEW" },
+        sectionKey: "reports",
+      },
+    ],
+  },
+  {
+    key: "zone:payroll",
+    labelKey: "navigation.zones.payroll",
+    icon: <WalletOutlined />,
+    items: [
+      {
+        icon: <AuditOutlined />,
+        key: "app:settlements",
+        labelKey: "navigation.items.settlements",
+        route: routes.resources.settlements.list,
+        permission: { resource: "settlements", action: "SETTLEMENT_VIEW" },
+        sectionKey: "settlement",
+      },
+      {
+        icon: <ControlOutlined />,
+        key: "app:pay-policies",
+        labelKey: "navigation.items.pay-policies",
+        route: routes.resources.settlements.policies,
+        permission: { resource: "driver-pay-policies", action: "POLICY_VIEW" },
+        sectionKey: "settlement",
+      },
+      {
+        icon: <DollarOutlined />,
+        key: "app:payroll",
+        labelKey: "navigation.items.payroll",
+        route: routes.payroll,
+        permission: { resource: "payroll", action: "PAYROLL_VIEW" },
+        sectionKey: "payroll-run",
+      },
+      ...(PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED
+        ? [
+            {
+              icon: <ReconciliationOutlined />,
+              key: "app:payroll-reconciliation",
+              labelKey: "navigation.items.payroll-reconciliation",
+              route: routes.payrollReconciliation,
+              permission: { resource: "payroll" as const, action: "PAYROLL_VIEW" },
+              sectionKey: "payroll-run",
+            },
+          ]
+        : []),
+      {
+        icon: <UserOutlined />,
+        key: "app:my-payslips",
+        labelKey: "navigation.items.my-payslips",
+        route: routes.myPayslips,
+        permission: { resource: "payslips", action: "PAYSLIP_VIEW" },
+        sectionKey: "mine",
+      },
+    ],
+  },
+  {
+    key: "zone:admin",
+    labelKey: "navigation.zones.admin",
+    icon: <SettingOutlined />,
+    items: [
+      {
+        icon: <TeamOutlined />,
+        key: "res:employees",
+        labelKey: "navigation.items.employees",
+        route: routes.resources.employees.list,
+        resource: "employees",
+      },
+      {
+        icon: <FolderOpenOutlined />,
+        key: "res:documents",
+        labelKey: "navigation.items.documents",
+        route: routes.resources.documents.list,
+        resource: "documents",
+      },
+    ],
+  },
+];
+
+/**
+ * Các thẻ trắng bo tròn trên rail (app-sider__group). Mỗi thẻ là một nhóm việc:
+ * - Điều hành & Vận tải: theo dõi, điều phối đơn/chuyến, container, bến bãi.
+ * - Đội xe & Khách hàng: xe, tuân thủ an toàn, khách hàng, hàng hóa.
+ * - Tài chính & Lương: hóa đơn, thu chi, quyết toán, bảng lương.
+ * Khối tiện ích (thông báo, quản trị) nằm riêng ở cuối, không thuộc danh sách này.
+ */
+export interface SiderNavGroup {
+  key: string;
+  name: string;
+  zoneKeys: readonly string[];
+}
+
+export const SIDER_NAV_GROUPS: readonly SiderNavGroup[] = [
+  {
+    key: "group:operations-transport",
+    name: "Điều hành & Vận tải",
+    zoneKeys: ["zone:operations", "zone:transport"],
+  },
+  {
+    key: "group:fleet-partners",
+    name: "Đội xe & Khách hàng",
+    zoneKeys: ["zone:fleet", "zone:partners"],
+  },
+  {
+    key: "group:finance",
+    name: "Tài chính & Lương",
+    zoneKeys: ["zone:finance", "zone:payroll"],
+  },
+];
+
+/**
+ * Dựng danh sách màn hình trong menu nổi của một khu vực.
+ * Màn hình cùng sectionKey được gom dưới một tiêu đề, giữa các mục có đường kẻ.
+ * Khu vực chỉ có 0-1 mục nhỏ thì trả về danh sách phẳng.
+ */
+const buildZoneChildren = (
+  zone: NavZone,
+  t: TFunction,
+  navigate: (route: string) => void,
+): MenuItems => {
+  const toLeaf = (item: NavZoneItem) => ({
+    key: item.key,
+    icon: item.icon,
+    label: t(item.labelKey),
+    onClick: () => navigate(item.route),
+  });
+
+  const sectionCount = new Set(
+    zone.items
+      .map((item) => item.sectionKey)
+      .filter((key): key is string => Boolean(key)),
+  ).size;
+
+  if (sectionCount < 2) {
+    return zone.items.map(toLeaf);
+  }
+
+  const children: MenuItems = [];
+  const buckets = new Map<string, MenuItems>();
+
+  for (const item of zone.items) {
+    if (!item.sectionKey) {
+      children.push(toLeaf(item));
+      continue;
+    }
+
+    let bucket = buckets.get(item.sectionKey);
+    if (!bucket) {
+      bucket = [];
+      buckets.set(item.sectionKey, bucket);
+      if (children.length > 0) {
+        children.push({
+          type: "divider",
+          key: `${zone.key}:divider:${item.sectionKey}`,
+        });
+      }
+      children.push({
+        type: "group",
+        key: `${zone.key}:section:${item.sectionKey}`,
+        label: t(`navigation.sections.${item.sectionKey}`),
+        children: bucket,
+      });
+    }
+    bucket.push(toLeaf(item));
+  }
+
+  return children;
+};
 
 export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
   Title: TitleComponent,
@@ -36,12 +488,9 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
 
   const { can } = useCanWithoutCache();
   const currentUser = useCurrentUser();
-  const {
-    siderCollapsed,
-    setSiderCollapsed,
-    mobileSiderOpen,
-    setMobileSiderOpen,
-  } = useThemedLayoutContext();
+  // Giữ lifecycle xác thực và dọn cache tenant khi thao tác ở cuối sidebar.
+  const { logoutUser, isLoading: isLoggingOut } = useLogoutUser();
+  const tenantSwitch = useSwitchTenant();
 
   const [allowedKeys, setAllowedKeys] = useState<ReadonlySet<string>>(
     new Set(),
@@ -116,198 +565,104 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
     }
   }
 
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
-  const [prevZoneKey, setPrevZoneKey] = useState<string | undefined>();
+  const activeZoneKey = activeMatch?.zoneKey;
 
-  // Tự động mở khu vực chứa trang đang xem khi zone active thay đổi
-  if (activeMatch?.zoneKey && activeMatch.zoneKey !== prevZoneKey) {
-    setPrevZoneKey(activeMatch.zoneKey);
-    if (!openKeys.includes(activeMatch.zoneKey)) {
-      setOpenKeys((prev) => [...prev, activeMatch.zoneKey]);
-    }
-  }
-
-  // Tạo cây menu theo tầng, phân theo khu và phân loại chức năng
-  const menuItems: MenuProps["items"] = useMemo(() => {
+  // Tạo cây menu theo tầng: khu vực -> (mục nhỏ) -> màn hình
+  const menuItems: MenuItems = useMemo(() => {
     return visibleZones.map((zone) => ({
       key: zone.key,
+      className: activeZoneKey === zone.key ? "app-sider__zone--active" : undefined,
+      popupClassName: "app-sider-popup",
       icon: zone.icon,
       label: t(zone.labelKey),
-      children: zone.items.map((item) => ({
-        key: item.key,
-        icon: item.icon,
-        label: t(item.labelKey),
-        onClick: () => {
-          navigate(item.route);
-          if (mobileSiderOpen) {
-            setMobileSiderOpen(false);
-          }
-        },
-      })),
+      children: buildZoneChildren(zone, t, navigate),
     }));
-  }, [visibleZones, t, navigate, mobileSiderOpen, setMobileSiderOpen]);
+  }, [visibleZones, activeZoneKey, t, navigate]);
 
-  // Tự động đóng Drawer khi URL thay đổi (điều hướng)
-  const prevPathnameRef = useRef(pathname);
-  useEffect(() => {
-    if (prevPathnameRef.current !== pathname) {
-      prevPathnameRef.current = pathname;
-      setMobileSiderOpen(false);
-    }
-  }, [pathname, setMobileSiderOpen]);
+  const renderMenu = (items: MenuProps["items"]) => (
+    <Menu
+      className="app-sider__menu"
+      inlineCollapsed
+      items={items}
+      mode="inline"
+      selectedKeys={activeMatch ? [activeMatch.itemKey] : []}
+      theme="light"
+      triggerSubMenuAction="click"
+    />
+  );
 
-  // Tự động thu gọn thanh điều hướng thành icon mode trên tablet khi mount
-  const hasCollapsedOnMountRef = useRef(false);
-  useEffect(() => {
-    if (!hasCollapsedOnMountRef.current) {
-      hasCollapsedOnMountRef.current = true;
-      if (typeof window !== "undefined" && window.innerWidth < 992) {
-        setSiderCollapsed(true);
-      }
-    }
-  }, [setSiderCollapsed]);
-
-  // Đóng Drawer khi thay đổi kích thước cửa sổ lên tablet hoặc desktop
-  useEffect(() => {
-    const handleResize = () => {
-      if (typeof window !== "undefined" && window.innerWidth >= 768 && mobileSiderOpen) {
-        setMobileSiderOpen(false);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [mobileSiderOpen, setMobileSiderOpen]);
-
-  const renderContent = (isCollapsed: boolean, isDrawer = false) => (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        backgroundColor: "#ffffff",
-      }}
-    >
-      {/* Header Logo & Brand Title */}
-      <div
-        className="app-sider__logo"
-        style={{
-          height: 64,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: isDrawer ? "space-between" : "flex-start",
-          padding: isCollapsed ? "0 24px" : "0 16px",
-          borderBottom: "1px solid #f0f0f0",
-          backgroundColor: "#ffffff",
-          overflow: "hidden",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", minWidth: 0, overflow: "hidden" }}>
+  const renderContent = () => (
+    <div className="app-sider__content app-sider__content--compact">
+      <div className="app-sider__logo">
+        <div className="app-sider__brand">
           {TitleComponent ? (
-            <TitleComponent collapsed={isCollapsed} />
+            <TitleComponent collapsed />
           ) : (
-            <AppTitle collapsed={isCollapsed} />
+            <AppTitle collapsed />
           )}
         </div>
-        {isDrawer && (
-          <Button
-            aria-label={t("common.close", "Đóng")}
-            icon={<CloseOutlined />}
-            onClick={() => setMobileSiderOpen(false)}
-            style={{ minWidth: 40, minHeight: 40 }}
-            type="text"
-          />
-        )}
       </div>
 
-      {/* Hierarchical Tiered Menu */}
-      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
-        <Menu
-          className="app-sider__menu"
-          items={menuItems}
-          mode="inline"
-          onOpenChange={(keys) => setOpenKeys(keys)}
-          openKeys={isCollapsed ? [] : openKeys}
-          selectedKeys={activeMatch ? [activeMatch.itemKey] : []}
-          style={{ borderRight: "none" }}
-          theme="light"
-        />
-      </div>
+      <nav className="app-sider__navigation" aria-label={t("navigation.drawerTitle")}>
+        {/* Mỗi nhóm việc là một thẻ bo tròn app-sider__group độc lập */}
+        {SIDER_NAV_GROUPS.map((group) => {
+          const groupMenuItems = menuItems.filter(
+            (item) => item?.key && group.zoneKeys.includes(String(item.key)),
+          );
+          if (groupMenuItems.length === 0) {
+            return null;
+          }
+          return (
+            <div
+              key={group.key}
+              aria-label={group.name}
+              className="app-sider__group"
+              role="group"
+            >
+              {renderMenu(groupMenuItems)}
+            </div>
+          );
+        })}
 
-      {/* Sider Footer Collapse/Expand Trigger (chỉ hiển thị trên desktop/tablet Sider, không hiện trong mobile Drawer) */}
-      {!isDrawer && (
-        <div
-          className="app-sider__trigger"
-          onClick={() => setSiderCollapsed(!siderCollapsed)}
-          style={{
-            height: 48,
-            borderTop: "1px solid #f0f0f0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: isCollapsed ? "center" : "flex-end",
-            padding: "0 16px",
-            cursor: "pointer",
-          }}
-        >
-          <Button
-            aria-label={t(
-              isCollapsed ? "navigation.expand" : "navigation.collapse",
-            )}
-            icon={isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            type="text"
-          />
+        {/* Khối tiện ích & quản trị hệ thống */}
+        <div className="app-sider__group app-sider__group--utilities">
+          <NotificationHeaderIcon placement="rightTop" />
+          {visibleZones.some((zone) => zone.key === "zone:admin") &&
+            renderMenu(menuItems.filter((item) => item?.key === "zone:admin"))}
         </div>
-      )}
+      </nav>
+
+      <div className="app-sider__footer">
+        <Tooltip placement="right" title={t("common.logout")}>
+          <Button aria-label={t("common.logout")} className="app-sider__action" icon={<LogoutOutlined />} loading={isLoggingOut} onClick={() => void logoutUser()} type="text" />
+        </Tooltip>
+        {/* Bọc nhãn để Ant Design không rút chữ thành ký tự đầu khi Sider thu gọn. */}
+        <Dropdown
+          placement="topRight"
+          trigger={["click"]}
+          menu={{ items: [
+            { key: "change-tenant", label: <span>{t("common.changeTenant")}</span>, disabled: tenantSwitch.isLoading, onClick: () => void tenantSwitch.switchTenant() },
+            { key: "logout", label: <span>{t("common.logout")}</span>, disabled: isLoggingOut, onClick: () => void logoutUser() },
+          ] }}
+        >
+          <Button className="app-sider__account" type="text" aria-label={t("navigation.accountMenu")}>
+            <Avatar size={36} src={currentUser.data?.avatar}>{currentUser.data?.name?.charAt(0)}</Avatar>
+          </Button>
+        </Dropdown>
+      </div>
     </div>
   );
 
   return (
-    <>
-      {/* Drawer cho màn hình Mobile */}
-      <Drawer
-        aria-label={t("navigation.drawerTitle", "Thanh điều hướng")}
-        className="app-sider-drawer"
-        closable={false}
-        keyboard={true}
-        onClose={() => setMobileSiderOpen(false)}
-        open={mobileSiderOpen}
-        placement="left"
-        styles={{ body: { padding: 0 } }}
-        width={260}
-        zIndex={1050}
-      >
-        {renderContent(false, true)}
-      </Drawer>
-
-      {/* Sider Taskbar chính bên trái cho Desktop và Tablet */}
-      <Layout.Sider
-        breakpoint="lg"
-        className="app-sider"
-        collapsed={siderCollapsed}
-        collapsedWidth={80}
-        collapsible
-        onBreakpoint={(broken) => {
-          if (broken) {
-            setSiderCollapsed(true);
-          }
-        }}
-        onCollapse={(collapsed) => setSiderCollapsed(collapsed)}
-        style={{
-          borderRight: "1px solid #f0f0f0",
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          left: 0,
-          overflow: "hidden",
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-        }}
-        theme="light"
-        trigger={null}
-        width={240}
-      >
-        {renderContent(siderCollapsed, false)}
-      </Layout.Sider>
-    </>
+    <Layout.Sider
+      className="app-sider app-sider--floating"
+      collapsed
+      collapsedWidth={88}
+      theme="light"
+      trigger={null}
+      width={88}
+    >
+      {renderContent()}
+    </Layout.Sider>
   );
 };

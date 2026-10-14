@@ -11,13 +11,14 @@ import { extractRouteGeometry, normalizeLngLat, parseCoordinatesArray } from "@/
 import CandidateRouteMap from "@/features/optimization/visualizations/CandidateRouteMap";
 import CandidateHosTimeline from "@/features/optimization/visualizations/CandidateHosTimeline";
 import CandidateVisualizations from "@/features/optimization/visualizations/CandidateVisualizations";
+import type { default as Map, Layer, Marker, Source } from "react-map-gl/maplibre";
 
 // Mock MapLibre / react-map-gl
 vi.mock("react-map-gl/maplibre", () => ({
-  default: ({ children, mapStyle, initialViewState }: any) => (
+  default: ({ children, mapStyle, initialViewState }: React.ComponentProps<typeof Map>) => (
     <div
       data-testid="maplibre-map"
-      data-map-style={mapStyle}
+      data-map-style={typeof mapStyle === "string" ? mapStyle : JSON.stringify(mapStyle)}
       data-initial-view={JSON.stringify(initialViewState)}
     >
       {children}
@@ -25,7 +26,7 @@ vi.mock("react-map-gl/maplibre", () => ({
   ),
   NavigationControl: () => <div data-testid="navigation-control" />,
   ScaleControl: () => <div data-testid="scale-control" />,
-  Marker: ({ children, longitude, latitude, anchor }: any) => (
+  Marker: ({ children, longitude, latitude, anchor }: React.ComponentProps<typeof Marker>) => (
     <div
       data-testid="map-marker"
       data-lng={longitude}
@@ -35,20 +36,20 @@ vi.mock("react-map-gl/maplibre", () => ({
       {children}
     </div>
   ),
-  Source: ({ children, id, type, data }: any) => (
+  Source: ({ children, id, type, ...props }: React.ComponentProps<typeof Source>) => (
     <div
       data-testid={`map-source-${id}`}
       data-source-type={type}
-      data-source-data={JSON.stringify(data)}
+      data-source-data={JSON.stringify("data" in props ? props.data : undefined)}
     >
       {children}
     </div>
   ),
-  Layer: ({ id, type, paint }: any) => (
+  Layer: ({ id, type, ...props }: React.ComponentProps<typeof Layer>) => (
     <div
       data-testid={`map-layer-${id}`}
       data-layer-type={type}
-      data-layer-paint={JSON.stringify(paint)}
+      data-layer-paint={JSON.stringify("paint" in props ? props.paint : undefined)}
     />
   ),
 }));
@@ -64,11 +65,13 @@ async function renderWithI18n(ui: React.ReactElement, lang = "vi") {
     interpolation: { escapeValue: false },
   });
 
-  return render(
-    <I18nextProvider i18n={i18n}>
-      <App>{ui}</App>
-    </I18nextProvider>
-  );
+  return render(ui, {
+    wrapper: ({ children }) => (
+      <I18nextProvider i18n={i18n}>
+        <App>{children}</App>
+      </I18nextProvider>
+    ),
+  });
 }
 
 const baseCandidate: OptimizationCandidate = {
@@ -234,6 +237,18 @@ describe("Visualizations Unit Tests", () => {
   });
 
   describe("CandidateRouteMap", () => {
+    it("supports coordinates becoming available and missing again on the same mount", async () => {
+      const { rerender } = await renderWithI18n(<CandidateRouteMap candidate={null} />);
+      expect(screen.getByTestId("candidate-route-map-empty")).toBeInTheDocument();
+
+      rerender(<CandidateRouteMap candidate={candidateWithCoordinates} />);
+      expect(screen.getByTestId("maplibre-map")).toBeInTheDocument();
+
+      rerender(<CandidateRouteMap candidate={null} />);
+      expect(screen.getByTestId("candidate-route-map-empty")).toBeInTheDocument();
+      expect(screen.queryByTestId("maplibre-map")).not.toBeInTheDocument();
+    });
+
     it("khi DTO thiếu toạ độ: hiển thị Empty kèm lý do cụ thể và danh sách trường backend cần bổ sung, không vẽ canvas bản đồ rỗng", async () => {
       await renderWithI18n(<CandidateRouteMap candidate={baseCandidate} />);
 

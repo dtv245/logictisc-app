@@ -1,6 +1,6 @@
 import { Col, Collapse, DatePicker, Form, Input, InputNumber, Row } from "antd";
 import type { ReactNode } from "react";
-import { EntityPicker } from "@/components/EntityPicker";
+import { TerminalSelect } from "@/features/terminals/components/TerminalSelect";
 
 export interface AddressFieldsProps {
   /**
@@ -128,11 +128,7 @@ export const AddressFields = ({
       {includeTerminal && terminalName && (
         <Col xs={24} sm={12} md={8}>
           <Form.Item label={terminalLabel} name={terminalName}>
-            <EntityPicker
-              resource="terminals"
-              placeholder="Chọn trạm trung chuyển (nếu có)"
-              labelFormat={(r) => (r.name ? `${r.name} (${r.code ?? ""})` : String(r.id ?? ""))}
-            />
+            <TerminalSelect placeholder="Chọn trạm trung chuyển (nếu có)" />
           </Form.Item>
         </Col>
       )}

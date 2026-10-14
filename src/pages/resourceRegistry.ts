@@ -1,6 +1,6 @@
 /**
  * Declares only backend-supported generic CRUD resources for the unified
- * runtime. Messaging remains behind a dedicated feature adapter.
+ * runtime.
  */
 
 import type { IResourceItem } from "@refinedev/core";
@@ -87,6 +87,11 @@ export const foundationApiResources = {
     collectionPath: "/api/roles",
     allowedFilterFields: ["search"],
     allowedSortFields: ["name"],
+  },
+  terminals: {
+    collectionPath: "/api/terminals",
+    allowedFilterFields: ["search", "type", "countryCode"],
+    allowedSortFields: ["name", "code", "type", "countryCode", "createdAt"],
   },
 } as const satisfies Readonly<Record<string, ApiResourceDefinition>>;
 

@@ -122,10 +122,10 @@ const CustomPieTooltip: React.FC<PieTooltipProps> = ({ active, payload, totalExp
           wordBreak: "break-word",
         }}
       >
-        <Typography.Text strong style={{ display: "block", fontSize: 13 }}>
+        <Typography.Text strong style={{ display: "block", fontSize: 13, color: "#24292b" }}>
           {data?.name}
         </Typography.Text>
-        <div style={{ display: "flex", gap: 8, fontSize: 12, marginTop: 4 }}>
+        <div style={{ display: "flex", gap: 8, fontSize: 12, marginTop: 4, color: "#24292b" }}>
           <span>{formatCurrency(val, currency, false)}</span>
           <Tag color="blue">{percent}%</Tag>
         </div>
@@ -187,6 +187,7 @@ export const FinancialSection: React.FC<FinancialSectionProps> = ({
       <Col xs={24} lg={16}>
         <WidgetContainer
           title="Xu Hướng Tài Chính 6 Tháng Gần Nhất"
+          tone="beige"
           subtitle="So sánh doanh thu, chi phí vận hành và lợi nhuận thuần theo chu kỳ tháng"
           tooltip="Dữ liệu truy vấn song song từ GET /api/reports/financials/monthly cho từng tháng. Công thức tính lợi nhuận nhất quán trong cùng loại tiền tệ."
           isLoading={monthlyTrendLoading}
@@ -207,14 +208,14 @@ export const FinancialSection: React.FC<FinancialSectionProps> = ({
           <div style={{ width: "100%", minWidth: 0, height: 300 }}>
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <ComposedChart data={monthlyTrendPoints} margin={{ top: 10, right: 8, left: -12, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
-                <XAxis dataKey="label" minTickGap={10} tick={{ fill: "#6b7280", fontSize: 11 }} axisLine={{ stroke: "#e5e7eb" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#b7b09d" vertical={false} />
+                <XAxis dataKey="label" minTickGap={10} tick={{ fill: "#4e5148", fontSize: 11 }} axisLine={{ stroke: "#b7b09d" }} />
                 <YAxis
                   tickCount={5}
                   width={48}
-                  tick={{ fill: "#6b7280", fontSize: 11 }}
+                  tick={{ fill: "#4e5148", fontSize: 11 }}
                   tickFormatter={(val) => formatCurrency(val, currency, true)}
-                  axisLine={{ stroke: "#e5e7eb" }}
+                  axisLine={{ stroke: "#b7b09d" }}
                 />
                 <RechartsTooltip content={<CustomTrendTooltip currency={currency} />} />
                 <Legend
@@ -241,6 +242,7 @@ export const FinancialSection: React.FC<FinancialSectionProps> = ({
       <Col xs={24} lg={8}>
         <WidgetContainer
           title="Cơ Cấu Chi Phí Theo Hạng Mục"
+          tone="dark"
           subtitle={`Tổng đã duyệt: ${formatCurrency(totalExpenseAmount, currency, true)}`}
           tooltip="Phân bổ các khoản chi phí hoạt động đã được phê duyệt trong kỳ báo cáo (GET /api/reports/expenses)"
           isLoading={expenses.isLoading}
@@ -271,6 +273,7 @@ export const FinancialSection: React.FC<FinancialSectionProps> = ({
                   outerRadius={80}
                   paddingAngle={3}
                   dataKey="value"
+                  stroke="#24292b"
                 >
                   {categoryData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
@@ -294,7 +297,7 @@ export const FinancialSection: React.FC<FinancialSectionProps> = ({
               <Typography.Text type="secondary" style={{ fontSize: 11, display: "block" }}>
                 Tổng duyệt
               </Typography.Text>
-              <Typography.Text strong style={{ fontSize: 13, color: "#111827", whiteSpace: "nowrap" }}>
+              <Typography.Text strong style={{ fontSize: 13, whiteSpace: "nowrap" }}>
                 {formatCurrency(totalExpenseAmount, currency, true)}
               </Typography.Text>
             </div>

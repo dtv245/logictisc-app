@@ -19,7 +19,7 @@ export function OptimizationCandidateTable({
 }) {
   const { t, i18n } = useTranslation();
   const [selected, setSelected] = useState<OptimizationCandidate | null>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
+  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
   const keys = useRef(new Map<string, string>());
 
   const keyFor = (id: string) => {
@@ -171,7 +171,7 @@ export function OptimizationCandidateTable({
         <Space wrap>
           <Button
             onClick={(e) => {
-              triggerRef.current = e.currentTarget;
+              setTriggerElement(e.currentTarget);
               setSelected(candidate);
             }}
           >
@@ -295,7 +295,7 @@ export function OptimizationCandidateTable({
       render: (_, candidate) => (
         <Button
           onClick={(e) => {
-            triggerRef.current = e.currentTarget;
+            setTriggerElement(e.currentTarget);
             setSelected(candidate);
           }}
         >
@@ -363,7 +363,7 @@ export function OptimizationCandidateTable({
       <OptimizationCandidateDrawer
         candidate={selected}
         onClose={() => setSelected(null)}
-        triggerElement={triggerRef.current}
+        triggerElement={triggerElement}
       />
     </>
   );

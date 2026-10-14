@@ -15,7 +15,7 @@ import type { BaseRecord } from "@refinedev/core";
 import { ConfigProvider, Grid, Table, Tooltip } from "antd";
 import type { TableProps } from "antd";
 import type { ColumnsType, ColumnType } from "antd/es/table";
-import { memo, useMemo, type ReactNode } from "react";
+import { memo, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { EmptyState } from "@components/EmptyState";
@@ -24,6 +24,7 @@ import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
 import { ApiHttpError } from "@/utils/httpError";
 import { resolveApiErrorMessage } from "@/utils/errorMessages";
 import "./BaseTable.scss";
+import { useShellTableLayout } from "./useShellTableLayout";
 
 /**
  * Phần của kết quả query mà bảng cần. Khai hẹp thay vì nhận cả `QueryObserverResult`
@@ -58,19 +59,25 @@ export interface BaseTableProps<TData extends BaseRecord> {
   sticky?: boolean | TableProps<TData>["sticky"];
   /** Tên lớp CSS tùy biến. */
   className?: string;
+  /** Dùng vùng còn lại trong shell cho bảng danh sách cấp trang. */
+  fitToShell?: boolean;
+  /** Owner đồng bộ pageSize vào Refine/API khi sức chứa của bảng thay đổi. */
+  onAdaptivePageSizeChange?: (pageSize: number) => void;
 }
 
 const TABLE_THEME = {
   components: {
     Table: {
-      headerBg: "#f8fafc",
-      headerColor: "#172033",
-      headerSplitColor: "#e2e8f0",
-      headerBorderRadius: 8,
-      borderColor: "#e2e8f0",
-      rowHoverBg: "#f1f5f9",
+      headerBg: "#ffffff",
+      headerColor: "#24292b",
+      headerSplitColor: "transparent",
+      headerBorderRadius: 12,
+      borderColor: "transparent",
+      rowHoverBg: "#ece9e3",
+      rowSelectedBg: "#ece8d8",
+      rowSelectedHoverBg: "#e3ddc6",
       cellPaddingBlock: 12,
-      cellPaddingInline: 14,
+      cellPaddingInline: 16,
       fontSize: 13,
       fontWeightStrong: 600,
     },
@@ -93,11 +100,22 @@ const BaseTableComponent = <TData extends BaseRecord>({
   sticky,
   tableProps,
   className,
+  fitToShell = false,
+  onAdaptivePageSizeChange,
 }: BaseTableProps<TData>) => {
   const { t } = useTranslation();
   const { error, isFetching, refetch } = queryResult;
   const screens = Grid.useBreakpoint();
   const isMobile = screens.md === false;
+  const { wrapperRef, layout } = useShellTableLayout(fitToShell && !error);
+  // Chỉ báo số dòng mới khi sức chứa thay đổi, không ghi đè lựa chọn thủ công mỗi render.
+  const lastAdaptivePageSize = useRef<number>();
+  const adaptivePageSize = layout?.pageSize;
+  useEffect(() => {
+    if (tableProps.pagination === false || adaptivePageSize === undefined || !onAdaptivePageSizeChange || lastAdaptivePageSize.current === adaptivePageSize) return;
+    lastAdaptivePageSize.current = adaptivePageSize;
+    onAdaptivePageSizeChange(adaptivePageSize);
+  }, [adaptivePageSize, onAdaptivePageSizeChange, tableProps.pagination]);
 
   // 2. Tinh chỉnh columns: căn lề, fixed actions bên phải, ellipsis tooltip
   const processedColumns = useMemo(() => {
@@ -164,9 +182,10 @@ const BaseTableComponent = <TData extends BaseRecord>({
     }
     return {
       x: scroll.x ?? "max-content",
+      ...(layout ? { y: layout.bodyHeight } : {}),
       ...scroll,
     };
-  }, [scroll]);
+  }, [scroll, layout]);
 
   // 3. Phân trang gọn gàng, hỗ trợ chế độ compact trên mobile
   const processedPagination = useMemo(() => {
@@ -186,7 +205,7 @@ const BaseTableComponent = <TData extends BaseRecord>({
       responsive: true,
       showLessItems: true,
       showSizeChanger: isMobile ? false : (paginationObj.showSizeChanger ?? true),
-      pageSizeOptions: ["10", "20", "50", "100"],
+      pageSizeOptions: [...new Set([5, 10, 20, 50, 100, ...(adaptivePageSize === undefined ? [] : [adaptivePageSize])])].sort((a, b) => a - b).map(String),
       showQuickJumper: isMobile ? false : (paginationObj.showQuickJumper ?? total > 50),
       showTotal: (totalCount: number, range: [number, number]) =>
         t("table.pagination.total", {
@@ -209,7 +228,7 @@ const BaseTableComponent = <TData extends BaseRecord>({
           }
         : {}),
     };
-  }, [tableProps.pagination, isMobile, t]);
+  }, [tableProps.pagination, isMobile, t, adaptivePageSize]);
 
   // 4. Trạng thái rỗng: giữ header, phân biệt rỗng thường vs rỗng do bộ lọc
   const resolvedEmptyText = useMemo(() => {
@@ -248,8 +267,9 @@ const BaseTableComponent = <TData extends BaseRecord>({
   return (
     <ConfigProvider theme={TABLE_THEME}>
       <div
-        className={`base-table-wrapper ${isLoading ? "base-table-wrapper--loading" : ""} ${className ?? ""}`.trim()}
-        style={{ minHeight: isLoading ? minHeight : undefined }}
+        ref={wrapperRef}
+        className={`base-table-wrapper ${layout ? "base-table-wrapper--fit-shell" : ""} ${isLoading ? "base-table-wrapper--loading" : ""} ${className ?? ""}`.trim()}
+        style={layout ? { height: layout.height, minHeight: 0 } : { minHeight: isLoading ? minHeight : undefined }}
       >
         <Table<TData>
           {...tableProps}

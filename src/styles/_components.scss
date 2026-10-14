@@ -26,243 +26,6 @@
   gap: v.$spacing-xs;
 }
 
-.app-sider {
-  background: v.$color-bg-container;
-  border-right: 1px solid v.$color-border-secondary;
-  transition: width v.$transition-base, min-width v.$transition-base;
-  height: 100vh;
-  height: 100dvh;
-  position: sticky;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  overflow: hidden;
-
-  @media (max-width: 767.98px) {
-    display: none !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: 0 !important;
-  }
-
-  &__logo {
-    height: v.$header-height;
-    display: flex;
-    align-items: center;
-    padding: 0 v.$spacing-md;
-    border-bottom: 1px solid v.$color-border-secondary;
-    overflow: hidden;
-    background: v.$color-bg-container;
-  }
-
-  &__menu {
-    border-inline-end: none !important;
-  }
-
-  &__trigger {
-    height: 48px;
-    min-height: 44px;
-    border-top: 1px solid v.$color-border-secondary;
-    display: flex;
-    align-items: center;
-    padding: 0 v.$spacing-md;
-    cursor: pointer;
-    transition: background-color v.$transition-fast;
-    background: v.$color-bg-container;
-
-    &:hover {
-      background-color: v.$color-bg-hover;
-    }
-
-    button {
-      min-width: 44px;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
-}
-
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: v.$spacing-sm;
-  padding: 0 v.$spacing-lg;
-  border-bottom: 1px solid v.$color-border-secondary;
-  background: v.$color-bg-container;
-  position: sticky;
-  top: 0;
-  z-index: v.$z-sticky;
-  height: v.$header-height;
-  max-width: 100vw;
-  box-sizing: border-box;
-  overflow-x: clip;
-
-  @media (min-width: 768px) and (max-width: 991.98px) {
-    padding: 0 v.$spacing-md;
-  }
-
-  @media (max-width: 767.98px) {
-    padding: 0 v.$spacing-sm;
-    height: v.$header-height-mobile;
-    gap: v.$spacing-xs;
-  }
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-sm;
-    min-width: 0;
-    flex: 1 1 auto;
-    overflow: hidden;
-
-    @media (max-width: 767.98px) {
-      gap: v.$spacing-xs;
-    }
-  }
-
-  &__brand {
-    display: none;
-    align-items: center;
-    gap: v.$spacing-xs;
-    margin: 0 !important;
-    font-size: v.$font-size-md !important;
-    font-weight: 700 !important;
-    color: v.$color-primary !important;
-    white-space: nowrap;
-
-    @media (max-width: 767.98px) {
-      display: inline-flex;
-    }
-  }
-
-  &__breadcrumb {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    @media (min-width: 768px) and (max-width: 991.98px) {
-      max-width: 300px;
-    }
-
-    @media (max-width: 767.98px) {
-      display: none !important;
-    }
-  }
-
-  &__right {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-sm;
-    flex-shrink: 0;
-
-    @media (max-width: 767.98px) {
-      gap: v.$spacing-xs;
-    }
-  }
-
-  &__toggle-btn {
-    min-width: 44px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    border-radius: v.$radius-md;
-    transition: background-color v.$transition-fast;
-
-    &:hover {
-      background-color: v.$color-bg-hover;
-    }
-
-    &:focus-visible {
-      outline: 2px solid v.$color-primary;
-      outline-offset: 2px;
-    }
-  }
-}
-
-.user-menu {
-  cursor: pointer;
-  padding: 4px 8px;
-  min-height: 44px;
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: v.$radius-md;
-  transition: background-color v.$transition-fast;
-  user-select: none;
-
-  &:hover {
-    background-color: v.$color-bg-hover;
-  }
-
-  &:focus-visible {
-    outline: 2px solid v.$color-primary;
-    outline-offset: 2px;
-  }
-
-  &__info {
-    display: inline-flex;
-    align-items: center;
-    gap: v.$spacing-xxs;
-
-    @media (max-width: 767.98px) {
-      display: none !important;
-    }
-  }
-
-  &__name {
-    max-width: 140px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: v.$font-weight-medium;
-  }
-
-  &__arrow {
-    font-size: 10px;
-    color: v.$color-text-secondary;
-  }
-
-  @media (max-width: 767.98px) {
-    padding: 4px;
-  }
-}
-
-.ant-layout-content {
-  background: v.$color-bg-layout;
-  min-height: calc(100vh - #{v.$header-height});
-  min-height: calc(100dvh - #{v.$header-height});
-
-  > div {
-    padding: 0 !important;
-    min-height: auto !important;
-  }
-}
-
-.app-content {
-  width: 100%;
-  min-height: 100%;
-  box-sizing: border-box;
-  padding: v.$spacing-lg; // Desktop >= 992px: 24px
-  border-radius: v.$radius-lg;
-  background: v.$color-bg-container;
-
-  @media (min-width: 768px) and (max-width: 991.98px) {
-    padding: v.$spacing-md; // Tablet 768px - 991px: 16px
-  }
-
-  @media (max-width: 767.98px) {
-    padding: v.$spacing-sm; // Mobile < 768px: 12px
-    border-radius: v.$radius-md;
-  }
-}
-
 .page-container {
   width: 100%;
   display: flex;
@@ -568,10 +331,10 @@
 }
 
 .resource-list-card {
-  background: v.$color-bg-container;
-  border: 1px solid v.$color-border-secondary;
-  border-radius: v.$radius-lg;
-  box-shadow: v.$shadow-xs;
+  background: #fff;
+  border: 1px solid #f0eeea;
+  border-radius: 28px;
+  box-shadow: none;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -587,8 +350,8 @@
 // Resource List Toolbar
 .resource-list-toolbar {
   padding: v.$spacing-md v.$spacing-lg;
-  border-bottom: 1px solid v.$color-border-light;
-  background: v.$color-bg-container;
+  border-bottom: 0;
+  background: #fff;
   display: flex;
   flex-direction: column;
   gap: v.$spacing-sm;
@@ -1108,24 +871,6 @@
 // =============================================================================
 
 @media (max-width: 767.98px) {
-  .app-header {
-    padding: 0 v.$spacing-sm;
-    height: v.$header-height-mobile;
-    gap: v.$spacing-xs;
-  }
-
-  .app-header__breadcrumb {
-    display: none !important;
-  }
-
-  .user-menu__info {
-    display: none !important;
-  }
-
-  .app-content {
-    padding: v.$spacing-sm; // 12px mobile
-  }
-
   .stat-card__value {
     font-size: v.$font-size-xl;
   }

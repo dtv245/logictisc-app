@@ -8,11 +8,9 @@ import { foundationApiResources } from "@/pages/resourceRegistry";
 import { RAW_RESPONSE_META } from "@/types/apiClient.types";
 import { createCommandIntent } from "@/utils/commandIntent";
 import { createPaymentCommands, createPaymentPayload, paymentMetadata, type PaymentCreateValues } from "@/features/payments/paymentCommands";
-import { createMessagingCommands } from "@/features/messaging/messaging.api";
 import { createInvoiceCommand, createPrimaryInvoice, createRatingAcceptance, freezeRatingAcceptance } from "@/features/invoices/billingCommands";
 import { buildResourceMutation } from "@/components/resources/resourceMutation";
 import { ApiHttpError } from "@/utils/httpError";
-import type { CurrentUser } from "@/types/auth.types";
 import type { GenerateInvoiceRequest, RatingPreviewRequest } from "@/types/handoff.generated";
 import { handoffExamples, handoffExampleProvenance } from "@/tests/fixtures/handoffExamples";
 
@@ -22,7 +20,6 @@ function wire(handler: (config: InternalAxiosRequestConfig) => unknown) {
   const client = createApiClient({ runtimeConfig: { apiBaseUrl: "http://localhost:8080", healthPath: "/api/health", requestTimeoutMs: 5000 }, tokenProvider: { getAccessToken: () => "fixture-bearer", refreshAccessToken: async () => null }, adapter });
   return { client, provider: createLogisticsDataProvider({ apiClient: client, resources: foundationApiResources }) };
 }
-const identity: CurrentUser = { id: "fixture-subject", openId: "fixture-subject", name: "Fixture", tenantId: "fixture-tenant", roles: ["ADMIN"], employeeId: "fixture-employee" };
 const example = (name: string) => { const value = handoffExamples.find((row) => row.name === name); if (!value) throw new Error(name); return value; };
 const paymentValues = () => example("Create Payment").body as PaymentCreateValues & { idempotencyKey: string };
 
@@ -41,8 +38,6 @@ describe("verified handoff requests on the frontend transport", () => {
     } else if (sample.name === "Create Payment") await createPaymentCommands(custom, String(sample.body!.idempotencyKey)).create(sample.body as PaymentCreateValues);
     else if (sample.name.includes("Payment metadata") || sample.name === "Clear Payment description") await createPaymentCommands(custom).update("record", sample.body!);
     else if (sample.name === "Cancel Payment") await createPaymentCommands(custom).cancel("record", String(sample.query!.reason));
-    else if (sample.name === "Create private conversation") await createMessagingCommands(custom, identity).create({ isTenantChat: false, name: String(sample.body!.name), loadId: String(sample.body!.loadId) });
-    else if (sample.name === "Send message") await createMessagingCommands(custom, identity).send(String(sample.body!.conversationId), String(sample.body!.content));
     else if (sample.name === "Generate primary invoice") await createPrimaryInvoice(custom, { snapshotId: String(sample.body!.snapshotId) }).execute(sample.body as GenerateInvoiceRequest);
     else if (sample.name === "Issue billing invoice") await createInvoiceCommand(custom, "record").execute({ action: "issue", payload: { idempotencyKey: String(sample.body!.idempotencyKey) } });
     else await custom({ url: sample.path.replaceAll("{id}", "record").replaceAll("{candidateId}", "candidate"), method: "post", ...(raw ? { meta: RAW_RESPONSE_META } : {}), payload: sample.body, query: sample.query });

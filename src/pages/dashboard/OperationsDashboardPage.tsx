@@ -94,7 +94,7 @@ export const OperationsDashboardPage = () => {
   ];
 
   return (
-    <div style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+    <div className="ops-page">
       <div className="ops-tabs-header">
         <Tabs
           activeKey={activeTab}

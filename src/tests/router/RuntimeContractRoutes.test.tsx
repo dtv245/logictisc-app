@@ -56,7 +56,7 @@ describe("current runtime route availability", () => {
     },
   );
 
-  it.each([routes.resources.payments.create, "/payments/edit/payment", "/loads/edit/load", "/trips/edit/trip", "/trucks/edit/truck", routes.resources.conversations.list, routes.profile, routes.resources.terminals.list])("does not mount runtime-dependent commands from direct URL %s", async (entry) => {
+  it.each([routes.resources.payments.create, "/payments/edit/payment", "/loads/edit/load", "/trips/edit/trip", "/trucks/edit/truck", routes.resources.conversations.list, routes.profile])("does not mount runtime-dependent commands from direct URL %s", async (entry) => {
     const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
     render(<MemoryRouter initialEntries={[entry]}><I18nextProvider i18n={i18n}><Refine authProvider={authProvider} options={{ reactQuery: { clientConfig: { defaultOptions: { queries: { retry: false } } } } }}><AppRouter resourcePageRoutes={foundationResourcePageRoutes} /></Refine></I18nextProvider></MemoryRouter>);
     expect(await screen.findByText(i18n.t("errors.notFound"))).toBeInTheDocument();

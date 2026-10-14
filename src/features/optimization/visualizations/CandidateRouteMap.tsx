@@ -11,7 +11,7 @@ import { Alert, Card, Empty, List, Space, Tag, Typography } from "antd";
 import { MapPin, Package, Truck, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { OptimizationCandidate } from "@/types/optimization.dto";
-import { extractRouteGeometry } from "./routeGeometry";
+import { extractRouteGeometry, type CandidateRouteGeometry } from "./routeGeometry";
 
 const MAP_STYLE_URL =
   import.meta.env.VITE_MAP_STYLE_URL ||
@@ -86,13 +86,21 @@ export const CandidateRouteMap: React.FC<CandidateRouteMapProps> = ({
     );
   }
 
+  return <RouteMapContent geometry={extraction.geometry} height={height} />;
+};
+
+function RouteMapContent({ geometry, height }: {
+  geometry: CandidateRouteGeometry;
+  height: number | string;
+}) {
+  const { t } = useTranslation();
   const {
     vehicleCoordinates,
     pickupCoordinates,
     deliveryCoordinates,
     deadheadCoordinates,
     loadedCoordinates,
-  } = extraction.geometry;
+  } = geometry;
 
   // Tính trung điểm và toạ độ hiển thị mặc định
   const initialViewState = useMemo(() => {
@@ -333,6 +341,6 @@ export const CandidateRouteMap: React.FC<CandidateRouteMapProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export default CandidateRouteMap;

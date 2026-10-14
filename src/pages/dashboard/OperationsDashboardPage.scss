@@ -9,40 +9,46 @@
 
 .ops-page {
   width: 100%;
+  min-width: 0;
+  background: transparent;
 }
 
 .ops-tabs-header {
-  padding: 12px 24px 0 24px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 0;
+  background: transparent;
+  border-bottom: 0;
 
   @media (max-width: 767px) {
-    padding: 8px 16px 0 16px;
+    padding: 0;
   }
 }
 
 .ops-tracking-content {
-  padding: 24px;
+  padding: 16px 0 0;
 
   @media (max-width: 767px) {
-    padding: 16px 12px;
+    padding: 12px 0 0;
   }
 }
 
 .ops-overview-content {
-  padding: 0 24px;
+  padding: 0;
 
   @media (max-width: 767px) {
-    padding: 0 12px;
+    padding: 0;
   }
 }
 
 .ops-card {
-  border-color: v.$color-border-secondary;
+  border: 1px solid #e9e5de;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(36 41 43 / 3%);
   height: 100%;
 }
 
 .ops-card .ant-card-head {
+  border-bottom: 0;
   min-height: 56px;
 
   @media (max-width: 767px) {

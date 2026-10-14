@@ -11,7 +11,7 @@ export interface RejectionCodeInfo {
 /**
  * Bảng ánh xạ mã từ chối (rejectionCodes) sang tiếng Việt dễ hiểu, có giải thích chi tiết.
  */
-export const REJECTION_CODE_MAP: Record<string, RejectionCodeInfo> = {
+const REJECTION_CODE_MAP: Record<string, RejectionCodeInfo> = {
   // Lỗi ràng buộc cứng & Ngữ cảnh
   INVALID_OPTIMIZATION_CONTEXT: {
     label: "Ngữ cảnh không hợp lệ",

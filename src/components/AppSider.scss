@@ -1,0 +1,315 @@
+/**
+ * Sidebar dạng rail: nhóm điều hướng trắng bo tròn trên nền kem,
+ * mục đang chọn nền than và icon vàng, tài khoản neo ở cuối thanh.
+ */
+
+.app-sider.ant-layout-sider {
+  --sider-surface: var(--color-bg-layout, #f4f1eb);
+  --sider-ink: #24292b;
+  --sider-accent: #ffe16a;
+
+  background: var(--sider-surface);
+  border-right: 0;
+  height: 100%;
+  position: relative;
+  align-self: flex-start;
+  z-index: 100;
+  overflow: hidden;
+
+  > .ant-layout-sider-children {
+    height: 100%;
+  }
+
+  // Rail luôn hiện trên mobile vì Header không còn nút mở Drawer.
+  @media (max-width: 767.98px) {
+    display: block !important;
+    width: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+    flex: 0 0 72px !important;
+  }
+}
+
+.app-sider__content {
+  --sider-surface: var(--color-bg-layout, #f4f1eb);
+  --sider-ink: #24292b;
+  --sider-accent: #ffe16a;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 24px 16px 20px;
+  background: var(--sider-surface);
+  color: var(--sider-ink);
+  box-sizing: border-box;
+
+  @media (max-width: 767.98px) {
+    padding: 16px 8px;
+  }
+
+  .app-sider__logo {
+    flex-shrink: 0;
+    height: 72px;
+    padding: 0 8px 20px;
+    border: 0;
+    background: transparent;
+    justify-content: space-between;
+  }
+
+  .app-sider__brand {
+    min-width: 0;
+  }
+
+  .app-brand {
+    gap: 10px;
+    color: var(--sider-ink) !important;
+    font-size: 19px;
+  }
+
+  .app-brand__mark {
+    font-size: 26px;
+  }
+
+  .app-brand__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-sider__navigation {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    padding: 4px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .app-sider__group {
+    padding: 6px;
+    border-radius: 28px;
+    background: #fff;
+  }
+
+  .app-sider__group--utilities {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: auto;
+
+    &:empty {
+      display: none;
+    }
+
+    > .ant-badge .ant-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      color: var(--sider-ink);
+    }
+  }
+
+  .app-sider__menu.ant-menu {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--sider-ink);
+    font-size: 13px;
+
+    .ant-menu-sub {
+      background: transparent;
+    }
+
+    .ant-menu-item,
+    .ant-menu-submenu-title {
+      width: 100%;
+      height: 44px;
+      line-height: 44px;
+      margin: 2px 0;
+      border-radius: 22px;
+    }
+
+    .ant-menu-item-icon {
+      font-size: 18px;
+    }
+
+    .ant-menu-item-selected,
+    .app-sider__zone--active > .ant-menu-submenu-title {
+      color: var(--sider-accent);
+      background: var(--sider-ink);
+    }
+
+    .ant-menu-item-selected::after {
+      display: none;
+    }
+
+    .ant-menu-submenu-arrow {
+      color: inherit;
+    }
+
+    .ant-menu-item:not(.ant-menu-item-selected):hover,
+    .ant-menu-submenu:not(.app-sider__zone--active) > .ant-menu-submenu-title:hover {
+      background: #f4f1eb;
+      color: var(--sider-ink);
+    }
+  }
+
+  .app-sider__footer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 6px;
+    margin-top: 20px;
+    border-radius: 28px;
+    background: #fff;
+  }
+
+  .app-sider__action.ant-btn,
+  .app-sider__account.ant-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    color: var(--sider-ink);
+
+    &:hover {
+      color: var(--sider-ink);
+      background: #f4f1eb;
+    }
+  }
+
+  .app-sider__action {
+    flex-shrink: 0;
+    font-size: 17px;
+  }
+
+  .app-sider__account.ant-btn {
+    flex: 1;
+    min-width: 0;
+    gap: 8px;
+    padding-right: 6px;
+    border-radius: 22px;
+  }
+
+  .app-sider__account .ant-avatar {
+    flex-shrink: 0;
+    color: #343c32;
+    background: #d7d3bd;
+    border: 2px solid #fff;
+  }
+
+  .app-sider__account-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  .ant-btn:focus-visible,
+  .ant-menu-item:focus-visible,
+  .ant-menu-submenu-title:focus-visible {
+    outline: 2px solid #82701e;
+    outline-offset: -2px;
+  }
+
+}
+
+.app-sider__content--compact {
+  .app-sider__logo {
+    height: 92px;
+    justify-content: center;
+    padding: 0 0 24px;
+  }
+
+  .app-brand--compact {
+    flex-direction: column;
+    gap: 3px;
+    font-size: 9px;
+    line-height: 1.4;
+    max-width: 56px;
+  }
+
+  .app-brand__mark {
+    font-size: 25px;
+  }
+
+  .app-sider__menu.ant-menu-inline-collapsed {
+    > .ant-menu-submenu > .ant-menu-submenu-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .ant-menu-item-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 18px;
+      width: 18px;
+      margin: 0;
+      line-height: 1;
+    }
+
+    // Nhãn vẫn đọc được bằng screen reader nhưng không chiếm khoảng cách cạnh icon.
+    .ant-menu-title-content {
+      position: absolute;
+      width: 0;
+      margin: 0;
+      overflow: hidden;
+      opacity: 0;
+    }
+
+    .ant-menu-submenu-arrow {
+      display: none;
+    }
+  }
+
+  .app-sider__footer {
+    flex-direction: column;
+  }
+
+  .app-sider__account.ant-btn {
+    flex: none;
+    width: 44px;
+    padding: 0;
+  }
+}
+
+.app-sider-popup.ant-menu-submenu-popup {
+  .ant-menu {
+    padding: 6px;
+    border-radius: 20px;
+    border: 1px solid #eeeae2;
+    box-shadow: 0 12px 36px rgb(36 41 43 / 12%);
+  }
+
+  .ant-menu-item {
+    min-height: 44px;
+    border-radius: 14px;
+  }
+
+  .ant-menu-item-selected {
+    color: #ffe16a;
+    background: #24292b;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-sider.ant-layout-sider,
+  .app-sider__content .ant-menu,
+  .app-sider__content .ant-menu-submenu-title,
+  .app-sider__content .ant-btn {
+    transition: none;
+  }
+}

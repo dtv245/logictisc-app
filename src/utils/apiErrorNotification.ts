@@ -54,6 +54,7 @@ const ERROR_LOCALE_KEYS: Record<string, string> = {
   TRIP_ALREADY_DISPATCHED: "notifications.apiCodes.TRIP_ALREADY_DISPATCHED",
   HOS_VIOLATION: "notifications.apiCodes.HOS_VIOLATION",
   DVIR_DEFECT_UNRESOLVED: "notifications.apiCodes.DVIR_DEFECT_UNRESOLVED",
+  TERMINAL_IN_USE: "notifications.apiCodes.TERMINAL_IN_USE",
 };
 
 const readNotificationError = (error: unknown): NotificationError => {

@@ -41,9 +41,9 @@ export const ROLE_MATRIX = [
   { resources: ["messages", "messaging", "conversations"], actions: [...READ_ACTIONS, "create", "send"], roles: JWT_ROLES },
   { resources: ["conversations"], actions: ["TENANT_CHAT_CREATE"], roles: ["ADMIN"] },
   // These fallback-authenticated routes retain their existing vocabulary; no new domain action is inferred.
-  { resources: ["terminals"], actions: READ_ACTIONS, roles: ["SUPERADMIN", "OWNER", "MANAGER", "DISPATCHER", "DRIVER"] },
-  { resources: ["terminals"], actions: ["create", "edit", "update"], roles: ["SUPERADMIN", "OWNER", "MANAGER", "DISPATCHER"] },
-  { resources: ["terminals"], actions: ["delete"], roles: ["SUPERADMIN", "OWNER", "MANAGER"] },
+  { resources: ["terminals"], actions: READ_ACTIONS, roles: JWT_ROLES },
+  { resources: ["terminals"], actions: ["create", "edit", "update"], roles: ["SUPERADMIN", "ADMIN", "OWNER", "MANAGER", "DISPATCHER"] },
+  { resources: ["terminals"], actions: ["delete"], roles: ["SUPERADMIN", "ADMIN", "OWNER", "MANAGER"] },
   { resources: ["notifications"], actions: [...READ_ACTIONS, "markAllRead", "mark-all-read"], roles: JWT_ROLES },
   { resources: ["shipment-costs"], actions: [...READ_ACTIONS, "COST_VIEW", "COST_CREATE", "COST_SYNC_EXPENSES", "COST_ALLOCATE_MAINTENANCE"], roles: PAYROLL },
   { resources: ["profitability"], actions: [...READ_ACTIONS, "PROFITABILITY_VIEW"], roles: PAYROLL },

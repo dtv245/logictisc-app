@@ -78,7 +78,7 @@
 
 .vehicle-map,
 .vehicle-map__skeleton {
-  border-radius: v.$radius-lg;
+  border-radius: 8px;
   /* Viewport-adaptive height: adapts to screen height while respecting minimum and maximum bounds */
   height: clamp(380px, calc(100dvh - 340px), 720px) !important;
   min-height: 360px;

@@ -1,17 +1,57 @@
+/** Bảng dạng danh sách: khung trắng bo tròn, từng hàng nền kem và cách nhau. */
 @use "@/styles/variables" as v;
 @use "@/styles/mixins" as m;
 
 .base-table-wrapper {
+  --base-table-row-bg: #f4f2ef;
+  --base-table-row-hover-bg: #ece9e3;
+  --base-table-row-selected-bg: #ece8d8;
+  --base-table-row-selected-hover-bg: #e3ddc6;
+  --base-table-text: #24292b;
+
   width: 100%;
   max-width: 100%;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: v.$color-bg-container;
-  border-radius: v.$radius-lg;
-  border: 1px solid v.$color-border-secondary;
+  box-sizing: border-box;
+  padding: 8px 20px 16px;
+  background: #fff;
+  border-radius: 28px;
+  border: 1px solid #f0eeea;
   overflow: hidden;
   transition: min-height v.$transition-base;
+
+  &--fit-shell {
+    flex: none;
+    min-height: 0;
+
+    > .ant-table-wrapper,
+    .ant-spin-nested-loading,
+    .ant-spin-container {
+      height: 100%;
+      min-height: 0;
+    }
+
+    .ant-spin-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ant-table {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .ant-pagination {
+      flex-shrink: 0;
+    }
+
+    .ant-table-body {
+      scrollbar-width: thin;
+      scrollbar-color: #c8c1b6 transparent;
+    }
+  }
 
   // Giữ chiều cao tối thiểu để không co giật layout khi tải lại hoặc đổi trang
   &--loading {
@@ -39,39 +79,55 @@
       width: 100%;
       min-width: 0;
       font-size: v.$font-size-sm;
-      background: v.$color-bg-container;
+      background: #fff;
 
-      // Header neutral nhạt, viền dưới rõ ràng, sticky khi cuộn dọc
+      // Tạo khoảng cách giữa hàng, giữ cấu trúc bảng đo và cột cố định của Ant Design.
+      table {
+        border-collapse: separate;
+        border-spacing: 0 8px;
+      }
+
+      // Header trắng, không có đường chia cột để khớp khung danh sách.
       .ant-table-thead > tr > th {
         position: sticky;
         top: 0;
         z-index: 2;
-        background: v.$color-bg-subtle;
-        color: v.$color-text;
+        background: #fff;
+        color: var(--base-table-text);
         font-weight: v.$font-weight-semibold;
         font-size: v.$font-size-sm;
-        padding: 12px 14px;
-        border-bottom: 1px solid v.$color-border;
+        padding: 12px 16px;
+        border-bottom: 0;
         white-space: nowrap;
 
         &::before {
-          background-color: v.$color-border;
+          display: none;
         }
 
         &.ant-table-column-has-sorters:hover {
-          background: v.$color-bg-hover;
+          background: var(--base-table-row-bg);
         }
       }
 
       // Thân bảng & Hàng
-      .ant-table-tbody > tr {
-        transition: background-color v.$transition-fast;
-
+      .ant-table-tbody > tr.ant-table-row {
         > td {
-          padding: 12px 14px;
-          border-bottom: 1px solid v.$color-border-light;
-          color: v.$color-text;
+          padding: 12px 16px;
+          border-bottom: 0;
+          background: var(--base-table-row-bg);
+          color: var(--base-table-text);
           font-size: v.$font-size-sm;
+          transition: background-color v.$transition-fast;
+
+          &:first-child {
+            border-start-start-radius: 12px;
+            border-end-start-radius: 12px;
+          }
+
+          &:last-child {
+            border-start-end-radius: 12px;
+            border-end-end-radius: 12px;
+          }
 
           // Căn phải dùng tabular-nums
           &.ant-table-cell-align-right,
@@ -81,35 +137,46 @@
           }
         }
 
-        &:hover > td {
-          background: v.$color-bg-hover;
+        &:hover > td,
+        > td.ant-table-cell-row-hover {
+          background: var(--base-table-row-hover-bg);
         }
 
-        &:last-child > td {
-          border-bottom: none;
+        &.ant-table-row-selected > td {
+          background: var(--base-table-row-selected-bg);
         }
+
+        &.ant-table-row-selected:hover > td,
+        &.ant-table-row-selected > td.ant-table-cell-row-hover {
+          background: var(--base-table-row-selected-hover-bg);
+        }
+      }
+
+      .ant-table-expanded-row > td,
+      .ant-table-placeholder > td {
+        border-bottom: 0;
+        border-radius: 12px;
+        background: var(--base-table-row-bg);
       }
 
       // Cột cố định đổ bóng nhẹ khi cuộn ngang
       .ant-table-cell-fix-right {
-        background: v.$color-bg-container;
-        box-shadow: -4px 0 8px -2px rgba(15, 23, 42, 0.08);
+        box-shadow: -4px 0 8px -2px rgba(36, 41, 43, 0.04);
       }
 
       .ant-table-cell-fix-left {
-        background: v.$color-bg-container;
-        box-shadow: 4px 0 8px -2px rgba(15, 23, 42, 0.08);
+        box-shadow: 4px 0 8px -2px rgba(36, 41, 43, 0.04);
       }
 
       .ant-table-thead .ant-table-cell-fix-right,
       .ant-table-thead .ant-table-cell-fix-left {
-        background: v.$color-bg-subtle;
+        background: #fff;
       }
     }
 
     // Thanh phân trang căn phải, gọn gàng
     .ant-pagination {
-      margin: v.$spacing v.$spacing-md;
+      margin: 12px 0 0;
       align-items: center;
 
       .ant-pagination-total-text {
@@ -135,7 +202,8 @@
 
   // Responsive dưới 768px: cuộn ngang mượt mà
   @media (max-width: v.$breakpoint-md) {
-    border-radius: v.$radius-md;
+    padding: 4px 12px 12px;
+    border-radius: 20px;
 
     .ant-table-wrapper {
       .ant-table-content {
@@ -144,7 +212,7 @@
       }
 
       .ant-pagination {
-        margin: v.$spacing-sm;
+        margin: 12px 0 0;
         flex-wrap: wrap;
         justify-content: center;
         gap: v.$spacing-xs;
@@ -160,6 +228,19 @@
         }
       }
     }
+  }
+}
+
+// Khi bảng nằm trong card có toolbar, chỉ dùng một khung bo tròn bên ngoài.
+.resource-list-card > .base-table-wrapper {
+  border: 0;
+  border-radius: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .base-table-wrapper,
+  .base-table-wrapper .ant-table-tbody > tr.ant-table-row > td {
+    transition: none;
   }
 }
 

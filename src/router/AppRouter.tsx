@@ -1,7 +1,5 @@
-import { MESSAGING_RUNTIME_VERIFIED } from "@/features/messaging/messaging.api";
 import { getResourceCapabilities } from "@/components/resources/resourceCapabilities";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/payroll.api";
-import { PROFILE_CONTRACT_CONFIRMED } from "@/features/profile/profile.contract";
 import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/executive.contract";
 import type { PayslipDownloader } from "@/features/payslips/payslip.api";
 /**
@@ -53,11 +51,6 @@ const DashboardPage = lazy(() =>
 const OperationsDashboardPage = lazy(() =>
   import("@pages/dashboard/OperationsDashboardPage").then((module) => ({
     default: module.OperationsDashboardPage,
-  })),
-);
-const ProfilePage = lazy(() =>
-  import("@pages/profile/ProfilePage").then((module) => ({
-    default: module.ProfilePage,
   })),
 );
 const ProfitabilityPage = lazy(() =>
@@ -186,7 +179,6 @@ export const AppRouter = ({
               path={routes.operations}
               element={<OperationsDashboardPage />}
             />
-            {PROFILE_CONTRACT_CONFIRMED && <Route path={routes.profile} element={<ProfilePage />} />}
             <Route path={routes.optimization} element={<ResourceAccessBoundary action="OPTIMIZATION_VIEW" resource="optimization"><OptimizationPage /></ResourceAccessBoundary>} />
             <Route path={routes.optimizationRun} element={<ResourceAccessBoundary action="OPTIMIZATION_VIEW" resource="optimization"><OptimizationRunShowPage /></ResourceAccessBoundary>} />
             <Route path={routes.fleetReport} element={<ResourceAccessBoundary action="FLEET_REPORT_VIEW" resource="fleet-reports"><FleetReportPage /></ResourceAccessBoundary>} />
@@ -231,7 +223,7 @@ export const AppRouter = ({
             <Route path={routes.payroll} element={<ResourceAccessBoundary action="PAYROLL_VIEW" resource="payroll"><PayrollEntryPage /></ResourceAccessBoundary>} />
             {PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED && <Route path={routes.payrollReconciliation} element={<ResourceAccessBoundary action="PAYROLL_VIEW" resource="payroll"><PayrollReconciliationPage /></ResourceAccessBoundary>} />}
             <Route path={routes.payrollShow} element={<ResourceAccessBoundary action="PAYROLL_VIEW" resource="payroll"><PayrollRunShowPage /></ResourceAccessBoundary>} />
-            {resourcePageRoutes.filter(({ resource, action }) => resource !== "terminals" && (resource !== "conversations" || MESSAGING_RUNTIME_VERIFIED) && (action !== "create" || getResourceCapabilities(resource).create) && (action !== "edit" || getResourceCapabilities(resource).edit)).map(({ action, component, path, resource }) => (
+            {resourcePageRoutes.filter(({ resource, action }) => resource !== "conversations" && (action !== "create" || getResourceCapabilities(resource).create) && (action !== "edit" || getResourceCapabilities(resource).edit)).map(({ action, component, path, resource }) => (
               <Route
                 element={
                   <ResourceAccessBoundary

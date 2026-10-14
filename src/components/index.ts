@@ -1,5 +1,4 @@
 export * from './AccessibleAnnouncement';
-export * from './AppHeader';
 export * from './AppLayout';
 export * from './AppSider';
 export * from './AppTitle';

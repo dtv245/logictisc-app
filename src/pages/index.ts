@@ -22,13 +22,6 @@ import {
   ContainerShow,
 } from "./containers";
 import {
-  ConversationCreate,
-  ConversationEdit,
-  ConversationList,
-  conversationsResource,
-  ConversationShow,
-} from "./conversations";
-import {
   CustomerCreate,
   CustomerEdit,
   CustomerList,
@@ -216,7 +209,6 @@ export const appResources: IResourceItem[] = [
   accidentsResource,
   dvirResource,
   documentsResource,
-  conversationsResource,
   notificationsResource,
   terminalsResource,
   containersResource,
@@ -264,9 +256,6 @@ export const appResourcePageRoutes: ResourcePageRoute[] = [
   ...createResourcePageRoutes(routes.resources.documents, {
     Create: DocumentCreate, Edit: DocumentEdit, List: DocumentList, Show: DocumentShow,
   }),
-  ...createResourcePageRoutes(routes.resources.conversations, {
-    Create: ConversationCreate, Edit: ConversationEdit, List: ConversationList, Show: ConversationShow,
-  }),
   ...createResourcePageRoutes(routes.resources.notifications, {
     Create: NotificationCreate, Edit: NotificationEdit, List: NotificationList, Show: NotificationShow,
   }),
@@ -284,7 +273,6 @@ export const appResourcePageRoutes: ResourcePageRoute[] = [
   }),
 ];
 
-export { ProfilePage } from "./profile/ProfilePage";
 export {
   DriverPayPolicyList,
   DriverPayPolicyShow,

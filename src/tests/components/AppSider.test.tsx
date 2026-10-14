@@ -20,6 +20,18 @@ vi.mock("@hooks/useCurrentUser", () => ({
   }),
 }));
 
+vi.mock("@hooks/useLogoutUser", () => ({
+  useLogoutUser: () => ({ logoutUser: vi.fn(), isLoading: false }),
+}));
+
+vi.mock("@hooks/useSwitchTenant", () => ({
+  useSwitchTenant: () => ({ switchTenant: vi.fn(), isLoading: false }),
+}));
+
+vi.mock("@features/notifications/components/NotificationHeaderIcon", () => ({
+  NotificationHeaderIcon: () => <button aria-label="Thông báo" />,
+}));
+
 vi.mock("@refinedev/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@refinedev/core")>();
   return {
@@ -36,11 +48,11 @@ beforeAll(async () => {
   i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });
 });
 
-const renderSider = (initialRoute = "/operations") => {
+const renderSider = (initialRoute = "/operations", collapsed = false) => {
   return render(
     <MemoryRouter initialEntries={[initialRoute]}>
       <I18nextProvider i18n={i18n}>
-        <ThemedLayoutContextProvider initialSiderCollapsed={false}>
+        <ThemedLayoutContextProvider initialSiderCollapsed={collapsed}>
           <AppSider />
         </ThemedLayoutContextProvider>
       </I18nextProvider>
@@ -55,56 +67,82 @@ describe("AppSider — Thanh Taskbar bên trái phân tầng và phân khu", () 
     // Sider tồn tại và có class app-sider
     const sider = container.querySelector(".app-sider");
     expect(sider).toBeInTheDocument();
+    // Context khởi tạo mở rộng vẫn không thay đổi rail cố định.
+    expect(sider).toHaveClass("ant-layout-sider-collapsed");
+    expect(sider).toHaveStyle({ width: "88px" });
+    expect(sider?.querySelector(".app-sider__content--compact")).toBeInTheDocument();
 
-    // Các khu vực (Zones) hiển thị theo nhãn bản dịch tiếng Việt
+    // Các khu vực (Zones) hiển thị theo nhãn bản dịch tiếng Việt mới
     await waitFor(() => {
-      expect(screen.getByText("Điều hành & Giám sát")).toBeInTheDocument();
-      expect(screen.getByText("Vận tải & Hàng hóa")).toBeInTheDocument();
-      expect(screen.getByText("Đội xe & Tài xế")).toBeInTheDocument();
-      expect(screen.getByText("Tài chính & Quyết toán")).toBeInTheDocument();
-      expect(screen.getByText("Khách hàng & Đối tác")).toBeInTheDocument();
-      expect(screen.getByText("Quản trị & Hệ thống")).toBeInTheDocument();
+      expect(screen.getByText("Điều hành")).toBeInTheDocument();
+      expect(screen.getByText("Vận tải")).toBeInTheDocument();
+      expect(screen.getByText("Đội xe & An toàn")).toBeInTheDocument();
+      expect(screen.getByText("Khách hàng & Hàng hóa")).toBeInTheDocument();
+      expect(screen.getByText("Hóa đơn & Thu chi")).toBeInTheDocument();
+      expect(screen.getByText("Lương & Quyết toán")).toBeInTheDocument();
+      expect(screen.getByText("Quản trị")).toBeInTheDocument();
     });
   });
 
   it("chứa đầy đủ các danh mục khu vực được khai báo trong NAV_ZONES", () => {
-    expect(NAV_ZONES.length).toBe(6);
+    expect(NAV_ZONES.length).toBe(7);
     const zoneKeys = NAV_ZONES.map((z) => z.key);
     expect(zoneKeys).toEqual([
       "zone:operations",
       "zone:transport",
       "zone:fleet",
-      "zone:finance",
       "zone:partners",
+      "zone:finance",
+      "zone:payroll",
       "zone:admin",
     ]);
   });
 
-  it("tự động mở phân khu và highlight chức năng tương ứng với route hiện tại", async () => {
-    renderSider("/operations");
+  it("highlight phân khu hiện tại và mở menu con mà sidebar vẫn thu gọn", async () => {
+    const { container } = renderSider("/operations");
+
+    const zone = await screen.findByText("Điều hành");
+    expect(zone.closest(".ant-menu-submenu")).toHaveClass("app-sider__zone--active");
+    fireEvent.click(zone);
 
     await waitFor(() => {
-      // Zone Điều hành & Giám sát được mở và hiển thị Điều phối vận hành
-      expect(screen.getByText("Điều phối vận hành")).toBeInTheDocument();
+      expect(screen.getByText("Trung tâm điều hành")).toBeInTheDocument();
+    });
+    expect(container.querySelector(".app-sider")).toHaveClass("ant-layout-sider-collapsed");
+    expect(container.querySelector(".app-sider")).toHaveStyle({ width: "88px" });
+  });
+
+  it("thông báo và tài khoản chỉ xuất hiện trong sidebar, header không còn menu button", async () => {
+    const { container } = renderSider("/operations", true);
+    expect(container.querySelector(".app-sider .app-sider__content--compact")).toBeInTheDocument();
+    expect(container.querySelector(".anticon-menu-unfold")).not.toBeInTheDocument();
+    expect(container.querySelector(".app-header button")).not.toBeInTheDocument();
+    expect(container.querySelector(".app-header .ant-avatar")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Thông báo" })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Thông báo" }).closest(".app-sider__group--utilities")).not.toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Menu tài khoản" }));
+    expect(await screen.findByText("Đổi công ty")).toBeInTheDocument();
+  });
+
+  it("hiển thị mục 'Bến bãi' (Terminal) trong phân khu Vận tải", async () => {
+    renderSider("/terminals");
+
+    const transportZone = await screen.findByText("Vận tải");
+    expect(transportZone).toBeInTheDocument();
+    fireEvent.click(transportZone);
+
+    await waitFor(() => {
+      expect(screen.getByText("Bến bãi (Terminals)")).toBeInTheDocument();
     });
   });
 
-  it("hỗ trợ thu gọn (collapse) và mở rộng (expand) thanh Taskbar", async () => {
-    renderSider();
-
-    const toggleBtn = screen.getByRole("button", {
-      name: "Thu gọn thanh điều hướng",
-    });
-    expect(toggleBtn).toBeInTheDocument();
-
-    fireEvent.click(toggleBtn);
-
+  it("chia các phân khu thành các nhóm app-sider__group độc lập", async () => {
+    const { container } = renderSider("/terminals");
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", {
-          name: "Mở rộng thanh điều hướng",
-        }),
-      ).toBeInTheDocument();
+      const groups = container.querySelectorAll(".app-sider__group");
+      // Có 3 nhóm việc chính và 1 khối tiện ích
+      expect(groups.length).toBe(4);
     });
   });
 });

@@ -1,7 +1,7 @@
 import { isLegacyDraftInvoice } from "@/features/invoices/invoiceMutability";
 import { DeleteButton, EditButton, ShowButton } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
-import { Button, Dropdown, type MenuProps, Popconfirm, Space, Tooltip } from "antd";
+import { Button, Dropdown, type MenuProps, Modal, Popconfirm, Space, Tooltip } from "antd";
 import { EllipsisOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -125,11 +125,20 @@ export const ActionButtons = ({ record, resource, extraActions = [] }: ActionBut
             description: t("notifications.success"),
             type: "success",
           })}
-          errorNotification={(error) => createApiErrorNotification(error, t, {
-            key: `delete-${resource}-${record.id}`,
-            operation: "delete",
-            resourceLabel,
-          })}
+          errorNotification={(error) => {
+            const err = error as { code?: string; statusCode?: number } | undefined;
+            if (err?.code === "TERMINAL_IN_USE" || (resource === "terminals" && err?.statusCode === 409)) {
+              Modal.error({
+                title: t("notifications.apiTitles.delete", "Xóa thất bại"),
+                content: t("notifications.apiCodes.TERMINAL_IN_USE", "Không thể xóa Terminal này do đang được liên kết với đơn hàng hoặc container."),
+              });
+            }
+            return createApiErrorNotification(error, t, {
+              key: `delete-${resource}-${record.id}`,
+              operation: "delete",
+              resourceLabel,
+            });
+          }}
         />
       </span>
     </Tooltip>
