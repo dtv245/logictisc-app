@@ -40,7 +40,7 @@ import { createRemoteJwkAccessTokenVerifier } from "./providers/auth/jwtVerifier
 import { useAntdNotificationProvider } from "./providers/notificationProvider";
 import { createBrowserOidcGateway } from "./providers/auth/oidcGateway";
 import { createLarkGateway } from "./providers/auth/larkGateway";
-import { shouldRetryQuery } from "./providers/api/retryPolicy";
+import { shouldRetryQuery, queryRetryDelay } from "./providers/api/retryPolicy";
 import { AuthSessionManager } from "./providers/auth/sessionManager";
 
 export interface AppProps
@@ -189,7 +189,17 @@ export function RuntimeApplication({
             clientConfig: {
               defaultOptions: {
                 queries: {
-                  retry: shouldRetryQuery,
+                  retry: (failureCount, error: unknown) => {
+                    const status =
+                      (error as any)?.statusCode ??
+                      (error as any)?.status ??
+                      (error as any)?.response?.status;
+                    if (typeof status === "number" && status >= 400 && status < 600) {
+                      return false;
+                    }
+                    return shouldRetryQuery(failureCount, error);
+                  },
+                  retryDelay: queryRetryDelay,
                 },
               },
             },

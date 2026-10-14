@@ -11,7 +11,10 @@ export interface BackendApiError {
   field: string | null;
   code: string;
   message: string;
+  params?: ErrorParams;
 }
+
+export type ErrorParams = Readonly<Record<string, string | number | boolean>>;
 
 export interface ResponseMeta {
   timestamp: string;
@@ -29,6 +32,7 @@ export interface ApiResponse<T> {
   data: T | null;
   errors: BackendApiError[];
   meta: ResponseMeta;
+  params?: ErrorParams;
 }
 
 /**

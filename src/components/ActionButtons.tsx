@@ -6,7 +6,7 @@ import { EllipsisOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { ApiError } from "@/types/api.types";
+import { createApiErrorNotification } from "@/providers/apiErrorNotification";
 import { getResourceCapabilities } from "./resources/resourceCapabilities";
 import { useResourceAction } from "./ResourceActionContext";
 
@@ -61,75 +61,77 @@ export const ActionButtons = ({ record, resource, extraActions = [] }: ActionBut
 
   const showNode = (
     <Tooltip key="show" title={viewLabel}>
-      <ShowButton
-        hideText
-        aria-label={viewAriaLabel}
-        className="refine-show-button table-action-btn table-action-btn--show"
-        recordItemId={record.id}
-        resource={resource}
-        style={{ minWidth: 32, minHeight: 32 }}
-        onClick={(e) => {
-          if (actionContext) {
-            e.preventDefault();
-            actionContext.showView(record.id!);
-          }
-        }}
-      />
+      <span>
+        <ShowButton
+          hideText
+          aria-label={viewAriaLabel}
+          className="refine-show-button table-action-btn table-action-btn--show"
+          recordItemId={record.id}
+          resource={resource}
+          style={{ minWidth: 32, minHeight: 32 }}
+          onClick={(e) => {
+            if (actionContext) {
+              e.preventDefault();
+              actionContext.showView(record.id!);
+            }
+          }}
+        />
+      </span>
     </Tooltip>
   );
 
   const editNode = canEdit ? (
     <Tooltip key="edit" title={editLabel}>
-      <EditButton
-        hideText
-        aria-label={editAriaLabel}
-        className="refine-edit-button table-action-btn table-action-btn--edit"
-        recordItemId={record.id}
-        resource={resource}
-        style={{ minWidth: 32, minHeight: 32 }}
-        onClick={(e) => {
-          if (actionContext) {
-            e.preventDefault();
-            actionContext.showEdit(record.id!);
-          }
-        }}
-      />
+      <span>
+        <EditButton
+          hideText
+          aria-label={editAriaLabel}
+          className="refine-edit-button table-action-btn table-action-btn--edit"
+          recordItemId={record.id}
+          resource={resource}
+          style={{ minWidth: 32, minHeight: 32 }}
+          onClick={(e) => {
+            if (actionContext) {
+              e.preventDefault();
+              actionContext.showEdit(record.id!);
+            }
+          }}
+        />
+      </span>
     </Tooltip>
   ) : null;
 
   const deleteNode = canDelete ? (
     <Tooltip key="delete" title={deleteLabel}>
-      <DeleteButton
-        hideText
-        aria-label={deleteAriaLabel}
-        className="refine-delete-button table-action-btn table-action-btn--delete"
-        recordItemId={record.id}
-        resource={resource}
-        mutationMode="pessimistic"
-        style={{ minWidth: 32, minHeight: 32 }}
-        confirmTitle={
-          recordName
-            ? t("crud.deleteConfirm", { record: recordName })
-            : t("crud.deleteConfirmGeneric")
-        }
-        confirmOkText={t("actions.confirm")}
-        confirmCancelText={t("actions.cancel")}
-        successNotification={() => ({
-          key: `delete-${resource}-${record.id}`,
-          message: t("notifications.deleteSuccess", { resource: resourceLabel }),
-          description: t("notifications.success"),
-          type: "success",
-        })}
-        errorNotification={(error) => ({
-          key: `delete-${resource}-${record.id}`,
-          message: t("notifications.deleteError", {
-            resource: resourceLabel,
-            statusCode: (error as ApiError)?.statusCode ?? 500,
-          }),
-          description: (error as Error)?.message,
-          type: "error",
-        })}
-      />
+      <span>
+        <DeleteButton
+          hideText
+          aria-label={deleteAriaLabel}
+          className="refine-delete-button table-action-btn table-action-btn--delete"
+          recordItemId={record.id}
+          resource={resource}
+          mutationMode="pessimistic"
+          style={{ minWidth: 32, minHeight: 32 }}
+          confirmTitle={
+            recordName
+              ? t("crud.deleteConfirm", { record: recordName })
+              : t("crud.deleteConfirmGeneric")
+          }
+          confirmOkText={t("actions.confirm")}
+          confirmCancelText={t("actions.cancel")}
+          successNotification={() => ({
+            key: `delete-${resource}-${record.id}`,
+            message: t("notifications.deleteSuccess", { resource: resourceLabel }),
+            description: t("notifications.success"),
+            type: "success",
+          })}
+          errorNotification={(error) => createApiErrorNotification(error, t, {
+            key: `delete-${resource}-${record.id}`,
+            operation: "delete",
+            resourceLabel,
+          })}
+        />
+      </span>
     </Tooltip>
   ) : null;
 
@@ -149,15 +151,17 @@ export const ActionButtons = ({ record, resource, extraActions = [] }: ActionBut
         {primaryNodes}
         {extraActions.map((action) => (
           <Tooltip key={action.key} title={action.label}>
-            <Button
-              aria-label={String(action.label)}
-              className={`table-action-btn ${action.danger ? "table-action-btn--delete" : ""}`}
-              danger={action.danger}
-              disabled={action.disabled}
-              icon={action.icon}
-              style={{ minWidth: 32, minHeight: 32 }}
-              onClick={() => action.onClick?.(record)}
-            />
+            <span>
+              <Button
+                aria-label={String(action.label)}
+                className={`table-action-btn ${action.danger ? "table-action-btn--delete" : ""}`}
+                danger={action.danger}
+                disabled={action.disabled}
+                icon={action.icon}
+                style={{ minWidth: 32, minHeight: 32 }}
+                onClick={() => action.onClick?.(record)}
+              />
+            </span>
           </Tooltip>
         ))}
       </Space>
@@ -206,12 +210,14 @@ export const ActionButtons = ({ record, resource, extraActions = [] }: ActionBut
       {visibleButtons}
       <Dropdown menu={{ items: menuItems }} placement="bottomRight" trigger={["click"]}>
         <Tooltip title={moreLabel}>
-          <Button
-            aria-label={recordName ? `${moreLabel} ${recordName}` : moreLabel}
-            className="table-action-btn"
-            icon={<EllipsisOutlined />}
-            style={{ minWidth: 32, minHeight: 32 }}
-          />
+          <span>
+            <Button
+              aria-label={recordName ? `${moreLabel} ${recordName}` : moreLabel}
+              className="table-action-btn"
+              icon={<EllipsisOutlined />}
+              style={{ minWidth: 32, minHeight: 32 }}
+            />
+          </span>
         </Tooltip>
       </Dropdown>
     </Space>

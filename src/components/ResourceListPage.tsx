@@ -1,9 +1,9 @@
 import { CreateButton, List, useTable } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { useShow } from "@refinedev/core";
-import { Button, Space } from "antd";
+import { Button, Space, type TableProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { ApiError } from "@/types/api.types";
@@ -25,6 +25,7 @@ import {
   resourceFormDefinitions,
 } from "./resources/resourceForms";
 import { useLocalizedColumns } from "./useLocalizedColumns";
+import { DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE, normalizePage, normalizePageSize } from "@providers/api/querySerializer";
 
 interface ResourceListPageProps<TData extends BaseRecord> {
   columns: ColumnsType<TData>;
@@ -44,19 +45,43 @@ export const ResourceListPage = <TData extends BaseRecord>({
 
   const {
     filters,
+    current,
+    pageSize,
     setCurrent,
+    setPageSize,
     setFilters,
     tableProps,
     tableQueryResult,
   } = useTable<TData, ApiError>({
-    pagination: { mode: "server" },
+    pagination: { mode: "server", current: DEFAULT_LIST_PAGE, pageSize: DEFAULT_LIST_PAGE_SIZE },
     resource,
     syncWithLocation: true,
   });
 
+  const safeCurrent = Math.max(1, normalizePage(current));
+  const safePageSize = normalizePageSize(pageSize);
+
+  const safeSetCurrent = useCallback(
+    (page: number | ((prev: number) => number)) => {
+      if (typeof page === "function") {
+        setCurrent((prev) => Math.max(1, page(prev) || 1));
+      } else {
+        setCurrent(Math.max(1, page || 1));
+      }
+    },
+    [setCurrent],
+  );
+
+  // Refine synchronizes these values with the browser URL. Repair malformed URL
+  // state so navigation, Table render and API requests all use the same numbers.
+  useEffect(() => {
+    if (current !== undefined && !Object.is(current, safeCurrent)) safeSetCurrent(safeCurrent);
+    if (pageSize !== undefined && !Object.is(pageSize, safePageSize)) setPageSize(safePageSize);
+  }, [current, pageSize, safeCurrent, safePageSize, safeSetCurrent, setPageSize]);
+
   const entityFilters = useEntityFilters(resource, {
     filters,
-    setCurrent,
+    setCurrent: safeSetCurrent,
     setFilters,
   });
 
@@ -113,6 +138,25 @@ export const ResourceListPage = <TData extends BaseRecord>({
       ? tableProps.pagination.total
       : (tableQueryResult.data?.total ?? (Array.isArray(tableProps.dataSource) ? tableProps.dataSource.length : undefined));
 
+  const safeTableProps: TableProps<TData> = useMemo(() => {
+    if (tableProps.pagination === false) {
+      return { ...tableProps, pagination: false };
+    }
+    if (typeof tableProps.pagination === "object" && tableProps.pagination !== null) {
+      return {
+        ...tableProps,
+        pagination: {
+          ...tableProps.pagination,
+          current: Math.max(1, tableProps.pagination.current ?? 1),
+        },
+      };
+    }
+    return {
+      ...tableProps,
+      pagination: tableProps.pagination ? {} : false,
+    };
+  }, [tableProps]);
+
   return (
     <ResourceActionContext.Provider value={actionContext}>
       <List
@@ -145,7 +189,7 @@ export const ResourceListPage = <TData extends BaseRecord>({
               isFetching: tableQueryResult.isFetching,
               refetch: tableQueryResult.refetch,
             }}
-            tableProps={tableProps}
+            tableProps={safeTableProps}
           />
         </div>
       </List>

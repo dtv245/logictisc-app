@@ -47,6 +47,7 @@ export const ResourceCreatePage = ({ resource: resourceProp }: ResourceCreatePag
   return (
     <Create saveButtonProps={saveButtonProps}>
       <Form
+        form={form}
         {...formProps}
         onFinish={(values) => formProps.onFinish?.(buildResourceMutation(resourceName, values))}
         initialValues={createResourceFormInitialValues(definition)}

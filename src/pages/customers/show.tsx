@@ -67,7 +67,7 @@ export const CustomerShow = () => {
       }
     >
       <Card
-        bordered={false}
+        variant="borderless"
         style={{
           borderRadius: 8,
           boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",

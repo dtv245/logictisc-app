@@ -1,3 +1,5 @@
+import { apiErrorMessages } from "./apiErrors";
+
 /**
  * Vietnamese dictionary — single source for the `vi` locale.
  *
@@ -59,6 +61,7 @@ const shared = {
 } as const;
 
 export const viMessages = {
+  apiErrors: apiErrorMessages.vi,
   "contractAlignment": {"instantHelp": "Ngày giờ ISO có múi giờ, ví dụ 2026-10-07T09:00:00+07:00", "runtimePending": "Đang chờ xác minh runtime backend", "employeeRequired": "Tài khoản cần liên kết với nhân viên để sử dụng luồng này.", "draftKept": "Bản nháp được giữ nguyên. Đọc dữ liệu hiện tại trên server và chọn cách giải quyết xung đột.", "compareServer": "So sánh dữ liệu hiện tại", "draft": "Bản nháp", "server": "Dữ liệu hiện tại trên server", "useServer": "Bỏ bản nháp và dùng dữ liệu hiện tại trên server"},
   "paymentCommands": {"correctRejected": "Sửa command đã bị từ chối", "pendingOnly": "Chỉ khoản thanh toán đang chờ mới được sửa hoặc hủy.", "pendingHelp": "Tạo khoản thanh toán đang chờ sẽ giữ số dư hóa đơn. Server xác nhận việc thu tiền riêng.", "frozenRetry": "Chưa xác định kết quả lần gửi trước. Thử lại sẽ gửi đúng command và khóa ban đầu.", "saved": "Đã ghi nhận command thanh toán", "clearDescription": "Xóa mô tả"},
   "messaging": {"notMember": "Không có quyền truy cập. Hội thoại yêu cầu tư cách thành viên hiện tại.", "conversation": "Hội thoại", "previous": "Trang trước", "next": "Trang sau", "empty": "Chưa có tin nhắn", "name": "Tên hội thoại", "create": "Tạo hội thoại riêng", "content": "Tin nhắn", "send": "Gửi tin nhắn"},
@@ -1275,6 +1278,48 @@ export const viMessages = {
     },
   },
   notifications: {
+    "apiTitles": {
+      "create": "Không thể tạo {{resource}}",
+      "update": "Không thể cập nhật {{resource}}",
+      "delete": "Không thể xóa {{resource}}",
+      "generic": "Thao tác không thành công",
+      "network": "Không thể kết nối máy chủ",
+      "timeout": "Hết thời gian chờ phản hồi",
+      "validation": "Dữ liệu không hợp lệ",
+      "unauthorized": "Không thể xác thực yêu cầu",
+      "forbidden": "Không có quyền thực hiện thao tác",
+      "notFound": "Không tìm thấy dữ liệu",
+      "conflict": "Xung đột dữ liệu",
+      "server": "Lỗi máy chủ"
+    },
+    "apiFallback": {
+      "generic": "Không thể hoàn tất yêu cầu. Vui lòng thử lại.",
+      "network": "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.",
+      "timeout": "Yêu cầu đã hết thời gian chờ phản hồi. Vui lòng thử lại.",
+      "validation": "Dữ liệu gửi lên không hợp lệ. Vui lòng kiểm tra lại các trường.",
+      "unauthorized": "Phiên đăng nhập đã hết hạn hoặc thông tin xác thực không hợp lệ. Vui lòng đăng nhập lại.",
+      "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+      "notFound": "Không tìm thấy dữ liệu được yêu cầu.",
+      "conflict": "Yêu cầu xung đột với trạng thái dữ liệu hiện tại.",
+      "server": "Máy chủ không thể hoàn tất yêu cầu. Vui lòng thử lại sau.",
+      "invalidResponse": "Phản hồi từ máy chủ không đúng định dạng.",
+      "authentication": "Không thể xác thực tài khoản. Vui lòng thử đăng nhập lại.",
+      "concurrentModification": "Dữ liệu đã thay đổi trong lúc chỉnh sửa. Vui lòng đọc lại dữ liệu hiện tại trước khi thử lại."
+    },
+    "apiCodes": {
+      "LARK_AUTH_CANCELLED": "Đăng nhập qua Lark đã bị hủy.",
+      "LARK_CODE_MISSING": "Không nhận được mã xác thực từ Lark. Vui lòng thử đăng nhập lại.",
+      "LARK_API_CLIENT_REQUIRED": "Kết nối đăng nhập Lark chưa được cấu hình.",
+      "INVALID_FLEET_REPORT_PERIOD": "Kiểm tra kỳ báo cáo, múi giờ và ngày kết thúc.",
+      "FLEET_VALIDATION_REQUIRED": "Kiểm tra policy đã công bố và danh sách xe khác nhau.",
+      "COMMAND_RESOURCE_REQUIRES_FEATURE_ADAPTER": "Thao tác này cần được thực hiện qua form nghiệp vụ chuyên biệt.",
+      "CUSTOM_FILTERS_AND_SORTERS_REQUIRE_FEATURE_ADAPTER": "Bộ lọc và sắp xếp này cần được thực hiện qua màn hình nghiệp vụ chuyên biệt.",
+      "INVALID_RECORD_ID": "Mã định danh bản ghi không hợp lệ.",
+      "SETTLEMENT_ALREADY_LOCKED": "Bảng quyết toán đã bị khóa, không thể chỉnh sửa.",
+      "TRIP_ALREADY_DISPATCHED": "Chuyến đi đã được điều phối, không thể thay đổi hành trình.",
+      "HOS_VIOLATION": "Tài xế đã vượt quá số giờ làm việc cho phép.",
+      "DVIR_DEFECT_UNRESOLVED": "Lỗi kỹ thuật của phương tiện chưa được xác nhận sửa chữa."
+    },
     markConfirm: "Đánh dấu tất cả thông báo của đơn vị hiện tại là đã đọc? Trạng thái chung này ảnh hưởng người dùng khác cùng đơn vị.",
     markSuccess: "Đã đánh dấu thông báo của đơn vị là đã đọc",
     markError: "Không thể đánh dấu thông báo đã đọc",
@@ -2041,6 +2086,8 @@ export const viMessages = {
     }
 },
   settlements: {
+    noPoliciesFound: "Không tìm thấy chính sách tính lương",
+    noSettlementsFound: "Không tìm thấy quyết toán",
     workflow: {
       "lines": "Các dòng quyết toán",
       "sourceWork": "Nguồn công việc",

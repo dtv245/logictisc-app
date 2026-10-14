@@ -81,13 +81,15 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         minWidth: 0,
         ...style,
       }}
-      bodyStyle={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        padding: 16,
-        minHeight,
-        ...bodyStyle,
+      styles={{
+        body: {
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          padding: 16,
+          minHeight,
+          ...bodyStyle,
+        },
       }}
     >
       {isForbidden ? (

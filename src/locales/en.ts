@@ -1,3 +1,5 @@
+import { apiErrorMessages } from "./apiErrors";
+
 /**
  * English dictionary — single source for the `en` locale.
  *
@@ -59,6 +61,7 @@ const shared = {
 } as const;
 
 export const enMessages = {
+  apiErrors: apiErrorMessages.en,
   "contractAlignment": {"instantHelp": "ISO date and time with offset, for example 2026-10-07T09:00:00+07:00", "runtimePending": "Waiting for backend runtime verification", "employeeRequired": "Your account needs a mapped employee to use this workflow.", "draftKept": "Your draft is preserved. Read the current server values and choose how to resolve the conflict.", "compareServer": "Compare current values", "draft": "Draft", "server": "Current server value", "useServer": "Discard draft and use current server values"},
   "paymentCommands": {"correctRejected": "Correct rejected command", "pendingOnly": "Only a pending payment can be edited or cancelled.", "pendingHelp": "Creating a pending payment reserves invoice balance. Collection is confirmed by the server separately.", "frozenRetry": "The previous result is unresolved. Retry sends the original command and key.", "saved": "Payment command recorded", "clearDescription": "Clear description"},
   "messaging": {"notMember": "Access denied. This conversation requires current membership.", "conversation": "Conversation", "previous": "Previous page", "next": "Next page", "empty": "No messages", "name": "Conversation name", "create": "Create private conversation", "content": "Message", "send": "Send message"},
@@ -1076,12 +1079,12 @@ export const enMessages = {
   },
   navigation: {
     zones: {
-      operations: "Operations & Oversight",
-      transport: "Transport & Logistics",
-      fleet: "Fleet & Drivers",
-      finance: "Finance & Settlements",
-      partners: "Customers & Partners",
-      admin: "Administration & System",
+      operations: "Operations",
+      transport: "Transport",
+      fleet: "Fleet",
+      finance: "Finance",
+      partners: "Partners & Catalog",
+      admin: "Administration",
     },
     collapse: "Collapse navigation bar",
     expand: "Expand navigation bar",
@@ -1274,6 +1277,48 @@ export const enMessages = {
     },
   },
   notifications: {
+    "apiTitles": {
+      "create": "Unable to create {{resource}}",
+      "update": "Unable to update {{resource}}",
+      "delete": "Unable to delete {{resource}}",
+      "generic": "Unable to complete the action",
+      "network": "Unable to connect to the server",
+      "timeout": "Request timed out",
+      "validation": "Invalid data",
+      "unauthorized": "Unable to authenticate the request",
+      "forbidden": "Action not permitted",
+      "notFound": "Data not found",
+      "conflict": "Data conflict",
+      "server": "Server error"
+    },
+    "apiFallback": {
+      "generic": "Unable to complete the request. Please try again.",
+      "network": "Unable to connect to the server. Check your connection and try again.",
+      "timeout": "The request timed out. Please try again.",
+      "validation": "The submitted data is invalid. Please check the fields.",
+      "unauthorized": "Your session has expired or authentication is invalid. Please sign in again.",
+      "forbidden": "You do not have permission to perform this action.",
+      "notFound": "The requested data could not be found.",
+      "conflict": "The request conflicts with the current state of the data.",
+      "server": "The server could not complete the request. Please try again later.",
+      "invalidResponse": "The server response has an invalid format.",
+      "authentication": "Unable to authenticate your account. Please try signing in again.",
+      "concurrentModification": "The record changed while you were editing. Read the current data before trying again."
+    },
+    "apiCodes": {
+      "LARK_AUTH_CANCELLED": "Lark sign-in was cancelled.",
+      "LARK_CODE_MISSING": "No authentication code was received from Lark. Please sign in again.",
+      "LARK_API_CLIENT_REQUIRED": "The Lark sign-in connection has not been configured.",
+      "INVALID_FLEET_REPORT_PERIOD": "Check the reporting period, timezone and end date.",
+      "FLEET_VALIDATION_REQUIRED": "Check the published policy and the list of distinct trucks.",
+      "COMMAND_RESOURCE_REQUIRES_FEATURE_ADAPTER": "Perform this action through its dedicated business form.",
+      "CUSTOM_FILTERS_AND_SORTERS_REQUIRE_FEATURE_ADAPTER": "Use the dedicated business screen for these filters and sorting options.",
+      "INVALID_RECORD_ID": "The record identifier is invalid.",
+      "SETTLEMENT_ALREADY_LOCKED": "The settlement is locked and cannot be edited.",
+      "TRIP_ALREADY_DISPATCHED": "The trip has been dispatched and its route cannot be changed.",
+      "HOS_VIOLATION": "The driver has exceeded the permitted working hours.",
+      "DVIR_DEFECT_UNRESOLVED": "The vehicle defect has not been confirmed as repaired."
+    },
     markConfirm: "Mark all notifications in the current tenant as read? This shared state affects other users of the tenant.",
     markSuccess: "Tenant notifications marked as read",
     markError: "Unable to mark notifications as read",
@@ -2041,6 +2086,8 @@ export const enMessages = {
     }
 },
   settlements: {
+    noPoliciesFound: "No pay policies found",
+    noSettlementsFound: "No settlements found",
     workflow: {
       "lines": "Lines",
       "sourceWork": "Source Work",

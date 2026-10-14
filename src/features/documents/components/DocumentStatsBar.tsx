@@ -42,14 +42,14 @@ export const DocumentStatsBar: React.FC<DocumentStatsBarProps> = ({
       {/* Thẻ 1: Tổng số tệp tin */}
       <Col xs={24} sm={12} lg={6}>
         <Card
-          bordered={false}
+          variant="borderless"
           style={{
             borderRadius: 12,
             background: "#ffffff",
             boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
             height: "100%",
           }}
-          bodyStyle={{ padding: 18 }}
+          styles={{ body: { padding: 18 } }}
         >
           {loading ? (
             <Skeleton active paragraph={{ rows: 1 }} />
@@ -88,14 +88,14 @@ export const DocumentStatsBar: React.FC<DocumentStatsBarProps> = ({
       {/* Thẻ 2: Dung lượng lưu trữ */}
       <Col xs={24} sm={12} lg={6}>
         <Card
-          bordered={false}
+          variant="borderless"
           style={{
             borderRadius: 12,
             background: "#ffffff",
             boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
             height: "100%",
           }}
-          bodyStyle={{ padding: 18 }}
+          styles={{ body: { padding: 18 } }}
         >
           {loading ? (
             <Skeleton active paragraph={{ rows: 1 }} />
@@ -139,14 +139,14 @@ export const DocumentStatsBar: React.FC<DocumentStatsBarProps> = ({
       {/* Thẻ 3: Chứng từ vận tải */}
       <Col xs={24} sm={12} lg={6}>
         <Card
-          bordered={false}
+          variant="borderless"
           style={{
             borderRadius: 12,
             background: "#ffffff",
             boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
             height: "100%",
           }}
-          bodyStyle={{ padding: 18 }}
+          styles={{ body: { padding: 18 } }}
         >
           {loading ? (
             <Skeleton active paragraph={{ rows: 1 }} />
@@ -185,14 +185,14 @@ export const DocumentStatsBar: React.FC<DocumentStatsBarProps> = ({
       {/* Thẻ 4: Hồ sơ xe & Tài xế */}
       <Col xs={24} sm={12} lg={6}>
         <Card
-          bordered={false}
+          variant="borderless"
           style={{
             borderRadius: 12,
             background: "#ffffff",
             boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
             height: "100%",
           }}
-          bodyStyle={{ padding: 18 }}
+          styles={{ body: { padding: 18 } }}
         >
           {loading ? (
             <Skeleton active paragraph={{ rows: 1 }} />

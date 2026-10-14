@@ -1,222 +1,118 @@
-import { describe, expect, it, vi } from "vitest";
-import { renderHook } from "@testing-library/react";
+/**
+ * Verifies backend messages survive the Refine-to-Ant Design boundary, including
+ * default notifications, custom error callbacks, and undoable mutations.
+ */
+import { Refine, useCreate, type BaseRecord, type DataProvider, type OpenNotificationParams } from "@refinedev/core";
+import { act, fireEvent, render, renderHook, screen } from "@testing-library/react";
 import { App } from "antd";
-import {
-  detectResourceName,
-  detectOperation,
-  extractStatusCode,
-  formatDescriptionContent,
-  resolveNotificationContent,
-  useAntdNotificationProvider,
-} from "../../providers/notificationProvider";
+import { createInstance, type i18n } from "i18next";
+import { isValidElement, type ReactNode } from "react";
+import { I18nextProvider, initReactI18next, useTranslation } from "react-i18next";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-describe("notificationProvider helper functions", () => {
-  it("detectResourceName nhận diện chính xác tên tiếng Việt từ key và message", () => {
-    expect(detectResourceName("trucks-create-notification", "")).toBe("Xe tải");
-    expect(detectResourceName(undefined, "There was an error creating loads")).toBe("Chuyến hàng");
-    expect(detectResourceName("trips-123", "")).toBe("Chuyến đi");
-    expect(detectResourceName("invoices-update", "")).toBe("Hóa đơn");
-    expect(detectResourceName(undefined, "updating customers")).toBe("Khách hàng");
-    expect(detectResourceName("unknown-key", "random text")).toBeUndefined();
+import { enMessages } from "@/locales/en";
+import { createApiErrorNotification } from "@/providers/apiErrorNotification";
+import { ApiHttpError, toRefineHttpError } from "@/providers/api/httpError";
+import { useAntdNotificationProvider } from "@/providers/notificationProvider";
+
+let translations: i18n;
+beforeAll(async () => {
+  translations = createInstance();
+  await translations.use(initReactI18next).init({
+    lng: "en", resources: { en: { translation: enMessages } },
+    interpolation: { escapeValue: false },
+  });
+});
+afterEach(() => vi.restoreAllMocks());
+
+const wrapper = ({ children }: { children: ReactNode }) =>
+  <I18nextProvider i18n={translations}>{children}</I18nextProvider>;
+
+describe("notification provider", () => {
+  const notification = { success: vi.fn(), error: vi.fn(), open: vi.fn(), destroy: vi.fn(), info: vi.fn(), warning: vi.fn() };
+  beforeEach(() => {
+    Object.values(notification).forEach((mock) => mock.mockClear());
+    vi.spyOn(App, "useApp").mockReturnValue({ notification, message: {} as never, modal: {} as never });
   });
 
-  it("detectOperation nhận diện đúng loại thao tác CRUD và Auth", () => {
-    expect(detectOperation("create-truck-notification", "")).toBe("create");
-    expect(detectOperation(undefined, "There was an error creating truck")).toBe("create");
-    expect(detectOperation("123-trips-notification", "Error when updating trip")).toBe("update");
-    expect(detectOperation("delete-load-notification", "")).toBe("delete");
-    expect(detectOperation("loads-useList-notification", "")).toBe("read");
-    expect(detectOperation("auth-login", "")).toBe("auth");
-    expect(detectOperation(undefined, "Lark auth error")).toBe("auth");
+  it.each([
+    { type: "error", key: "create-payments", message: "Error (status code: 409)", description: "Amount 1500 exceeds invoice balance 1000." },
+    { type: "error", key: "create-trucks", message: "License plate 51C-12345 already exists." },
+    { type: "error", message: "Error (status code: 400)", description: "Invoice 401 is closed." },
+    { type: "error", message: "Update failed", description: "PAYMENT_EXCEEDS_INVOICE_BALANCE: amount=1500; remaining=1000" },
+    { type: "success", key: "create-trucks", message: "Custom success title", description: "Custom success details" },
+  ] satisfies OpenNotificationParams[])("preserves caller content: $message", (params) => {
+    const { result } = renderHook(useAntdNotificationProvider, { wrapper });
+    act(() => result.current.open(params));
+    const method = params.type === "success" ? notification.success : notification.error;
+    expect(method).toHaveBeenCalledWith(expect.objectContaining({
+      message: params.message, description: params.description,
+    }));
   });
 
-  it("extractStatusCode trích xuất đúng mã HTTP", () => {
-    expect(extractStatusCode("Error (status code: 400)", "")).toBe(400);
-    expect(extractStatusCode("", "HTTP_500")).toBe(500);
-    expect(extractStatusCode("There was an error (status code: 0)", "")).toBe(0);
-    expect(extractStatusCode("Lỗi 403", "")).toBe(403);
-    expect(extractStatusCode("No status code here", "")).toBeUndefined();
-  });
-
-  it("formatDescriptionContent format an toàn các loại description", () => {
-    // Mã lỗi nghiệp vụ
-    expect(formatDescriptionContent("INVOICE_IMMUTABLE_HISTORY")).toBe(
-      "Hóa đơn đã chốt trong lịch sử tài chính, không thể chỉnh sửa trực tiếp. Vui lòng dùng lệnh điều chỉnh billing."
-    );
-    expect(formatDescriptionContent("PAYMENT_EXCEEDS_INVOICE_BALANCE")).toBe(
-      "Số tiền thanh toán vượt quá số dư còn lại của hóa đơn."
-    );
-    expect(formatDescriptionContent("CONCURRENT_MODIFICATION_CONFLICT")).toBe(
-      "Dữ liệu đã bị thay đổi bởi người dùng khác hoặc phiên bản không khớp. Vui lòng tải lại trang."
-    );
-
-    // Object chứa errors theo trường
-    const fieldErrors = {
-      name: ["Tên là bắt buộc"],
-      email: ["Email không hợp lệ"],
-    };
-    const rendered = formatDescriptionContent(fieldErrors);
-    expect(rendered).toBeDefined();
-
-    // Chuỗi JSON
-    const jsonStr = JSON.stringify({ errors: { phone: ["Số điện thoại sai"] } });
-    const renderedJson = formatDescriptionContent(jsonStr);
-    expect(renderedJson).toBeDefined();
-  });
-
-  it("resolveNotificationContent xử lý lỗi mất kết nối máy chủ và timeout", () => {
-    const netErr = resolveNotificationContent({
-      type: "error",
-      message: "Network Error",
-      description: "ERR_NETWORK",
-    });
-    expect(netErr.message).toBe("Mất kết nối với máy chủ");
-    expect(String(netErr.description)).toContain("Không thể kết nối đến máy chủ");
-
-    const timeoutErr = resolveNotificationContent({
-      type: "error",
-      message: "timeout of 30000ms exceeded",
-      description: "ECONNABORTED",
-    });
-    expect(timeoutErr.message).toBe("Hết thời gian chờ kết nối máy chủ");
-    expect(String(timeoutErr.description)).toContain("Timeout");
-  });
-
-  it("resolveNotificationContent xử lý các lỗi đăng nhập và Lark SSO", () => {
-    const larkCancelled = resolveNotificationContent({
-      type: "error",
-      message: "Lark SSO",
-      description: "LARK_AUTH_CANCELLED",
-    });
-    expect(larkCancelled.message).toBe("Đăng nhập không thành công");
-    expect(String(larkCancelled.description)).toContain("Lark SSO đã bị hủy");
-
-    const larkMissing = resolveNotificationContent({
-      type: "error",
-      message: "Lark Login",
-      description: "LARK_CODE_MISSING",
-    });
-    expect(larkMissing.message).toBe("Đăng nhập không thành công");
-    expect(String(larkMissing.description)).toContain("Không nhận được mã xác thực");
-
-    const auth401 = resolveNotificationContent({
-      type: "error",
-      message: "Login failed (status code: 401)",
-      description: "UNAUTHORIZED",
-    });
-    expect(auth401.message).toBe("Hết hạn phiên đăng nhập");
-    expect(String(auth401.description)).toContain("Phiên làm việc đã hết hạn");
-  });
-
-  it("resolveNotificationContent xử lý rõ ràng các thao tác CRUD", () => {
-    // Create
-    const createErr = resolveNotificationContent({
-      key: "create-trucks-notification",
-      type: "error",
-      message: "There was an error creating trucks (status code: 400)",
-      description: "VALIDATION_FAILED",
-    });
-    expect(createErr.message).toBe("Tạo mới Xe tải thất bại");
-    expect(createErr.description).toBeDefined();
-
-    // Update
-    const updateErr = resolveNotificationContent({
-      key: "123-trips-notification",
-      type: "error",
-      message: "Error when updating trips (status code: 409)",
-      description: "CONCURRENT_MODIFICATION_CONFLICT",
-    });
-    expect(updateErr.message).toBe("Xung đột dữ liệu");
-    expect(String(updateErr.description)).toContain("Dữ liệu đã bị thay đổi bởi người dùng khác");
-
-    // Delete
-    const deleteErr = resolveNotificationContent({
-      key: "delete-invoices-notification",
-      type: "error",
-      message: "Error when deleting invoices (status code: 403)",
-      description: "FORBIDDEN",
-    });
-    expect(deleteErr.message).toBe("Không có quyền truy cập");
-
-    // List
-    const listErr = resolveNotificationContent({
-      key: "customers-useList-notification",
-      type: "error",
-      message: "Error (status code: 500)",
-      description: "INTERNAL_SERVER_ERROR",
-    });
-    expect(listErr.message).toBe("Tải danh sách Khách hàng thất bại (Lỗi máy chủ)");
-    expect(String(listErr.description)).toContain("Máy chủ đang gặp sự cố nội bộ (mã 500)");
-  });
-
-  it("resolveNotificationContent xử lý thông báo thành công cho CRUD", () => {
-    const createSuccess = resolveNotificationContent({
-      key: "create-trucks-notification",
-      type: "success",
-      message: "Successfully created trucks",
-    });
-    expect(createSuccess.message).toBe("Tạo mới Xe tải thành công");
-
-    const updateSuccess = resolveNotificationContent({
-      key: "edit-loads-notification",
-      type: "success",
-      message: "Successfully updated loads",
-    });
-    expect(updateSuccess.message).toBe("Cập nhật Chuyến hàng thành công");
+  it("preserves progress timing, key, undo callback and close", () => {
+    const cancel = vi.fn();
+    const { result } = renderHook(useAntdNotificationProvider, { wrapper });
+    act(() => result.current.open({
+      type: "progress", key: "undo-load", message: "Deleting load",
+      description: "You can undo", undoableTimeout: 9000, cancelMutation: cancel,
+    }));
+    expect(notification.open).toHaveBeenCalledWith(expect.objectContaining({
+      key: "undo-load", message: "Deleting load", description: "You can undo", duration: 9,
+    }));
+    const button = notification.open.mock.calls[0][0].btn;
+    expect(isValidElement(button)).toBe(true);
+    render(button);
+    fireEvent.click(screen.getByRole("button", { name: translations.t("common.undo") }));
+    expect(cancel).toHaveBeenCalledTimes(1);
+    act(() => result.current.close("undo-load"));
+    expect(notification.destroy).toHaveBeenCalledWith("undo-load");
   });
 });
 
-describe("useAntdNotificationProvider hook", () => {
-  it("gọi notification của Ant Design với nội dung đã được chuẩn hóa", () => {
-    const mockNotification = {
-      success: vi.fn(),
-      error: vi.fn(),
-      open: vi.fn(),
-      destroy: vi.fn(),
-      info: vi.fn(),
-      warning: vi.fn(),
+function Mutation({ custom }: { custom: boolean }) {
+  const { t } = useTranslation();
+  const { mutate } = useCreate<BaseRecord, ApiHttpError>({
+    errorNotification: custom
+      ? (error) => createApiErrorNotification(error, t, { operation: "create", resourceLabel: "Truck" })
+      : undefined,
+  });
+  return <button onClick={() => mutate({ resource: "trucks", values: {} })}>Create</button>;
+}
+
+function RefineRuntime({ provider, custom }: { provider: DataProvider; custom: boolean }) {
+  const notificationProvider = useAntdNotificationProvider();
+  return <Refine dataProvider={provider} notificationProvider={notificationProvider}
+    resources={[{ name: "trucks" }]} options={{ disableTelemetry: true }}>
+    <Mutation custom={custom} />
+  </Refine>;
+}
+
+describe.each([false, true])("Refine mutation integration, custom callback: %s", (custom) => {
+  it.each([
+    [401, "UNAUTHORIZED", "This account is disabled for tenant 401."],
+    [403, "FORBIDDEN", "Only the payroll owner can approve employee 403."],
+    [404, "RESOURCE_NOT_FOUND", "Truck 51C-12345 was not found."],
+    [409, "PAYMENT_EXCEEDS_INVOICE_BALANCE", "Amount 1500 exceeds invoice balance 1000."],
+    [422, "VALIDATION_FAILED", "License plate 51C-12345 already exists."],
+    [500, "INTERNAL_ERROR", "Unable to complete this operation. Request ID: backend-500."],
+  ])("keeps backend details for HTTP %s", async (statusCode, code, backendMessage) => {
+    const provider: DataProvider = {
+      getApiUrl: () => "",
+      getList: async () => ({ data: [], total: 0 }),
+      getOne: async () => { throw new Error("unused"); },
+      update: async () => { throw new Error("unused"); },
+      deleteOne: async () => { throw new Error("unused"); },
+      create: async () => {
+        throw toRefineHttpError(statusCode, {
+          success: false, code, message: backendMessage, data: null, errors: [],
+          meta: { timestamp: "2026-10-13T00:00:00Z", path: "/api/trucks", requestId: "backend-request" },
+        });
+      },
     };
-
-    vi.spyOn(App, "useApp").mockReturnValue({
-      notification: mockNotification,
-      message: {} as never,
-      modal: {} as never,
-    });
-
-    const { result } = renderHook(() => useAntdNotificationProvider());
-    const provider = result.current;
-
-    // Test error open
-    provider.open({
-      key: "create-trucks-notification",
-      type: "error",
-      message: "There was an error creating trucks (status code: 400)",
-      description: "VALIDATION_FAILED",
-    });
-
-    expect(mockNotification.error).toHaveBeenCalledWith(
-      expect.objectContaining({
-        key: "create-trucks-notification",
-        message: "Tạo mới Xe tải thất bại",
-      })
-    );
-
-    // Test success open
-    provider.open({
-      key: "create-trucks-notification",
-      type: "success",
-      message: "Successfully created trucks",
-    });
-
-    expect(mockNotification.success).toHaveBeenCalledWith(
-      expect.objectContaining({
-        key: "create-trucks-notification",
-        message: "Tạo mới Xe tải thành công",
-      })
-    );
-
-    // Test close
-    provider.close("some-key");
-    expect(mockNotification.destroy).toHaveBeenCalledWith("some-key");
+    render(<I18nextProvider i18n={translations}><App><RefineRuntime provider={provider} custom={custom} /></App></I18nextProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    expect(await screen.findByText(backendMessage)).toBeInTheDocument();
+    expect(screen.queryByText(/updated by another|password is incorrect/i)).not.toBeInTheDocument();
   });
 });

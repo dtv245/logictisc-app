@@ -10,12 +10,24 @@ import type {
   ApiResponse,
   PagedResponse,
   ResponseMeta,
+  ErrorParams,
 } from "../../types/api.types";
 
 export const isRecord = (
   value: unknown,
 ): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
+
+// Ignore malformed optional interpolation metadata without losing the legacy envelope.
+const readParams = (value: unknown): ErrorParams | undefined => {
+  if (!isRecord(value)) return undefined;
+  const params: Record<string, string | number | boolean> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (!/^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(key) || key === "constructor" || key === "prototype") continue;
+    if (typeof item === "string" || typeof item === "boolean" || (typeof item === "number" && Number.isFinite(item))) params[key] = item;
+  }
+  return params;
+};
 
 const readApiError = (value: unknown): BackendApiError | null => {
   if (
@@ -31,6 +43,7 @@ const readApiError = (value: unknown): BackendApiError | null => {
     field: value.field,
     code: value.code,
     message: value.message,
+    ...(readParams(value.params) ? { params: readParams(value.params) } : {}),
   };
 };
 
@@ -79,6 +92,7 @@ export const readApiResponse = (
     data: value.data,
     errors: errors.filter((error): error is BackendApiError => error !== null),
     meta,
+    ...(readParams(value.params) ? { params: readParams(value.params) } : {}),
   };
 };
 

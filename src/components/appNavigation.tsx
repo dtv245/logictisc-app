@@ -21,7 +21,6 @@ import {
   CreditCardOutlined,
   DashboardOutlined,
   DollarOutlined,
-  EnvironmentOutlined,
   FileTextOutlined,
   FolderOpenOutlined,
   InboxOutlined,
@@ -43,6 +42,7 @@ import type { AccessResource } from "@/types/roles.types";
 import { routes } from "@constants/routes";
 import { PROFILE_CONTRACT_CONFIRMED } from "@/features/profile/profile.contract";
 import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/executive.contract";
+import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/payroll.api";
 
 export interface AppNavItem {
   icon: React.ReactNode;
@@ -171,6 +171,13 @@ export const NAV_ZONES: readonly NavZone[] = [
         labelKey: "dashboard.navOperations",
         route: routes.operations,
       },
+      {
+        icon: <RobotOutlined />,
+        key: "res:ai-dispatch",
+        labelKey: "resources.ai-dispatch",
+        route: routes.aiDispatch,
+        permission: { resource: "ai-dispatch", action: "AI_DISPATCH_VIEW" },
+      },
       ...(EXECUTIVE_CONTRACT_CONFIRMED
         ? [
             {
@@ -203,11 +210,11 @@ export const NAV_ZONES: readonly NavZone[] = [
     icon: <SendOutlined />,
     items: [
       {
-        icon: <RobotOutlined />,
-        key: "res:ai-dispatch",
-        labelKey: "resources.ai-dispatch",
-        route: routes.aiDispatch,
-        permission: { resource: "ai-dispatch", action: "AI_DISPATCH_VIEW" },
+        icon: <AppstoreOutlined />,
+        key: "res:load-board",
+        labelKey: "resources.load-board",
+        route: routes.resources.loadBoard.list,
+        resource: "load-board",
       },
       {
         icon: <InboxOutlined />,
@@ -222,20 +229,6 @@ export const NAV_ZONES: readonly NavZone[] = [
         labelKey: "resources.trips",
         route: routes.resources.trips.list,
         resource: "trips",
-      },
-      {
-        icon: <AppstoreOutlined />,
-        key: "res:load-board",
-        labelKey: "resources.load-board",
-        route: routes.resources.loadBoard.list,
-        resource: "load-board",
-      },
-      {
-        icon: <EnvironmentOutlined />,
-        key: "res:terminals",
-        labelKey: "resources.terminals",
-        route: routes.resources.terminals.list,
-        resource: "terminals",
       },
       {
         icon: <CodeSandboxOutlined />,
@@ -314,6 +307,15 @@ export const NAV_ZONES: readonly NavZone[] = [
         route: routes.payroll,
         permission: { resource: "payroll", action: "PAYROLL_VIEW" },
       },
+      ...(PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED
+        ? [{
+            icon: <AuditOutlined />,
+            key: "app:payroll-reconciliation",
+            labelKey: "payroll.reconciliation",
+            route: routes.payrollReconciliation,
+            permission: { resource: "payroll" as const, action: "PAYROLL_VIEW" },
+          }]
+        : []),
       {
         icon: <UserOutlined />,
         key: "app:my-payslips",

@@ -374,14 +374,14 @@ export const DocumentDropboxView: React.FC = () => {
 
       {/* 5. Toolbar tìm kiếm, lọc trạng thái và sắp xếp */}
       <Card
-        bordered={false}
+        variant="borderless"
         style={{
           borderRadius: 12,
           marginBottom: 20,
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
           background: "#ffffff",
         }}
-        bodyStyle={{ padding: "14px 18px" }}
+        styles={{ body: { padding: "14px 18px" } }}
       >
         <Row gutter={[16, 12]} align="middle" justify="space-between">
           <Col xs={24} md={10} lg={8}>
@@ -445,7 +445,7 @@ export const DocumentDropboxView: React.FC = () => {
         </Row>
       ) : filteredDocuments.length === 0 ? (
         <Card
-          bordered={false}
+          variant="borderless"
           style={{
             borderRadius: 14,
             padding: "48px 20px",

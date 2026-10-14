@@ -10,7 +10,7 @@ import type { Product, ProductFormValues } from "@/types/product.types";
 
 export const ProductEdit = () => {
   // useForm tải record và gửi mutation pessimistic qua DataProvider.
-  const { formProps, saveButtonProps, queryResult } = useForm<
+  const { form, formProps, saveButtonProps, queryResult } = useForm<
     Product,
     ApiError,
     ProductFormValues
@@ -26,7 +26,7 @@ export const ProductEdit = () => {
       isLoading={queryResult?.isLoading}
       saveButtonProps={saveButtonProps}
     >
-      <ProductForm columns={2} formProps={formProps} />
+      <ProductForm columns={2} form={form} formProps={formProps} />
     </Edit>
   );
 };

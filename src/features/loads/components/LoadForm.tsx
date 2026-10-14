@@ -8,6 +8,7 @@ import {
   InputNumber,
   Row,
   Select,
+  Space,
   Switch,
   type ButtonProps,
 } from "antd";
@@ -270,13 +271,15 @@ export const LoadForm = ({
                   name="deliveryCostAmount"
                   rules={[{ required: true, message: "Vui lòng nhập cước phí" }]}
                 >
-                  <InputNumber
-                    min={0}
-                    precision={2}
-                    addonAfter="USD"
-                    style={{ width: "100%" }}
-                    placeholder="0.00"
-                  />
+                  <Space.Compact style={{ width: "100%" }}>
+                    <InputNumber
+                      min={0}
+                      precision={2}
+                      style={{ width: "100%" }}
+                      placeholder="0.00"
+                    />
+                    <span className="ant-input-group-addon">USD</span>
+                  </Space.Compact>
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={8}>
@@ -285,13 +288,15 @@ export const LoadForm = ({
                   name="distance"
                   rules={[{ required: true, message: "Vui lòng nhập khoảng cách" }]}
                 >
-                  <InputNumber
-                    min={0}
-                    precision={1}
-                    addonAfter="mi"
-                    style={{ width: "100%" }}
-                    placeholder="0.0"
-                  />
+                  <Space.Compact style={{ width: "100%" }}>
+                    <InputNumber
+                      min={0}
+                      precision={1}
+                      style={{ width: "100%" }}
+                      placeholder="0.0"
+                    />
+                    <span className="ant-input-group-addon">mi</span>
+                  </Space.Compact>
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={8}>
