@@ -26,7 +26,7 @@ import type {
   AgingBucketPoint,
   MetricValue,
   ReceivablesAging,
-} from "@/types/executive.types";
+} from "@/features/executive/types";
 import { formatMetricOrDash, metricNumber } from "../utils/executive.format";
 import { unavailableReasonKey } from "../utils/executive.metrics";
 import { useIntlLocale } from "../hooks/useIntlLocale";

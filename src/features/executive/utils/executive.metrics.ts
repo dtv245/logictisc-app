@@ -16,7 +16,7 @@
  * diễn chúng từ các trường khác — đó là bịa một chỉ số mà hợp đồng không có.
  */
 
-import type { MetricDefinition, MetricValue } from "@/types/executive.types";
+import type { MetricDefinition, MetricValue } from "@/features/executive/types";
 import { buildReferences, type FleetType } from "./executive.refs";
 
 /**

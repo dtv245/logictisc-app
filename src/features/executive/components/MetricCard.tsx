@@ -13,7 +13,7 @@
 import { Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
-import type { KpiCardModel } from "@/types/executive.types";
+import type { KpiCardModel } from "@/features/executive/types";
 import { formatDeltaPercent, formatMetricValue } from "../utils/executive.format";
 import { unavailableReasonKey } from "../utils/executive.metrics";
 import { useIntlLocale } from "../hooks/useIntlLocale";

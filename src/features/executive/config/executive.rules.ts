@@ -18,7 +18,7 @@ import type {
   InsightModel,
   InsightSeverity,
   MetricDefinition,
-} from "@/types/executive.types";
+} from "@/features/executive/types";
 
 /** Giá trị chỉ số theo id, chỉ gồm những chỉ số đã có dữ liệu thật. */
 export type MetricValueMap = Readonly<Record<string, number | undefined>>;

@@ -15,7 +15,7 @@ import type {
   MetricReference,
   ReferenceKind,
   StatusLevel,
-} from "@/types/executive.types";
+} from "@/features/executive/types";
 
 /** Loại đội xe. Khớp với khoá trong bảng ngưỡng bên dưới. */
 export const FLEET_TYPES = [

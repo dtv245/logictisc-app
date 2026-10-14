@@ -6,7 +6,7 @@
  * phải tự dịch, đó là lỗi trình bày.
  */
 
-import type { MetricUnit, MetricValue } from "@/types/executive.types";
+import type { MetricUnit, MetricValue } from "@/features/executive/types";
 
 /** Rút gọn số lớn cho tiền tệ, giữ 1 chữ số thập phân. */
 const compactCurrency = (

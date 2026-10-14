@@ -14,7 +14,7 @@ import {
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 
-import type { StatusLevel } from "@/types/executive.types";
+import type { StatusLevel } from "@/features/executive/types";
 
 interface StatusPillProps {
   status: StatusLevel;

@@ -13,7 +13,7 @@ import type {
   MetricDefinition,
   MetricReference,
   StatusLevel,
-} from "@/types/executive.types";
+} from "@/features/executive/types";
 import { unavailableReasonKey } from "../utils/executive.metrics";
 import { BulletMeter } from "./BulletMeter";
 import { SectionCard } from "./SectionCard";

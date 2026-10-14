@@ -6,7 +6,7 @@
  * Tô đỏ một chỉ số không có cơ sở so sánh là làm ban điều hành lo lắng vô căn cứ.
  */
 
-import type { StatusLevel } from "@/types/executive.types";
+import type { StatusLevel } from "@/features/executive/types";
 
 export const resolveStatus = (
   actual: number | undefined,

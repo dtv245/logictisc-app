@@ -30,7 +30,7 @@ import type {
   MonthlyFinancialPoint,
   ReceivablesAging,
   StatusLevel,
-} from "@/types/executive.types";
+} from "@/features/executive/types";
 import type {
   CostBreakdownDto,
   CustomerConcentrationDto,

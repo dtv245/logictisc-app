@@ -35,7 +35,7 @@ import type {
   MetricReference,
   MetricValue,
   MonthlyFinancialPoint,
-} from "@/types/executive.types";
+} from "@/features/executive/types";
 import {
   formatMetricOrDash,
   formatMetricValue,
