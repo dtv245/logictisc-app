@@ -8,7 +8,7 @@ import {
   useCalculateSettlement,
   useDrivers,
   usePayPeriods,
-} from "./settlement.query";
+} from "../api/settlement.query";
 
 export interface CalculateSettlementModalProps {
   open: boolean;

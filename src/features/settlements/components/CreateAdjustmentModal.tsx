@@ -6,7 +6,7 @@ import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { ApiHttpError } from "@/utils/httpError";
 import { UUID_PATTERN } from "@/utils/uuid";
 import type { SettlementAdjustmentPayload } from "@/types/settlement.dto";
-import type { UseSettlementActionsResult } from "./useSettlementActions";
+import type { UseSettlementActionsResult } from "../hooks/useSettlementActions";
 
 const isAdjustmentField = (name: unknown): name is keyof AdjustmentForm =>
   typeof name === "string" && ["reason", "lineClass", "lineType", "description", "amount", "loadId", "tripId"].includes(name);

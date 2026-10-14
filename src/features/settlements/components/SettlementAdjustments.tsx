@@ -8,8 +8,8 @@ import { QueryErrorState } from "@/components/ErrorStates";
 import { financialAmount } from "@/features/profitability/utils/financialDisplay";
 import type { ApiHttpError } from "@/utils/httpError";
 import type { DriverSettlementView } from "@/types/settlement.dto";
-import { SETTLEMENT_ENDPOINTS } from "./settlement.api";
-import { settlementKeys } from "./settlement.keys";
+import { SETTLEMENT_ENDPOINTS } from "../api/settlement.api";
+import { settlementKeys } from "../api/settlement.keys";
 
 export function SettlementAdjustments({ settlement, onView }: { settlement: DriverSettlementView; onView: (id: string) => void }) {
   const { t, i18n } = useTranslation();

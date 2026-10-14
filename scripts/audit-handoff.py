@@ -61,12 +61,12 @@ def mapping(method, path):
         return ["src/features/executive/executive.queries.ts"], "DORMANT", "CONTRACT_BLOCKED", "Executive foundation retained; legacy DTO/parameter compatibility and summary missing"
     if path.startswith("/api/driver-settlements"):
         if path.endswith(("/recalculate-revenue", "/billing-adjustments")):
-            return ["src/features/settlements/settlementRevenue.api.ts"], "DORMANT", "FE_PATCHED", "Distinct Recalculate expectedSnapshotId and Adjustment affectedDocumentId; separate outcomes/intent"
-        return ["src/features/settlements/settlement.query.ts", "src/features/settlements/useSettlementActions.ts"], "ACTIVE", "MATCHED", "List is envelope array; exposed commands only; immutable correction history"
+            return ["src/features/settlements/api/settlementRevenue.api.ts"], "DORMANT", "FE_PATCHED", "Distinct Recalculate expectedSnapshotId and Adjustment affectedDocumentId; separate outcomes/intent"
+        return ["src/features/settlements/api/settlement.query.ts", "src/features/settlements/hooks/useSettlementActions.ts"], "ACTIVE", "MATCHED", "List is envelope array; exposed commands only; immutable correction history"
     if path.startswith("/api/driver-pay-policies"):
-        return ["src/features/settlements/driverPayPolicy.query.ts"], "ACTIVE", "FE_PATCHED", "Existing versioned policy contract; tenant/permission query scope added"
+        return ["src/features/settlements/api/driverPayPolicy.query.ts"], "ACTIVE", "FE_PATCHED", "Existing versioned policy contract; tenant/permission query scope added"
     if path.startswith("/api/pay-periods"):
-        return ["src/features/settlements/settlement.query.ts"], "ACTIVE" if method == "GET" else "NOT_USED_BY_FE", "MATCHED", "Explicit period read for calculation; no inferred period"
+        return ["src/features/settlements/api/settlement.query.ts"], "ACTIVE" if method == "GET" else "NOT_USED_BY_FE", "MATCHED", "Explicit period read for calculation; no inferred period"
     if path.startswith("/api/payroll/"):
         if "/configuration/" in path or "provider-callbacks" in path or "no-payment-required" in path:
             return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "Configuration editor reads absent; provider callback is server-only; no-payment command has no current UI"

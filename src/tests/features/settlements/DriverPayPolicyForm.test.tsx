@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { DriverPayPolicyForm } from "@/features/settlements/DriverPayPolicyForm";
+import { DriverPayPolicyForm } from "@/features/settlements/components/DriverPayPolicyForm";
 import type { DriverPayPolicyView } from "@/types/driverPayPolicy.dto";
 
 describe("DriverPayPolicyForm", () => {

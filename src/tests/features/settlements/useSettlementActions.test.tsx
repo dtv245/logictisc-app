@@ -3,7 +3,7 @@ import { useCan } from "@refinedev/core";
 import { QueryClient } from "@tanstack/react-query";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { useSettlementActions, type SettlementCommand } from "@/features/settlements/useSettlementActions";
+import { useSettlementActions, type SettlementCommand } from "@/features/settlements/hooks/useSettlementActions";
 import type { DriverSettlementView, SettlementStatus } from "@/types/settlement.dto";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { settlement, settlementId } from "@/tests/fixtures/settlement";

@@ -2,9 +2,9 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import type { CustomParams } from "@refinedev/core";
 import { describe, expect, it, vi } from "vitest";
-import { CreateAdjustmentModal } from "@/features/settlements/CreateAdjustmentModal";
-import { SettlementActions } from "@/features/settlements/SettlementActions";
-import { useSettlementActions } from "@/features/settlements/useSettlementActions";
+import { CreateAdjustmentModal } from "@/features/settlements/components/CreateAdjustmentModal";
+import { SettlementActions } from "@/features/settlements/components/SettlementActions";
+import { useSettlementActions } from "@/features/settlements/hooks/useSettlementActions";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { settlement, settlementId } from "@/tests/fixtures/settlement";
 import { ApiHttpError } from "@/utils/httpError";

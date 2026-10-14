@@ -4,7 +4,7 @@ import {
   formatCurrencyAmount,
   getSettlementStatusColor,
   getSettlementTypeColor,
-} from "@/features/settlements/settlement.columns";
+} from "@/features/settlements/components/settlement.columns";
 import type {
   DriverSettlementView,
   SettlementStatus,

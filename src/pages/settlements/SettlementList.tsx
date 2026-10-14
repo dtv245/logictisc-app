@@ -24,12 +24,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { EmptyState } from "@/components/EmptyState";
-import { CalculateSettlementModal } from "@/features/settlements/CalculateSettlementModal";
+import { CalculateSettlementModal } from "@/features/settlements/components/CalculateSettlementModal";
 import {
   createSettlementColumns,
-} from "@/features/settlements/settlement.columns";
-import { SettlementFilters } from "@/features/settlements/SettlementFilters";
-import { useSettlements } from "@/features/settlements/settlement.query";
+} from "@/features/settlements/components/settlement.columns";
+import { SettlementFilters } from "@/features/settlements/components/SettlementFilters";
+import { useSettlements } from "@/features/settlements/api/settlement.query";
 import { routes } from "@/constants/routes";
 import type {
   DriverSettlementView,

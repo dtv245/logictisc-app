@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import type { DriverSettlementView, SettlementAdjustmentPayload, SettlementStatus } from "@/types/settlement.dto";
 import { ApiHttpError } from "@/utils/httpError";
-import { SETTLEMENT_ENDPOINTS } from "./settlement.api";
+import { SETTLEMENT_ENDPOINTS } from "../api/settlement.api";
 
 export type SettlementCommand =
   | { action: "submitReview" | "approve" | "lock" | "resolveValidation" }

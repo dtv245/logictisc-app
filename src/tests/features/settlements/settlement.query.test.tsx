@@ -4,7 +4,7 @@ import { useCan, type CustomParams } from "@refinedev/core";
 import { QueryClient } from "@tanstack/react-query";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { useSettlements, useCalculateSettlement } from "@/features/settlements/settlement.query";
+import { useSettlements, useCalculateSettlement } from "@/features/settlements/api/settlement.query";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { settlement } from "@/tests/fixtures/settlement";
 import { tenantKey } from "@/tests/fixtures/finance";

@@ -19,7 +19,7 @@ const render = (ui: ReactNode) => rtlRender(
   </Refine>,
 );
 
-vi.mock("@/features/settlements/settlement.query", () => ({
+vi.mock("@/features/settlements/api/settlement.query", () => ({
   useSettlements: (filters?: unknown) => mockUseSettlements(filters),
   usePayPeriods: () => mockUsePayPeriods(),
   useDrivers: () => mockUseDrivers(),

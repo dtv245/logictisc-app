@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { ApiHttpError } from "@/utils/httpError";
-import type { UseSettlementActionsResult } from "./useSettlementActions";
+import type { UseSettlementActionsResult } from "../hooks/useSettlementActions";
 
 export function SettlementActions({ actions }: { actions: UseSettlementActionsResult }) {
   const { t } = useTranslation();

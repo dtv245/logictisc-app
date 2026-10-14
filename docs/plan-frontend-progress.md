@@ -566,10 +566,10 @@ Before unblocking any task, verify live method/path/query parameters/request and
 - **Route**: `/settlements/policies`, `/settlements/policies/:id`
 - **Files**:
   - `src/types/driverPayPolicy.dto.ts`
-  - `src/features/settlements/driverPayPolicy.api.ts`
-  - `src/features/settlements/driverPayPolicy.query.ts`
-  - `src/features/settlements/DriverPayPolicyForm.tsx`
-  - `src/features/settlements/DriverPayPolicyVersionHistory.tsx`
+  - `src/features/settlements/api/driverPayPolicy.api.ts`
+  - `src/features/settlements/api/driverPayPolicy.query.ts`
+  - `src/features/settlements/components/DriverPayPolicyForm.tsx`
+  - `src/features/settlements/components/DriverPayPolicyVersionHistory.tsx`
   - `src/pages/settlements/DriverPayPolicyList.tsx`
   - `src/pages/settlements/DriverPayPolicyShow.tsx`
   - `src/constants/routes.ts`
@@ -606,11 +606,11 @@ Before unblocking any task, verify live method/path/query parameters/request and
 - **Route**: `/settlements`
 - **Files**:
   - `src/types/settlement.dto.ts` (`DriverSettlementView`, `SettlementStatus`, `SettlementType`, `SettlementLineView`, `CalculateSettlementPayload`)
-  - `src/features/settlements/settlement.api.ts` (`SETTLEMENT_ENDPOINTS`)
-  - `src/features/settlements/settlement.query.ts` (`useSettlements`, `usePayPeriods`, `useDrivers`, `useCalculateSettlement`)
-  - `src/features/settlements/settlement.columns.tsx` (`createSettlementColumns`, `formatCurrencyAmount`, `getSettlementStatusColor`, `getSettlementTypeColor`)
-  - `src/features/settlements/SettlementFilters.tsx` (pay period, driver, status, type filters + reset)
-  - `src/features/settlements/CalculateSettlementModal.tsx` (driver & period selector, calculation mutation)
+  - `src/features/settlements/api/settlement.api.ts` (`SETTLEMENT_ENDPOINTS`)
+  - `src/features/settlements/api/settlement.query.ts` (`useSettlements`, `usePayPeriods`, `useDrivers`, `useCalculateSettlement`)
+  - `src/features/settlements/components/settlement.columns.tsx` (`createSettlementColumns`, `formatCurrencyAmount`, `getSettlementStatusColor`, `getSettlementTypeColor`)
+  - `src/features/settlements/components/SettlementFilters.tsx` (pay period, driver, status, type filters + reset)
+  - `src/features/settlements/components/CalculateSettlementModal.tsx` (driver & period selector, calculation mutation)
   - `src/pages/settlements/SettlementList.tsx` (top-level page with table, stats, search, filters, modals)
   - `src/pages/settlements/index.ts` (barrel export)
   - `src/pages/index.ts` (re-export `SettlementList`)

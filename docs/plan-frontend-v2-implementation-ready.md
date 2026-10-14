@@ -1247,10 +1247,10 @@ Planned:
 src/pages/settlements/DriverPayPolicyList.tsx
 src/pages/settlements/DriverPayPolicyShow.tsx
 
-src/features/settlements/driverPayPolicy.api.ts
-src/features/settlements/driverPayPolicy.query.ts
-src/features/settlements/DriverPayPolicyForm.tsx
-src/features/settlements/DriverPayPolicyVersionHistory.tsx
+src/features/settlements/api/driverPayPolicy.api.ts
+src/features/settlements/api/driverPayPolicy.query.ts
+src/features/settlements/components/DriverPayPolicyForm.tsx
+src/features/settlements/components/DriverPayPolicyVersionHistory.tsx
 
 src/types/driverPayPolicy.dto.ts
 
@@ -1320,10 +1320,10 @@ unsupported pay method rejected by frontend enum only if contract is confirmed
 
 ```text
 src/pages/settlements/SettlementList.tsx
-src/features/settlements/settlement.api.ts
-src/features/settlements/settlement.query.ts
-src/features/settlements/settlement.columns.tsx
-src/features/settlements/SettlementFilters.tsx
+src/features/settlements/api/settlement.api.ts
+src/features/settlements/api/settlement.query.ts
+src/features/settlements/components/settlement.columns.tsx
+src/features/settlements/components/SettlementFilters.tsx
 src/types/settlement.dto.ts
 src/tests/pages/settlements/SettlementList.test.tsx
 ```
@@ -1397,13 +1397,13 @@ permission behavior
 ```text
 src/pages/settlements/SettlementShow.tsx
 
-src/features/settlements/SettlementSummary.tsx
-src/features/settlements/SettlementLinesTable.tsx
+src/features/settlements/components/SettlementSummary.tsx
+src/features/settlements/components/SettlementLinesTable.tsx
 src/features/settlements/SettlementSourceWork.tsx
-src/features/settlements/SettlementAudit.tsx
-src/features/settlements/SettlementAdjustments.tsx
-src/features/settlements/SettlementActions.tsx
-src/features/settlements/useSettlementActions.ts
+src/features/settlements/components/SettlementAudit.tsx
+src/features/settlements/components/SettlementAdjustments.tsx
+src/features/settlements/components/SettlementActions.tsx
+src/features/settlements/hooks/useSettlementActions.ts
 
 src/tests/pages/settlements/SettlementShow.test.tsx
 src/tests/features/settlements/SettlementActions.test.tsx
@@ -1488,7 +1488,7 @@ successful action refetches settlement
 ## Files
 
 ```text
-src/features/settlements/CreateAdjustmentModal.tsx
+src/features/settlements/components/CreateAdjustmentModal.tsx
 src/features/settlements/AdjustmentHistory.tsx
 src/tests/features/settlements/CreateAdjustmentModal.test.tsx
 ```

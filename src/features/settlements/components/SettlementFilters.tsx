@@ -7,7 +7,7 @@ import type {
   SettlementStatus,
   SettlementType,
 } from "@/types/settlement.dto";
-import { useDrivers, usePayPeriods } from "./settlement.query";
+import { useDrivers, usePayPeriods } from "../api/settlement.query";
 
 export interface SettlementFiltersProps {
   filters: SettlementFilterParams;
