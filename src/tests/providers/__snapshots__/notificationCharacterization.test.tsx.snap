@@ -1,0 +1,365 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`existing notification behavior > preserves 401 backend detail 1`] = `
+{
+  "description": "This account is disabled for tenant 401.",
+  "duration": 6,
+  "message": "Error (status code: 401)",
+}
+`;
+
+exports[`existing notification behavior > preserves 401 code 1`] = `
+{
+  "description": "Phiên làm việc đã hết hạn hoặc thông tin xác thực không hợp lệ. Vui lòng đăng nhập lại.",
+  "duration": 6,
+  "message": "Hết hạn phiên đăng nhập",
+}
+`;
+
+exports[`existing notification behavior > preserves 401 empty 1`] = `
+{
+  "description": "Phiên làm việc đã hết hạn hoặc thông tin xác thực không hợp lệ. Vui lòng đăng nhập lại.",
+  "duration": 6,
+  "message": "Hết hạn phiên đăng nhập",
+}
+`;
+
+exports[`existing notification behavior > preserves 403 access denied 1`] = `
+{
+  "description": "Tài khoản của bạn không có quyền hạn thực hiện thao tác này. Vui lòng liên hệ quản trị viên.",
+  "duration": 6,
+  "message": "Không có quyền truy cập",
+}
+`;
+
+exports[`existing notification behavior > preserves 403 code 1`] = `
+{
+  "description": "Bạn không có quyền hạn thực hiện thao tác này.",
+  "duration": 6,
+  "message": "Error (status code: 403)",
+}
+`;
+
+exports[`existing notification behavior > preserves 403 empty 1`] = `
+{
+  "description": "Tài khoản của bạn không có quyền hạn thực hiện thao tác này. Vui lòng liên hệ quản trị viên.",
+  "duration": 6,
+  "message": "Không có quyền truy cập",
+}
+`;
+
+exports[`existing notification behavior > preserves 404 empty 1`] = `
+{
+  "description": "Bản ghi yêu cầu không tồn tại hoặc đã bị xóa trước đó.",
+  "duration": 6,
+  "message": "Không tìm thấy dữ liệu",
+}
+`;
+
+exports[`existing notification behavior > preserves 404 not found 1`] = `
+{
+  "description": "Bản ghi yêu cầu không tồn tại hoặc đã bị xóa trước đó.",
+  "duration": 6,
+  "message": "Không tìm thấy dữ liệu",
+}
+`;
+
+exports[`existing notification behavior > preserves 404 resource not found 1`] = `
+{
+  "description": "Bản ghi yêu cầu không tồn tại hoặc đã bị xóa trước đó.",
+  "duration": 6,
+  "message": "Không tìm thấy dữ liệu",
+}
+`;
+
+exports[`existing notification behavior > preserves 409 business detail 1`] = `
+{
+  "description": "Amount 1500 exceeds invoice balance 1000.",
+  "duration": 5.5,
+  "message": "Error (status code: 409)",
+}
+`;
+
+exports[`existing notification behavior > preserves 409 concurrent modification 1`] = `
+{
+  "description": "Dữ liệu đã bị thay đổi bởi người dùng khác hoặc phiên bản không khớp. Vui lòng tải lại trang để lấy dữ liệu mới nhất.",
+  "duration": 6,
+  "message": "Xung đột dữ liệu",
+}
+`;
+
+exports[`existing notification behavior > preserves 409 version 1`] = `
+{
+  "description": "Dữ liệu đã bị thay đổi bởi người dùng khác hoặc phiên bản không khớp. Vui lòng tải lại trang để lấy dữ liệu mới nhất.",
+  "duration": 6,
+  "message": "Xung đột dữ liệu",
+}
+`;
+
+exports[`existing notification behavior > preserves 422 backend detail 1`] = `
+{
+  "description": "License plate 51C-12345 already exists.",
+  "duration": 5.5,
+  "message": "Error (status code: 422)",
+}
+`;
+
+exports[`existing notification behavior > preserves 422 validation code 1`] = `
+{
+  "description": "VALIDATION_FAILED",
+  "duration": 5.5,
+  "message": "Error (status code: 422)",
+}
+`;
+
+exports[`existing notification behavior > preserves 500 backend detail 1`] = `
+{
+  "description": "Unable to complete this operation. Request ID: backend-500.",
+  "duration": 6,
+  "message": "Error (status code: 500)",
+}
+`;
+
+exports[`existing notification behavior > preserves 500 empty 1`] = `
+{
+  "description": "Máy chủ đang gặp sự cố nội bộ (mã 500). Đội ngũ kỹ thuật đang xử lý, vui lòng thử lại sau giây lát.",
+  "duration": 6,
+  "message": "Error (status code: 500)",
+}
+`;
+
+exports[`existing notification behavior > preserves 502 code 1`] = `
+{
+  "description": "Máy chủ đang gặp sự cố nội bộ (mã 502). Đội ngũ kỹ thuật đang xử lý, vui lòng thử lại sau giây lát.",
+  "duration": 6,
+  "message": "Error (status code: 502)",
+}
+`;
+
+exports[`existing notification behavior > preserves 503 internal error 1`] = `
+{
+  "description": "Máy chủ đang gặp sự cố nội bộ (mã 503). Đội ngũ kỹ thuật đang xử lý, vui lòng thử lại sau giây lát.",
+  "duration": 6,
+  "message": "Error (status code: 503)",
+}
+`;
+
+exports[`existing notification behavior > preserves 504 without transport code 1`] = `
+{
+  "description": "Máy chủ đang gặp sự cố nội bộ (mã 504). Đội ngũ kỹ thuật đang xử lý, vui lòng thử lại sau giây lát.",
+  "duration": 6,
+  "message": "Error (status code: 504)",
+}
+`;
+
+exports[`existing notification behavior > preserves Lark cancelled 1`] = `
+{
+  "description": "Quá trình đăng nhập qua Lark SSO đã bị hủy hoặc bạn đã từ chối cấp quyền.",
+  "duration": 6,
+  "message": "Đăng nhập không thành công",
+}
+`;
+
+exports[`existing notification behavior > preserves Lark missing client 1`] = `
+{
+  "description": "Cấu hình kết nối đăng nhập Lark chưa sẵn sàng. Vui lòng liên hệ quản trị hệ thống.",
+  "duration": 6,
+  "message": "Lỗi cấu hình xác thực",
+}
+`;
+
+exports[`existing notification behavior > preserves Lark missing code 1`] = `
+{
+  "description": "Không nhận được mã xác thực từ dịch vụ Lark. Vui lòng thử đăng nhập lại.",
+  "duration": 6,
+  "message": "Đăng nhập không thành công",
+}
+`;
+
+exports[`existing notification behavior > preserves create 422 1`] = `
+{
+  "description": "License plate already exists.",
+  "duration": 5.5,
+  "message": "Tạo mới Xe tải thất bại",
+}
+`;
+
+exports[`existing notification behavior > preserves create 500 1`] = `
+{
+  "description": "Máy chủ đang gặp sự cố nội bộ (mã 500). Đội ngũ kỹ thuật đang xử lý, vui lòng thử lại sau giây lát.",
+  "duration": 6,
+  "message": "Tạo mới Xe tải thất bại (Lỗi máy chủ)",
+}
+`;
+
+exports[`existing notification behavior > preserves custom title and trimmed detail 1`] = `
+{
+  "description": "Custom details",
+  "duration": 5.5,
+  "message": "Custom title",
+}
+`;
+
+exports[`existing notification behavior > preserves delete 422 1`] = `
+{
+  "description": "License plate already exists.",
+  "duration": 5.5,
+  "message": "Xóa Xe tải thất bại",
+}
+`;
+
+exports[`existing notification behavior > preserves delete 500 1`] = `
+{
+  "description": "Máy chủ đang gặp sự cố nội bộ (mã 500). Đội ngũ kỹ thuật đang xử lý, vui lòng thử lại sau giây lát.",
+  "duration": 6,
+  "message": "Xóa Xe tải thất bại (Lỗi máy chủ)",
+}
+`;
+
+exports[`existing notification behavior > preserves description formatting: {"errors":{"email":["Required","Already exists"],"name":"Invalid"}} 1`] = `"<div style="margin-top:4px"><div style="font-size:13px;line-height:1.4">• email: Required, Already exists</div></div>"`;
+
+exports[`existing notification behavior > preserves description formatting: {"message":"VERSION_CONFLICT"} 1`] = `"Dữ liệu đã bị thay đổi bởi người dùng khác hoặc phiên bản không khớp. Vui lòng tải lại trang."`;
+
+exports[`existing notification behavior > preserves description formatting: {invalid json} 1`] = `"{invalid json}"`;
+
+exports[`existing notification behavior > preserves description formatting: UNMAPPED_CODE 1`] = `"UNMAPPED_CODE"`;
+
+exports[`existing notification behavior > preserves invoice number is not a status 1`] = `
+{
+  "description": "Invoice 401 is closed.",
+  "duration": 5.5,
+  "message": "Error (status code: 400)",
+}
+`;
+
+exports[`existing notification behavior > preserves network code 1`] = `
+{
+  "description": "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng Internet hoặc máy chủ đang tạm ngừng hoạt động.",
+  "duration": 6,
+  "message": "Mất kết nối với máy chủ",
+}
+`;
+
+exports[`existing notification behavior > preserves network message 1`] = `
+{
+  "description": "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng Internet hoặc máy chủ đang tạm ngừng hoạt động.",
+  "duration": 6,
+  "message": "Mất kết nối với máy chủ",
+}
+`;
+
+exports[`existing notification behavior > preserves network status zero 1`] = `
+{
+  "description": "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng Internet hoặc máy chủ đang tạm ngừng hoạt động.",
+  "duration": 6,
+  "message": "Mất kết nối với máy chủ",
+}
+`;
+
+exports[`existing notification behavior > preserves progress default 1`] = `
+{
+  "description": undefined,
+  "duration": 9,
+  "message": "Đang thực hiện thao tác (có thể hoàn tác)",
+}
+`;
+
+exports[`existing notification behavior > preserves success default 1`] = `
+{
+  "description": undefined,
+  "duration": 3.5,
+  "message": "Tạo mới Xe tải thành công",
+}
+`;
+
+exports[`existing notification behavior > preserves the public resource and error-code dictionaries 1`] = `
+{
+  "ERROR_CODE_TRANSLATIONS": {
+    "AUTH_REQUEST_FAILED": "Yêu cầu xác thực tài khoản thất bại. Vui lòng kiểm tra lại thông tin.",
+    "COMMAND_INTENT_FROZEN": "Lệnh trước đó chưa xác định kết quả. Vui lòng chờ trước khi gửi lệnh mới.",
+    "COMMAND_RESOURCE_REQUIRES_FEATURE_ADAPTER": "Thao tác này yêu cầu form nghiệp vụ chuyên biệt, không hỗ trợ CRUD trực tiếp.",
+    "CONCURRENT_MODIFICATION_CONFLICT": "Dữ liệu đã bị thay đổi bởi người dùng khác hoặc phiên bản không khớp. Vui lòng tải lại trang.",
+    "CONTRACT_VERSION_UNAVAILABLE": "Backend chưa cung cấp phiên bản dữ liệu/hợp đồng để chỉnh sửa.",
+    "CURRENCY_MISMATCH": "Đơn vị tiền tệ thanh toán không khớp với hóa đơn.",
+    "CUSTOM_FILTERS_AND_SORTERS_REQUIRE_FEATURE_ADAPTER": "Bộ lọc và sắp xếp nâng cao cần bộ chuyển đổi nghiệp vụ chuyên biệt.",
+    "DECIMAL_PRECISION_UNSUPPORTED": "Client không biểu diễn chính xác được số tiền này. Chưa gửi giá trị làm tròn.",
+    "DVIR_DEFECT_UNRESOLVED": "Phương tiện có lỗi kỹ thuật trong biên bản DVIR chưa được xác nhận sửa chữa.",
+    "ECONNABORTED": "Hết thời gian chờ kết nối máy chủ (Timeout). Vui lòng thử lại sau.",
+    "EMPTY_CUSTOM_RESPONSE": "Dữ liệu phản hồi từ máy chủ bị trống.",
+    "ERR_NETWORK": "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng Internet.",
+    "ETIMEDOUT": "Hết thời gian chờ kết nối máy chủ (Timeout). Vui lòng kiểm tra lại đường truyền mạng.",
+    "FLEET_VALIDATION_REQUIRED": "Kiểm tra policy đã công bố và danh sách xe khác nhau.",
+    "FORBIDDEN": "Bạn không có quyền hạn thực hiện thao tác này.",
+    "HOS_VIOLATION": "Tài xế đã vượt quá số giờ làm việc cho phép theo quy định HOS/ELD.",
+    "INVALID_API_RESPONSE": "Phản hồi từ máy chủ không đúng định dạng chuẩn.",
+    "INVALID_FLEET_REPORT_PERIOD": "Kiểm tra kỳ báo cáo, múi giờ và ngày kết thúc (không được nằm trong tương lai).",
+    "INVALID_PAGED_RESPONSE": "Dữ liệu danh sách phân trang không hợp lệ.",
+    "INVALID_RECORD_ID": "Mã định danh (ID) bản ghi không hợp lệ.",
+    "INVALID_RECORD_RESPONSE": "Dữ liệu bản ghi trả về từ máy chủ không hợp lệ.",
+    "INVOICE_IMMUTABLE_HISTORY": "Hóa đơn đã chốt trong lịch sử tài chính, không thể chỉnh sửa trực tiếp. Vui lòng dùng lệnh điều chỉnh billing.",
+    "LARK_API_CLIENT_REQUIRED": "Hệ thống chưa sẵn sàng cấu hình kết nối đăng nhập Lark.",
+    "LARK_AUTH_CANCELLED": "Đăng nhập qua Lark SSO đã bị hủy hoặc bạn đã từ chối cấp quyền.",
+    "LARK_CODE_MISSING": "Không nhận được mã xác thực từ Lark. Vui lòng thử đăng nhập lại.",
+    "LOAD_PICKUP_DATE_CONFLICT": "Ngày lấy hàng nghiệp vụ đã thay đổi. Vui lòng đọc lại ngày và mã audit hiện tại.",
+    "NETWORK_ERROR": "Mất kết nối với máy chủ. Vui lòng kiểm tra lại mạng Internet.",
+    "PAYMENT_AMOUNT_INVALID": "Số tiền thanh toán không hợp lệ. Vui lòng nhập số tiền dương với tối đa 2 chữ số thập phân.",
+    "PAYMENT_EXCEEDS_INVOICE_BALANCE": "Số tiền thanh toán vượt quá số dư còn lại của hóa đơn.",
+    "PAYMENT_IDEMPOTENCY_CONFLICT": "Khóa giao dịch này thuộc về một ý định thanh toán khác.",
+    "SETTLEMENT_ALREADY_LOCKED": "Bảng quyết toán đã bị khóa sổ, không thể chỉnh sửa hoặc thao tác.",
+    "TOKEN_REFRESH_RETURNED_NO_TOKEN": "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.",
+    "TRIP_ALREADY_DISPATCHED": "Chuyến xe đã được điều phối, không thể thay đổi thông tin hành trình.",
+    "UNAUTHORIZED": "Phiên đăng nhập đã hết hạn hoặc thông tin xác thực không hợp lệ.",
+    "UNKNOWN_TRANSPORT_ERROR": "Lỗi kết nối truyền tải không xác định giữa trình duyệt và máy chủ.",
+    "VERSION_CONFLICT": "Dữ liệu đã bị thay đổi bởi người dùng khác hoặc phiên bản không khớp. Vui lòng tải lại trang.",
+  },
+  "RESOURCE_LABELS": {
+    "accidents": "Tai nạn & Sự cố",
+    "containers": "Container",
+    "customers": "Khách hàng",
+    "documents": "Tài liệu",
+    "drivers": "Tài xế",
+    "dvir": "Báo cáo DVIR",
+    "employees": "Nhân viên",
+    "expenses": "Chi phí",
+    "hos-eld": "Nhật ký HOS/ELD",
+    "invoices": "Hóa đơn",
+    "load-board": "Sàn giao dịch tải",
+    "loads": "Chuyến hàng",
+    "maintenance": "Bảo trì",
+    "notifications": "Thông báo",
+    "payments": "Khoản thanh toán",
+    "payroll": "Bảng lương",
+    "payslips": "Phiếu lương",
+    "products": "Sản phẩm",
+    "roles": "Vai trò & Quyền",
+    "settlements": "Quyết toán tài xế",
+    "terminals": "Bến bãi",
+    "trips": "Chuyến đi",
+    "trucks": "Xe tải",
+  },
+}
+`;
+
+exports[`existing notification behavior > preserves timeout code 1`] = `
+{
+  "description": "Yêu cầu vượt quá thời gian chờ phản hồi (Timeout). Vui lòng kiểm tra lại chất lượng đường truyền mạng hoặc thử lại sau.",
+  "duration": 6,
+  "message": "Hết thời gian chờ kết nối máy chủ",
+}
+`;
+
+exports[`existing notification behavior > preserves update 422 1`] = `
+{
+  "description": "License plate already exists.",
+  "duration": 5.5,
+  "message": "Cập nhật Xe tải thất bại",
+}
+`;
+
+exports[`existing notification behavior > preserves update 500 1`] = `
+{
+  "description": "Máy chủ đang gặp sự cố nội bộ (mã 500). Đội ngũ kỹ thuật đang xử lý, vui lòng thử lại sau giây lát.",
+  "duration": 6,
+  "message": "Cập nhật Xe tải thất bại (Lỗi máy chủ)",
+}
+`;
