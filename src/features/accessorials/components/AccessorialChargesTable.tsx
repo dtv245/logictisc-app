@@ -10,7 +10,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateTime } from "@/formatters/dateTime";
 import { financialAmount } from "@formatters/financialDisplay";
-import { financialQueryKeys } from "@/features/profitability/api/profitability.api";
+import { financialQueryKeys } from "@/features/profitability";
 import { ApiHttpError } from "@/utils/httpError";
 import type { AccessorialChargeView } from "@/types/accessorial.types";
 import { useAccessorialApproval } from "../hooks/useAccessorialApproval";

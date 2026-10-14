@@ -9,7 +9,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateTime } from "@/formatters/dateTime";
 import { financialAmount } from "@formatters/financialDisplay";
-import { financialQueryKeys } from "@/features/profitability/api/profitability.api";
+import { financialQueryKeys } from "@/features/profitability";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import type { ApiHttpError } from "@/utils/httpError";
 import type { ShipmentCostView } from "@/types/shipmentCost.types";
