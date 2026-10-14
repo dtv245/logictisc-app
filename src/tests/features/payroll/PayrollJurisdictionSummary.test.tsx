@@ -1,10 +1,10 @@
 /** Snapshot evidence and generic country/subdivision concepts survive unavailable/invalid data. */
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { PayrollJurisdictionSummary } from "@/features/payroll/PayrollJurisdictionSummary";
+import { PayrollJurisdictionSummary } from "@/features/payroll/components/PayrollJurisdictionSummary";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payroll } from "@/tests/fixtures/payroll";
-import { readPayrollResolution } from "@/features/payroll/payroll.snapshot";
+import { readPayrollResolution } from "@/features/payroll/utils/payroll.snapshot";
 describe("PayrollJurisdictionSummary", () => {
   it.each([["WORK_PAYROLL_OVERRIDE", "Work Override"], ["EMPLOYEE_PROFILE", "Employee Profile"], ["TENANT_DEFAULT", "Tenant Default"]])("shows backend resolution %s without inferring it", async (source, label) => {
     await renderFinance(<PayrollJurisdictionSummary item={{ ...payroll.items[0]!, calculationSnapshotJson: JSON.stringify({ jurisdictionResolution: { source, profileId: "profile-1", profileVersion: 2 } }) }} />, async () => ({}));

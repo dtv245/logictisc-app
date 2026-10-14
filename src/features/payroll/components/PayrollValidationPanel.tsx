@@ -2,7 +2,7 @@
 import { Alert, List, Space } from "antd";
 import { useTranslation } from "react-i18next";
 import type { PayrollRun } from "@/types/payroll.dto";
-import { payrollIsValidated } from "./usePayrollActions";
+import { payrollIsValidated } from "../hooks/usePayrollActions";
 import { PayrollJurisdictionSummary } from "./PayrollJurisdictionSummary";
 export function PayrollValidationPanel({ run }: { run: PayrollRun }) {
   const { t } = useTranslation();

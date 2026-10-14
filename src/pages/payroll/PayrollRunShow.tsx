@@ -16,12 +16,12 @@ import { statusTone } from "@/components/statusTone";
 import { formatDateOnly, formatDateTime } from "@/formatters/dateTime";
 import type { PayrollRun } from "@/types/payroll.dto";
 import type { ApiHttpError } from "@/utils/httpError";
-import { payrollApi, payrollKeys } from "@/features/payroll/payroll.api";
-import { usePayrollActions, payrollIsValidated } from "@/features/payroll/usePayrollActions";
-import { PayrollActions } from "@/features/payroll/PayrollActions";
-import { PayrollItemsTable } from "@/features/payroll/PayrollItemsTable";
-import { PayrollValidationPanel } from "@/features/payroll/PayrollValidationPanel";
-import { PayrollPaymentsPanel } from "@/features/payroll/PayrollPaymentsPanel";
+import { payrollApi, payrollKeys } from "@/features/payroll/api/payroll.api";
+import { usePayrollActions, payrollIsValidated } from "@/features/payroll/hooks/usePayrollActions";
+import { PayrollActions } from "@/features/payroll/components/PayrollActions";
+import { PayrollItemsTable } from "@/features/payroll/components/PayrollItemsTable";
+import { PayrollValidationPanel } from "@/features/payroll/components/PayrollValidationPanel";
+import { PayrollPaymentsPanel } from "@/features/payroll/components/PayrollPaymentsPanel";
 function RunDetail({ run }: { run: PayrollRun }) {
   const { t, i18n } = useTranslation(); const navigate = useNavigate(); const [tab, setTab] = useState("drivers"); const actions = usePayrollActions(run);
   const tabs = [{ key: "drivers", label: t("payroll.drivers"), view: <PayrollItemsTable items={run.items} /> },

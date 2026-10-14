@@ -71,7 +71,7 @@ def mapping(method, path):
         if "/configuration/" in path or "provider-callbacks" in path or "no-payment-required" in path:
             return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "Configuration editor reads absent; provider callback is server-only; no-payment command has no current UI"
         if path.endswith("/payslips"): return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "Lock issues slips atomically; no standalone browser reissuance"
-        return ["src/features/payroll/payroll.api.ts", "src/features/payroll/usePayrollActions.ts", "src/features/payroll/usePayrollPaymentActions.ts"], "ACTIVE", "FE_PATCHED", "Explicit RAW adapter; run/item/payment semantics distinct; keyed commands frozen; reconciliation Spring page 0-based"
+        return ["src/features/payroll/api/payroll.api.ts", "src/features/payroll/hooks/usePayrollActions.ts", "src/features/payroll/hooks/usePayrollPaymentActions.ts"], "ACTIVE", "FE_PATCHED", "Explicit RAW adapter; run/item/payment semantics distinct; keyed commands frozen; reconciliation Spring page 0-based"
     if path.startswith("/api/payslips") or path == "/api/driver/me/payslips":
         return ["src/features/payslips/api/payslip.api.ts", "src/pages/payslips/MyPayslipsPage.tsx", "src/pages/payslips/PayslipShow.tsx"], "ACTIVE", "FE_PATCHED", "RAW metadata/self list; PDF blob/no-store; employee ownership; no current payment claim"
     if path.startswith("/api/optimization/runs"):

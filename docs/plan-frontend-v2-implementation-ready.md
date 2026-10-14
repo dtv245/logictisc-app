@@ -1544,7 +1544,7 @@ currency preserved
 
 ```text
 src/pages/payroll/PayrollRunList.tsx
-src/features/payroll/payroll.api.ts
+src/features/payroll/api/payroll.api.ts
 src/features/payroll/payroll.query.ts
 src/features/payroll/payroll.columns.tsx
 src/features/payroll/PayrollFilters.tsx
@@ -1605,12 +1605,12 @@ permission
 src/pages/payroll/PayrollRunShow.tsx
 
 src/features/payroll/PayrollSummary.tsx
-src/features/payroll/PayrollItemsTable.tsx
-src/features/payroll/PayrollValidationPanel.tsx
-src/features/payroll/PayrollPaymentsPanel.tsx
+src/features/payroll/components/PayrollItemsTable.tsx
+src/features/payroll/components/PayrollValidationPanel.tsx
+src/features/payroll/components/PayrollPaymentsPanel.tsx
 src/features/payroll/PayrollAuditPanel.tsx
-src/features/payroll/PayrollActions.tsx
-src/features/payroll/usePayrollActions.ts
+src/features/payroll/components/PayrollActions.tsx
+src/features/payroll/hooks/usePayrollActions.ts
 
 src/tests/pages/payroll/PayrollRunShow.test.tsx
 src/tests/features/payroll/PayrollActions.test.tsx
@@ -1677,7 +1677,7 @@ Never hard-code UI label `State` for all countries.
 ## Files
 
 ```text
-src/features/payroll/PayrollJurisdictionSummary.tsx
+src/features/payroll/components/PayrollJurisdictionSummary.tsx
 src/features/payroll/PayrollJurisdictionForm.tsx
 src/features/payroll/WorkerClassificationTag.tsx
 src/features/payroll/PayrollPolicyResolution.tsx

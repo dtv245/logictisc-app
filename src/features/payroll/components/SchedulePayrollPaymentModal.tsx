@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import type { PayrollItem, SchedulePayrollPaymentPayload } from "@/types/payroll.dto";
 import { financialAmount } from "@/features/profitability/utils/financialDisplay";
 import { PayrollActionError } from "./PayrollActions";
-import type { PayrollPaymentActionsResult } from "./usePayrollPaymentActions";
+import type { PayrollPaymentActionsResult } from "../hooks/usePayrollPaymentActions";
 type PaymentForm = Omit<SchedulePayrollPaymentPayload, "idempotencyKey">;
 const isFormField = (name: unknown): name is keyof PaymentForm => typeof name === "string" && ["paymentMethod", "providerKey", "destinationReference"].includes(name);
 export function SchedulePayrollPaymentModal({ item, actions, retry }: { item: PayrollItem; actions: PayrollPaymentActionsResult; retry: boolean }) {

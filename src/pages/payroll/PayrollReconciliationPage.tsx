@@ -1,4 +1,4 @@
-import { payrollApi } from "@/features/payroll/payroll.api";
+import { payrollApi } from "@/features/payroll/api/payroll.api";
 /** Server-paginated open bank-evidence cases with explicit authorized reconciliation. */
 import { RAW_RESPONSE_META } from "@/types/apiClient.types";
 import { useCan, useCustom } from "@refinedev/core";
@@ -10,10 +10,10 @@ import { EmptyState } from "@/components/EmptyState";
 import { ForbiddenState, QueryErrorState } from "@/components/ErrorStates";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { financialAmount } from "@/features/profitability/utils/financialDisplay";
-import { PayrollActionError } from "@/features/payroll/PayrollActions";
-import { usePayrollPaymentActions } from "@/features/payroll/usePayrollPaymentActions";
-import { ReconcilePayrollPaymentModal } from "@/features/payroll/ReconcilePayrollPaymentModal";
-import { maskPaymentReference } from "@/features/payroll/paymentDisplay";
+import { PayrollActionError } from "@/features/payroll/components/PayrollActions";
+import { usePayrollPaymentActions } from "@/features/payroll/hooks/usePayrollPaymentActions";
+import { ReconcilePayrollPaymentModal } from "@/features/payroll/components/ReconcilePayrollPaymentModal";
+import { maskPaymentReference } from "@/features/payroll/utils/paymentDisplay";
 import type { PayrollCasesPage } from "@/types/payroll.dto";
 import type { ApiHttpError } from "@/utils/httpError";
 export function PayrollReconciliationPage() {

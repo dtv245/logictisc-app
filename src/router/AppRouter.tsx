@@ -1,5 +1,5 @@
 import { getResourceCapabilities } from "@/components/resources/resourceCapabilities";
-import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/payroll.api";
+import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/executive.contract";
 import type { PayslipDownloader } from "@/features/payslips/api/payslip.api";
 /**

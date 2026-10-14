@@ -12,9 +12,9 @@ import { routes } from "@/constants/routes";
 import { UUID_PATTERN, isUuid } from "@/utils/uuid";
 import { PageHeader } from "@/components/PageHeader";
 import { ForbiddenState } from "@/components/ErrorStates";
-import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/payroll.api";
-import { usePayrollActions } from "@/features/payroll/usePayrollActions";
-import { PayrollActionError } from "@/features/payroll/PayrollActions";
+import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
+import { usePayrollActions } from "@/features/payroll/hooks/usePayrollActions";
+import { PayrollActionError } from "@/features/payroll/components/PayrollActions";
 import type { CalculatePayrollPayload } from "@/types/payroll.dto";
 
 interface CalculateForm {

@@ -3,7 +3,7 @@ import { useCan, type CustomParams } from "@refinedev/core";
 import { QueryClient } from "@tanstack/react-query";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { usePayrollActions, type PayrollCommand } from "@/features/payroll/usePayrollActions";
+import { usePayrollActions, type PayrollCommand } from "@/features/payroll/hooks/usePayrollActions";
 import type { PayrollRun } from "@/types/payroll.dto";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payroll, payrollId } from "@/tests/fixtures/payroll";

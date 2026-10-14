@@ -2,7 +2,7 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import type { CustomParams } from "@refinedev/core";
 import { describe, expect, it, vi } from "vitest";
-import { PayrollPaymentsPanel } from "@/features/payroll/PayrollPaymentsPanel";
+import { PayrollPaymentsPanel } from "@/features/payroll/components/PayrollPaymentsPanel";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { payroll, payment } from "@/tests/fixtures/payroll";
 import { ApiHttpError } from "@/utils/httpError";

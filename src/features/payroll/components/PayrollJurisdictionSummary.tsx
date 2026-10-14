@@ -1,7 +1,7 @@
 /** Country-neutral jurisdiction display with explicit unavailable policy evidence. */
 import { Descriptions } from "antd";
 import { useTranslation } from "react-i18next";
-import { readPayrollResolution } from "./payroll.snapshot";
+import { readPayrollResolution } from "../utils/payroll.snapshot";
 import type { PayrollItem } from "@/types/payroll.dto";
 export function PayrollJurisdictionSummary({ item }: { item: PayrollItem }) {
   const { t } = useTranslation();

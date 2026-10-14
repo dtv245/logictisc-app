@@ -15,10 +15,10 @@ import type { ApiHttpError } from "@/utils/httpError";
 import type { PayrollItem, PayrollPayment, PayrollRun } from "@/types/payroll.dto";
 import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { PayrollActionError } from "./PayrollActions";
-import { usePayrollPaymentActions } from "./usePayrollPaymentActions";
+import { usePayrollPaymentActions } from "../hooks/usePayrollPaymentActions";
 import { SchedulePayrollPaymentModal } from "./SchedulePayrollPaymentModal";
-import { maskPaymentReference } from "./paymentDisplay";
-import { payrollApi, payrollKeys } from "./payroll.api";
+import { maskPaymentReference } from "../utils/paymentDisplay";
+import { payrollApi, payrollKeys } from "../api/payroll.api";
 
 function PaymentAttempts({ item, run }: { item: PayrollItem; run: PayrollRun }) {
   const { t, i18n } = useTranslation(); const { tenant } = useCurrentTenant(); const access = useCan({ resource: "payroll", action: "PAYROLL_VIEW" });

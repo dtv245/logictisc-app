@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import type { PayrollReconciliationCase, ReconcileBankPayload } from "@/types/payroll.dto";
 import { financialAmount } from "@/features/profitability/utils/financialDisplay";
 import { PayrollActionError } from "./PayrollActions";
-import type { PayrollPaymentActionsResult } from "./usePayrollPaymentActions";
+import type { PayrollPaymentActionsResult } from "../hooks/usePayrollPaymentActions";
 type EvidenceForm = Omit<ReconcileBankPayload, "idempotencyKey" | "caseEventId" | "occurredAt"> & { occurredAt: Dayjs };
 const isFormField = (name: unknown): name is keyof EvidenceForm => typeof name === "string" && ["bankSource", "transactionReference", "amount", "currency", "outcome", "counterpartyReference", "evidenceReference", "reason", "occurredAt"].includes(name);
 export function ReconcilePayrollPaymentModal({ evidenceCase, actions }: { evidenceCase: PayrollReconciliationCase; actions: PayrollPaymentActionsResult }) {
