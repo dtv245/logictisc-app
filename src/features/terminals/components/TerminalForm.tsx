@@ -15,7 +15,7 @@ import type {
   Terminal,
   TerminalType,
 } from "@/types/terminal.types";
-import { TERMINAL_TYPE_OPTIONS } from "../terminal.constants";
+import { TERMINAL_TYPE_OPTIONS } from "../config/terminal.constants";
 
 export interface TerminalFormProps {
   form: FormInstance;
