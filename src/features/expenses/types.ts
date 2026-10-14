@@ -1,7 +1,7 @@
-import type { Money } from "./common.types";
-import type { Truck } from "./truck.types";
-import type { ExpenseType, ExpenseStatus, ExpenseCategory, QuantityUnit } from "./expense.dto";
-import type { ISODateTime, ISODate } from "./api.types";
+import type { Money } from "@/types/common.types";
+import type { Truck } from "@/types/truck.types";
+import type { ExpenseType, ExpenseStatus, ExpenseCategory, QuantityUnit } from "@/types/expense.dto";
+import type { ISODateTime, ISODate } from "@/types/api.types";
 
 export interface Expense {
   id: string;

@@ -15,7 +15,7 @@ import {
   expenseStatusMap,
   formatExpenseAmount,
 } from "@features/expenses/components/columns";
-import type { Expense } from "@/types/expense.types";
+import type { Expense } from "@/features/expenses/types";
 
 const queryClient = new QueryClient({
   defaultOptions: {
