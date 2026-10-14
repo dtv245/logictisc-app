@@ -6,7 +6,7 @@ import { createCrudColumns } from "@components/crudColumns";
 import { formatMoney } from "@formatters/money";
 import { formatDateTime } from "@formatters/dateTime";
 import type { StatusTone } from "@components/StatusTag";
-import type { Payment } from "@/types/payment.types";
+import type { Payment } from "../types";
 
 /** Bảng ánh xạ trạng thái thanh toán sang tone ngữ nghĩa */
 export const paymentStatusMap: Record<string, StatusTone> = {

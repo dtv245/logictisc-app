@@ -15,7 +15,7 @@ import {
   formatPaymentAmount,
   paymentStatusMap,
 } from "@features/payments/components/columns";
-import type { Payment } from "@/types/payment.types";
+import type { Payment } from "@/features/payments/types";
 
 const queryClient = new QueryClient({
   defaultOptions: {
