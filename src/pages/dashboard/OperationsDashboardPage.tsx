@@ -24,7 +24,7 @@ import { VehicleTrackingMap } from "@features/operations/components/VehicleTrack
 import {
   toVehicleMapPoints,
   type OperationsTruckRecord,
-} from "@features/operations/operations.data";
+} from "@features/operations/utils/operations.data";
 import { useCurrentTenant } from "@hooks/useCurrentTenant";
 import { useCurrentUser } from "@hooks/useCurrentUser";
 import { useTenantList } from "@hooks/useTenantList";
