@@ -6,7 +6,7 @@ import { CloseCircleOutlined, WarningOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { BaseTable } from "@/table/BaseTable";
 import type { FleetCoverage, FleetDecimal } from "@/types/fleetReport.dto";
-import { formatSecondsToHoursMinutes } from "./fleetDuration";
+import { formatSecondsToHoursMinutes } from "../utils/fleetDuration";
 
 export { formatSecondsToHoursMinutes };
 

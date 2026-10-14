@@ -25,7 +25,7 @@ import {
   YAxis,
 } from "recharts";
 import type { FleetCoverage, FleetReport } from "@/types/fleetReport.dto";
-import { formatSecondsToHoursMinutes } from "./fleetDuration";
+import { formatSecondsToHoursMinutes } from "../utils/fleetDuration";
 
 export interface FleetChartsProps {
   report: FleetReport;

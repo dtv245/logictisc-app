@@ -4,7 +4,7 @@ import { ConfigProvider } from "antd";
 import { I18nextProvider } from "react-i18next";
 import i18n from "i18next";
 import type { ReactNode } from "react";
-import { FleetCharts } from "@/features/fleet/FleetCharts";
+import { FleetCharts } from "@/features/fleet/components/FleetCharts";
 import { fleetReport } from "@/tests/fixtures/fleet";
 import { viMessages } from "@/locales";
 import type { FleetReport } from "@/types/fleetReport.dto";

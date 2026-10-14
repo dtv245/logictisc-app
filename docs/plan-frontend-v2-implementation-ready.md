@@ -2090,11 +2090,11 @@ Runtime alignment 2026-10-06: actual run/read/accept use `/api/optimization/runs
 
 ```text
 src/pages/fleet/FleetReportPage.tsx
-src/features/fleet/fleetReport.api.ts
+src/features/fleet/api/fleetReport.api.ts
 src/features/fleet/fleetReport.query.ts
-src/features/fleet/FleetKpiGrid.tsx
+src/features/fleet/components/FleetKpiGrid.tsx
 src/features/fleet/FleetUtilizationChart.tsx
-src/features/fleet/FleetHealthTable.tsx
+src/features/fleet/components/FleetHealthTable.tsx
 src/types/fleetReport.dto.ts
 
 src/tests/pages/fleet/FleetReportPage.test.tsx

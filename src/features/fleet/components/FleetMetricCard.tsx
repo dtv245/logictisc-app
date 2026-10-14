@@ -14,7 +14,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { formatDateTime } from "@/formatters/dateTime";
 import { routes } from "@/constants/routes";
 import type { FleetMetricAvailability, FleetReport } from "@/types/fleetReport.dto";
-import { formatMetricValue } from "./fleetMetricFormat";
+import { formatMetricValue } from "../utils/fleetMetricFormat";
 
 export interface FleetMetricCardProps {
   /** Metric identifier code (e.g. FLEET_UTILIZATION_PERCENT, UNPLANNED_DOWNTIME) */

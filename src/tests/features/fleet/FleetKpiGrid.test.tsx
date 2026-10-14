@@ -1,7 +1,7 @@
 import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { FleetKpiGrid } from "@/features/fleet/FleetKpiGrid";
-import { FleetHealthTable } from "@/features/fleet/FleetHealthTable";
+import { FleetKpiGrid } from "@/features/fleet/components/FleetKpiGrid";
+import { FleetHealthTable } from "@/features/fleet/components/FleetHealthTable";
 import { fleetMetric, fleetReport, fleetTruckId } from "@/tests/fixtures/fleet";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 const metric = (code = "FLEET_UTILIZATION_PERCENT") => within(screen.getByTestId(`fleet-metric-${code}`));
