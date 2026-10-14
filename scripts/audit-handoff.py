@@ -75,7 +75,7 @@ def mapping(method, path):
     if path.startswith("/api/payslips") or path == "/api/driver/me/payslips":
         return ["src/features/payslips/api/payslip.api.ts", "src/pages/payslips/MyPayslipsPage.tsx", "src/pages/payslips/PayslipShow.tsx"], "ACTIVE", "FE_PATCHED", "RAW metadata/self list; PDF blob/no-store; employee ownership; no current payment claim"
     if path.startswith("/api/optimization/runs"):
-        return ["src/features/optimization/optimization.api.ts", "src/features/optimization/useOptimizationActions.ts"], "ACTIVE", "FE_PATCHED", "Server rank/score/fingerprint; frozen command; scoped resource/version refresh; conflict guard"
+        return ["src/features/optimization/api/optimization.api.ts", "src/features/optimization/hooks/useOptimizationActions.ts"], "ACTIVE", "FE_PATCHED", "Server rank/score/fingerprint; frozen command; scoped resource/version refresh; conflict guard"
     if path == "/api/notifications/mark-all-read":
         return ["src/features/notifications/hooks/useNotificationActions.ts"], "ACTIVE", "MATCHED", "Existing tenant-wide command; no per-object read-receipt API"
     return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "No current frontend consumer; catalog records backend surface only"

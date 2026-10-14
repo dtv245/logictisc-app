@@ -7,7 +7,7 @@ import { applyBackendFieldErrors, type FormFieldName } from "@/forms/backendFiel
 import { ApiHttpError } from "@/utils/httpError";
 import { isUuid } from "@/utils/uuid";
 import type { CreateOptimizationRequest, OptimizationOutcome, OptimizationSourceSelection, OptimizationTarget } from "@/types/optimization.dto";
-import type { OptimizationActionsResult } from "./useOptimizationActions";
+import type { OptimizationActionsResult } from "../hooks/useOptimizationActions";
 import { OptimizationError } from "./OptimizationError";
 
 interface RunForm {

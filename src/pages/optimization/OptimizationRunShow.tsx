@@ -13,10 +13,10 @@ import { formatDateTime } from "@/formatters/dateTime";
 import type { ApiHttpError } from "@/utils/httpError";
 import type { OptimizationOutcome } from "@/types/optimization.dto";
 import { routes } from "@/constants/routes";
-import { optimizationApi, optimizationKeys } from "@/features/optimization/optimization.api";
-import { useOptimizationActions } from "@/features/optimization/useOptimizationActions";
-import { OptimizationCandidateTable } from "@/features/optimization/OptimizationCandidateTable";
-import { OptimizationError } from "@/features/optimization/OptimizationError";
+import { optimizationApi, optimizationKeys } from "@/features/optimization/api/optimization.api";
+import { useOptimizationActions } from "@/features/optimization/hooks/useOptimizationActions";
+import { OptimizationCandidateTable } from "@/features/optimization/components/OptimizationCandidateTable";
+import { OptimizationError } from "@/features/optimization/components/OptimizationError";
 
 const CandidateVisualizations = lazy(
   () => import("@/features/optimization/visualizations/CandidateVisualizations"),

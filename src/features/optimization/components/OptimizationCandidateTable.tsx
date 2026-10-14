@@ -6,7 +6,7 @@ import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { EmptyState } from "@/components/EmptyState";
 import { financialAmount } from "@/features/profitability/utils/financialDisplay";
 import type { OptimizationCandidate, OptimizationOutcome } from "@/types/optimization.dto";
-import type { OptimizationActionsResult } from "./useOptimizationActions";
+import type { OptimizationActionsResult } from "../hooks/useOptimizationActions";
 import { OptimizationCandidateDrawer } from "./OptimizationCandidateDrawer";
 import { RejectionCodeTag } from "./rejectionCodes";
 

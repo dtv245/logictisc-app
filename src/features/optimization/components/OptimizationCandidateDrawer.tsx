@@ -8,7 +8,7 @@ import type { OptimizationCandidate, OptimizationProvenance } from "@/types/opti
 import { RejectionCodeTag } from "./rejectionCodes";
 
 const CandidateVisualizations = lazy(
-  () => import("./visualizations/CandidateVisualizations"),
+  () => import("../visualizations/CandidateVisualizations"),
 );
 
 export interface OptimizationCandidateDrawerProps {

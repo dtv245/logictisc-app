@@ -1,7 +1,7 @@
 import type { CustomParams } from "@refinedev/core";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { useOptimizationActions } from "@/features/optimization/useOptimizationActions";
+import { useOptimizationActions } from "@/features/optimization/hooks/useOptimizationActions";
 import type { OptimizationCandidate } from "@/types/optimization.dto";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { candidate, optimization, optimizationAccepted, rejectedCandidate } from "@/tests/fixtures/optimization";

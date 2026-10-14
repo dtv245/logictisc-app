@@ -1986,11 +1986,11 @@ Runtime alignment 2026-10-06: actual preview is POST `/api/loads/{id}/rating/pre
 src/pages/optimization/OptimizationPage.tsx
 src/pages/optimization/OptimizationRunShow.tsx
 
-src/features/optimization/optimization.api.ts
+src/features/optimization/api/optimization.api.ts
 src/features/optimization/optimization.query.ts
-src/features/optimization/OptimizationRunForm.tsx
-src/features/optimization/OptimizationCandidateTable.tsx
-src/features/optimization/OptimizationCandidateDrawer.tsx
+src/features/optimization/components/OptimizationRunForm.tsx
+src/features/optimization/components/OptimizationCandidateTable.tsx
+src/features/optimization/components/OptimizationCandidateDrawer.tsx
 src/features/optimization/OptimizationActions.tsx
 
 src/types/optimization.dto.ts
