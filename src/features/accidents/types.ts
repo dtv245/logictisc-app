@@ -2,10 +2,10 @@
  * Chứa các kiểu dữ liệu báo cáo tai nạn, bên thứ ba và nhân chứng.
  */
 
-import type { AuditableEntity, GeoLocation } from "./common.types";
-import type { Employee } from "./employee.types";
-import type { Trip } from "./trip.types";
-import type { Truck } from "./truck.types";
+import type { AuditableEntity, GeoLocation } from "@/types/common.types";
+import type { Employee } from "@/types/employee.types";
+import type { Trip } from "@/types/trip.types";
+import type { Truck } from "@/types/truck.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type AccidentReportStatus =

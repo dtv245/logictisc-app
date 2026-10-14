@@ -15,7 +15,7 @@ import {
   accidentSeverityMap,
   accidentStatusMap,
 } from "@features/accidents/components/columns";
-import type { AccidentReport } from "@/types/accident.types";
+import type { AccidentReport } from "@/features/accidents/types";
 
 const queryClient = new QueryClient({
   defaultOptions: {
