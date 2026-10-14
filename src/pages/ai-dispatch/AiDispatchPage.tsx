@@ -23,9 +23,9 @@ import { AiDispatchRunForm } from "@/features/ai-dispatch/components/AiDispatchR
 import { AiMovementPlanCard } from "@/features/ai-dispatch/components/AiMovementPlanCard";
 import { AiDispatchHistoryTable } from "@/features/ai-dispatch/components/AiDispatchHistoryTable";
 import { AiConfigModal } from "@/features/ai-dispatch/components/AiConfigModal";
-import { useAiSettings } from "@/features/ai-dispatch/aiConfigStorage";
-import { useAiDispatchActions } from "@/features/ai-dispatch/useAiDispatchActions";
-import "@/features/ai-dispatch/ai-dispatch.scss";
+import { useAiSettings } from "@/features/ai-dispatch/hooks/aiConfigStorage";
+import { useAiDispatchActions } from "@/features/ai-dispatch/hooks/useAiDispatchActions";
+import "@/features/ai-dispatch/styles/ai-dispatch.scss";
 
 export function AiDispatchPage() {
   const { t } = useTranslation();

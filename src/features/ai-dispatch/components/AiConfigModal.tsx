@@ -42,8 +42,8 @@ import {
 import {
   testAiConnection,
   useAiSettings,
-} from "../aiConfigStorage";
-import "../ai-dispatch.scss";
+} from "../hooks/aiConfigStorage";
+import "../styles/ai-dispatch.scss";
 
 export interface AiConfigModalProps {
   open: boolean;

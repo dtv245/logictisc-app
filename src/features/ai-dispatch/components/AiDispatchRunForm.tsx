@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next";
 import { FormGrid } from "@/forms/FormGrid";
 import { isUuid } from "@/utils/uuid";
 import type { CreateAiDispatchParams } from "@/types/ai-dispatch.types";
-import { useAiSettings } from "../aiConfigStorage";
-import type { AiDispatchActionsResult } from "../useAiDispatchActions";
+import { useAiSettings } from "../hooks/aiConfigStorage";
+import type { AiDispatchActionsResult } from "../hooks/useAiDispatchActions";
 
 interface RunFormValues {
   mode: "manual" | "assisted" | "automatic";

@@ -9,7 +9,7 @@ import type { AiMovementPlan, CreateAiDispatchParams } from "@/types/ai-dispatch
 import {
   generateAiMovementPlan,
   initialMovementPlan,
-} from "./aiDispatch.api";
+} from "../api/aiDispatch.api";
 
 export function useAiDispatchActions() {
   const { t } = useTranslation();

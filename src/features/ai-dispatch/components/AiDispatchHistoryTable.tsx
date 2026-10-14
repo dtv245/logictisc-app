@@ -5,7 +5,7 @@ import { Button, Space, Table } from "antd";
 import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
 import type { AiMovementPlan } from "@/types/ai-dispatch.types";
-import type { AiDispatchActionsResult } from "../useAiDispatchActions";
+import type { AiDispatchActionsResult } from "../hooks/useAiDispatchActions";
 
 interface Props {
   actions: AiDispatchActionsResult;
