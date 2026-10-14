@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 
 import { FormGrid } from "@/forms/FormGrid";
 import type { FormGridColumns, FormGridItem } from "@/forms/FormGrid";
-import type { ProductFormValues } from "@/types/product.types";
+import type { ProductFormValues } from "../types";
 
 interface ProductFormProps {
   /**
