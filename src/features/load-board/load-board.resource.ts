@@ -1,7 +1,7 @@
 /** Khai báo Load Board resource cho Refine. */
 import { FundProjectionScreenOutlined } from "@ant-design/icons";
 import { routes } from "../../constants/routes";
-import { createResourceConfig } from "@pages/resourceConfig";
+import { createResourceConfig } from "@utils/resourceConfig";
 export const loadBoardResource = createResourceConfig({
   icon: FundProjectionScreenOutlined,
   label: "Load Board",

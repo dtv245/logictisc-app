@@ -1,7 +1,7 @@
 /** Khai báo Employee resource cho Refine. */
 import { TeamOutlined } from "@ant-design/icons";
 import { routes } from "../../constants/routes";
-import { createResourceConfig } from "@pages/resourceConfig";
+import { createResourceConfig } from "@utils/resourceConfig";
 export const employeesResource = createResourceConfig({
   icon: TeamOutlined,
   label: "Nhân viên",
