@@ -1,4 +1,4 @@
-import { PrimaryInvoiceForm } from "@/features/invoices/PrimaryInvoiceForm";
+import { PrimaryInvoiceForm } from "@/features/invoices/components/PrimaryInvoiceForm";
 /** Internal acceptance button uses the exact frozen preview request and server fingerprints. */
 import { useCan, useDataProvider, useInvalidate } from "@refinedev/core";
 import { Alert, Button, Space } from "antd";
@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { BILLING_COMMANDS_RUNTIME_VERIFIED, createRatingAcceptance, freezeRatingAcceptance } from "@/features/invoices/billingCommands";
+import { BILLING_COMMANDS_RUNTIME_VERIFIED, createRatingAcceptance, freezeRatingAcceptance } from "@/features/invoices/api/billingCommands";
 import type { AcceptedRatingSnapshot, RatingPreviewRequest } from "@/types/handoff.generated";
 import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
 

@@ -10,7 +10,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
 import type { AcceptedRatingSnapshot, BillingInvoice, GenerateInvoiceRequest, LineTax } from "@/types/handoff.generated";
-import { createInvoiceCommand, createPrimaryInvoice, BILLING_COMMANDS_RUNTIME_VERIFIED } from "./billingCommands";
+import { createInvoiceCommand, createPrimaryInvoice, BILLING_COMMANDS_RUNTIME_VERIFIED } from "../api/billingCommands";
 
 type Values = Record<string, unknown> & { requirement: string; reasonCode: string; reason: string; sourceReference: string; assessmentId?: string; lineTaxes: { componentType: string; sourceId: string; taxAmount: string | number }[] };
 function readLineTaxes(rows: Values["lineTaxes"]): LineTax[] {

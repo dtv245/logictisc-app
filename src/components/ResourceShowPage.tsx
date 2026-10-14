@@ -9,7 +9,7 @@ import { Alert, Button, Descriptions, Empty } from "antd";
 
 import { useTranslation } from "react-i18next";
 
-import { isLegacyDraftInvoice } from "@/features/invoices/invoiceMutability";
+import { isLegacyDraftInvoice } from "@/features/invoices/utils/invoiceMutability";
 import { getResourceCapabilities } from "./resources/resourceCapabilities";
 import type { ApiError } from "@/types/api.types";
 

@@ -8,7 +8,7 @@ import { foundationApiResources } from "@/pages/resourceRegistry";
 import { RAW_RESPONSE_META } from "@/types/apiClient.types";
 import { createCommandIntent } from "@/utils/commandIntent";
 import { createPaymentCommands, createPaymentPayload, paymentMetadata, type PaymentCreateValues } from "@/features/payments/paymentCommands";
-import { createInvoiceCommand, createPrimaryInvoice, createRatingAcceptance, freezeRatingAcceptance } from "@/features/invoices/billingCommands";
+import { createInvoiceCommand, createPrimaryInvoice, createRatingAcceptance, freezeRatingAcceptance } from "@/features/invoices/api/billingCommands";
 import { buildResourceMutation } from "@/components/resources/resourceMutation";
 import { ApiHttpError } from "@/utils/httpError";
 import type { GenerateInvoiceRequest, RatingPreviewRequest } from "@/types/handoff.generated";

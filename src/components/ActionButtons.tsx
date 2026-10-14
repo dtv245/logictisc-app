@@ -1,4 +1,4 @@
-import { isLegacyDraftInvoice } from "@/features/invoices/invoiceMutability";
+import { isLegacyDraftInvoice } from "@/features/invoices/utils/invoiceMutability";
 import { DeleteButton, EditButton, ShowButton } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { Button, Dropdown, type MenuProps, Modal, Popconfirm, Space, Tooltip } from "antd";

@@ -6,7 +6,7 @@
 import type { IResourceItem } from "@refinedev/core";
 import type { TFunction } from "i18next";
 
-import { isLegacyDraftInvoice } from "@/features/invoices/invoiceMutability";
+import { isLegacyDraftInvoice } from "@/features/invoices/utils/invoiceMutability";
 import { getResourceCapabilities } from "@/components/resources/resourceCapabilities";
 import { resourceMutationContracts } from "@/types/handoff.generated";
 import type { ApiResourceDefinition } from "@/types/dataProvider.types";
