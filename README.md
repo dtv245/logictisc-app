@@ -3,6 +3,36 @@
 React 18 + TypeScript + Vite application using Refine v4, React Router 6,
 Ant Design 5, Axios, and TanStack Query 4.
 
+## Cấu trúc thư mục (Target Global Architecture)
+
+Dự án chuẩn hoá theo cấu trúc phân tầng theo loại file ở tầng global, loại bỏ hoàn toàn `src/features/` (chi tiết quy tắc tại `AGENTS.md`):
+
+```
+src/
+├── api/          # hàm gọi API: api/<domain>/<domain>.api.ts
+├── components/   # component dùng lại: components/<domain>/
+├── hooks/        # mọi hook: hooks/<domain>/use*.ts
+├── pages/        # mỗi màn hình một file: pages/<domain>/
+├── resources/    # định nghĩa resource Refine
+├── types/        # chỉ type thuần: types/<domain>/*.types.ts
+├── utils/        # hàm thuần dùng chung, chia theo chủ đề
+├── constants/    # routes, enum
+├── lib/          # axios client, query client, i18n
+├── locales/
+├── App.tsx
+└── main.tsx
+```
+
+File test nằm cạnh file được test.
+
+### Nguyên tắc kiến trúc:
+1. **Loại file quyết định thư mục**: hook -> `hooks/`, API -> `api/`, type -> `types/`.
+2. **Chiều phụ thuộc một chiều (DAG)**: `App`/`resources` -> `pages` -> `components` -> `hooks` -> `api` -> `types`/`utils`/`lib`/`constants`. Tầng dưới không import tầng trên.
+3. **`types/` chỉ chứa type thuần**: không resource config, không endpoint, không hằng số.
+4. **Đường dẫn import tường minh**: Import bằng đường dẫn đầy đủ qua alias `@/`. Không tạo `index.ts` gom export.
+5. **Page mỏng**: Chỉ ghép component và hook; logic ở hooks, gọi API ở api.
+6. **`utils/` hàm thuần**: Không hook React, không gọi API, dùng từ 3 nơi trở lên.
+
 ## Run locally
 
 ```bash

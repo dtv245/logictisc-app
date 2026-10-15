@@ -1,16 +1,35 @@
-# Kế hoạch Tái cấu trúc Phiên 7: Xử lý Tham chiếu Tầng Dùng chung, Import sâu Feature và Vòng lặp Type-only
+# Kế hoạch Tái cấu trúc: Chuyển đổi sang Cấu trúc Toàn cục (Global Type-based Architecture)
 
-> **Chế độ**: CHỈ LẬP KẾ HOẠCH (Planning Only). Không di chuyển, xoá hay sửa đổi bất kỳ file mã nguồn nào của dự án trong phiên này.  
-> **Phương pháp quét**: Filesystem + TypeScript AST (`ts.createSourceFile`, AST traversal) + SCSS module resolution (quét trực tiếp trạng thái working tree sau Phiên 1–6, không dùng GitNexus index cũ).  
-> **Thời điểm quét**: 2026-10-14.  
-> **Trạng thái Typecheck hiện tại**: `npm run typecheck` (`tsc -b`) PASSED (0 lỗi).
+> **Cập nhật kiến trúc (theo `AGENTS.md`)**: Dự án đã chính thức chuyển đổi mục tiêu từ mô hình feature-based (`src/features/`) sang **cấu trúc phân tầng theo loại file ở tầng global**. Thư mục `src/features/` sẽ được giải thể, chuyển toàn bộ file về các thư mục chức năng global (`src/api`, `src/components`, `src/hooks`, `src/pages`, `src/resources`, `src/types`, `src/utils`).  
+> **Quy tắc cốt lõi**:
+> - Đường dẫn import tường minh đầy đủ qua `@/`, **không tạo `index.ts` gom export**.
+> - Chiều phụ thuộc một chiều: `App`/`resources` -> `pages` -> `components` -> `hooks` -> `api` -> `types`/`utils`/`lib`/`constants`. Tầng dưới không import tầng trên.
+> - `types/` chỉ chứa type thuần: không chứa resource config, không endpoint, không hằng số.
+> - `utils/` chỉ chứa hàm thuần (không React hook, không gọi API), dùng từ 3 nơi trở lên.
+> - Page mỏng: chỉ ghép component và hook; logic ở hooks, gọi API ở api.
+
+```
+src/
+├── api/          # hàm gọi API: api/<domain>/<domain>.api.ts
+├── components/   # component dùng lại: components/<domain>/
+├── hooks/        # mọi hook: hooks/<domain>/use*.ts
+├── pages/        # mỗi màn hình một file: pages/<domain>/
+├── resources/    # định nghĩa resource Refine
+├── types/        # chỉ type thuần: types/<domain>/*.types.ts
+├── utils/        # hàm thuần dùng chung, chia theo chủ đề
+├── constants/    # routes, enum
+├── lib/          # axios client, query client, i18n
+├── locales/
+├── App.tsx
+└── main.tsx
+```
 
 ---
 
 ## MỤC LỤC
 1. [Tổng hợp kết quả quét hiện trạng](#1-tổng-hợp-kết-quả-quét-hiện-trạng)
 2. [Phần 1: Tham chiếu từ tầng dùng chung lên Features/Pages (9 tham chiếu)](#2-phần-1-tham-chiếu-từ-tầng-dùng-chung-lên-featurespages-9-tham-chiếu)
-3. [Phần 2: Import sâu giữa các Feature còn lại (12 tham chiếu)](#3-phần-2-import-sâu-giữa-các-feature-còn-lại-12-tham-chiếu)
+3. [Phần 2: Xử lý phụ thuộc chéo giữa các domain theo cấu trúc Global](#3-phần-2-xử-lý-phụ-thuộc-chéo-giữa-các-domain-theo-cấu-trúc-global)
 4. [Phần 3: Hai nhóm vòng lặp Import Type-only (Group A & Group B)](#4-phần-3-hai-nhóm-vòng-lặp-import-type-only-group-a--group-b)
 5. [Đề xuất Lộ trình thực thi chia nhỏ (7 Batches)](#5-đề-xuất-lộ-trình-thực-thi-chia-nhỏ-7-batches)
 6. [Danh sách các Quyết định cần Người dùng (USER) Chốt](#6-danh-sách-các-quyết-định-cần-người-dùng-user-chốt)
@@ -49,15 +68,15 @@ Từ phân tích AST toàn bộ thư mục `src/`:
 
 ### Phân tích chi tiết từng trường hợp:
 
-#### Nhóm 1.1: Đã có sẵn `index.ts` (Sửa bằng đổi sang Barrel Import)
+#### Nhóm 1.1: Component dùng lại (Chuyển về `src/components/<domain>/`)
 - **`AppSider.tsx` -> `NotificationHeaderIcon`**:
-  - `src/features/notifications/index.ts` đã export: `export { NotificationHeaderIcon } from "./components/NotificationHeaderIcon";`.
-  - Giải pháp: Đổi import trong `AppSider.tsx` từ `@features/notifications/components/NotificationHeaderIcon` thành `import { NotificationHeaderIcon } from "@features/notifications";`.
-  - Collision & Rủi ro: Không có xung đột. Rủi ro = 0.
+  - Đích theo AGENTS.md: `src/components/notifications/NotificationHeaderIcon.tsx`.
+  - Giải pháp: Nhập trực tiếp qua `@/components/notifications/NotificationHeaderIcon` (không tạo `index.ts` gom export).
+  - Rủi ro = 0.
 - **`AddressFields.tsx` -> `TerminalSelect`**:
-  - `src/features/terminals/index.ts` đã export: `export * from "./components/TerminalSelect";`.
-  - Giải pháp: Đổi import trong `AddressFields.tsx` từ `@/features/terminals/components/TerminalSelect` thành `import { TerminalSelect } from "@features/terminals";`.
-  - Collision & Rủi ro: Không có xung đột. Rủi ro = 0.
+  - Đích theo AGENTS.md: `src/components/terminals/TerminalSelect.tsx`.
+  - Giải pháp: Nhập trực tiếp qua `@/components/terminals/TerminalSelect` (không tạo `index.ts` gom export).
+  - Rủi ro = 0.
 
 #### Nhóm 1.2: Cần chọn Owner / Vị trí mới
 
@@ -89,47 +108,47 @@ Từ phân tích AST toàn bộ thư mục `src/`:
 
 ---
 
-## 3. Phần 2: Import sâu giữa Feature còn lại (12 tham chiếu)
+## 3. Phần 2: Xử lý phụ thuộc chéo giữa các domain theo cấu trúc Global (12 tham chiếu)
 
-AST scan ghi nhận 12 import sâu giữa các feature, tương ứng 4 nhóm vấn đề nghiệp vụ:
+AST scan ghi nhận 12 import chéo giữa các domain. Theo kiến trúc toàn cục `AGENTS.md`, toàn bộ file được dời về `src/api/<domain>`, `src/components/<domain>`, `src/utils/` và import trực tiếp qua `@/`, tuyệt đối **không dùng barrel export `index.ts`**:
 
-### Bảng phân tích chi tiết 12 Cross-Feature Imports:
+### Bảng phân tích chi tiết 12 tham chiếu chéo giữa các Domain:
 
-| # | Feature nguồn | File nguồn | Feature đích | File đích | Symbol import | Đề xuất giải pháp |
-|---|---------------|------------|--------------|-----------|---------------|-------------------|
-| **1** | `accessorials` | `components/AccessorialChargesTable.tsx:13` | `profitability` | `api/profitability.api.ts` | `financialQueryKeys` | **Nâng lên Shared** (`src/utils/financialQueryKeys.ts`) |
-| **2** | `shipment-costs` | `components/ShipmentCostTable.tsx:12` | `profitability` | `api/profitability.api.ts` | `financialQueryKeys` | **Nâng lên Shared** (dùng chung với #1) |
-| **3** | `loads` | `components/LoadFinancialSummary.tsx:11` | `profitability` | `api/profitability.api.ts` | `financialQueryKeys`, `PROFITABILITY_ENDPOINTS` | `financialQueryKeys` -> Shared; `PROFITABILITY_ENDPOINTS` -> Barrel `@features/profitability` |
-| **4** | `loads` | `components/LoadFinancialSummary.tsx:9` | `profitability` | `components/ProfitabilitySummary.tsx` | `ProfitabilitySummary` | **Barrel**: Tạo `features/profitability/index.ts` |
-| **5** | `loads` | `components/LoadFinancialPanel.tsx:10` | `accessorials` | `components/AccessorialChargesTable.tsx` | `AccessorialChargesTable` | **Barrel**: Tạo `features/accessorials/index.ts` |
-| **6** | `loads` | `components/LoadFinancialPanel.tsx:11` | `shipment-costs` | `components/ShipmentCostTable.tsx` | `ShipmentCostTable` | **Barrel**: Tạo `features/shipment-costs/index.ts` |
-| **7** | `loads` | `components/LoadFinancialPanel.tsx:12` | `rates` | `components/FscPreview.tsx` | `FscPreview` | **Barrel**: Tạo `features/rates/index.ts` |
-| **8** | `loads` | `components/LoadDocumentsPanel.tsx:5` | `documents` | `components/DocumentUploadModal.tsx` | `DocumentUploadModal` | **Barrel**: Tạo `features/documents/index.ts` |
-| **9** | `optimization` | `hooks/useOptimizationActions.ts:11` | `trips` | `api/tripExecution.api.ts` | `TRIP_EXECUTION_ENDPOINTS` | **Barrel**: Tạo `features/trips/index.ts` |
-| **10** | `optimization` | `visualizations/routeGeometry.ts:1` | `map` | `lib/polyline.ts` | `decodePolyline` | **Nâng lên Shared**: `src/utils/polyline.ts` |
-| **11** | `rates` | `components/RatingAcceptance.tsx:1` | `invoices` | `components/PrimaryInvoiceForm.tsx` | `PrimaryInvoiceForm` | **Barrel**: Tạo `features/invoices/index.ts` |
-| **12** | `rates` | `components/RatingAcceptance.tsx:10` | `invoices` | `api/billingCommands.ts` | `BILLING_COMMANDS_RUNTIME_VERIFIED`, `createRatingAcceptance`, `freezeRatingAcceptance` | **Tách owner đúng feature**: Chuyển rating commands sang `features/rates/api/ratingCommands.ts` |
+| # | Domain nguồn | File nguồn | Domain đích | File đích hiện tại | Symbol import | Đích và Giải pháp theo AGENTS.md |
+|---|--------------|------------|-------------|-------------------|---------------|-----------------------------------|
+| **1** | `accessorials` | `AccessorialChargesTable.tsx` | `profitability` | `profitability.api.ts` | `financialQueryKeys` | Chuyển sang `src/utils/financialQueryKeys.ts` |
+| **2** | `shipment-costs` | `ShipmentCostTable.tsx` | `profitability` | `profitability.api.ts` | `financialQueryKeys` | Chuyển sang `src/utils/financialQueryKeys.ts` |
+| **3** | `loads` | `LoadFinancialSummary.tsx` | `profitability` | `profitability.api.ts` | `financialQueryKeys`, `PROFITABILITY_ENDPOINTS` | `financialQueryKeys` -> `src/utils/`; `PROFITABILITY_ENDPOINTS` -> `@/api/profitability/profitability.api` |
+| **4** | `loads` | `LoadFinancialSummary.tsx` | `profitability` | `ProfitabilitySummary.tsx` | `ProfitabilitySummary` | Chuyển component sang `src/components/profitability/ProfitabilitySummary.tsx` |
+| **5** | `loads` | `LoadFinancialPanel.tsx` | `accessorials` | `AccessorialChargesTable.tsx` | `AccessorialChargesTable` | Chuyển component sang `src/components/accessorials/AccessorialChargesTable.tsx` |
+| **6** | `loads` | `LoadFinancialPanel.tsx` | `shipment-costs` | `ShipmentCostTable.tsx` | `ShipmentCostTable` | Chuyển component sang `src/components/shipment-costs/ShipmentCostTable.tsx` |
+| **7** | `loads` | `LoadFinancialPanel.tsx` | `rates` | `FscPreview.tsx` | `FscPreview` | Chuyển component sang `src/components/rates/FscPreview.tsx` |
+| **8** | `loads` | `LoadDocumentsPanel.tsx` | `documents` | `DocumentUploadModal.tsx` | `DocumentUploadModal` | Chuyển component sang `src/components/documents/DocumentUploadModal.tsx` |
+| **9** | `optimization` | `useOptimizationActions.ts` | `trips` | `tripExecution.api.ts` | `TRIP_EXECUTION_ENDPOINTS` | Chuyển API sang `src/api/trips/tripExecution.api.ts`, import qua `@/api/trips/tripExecution.api` |
+| **10** | `optimization` | `routeGeometry.ts` | `map` | `lib/polyline.ts` | `decodePolyline` | Hàm thuần, chuyển sang `src/utils/polyline.ts` |
+| **11** | `rates` | `RatingAcceptance.tsx` | `invoices` | `PrimaryInvoiceForm.tsx` | `PrimaryInvoiceForm` | Chuyển component sang `src/components/invoices/PrimaryInvoiceForm.tsx` |
+| **12** | `rates` | `RatingAcceptance.tsx` | `invoices` | `billingCommands.ts` | `BILLING_COMMANDS_RUNTIME_VERIFIED`, `createRatingAcceptance`, `freezeRatingAcceptance` | Tách lệnh rating sang `src/api/rates/ratingCommands.ts` (đúng domain) |
 
 ---
 
 ### Phân tích đề xuất cho từng nhóm:
 
 1. **Cụm `financialQueryKeys` (#1, #2, #3)**:
-   - *Hiện trạng*: `financialQueryKeys` nằm ở `features/profitability/api/profitability.api.ts` nhưng lại chứa query keys của cả 4 mảng: `summary`, `costs`, `accessorials`, `byLoad`. Khiến `accessorials` và `shipment-costs` phải phụ thuộc ngược vào `profitability`.
-   - *Đề xuất*: **Nâng lên Shared** thành `src/utils/financialQueryKeys.ts` (hoặc `src/core/api/queryKeys.ts`). Việc này giải quyết cùng lúc 3 deep import vi phạm.
-2. **Cụm `loads` nhúng component của các feature khác (#4, #5, #6, #7, #8)**:
-   - *Hiện trạng*: Màn hình chi tiết `Load` là trung tâm vận hành, cần nhúng các panel tài liệu, phụ phí, chi phí, cước phí và tóm tắt lợi nhuận. Hiện tại gọi trực tiếp file component con do các feature này chưa có file `index.ts`.
-   - *Đề xuất*: **Tạo Barrel Export** chuẩn cho từng feature (`features/documents/index.ts`, `features/accessorials/index.ts`, `features/shipment-costs/index.ts`, `features/rates/index.ts`, `features/profitability/index.ts`). Trong `loads`, đổi thành import qua barrel: `@features/documents`, `@features/accessorials`, v.v.
+   - *Hiện trạng*: `financialQueryKeys` nằm ở `profitability.api.ts` nhưng lại chứa query keys của cả 4 mảng: `summary`, `costs`, `accessorials`, `byLoad`. Khiến `accessorials` và `shipment-costs` phải phụ thuộc ngược vào `profitability`.
+   - *Đề xuất*: **Chuyển lên Shared Utility** `src/utils/financialQueryKeys.ts`. Việc này giải quyết cùng lúc 3 deep import vi phạm.
+2. **Cụm `loads` nhúng component của các domain khác (#4, #5, #6, #7, #8)**:
+   - *Hiện trạng*: Màn hình chi tiết `Load` là trung tâm vận hành, cần nhúng các panel tài liệu, phụ phí, chi phí, cước phí và tóm tắt lợi nhuận.
+   - *Đề xuất*: Khi chuyển đổi sang cấu trúc toàn cục, các component dùng lại được đặt tại `src/components/<domain>/`. Trong `loads`, import trực tiếp qua `@/components/<domain>/<ComponentName>`. Không tạo barrel `index.ts`.
 3. **Cụm `optimization` -> `decodePolyline` (#10)**:
-   - *Hiện trạng*: `routeGeometry.ts` trong `optimization` import hàm giải mã chuỗi toạ độ polyline từ `features/map/lib/polyline.ts`.
-   - *Đề xuất*: **Nâng lên Shared** thành `src/utils/polyline.ts`. Giải mã polyline là thuật toán địa lý thuần tuý (Geometry/Geo utility), không phụ thuộc UI map.
+   - *Hiện trạng*: `routeGeometry.ts` trong `optimization` import hàm giải mã chuỗi toạ độ polyline từ `map/lib/polyline.ts`.
+   - *Đề xuất*: **Chuyển sang `src/utils/polyline.ts`**. Giải mã polyline là thuật toán địa lý thuần tuý (Geometry/Geo utility), không phụ thuộc UI map.
 4. **Cụm `optimization` -> `TRIP_EXECUTION_ENDPOINTS` (#9)**:
-   - *Đề xuất*: Tạo barrel `features/trips/index.ts` và export `TRIP_EXECUTION_ENDPOINTS` để `optimization` import qua `@features/trips`.
+   - *Đề xuất*: Đưa về `src/api/trips/tripExecution.api.ts` và import trực tiếp qua `@/api/trips/tripExecution.api`.
 5. **Cụm `rates` -> `invoices` (#11, #12)**:
-   - *Hiện trạng*: File `features/invoices/api/billingCommands.ts` lại đang chứa cả hàm gọi endpoint `/api/loads/:loadId/rating/accept` (`createRatingAcceptance`, `freezeRatingAcceptance`).
-   - *Đề xuất*: 
-     - Tách các hàm liên quan đến rating acceptance sang `features/rates/api/ratingCommands.ts` (đúng domain owner).
-     - Component `PrimaryInvoiceForm` (giao diện lập hoá đơn sau khi chốt giá) được export qua barrel `features/invoices/index.ts`.
+   - *Hiện trạng*: File `billingCommands.ts` của invoices lại đang chứa cả hàm gọi endpoint `/api/loads/:loadId/rating/accept`.
+   - *Đề xuất*:
+     - Tách các hàm rating acceptance sang `src/api/rates/ratingCommands.ts` (đúng domain owner).
+     - Component `PrimaryInvoiceForm` chuyển về `src/components/invoices/PrimaryInvoiceForm.tsx`, import trực tiếp qua `@/components/invoices/PrimaryInvoiceForm`.
 
 ---
 
@@ -203,24 +222,24 @@ Cycle 2: types.ts -> hooks/useRoutes.ts -> lib/polyline.ts -> types.ts
 
 ```mermaid
 flowchart TD
-    B1["Batch 1: Đổi sang Barrel có sẵn\n(notifications, terminals)"] --> B2["Batch 2: Cách ly LoginPage.scss\n(styles/app.scss -> LoginPage)"]
+    B1["Batch 1: Đưa component dùng lại về components/\n(notifications, terminals)"] --> B2["Batch 2: Cách ly LoginPage.scss\n(styles/app.scss -> LoginPage)"]
     B2 --> B3["Batch 3: Gom Backend Contract Flags\n(src/config/contracts.ts)"]
     B3 --> B4["Batch 4: Tách invoiceMutability\n(src/utils/invoiceMutability.ts)"]
     B4 --> B5["Batch 5: Phá vòng lặp Map\n(map/types.ts & useRoutes.ts)"]
     B5 --> B6["Batch 6: Dọn vòng lặp src/types\n(Xoá relations mồ côi)"]
-    B6 --> B7["Batch 7: Chuẩn hoá Cross-Feature\n(Tạo index.ts & nâng polyline/keys)"]
+    B6 --> B7["Batch 7: Chuẩn hoá Cross-Domain\n(Dời về api/, components/, utils/)"]
 ```
 
 ---
 
 ### Chi tiết từng Batch:
 
-### Batch 1: Chuẩn hoá các Barrel đã có sẵn (Quick Wins)
+### Batch 1: Chuẩn hoá các Component dùng lại (Dời về `src/components/<domain>/`)
 - **Phạm vi**:
-  - `src/components/AppSider.tsx`: Đổi import `NotificationHeaderIcon` sang `@features/notifications`.
-  - `src/forms/AddressFields.tsx`: Đổi import `TerminalSelect` sang `@features/terminals`.
+  - `src/components/AppSider.tsx`: Đổi import `NotificationHeaderIcon` sang `@/components/notifications/NotificationHeaderIcon`.
+  - `src/forms/AddressFields.tsx`: Đổi import `TerminalSelect` sang `@/components/terminals/TerminalSelect`.
 - **Callers**: `AppSider.tsx:79`, `AddressFields.tsx:3`.
-- **Collisions**: Không có (barrel đã export đúng symbol, kiểm tra qua AST).
+- **Collisions**: Không có.
 - **Rủi ro**: Cực thấp. Hoàn toàn không sửa đổi file logic.
 - **Tiêu chí nghiệm thu**: `npm run typecheck` pass, test `AppSider.test.tsx` pass.
 
@@ -277,15 +296,15 @@ flowchart TD
 - **Rủi ro**: Rất thấp.
 - **Tiêu chí nghiệm thu**: `npm run typecheck` pass, chu trình Group A giảm về 0.
 
-### Batch 7: Chuẩn hoá Cross-Feature Imports còn lại
+### Batch 7: Chuẩn hoá các tham chiếu chéo còn lại sang cấu trúc Global
 - **Phạm vi**:
   - Tạo `src/utils/financialQueryKeys.ts` và chuyển `financialQueryKeys` về đây.
   - Chuyển `decodePolyline` sang `src/utils/polyline.ts`.
-  - Tách rating acceptance commands sang `features/rates/api/ratingCommands.ts`.
-  - Tạo các barrel `index.ts` còn thiếu: `documents`, `accessorials`, `shipment-costs`, `rates`, `profitability`, `trips`, `invoices`.
-  - Chuyển các deep relative import trong `features/loads/components/*` sang import qua barrel.
-- **Callers**: 12 callers trong `src/features/`.
-- **Collisions**: Tránh export trùng tên giữa các model trong barrel `index.ts`. Chỉ export các public API và component cần thiết.
+  - Tách rating acceptance commands sang `src/api/rates/ratingCommands.ts`.
+  - Di chuyển các component/api sang đúng thư mục toàn cục: `src/api/<domain>`, `src/components/<domain>`.
+  - Sửa các import trong `src/pages/loads/`, `src/components/loads/` thành import trực tiếp qua `@/`. Không tạo `index.ts` gom export.
+- **Callers**: 12 callers đã phân tích.
+- **Collisions**: Không có xung đột.
 - **Rủi ro**: Trung bình.
 - **Tiêu chí nghiệm thu**: `npm run typecheck` pass, `npm run build` pass, toàn bộ vitest tests pass.
 
@@ -301,7 +320,7 @@ Trước khi tiến hành thực hiện ở Phiên 8 trở đi, kính đề ngh�
 | **2** | **Vị trí của `invoiceMutability.ts`** (`isLegacyDraftInvoice`) | **Chuyển thành `src/utils/invoiceMutability.ts`** (để dùng chung cho cả ActionButtons, ResourceShowPage và resourceRegistry) | Tích hợp thành một validator hàm trong `src/components/resources/resourceCapabilities.ts` |
 | **3** | **Cách xử lý `LoginPage.scss`** | **Import trực tiếp tại `src/pages/auth/LoginPage.tsx`** và xoá khỏi `styles/app.scss` (tối ưu đóng gói, hỗ trợ lazy load) | Di chuyển file sang `src/styles/pages/_login.scss` và giữ `@use` trong `styles/app.scss` |
 | **4** | **Cách xử lý vòng lặp Type-only `*WithRelations` trong `src/types`** | **Xoá bỏ các interface `*WithRelations`** vì kiểm chứng AST cho thấy đây là dead code 100%, không caller nào sử dụng | Di chuyển chúng sang một file riêng `src/types/relations.types.ts` để lưu trữ mô hình quan hệ |
-| **5** | **Cách xử lý `financialQueryKeys`** | **Nâng lên Shared `src/utils/financialQueryKeys.ts`** dùng chung cho cả 4 feature tài chính liên kết (`loads`, `accessorials`, `shipment-costs`, `profitability`) | Tách nhỏ query keys về từng feature và export qua từng feature barrel |
+| **5** | **Cách xử lý `financialQueryKeys`** | **Nâng lên Shared `src/utils/financialQueryKeys.ts`** dùng chung cho cả 4 domain tài chính liên kết (`loads`, `accessorials`, `shipment-costs`, `profitability`) | Tách nhỏ query keys về từng domain API `src/api/<domain>/` |
 
 ---
 *Báo cáo được tạo tự động bởi Antigravity sau khi quét toàn bộ AST TypeScript và phân giải SCSS.*
