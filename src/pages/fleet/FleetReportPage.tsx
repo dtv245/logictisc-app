@@ -26,9 +26,9 @@ import { isUuid } from "@/utils/uuid";
 import type { ApiHttpError } from "@/utils/httpError";
 import type { FleetReport, FleetReportQuery } from "@/types/fleetReport.dto";
 import type { Truck } from "@/types/truck.types";
-import { fleetReportApi, fleetReportKey } from "@/features/fleet/fleetReport.api";
-import { FleetKpiGrid } from "@/features/fleet/FleetKpiGrid";
-import { FleetHealthTable } from "@/features/fleet/FleetHealthTable";
+import { fleetReportApi, fleetReportKey } from "@/features/fleet/api/fleetReport.api";
+import { FleetKpiGrid } from "@/features/fleet/components/FleetKpiGrid";
+import { FleetHealthTable } from "@/features/fleet/components/FleetHealthTable";
 import {
   dayjs,
   exclusiveToInclusiveLastDate,
@@ -37,10 +37,10 @@ import {
   getFleetPeriodPresets,
   inclusiveToExclusiveLastDate,
   isDateDisabledAfterToday,
-} from "@/features/fleet/fleetDateRange";
+} from "@/features/fleet/utils/fleetDateRange";
 
 const FleetCharts = lazy(() =>
-  import("@/features/fleet/FleetCharts").then((module) => ({ default: module.FleetCharts })),
+  import("@/features/fleet/components/FleetCharts").then((module) => ({ default: module.FleetCharts })),
 );
 
 interface ScopeForm {

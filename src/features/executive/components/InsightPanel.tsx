@@ -13,7 +13,7 @@
 import { Alert, Empty, Skeleton, Tag } from "antd";
 import { useTranslation } from "react-i18next";
 
-import type { InsightModel, InsightSeverity } from "@/types/executive.types";
+import type { InsightModel, InsightSeverity } from "@/features/executive/types";
 
 interface InsightPanelProps {
   insights: readonly InsightModel[];

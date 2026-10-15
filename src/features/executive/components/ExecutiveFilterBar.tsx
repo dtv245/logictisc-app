@@ -13,8 +13,8 @@
 import { Button, Segmented, Select, Space } from "antd";
 import { useTranslation } from "react-i18next";
 
-import type { ComparisonMode, ExecutiveFilters } from "@/types/executive.types";
-import { FLEET_TYPES, type FleetType } from "../executive.refs";
+import type { ComparisonMode, ExecutiveFilters } from "@/features/executive/types";
+import { FLEET_TYPES, type FleetType } from "../utils/executive.refs";
 
 interface ExecutiveFilterBarProps {
   filters: ExecutiveFilters;

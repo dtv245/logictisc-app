@@ -6,7 +6,7 @@ import { Edit, useForm } from "@refinedev/antd";
 
 import type { ApiError } from "@/types/api.types";
 import { ProductForm } from "@features/products/components/form";
-import type { Product, ProductFormValues } from "@/types/product.types";
+import type { Product, ProductFormValues } from "@/features/products/types";
 
 export const ProductEdit = () => {
   // useForm tải record và gửi mutation pessimistic qua DataProvider.

@@ -5,7 +5,7 @@
  */
 
 import { createCrudColumns } from "@components/crudColumns";
-import { useLocalizedColumns } from "@components/useLocalizedColumns";
+import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import { loadColumns } from "@features/loads/components/columns";
 import { initializeAppI18n } from "@locales";
 import type { BaseRecord } from "@refinedev/core";

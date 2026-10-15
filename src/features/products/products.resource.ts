@@ -5,7 +5,7 @@
 import { AppstoreOutlined } from "@ant-design/icons";
 
 import { routes } from "../../constants/routes";
-import { createResourceConfig } from "@pages/resourceConfig";
+import { createResourceConfig } from "@utils/resourceConfig";
 
 export const productsResource = createResourceConfig({
   icon: AppstoreOutlined,

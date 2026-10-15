@@ -183,7 +183,7 @@ BE-029 runtime deployment absence is RESOLVED / HISTORICAL for the five recently
 | Active gap register | docs/backend-gaps.md first table | Frontend Developer | CURRENT | 2026-10-06 |
 | Blockers/resume order/history | docs/frontend-backend-unblock.md | Frontend Developer | CURRENT | 2026-10-06 |
 | Context precedence | docs/frontend-context-current.md | Frontend Developer | CURRENT correction; Oct4 audit retained | 2026-10-06 |
-| Executive dormant route gate | src/features/executive/executive.contract.ts; router/AppRouter; appNavigation; resourceRegistry | Frontend Developer | VERIFIED | 2026-10-06 |
+| Executive dormant route gate | src/features/executive/config/executive.contract.ts; router/AppRouter; appNavigation; resourceRegistry | Frontend Developer | VERIFIED | 2026-10-06 |
 | Navigation/resource regression | src/tests/router/RuntimeContractRoutes.test.tsx; src/tests/components/appNavigation.test.tsx | Frontend Developer | PASS | 2026-10-06 |
 | Persistent handoff | .ai-workflow/PROJECT_MEMORY.md HOFF-0014 | Frontend Developer | UPDATED | 2026-10-06 |
 

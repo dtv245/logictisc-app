@@ -1,7 +1,7 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { useDocumentUpload } from "@/features/documents/useDocumentUpload";
-import { buildDocumentFormData } from "@/features/documents/documents.api";
+import { useDocumentUpload } from "@/features/documents/hooks/useDocumentUpload";
+import { buildDocumentFormData } from "@/features/documents/api/documents.api";
 import * as refineCore from "@refinedev/core";
 
 vi.mock("@refinedev/core", () => ({

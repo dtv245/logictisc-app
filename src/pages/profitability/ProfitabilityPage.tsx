@@ -8,11 +8,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ForbiddenState, QueryErrorState } from "@/components/ErrorStates";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
-import { ProfitabilityFilters, type ProfitabilityFilterValues } from "@/features/profitability/ProfitabilityFilters";
-import { ProfitabilitySummary } from "@/features/profitability/ProfitabilitySummary";
-import { ProfitabilityBreakdownTable } from "@/features/profitability/ProfitabilityBreakdownTable";
-import { financialAmount, financialMetricValue } from "@/features/profitability/financialDisplay";
-import { financialQueryKeys, PROFITABILITY_ENDPOINTS, toLoadProfitabilityReport } from "@/features/profitability/profitability.api";
+import { ProfitabilityFilters, type ProfitabilityFilterValues } from "@/features/profitability/components/ProfitabilityFilters";
+import { ProfitabilitySummary } from "@/features/profitability/components/ProfitabilitySummary";
+import { ProfitabilityBreakdownTable } from "@/features/profitability/components/ProfitabilityBreakdownTable";
+import { financialAmount, financialMetricValue } from "@formatters/financialDisplay";
+import { financialQueryKeys, PROFITABILITY_ENDPOINTS, toLoadProfitabilityReport } from "@/features/profitability/api/profitability.api";
 import { ApiHttpError } from "@/utils/httpError";
 import type { LoadFinancialSummaryDto } from "@/types/profitability.dto";
 

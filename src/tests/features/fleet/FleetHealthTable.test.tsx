@@ -6,7 +6,7 @@ import i18n from "i18next";
 import {
   FleetHealthTable,
   formatSecondsToHoursMinutes,
-} from "@/features/fleet/FleetHealthTable";
+} from "@/features/fleet/components/FleetHealthTable";
 import type { FleetCoverage } from "@/types/fleetReport.dto";
 import { viMessages } from "@/locales";
 

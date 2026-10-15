@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { toVehicleMapPoints, type OperationsTruckRecord } from "@features/operations/operations.data";
+import { toVehicleMapPoints, type OperationsTruckRecord } from "@features/operations/utils/operations.data";
 
 const truck = (
   overrides: Partial<OperationsTruckRecord> = {},

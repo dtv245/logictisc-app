@@ -4,8 +4,8 @@ import {
   resetAiSettings,
   saveAiSettings,
   testAiConnection,
-} from "@/features/ai-dispatch/aiConfigStorage";
-import { DEFAULT_AI_SETTINGS, type AiSettings } from "@/types/aiConfig.types";
+} from "@/features/ai-dispatch/hooks/aiConfigStorage";
+import { DEFAULT_AI_SETTINGS, type AiSettings } from "@/features/ai-dispatch/types/aiConfig.types";
 
 describe("aiConfigStorage — Quản lý lưu trữ cấu hình AI", () => {
   beforeEach(() => {

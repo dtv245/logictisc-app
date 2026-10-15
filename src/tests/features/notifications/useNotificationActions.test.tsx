@@ -3,7 +3,7 @@ import { useCan } from "@refinedev/core";
 import { QueryClient } from "@tanstack/react-query";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { useNotificationActions } from "@/features/notifications/useNotificationActions";
+import { useNotificationActions } from "@/features/notifications/hooks/useNotificationActions";
 import { NotificationMarkAllRead } from "@/features/notifications/components/NotificationMarkAllRead";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { ApiHttpError } from "@/utils/httpError";

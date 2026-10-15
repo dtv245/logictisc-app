@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { toIntlLocale } from "@formatters/intlLocale";
 import { formatMoney } from "@formatters/money";
 import type { ApiError } from "@/types/api.types";
-import type { Product } from "@/types/product.types";
+import type { Product } from "@/features/products/types";
 
 export const ProductShow = () => {
   const { i18n, t } = useTranslation();

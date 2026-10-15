@@ -16,9 +16,9 @@
 import { Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 
-import type { MetricReference } from "@/types/executive.types";
-import { formatMetricValue } from "../executive.format";
-import { useIntlLocale } from "../useIntlLocale";
+import type { MetricReference } from "@/features/executive/types";
+import { formatMetricValue } from "../utils/executive.format";
+import { useIntlLocale } from "../hooks/useIntlLocale";
 
 interface ReferenceChipProps {
   reference: MetricReference;

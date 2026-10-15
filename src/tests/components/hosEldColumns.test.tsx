@@ -24,13 +24,13 @@ import type { i18n as I18nInstance } from "i18next";
 
 import { initializeAppI18n } from "@locales";
 import { defaultStatusStyles } from "@components/StatusTag";
-import { useLocalizedColumns } from "@components/useLocalizedColumns";
+import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import {
   hosEldColumns,
   formatDurationMinutes,
   HOS_DUTY_STATUS_MAP,
 } from "@features/hos-eld/components/columns";
-import type { HosLog } from "@/types/hos-eld.types";
+import type { HosLog } from "@/features/hos-eld/types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -6,7 +6,7 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { DOCUMENT_UPLOAD_CONTRACT_CONFIRMED } from "../documents.api";
+import { DOCUMENT_UPLOAD_CONTRACT_CONFIRMED } from "../api/documents.api";
 
 const { Text, Title } = Typography;
 

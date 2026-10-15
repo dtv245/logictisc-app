@@ -28,15 +28,15 @@ def mapping(method, path):
         return ["src/features/messaging/messaging.api.ts", "src/features/messaging/MessagingPanel.tsx"], "DORMANT", "FE_PATCHED", "Mapped employee/self reads; omit sender/participants; membership gate remains runtime-unverified"
     if path.startswith("/api/payments"):
         if method == "DELETE": return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "Deprecated: authorized server command always rejects PAYMENT_DELETE_FORBIDDEN; UI delete removed"
-        return ["src/features/payments/paymentCommands.ts", "src/features/payments/PaymentCommandForm.tsx", "src/types/payment.dto.ts"], "ACTIVE" if method == "GET" else "DORMANT", "FE_PATCHED", "Flat view/create; PENDING/invoice/key; frozen replay; metadata omission/null; query cancellation"
+        return ["src/features/payments/api/paymentCommands.ts", "src/features/payments/components/PaymentCommandForm.tsx", "src/types/payment.dto.ts"], "ACTIVE" if method == "GET" else "DORMANT", "FE_PATCHED", "Flat view/create; PENDING/invoice/key; frozen replay; metadata omission/null; query cancellation"
     if "/requested-pickup-business-date" in path:
-        return ["src/features/loads/PickupBusinessDateForm.tsx"], "DORMANT", "FE_PATCHED", "Independent LocalDate/provenance/expectedChangeId; never appointment conversion"
+        return ["src/features/loads/components/PickupBusinessDateForm.tsx"], "DORMANT", "FE_PATCHED", "Independent LocalDate/provenance/expectedChangeId; never appointment conversion"
     if path.endswith("/rating/preview"):
-        return ["src/features/rates/FscPreview.tsx", "src/types/rateRule.dto.ts"], "ACTIVE", "FE_PATCHED", "Ephemeral preview; optional selectors omitted; freeze request/server hashes for acceptance"
+        return ["src/features/rates/components/FscPreview.tsx", "src/types/rateRule.dto.ts"], "ACTIVE", "FE_PATCHED", "Ephemeral preview; optional selectors omitted; freeze request/server hashes for acceptance"
     if path.endswith("/rating/accept"):
-        return ["src/features/invoices/billingCommands.ts", "src/features/rates/RatingAcceptance.tsx"], "DORMANT", "FE_PATCHED", "Frozen preview request and server hashes; actor from identity"
+        return ["src/features/invoices/api/billingCommands.ts", "src/features/rates/components/RatingAcceptance.tsx"], "DORMANT", "FE_PATCHED", "Frozen preview request and server hashes; actor from identity"
     if path.startswith("/api/invoices/billing"):
-        return ["src/features/invoices/billingCommands.ts", "src/features/invoices/PrimaryInvoiceForm.tsx"], "DORMANT", "FE_PATCHED", "Snapshot identity invoiceId; explicit tax evidence; 120-character invoice key; typed correction commands"
+        return ["src/features/invoices/api/billingCommands.ts", "src/features/invoices/components/PrimaryInvoiceForm.tsx"], "DORMANT", "FE_PATCHED", "Snapshot identity invoiceId; explicit tax evidence; 120-character invoice key; typed correction commands"
     if group in ["customers", "employees", "trucks", "loads", "trips", "invoices", "roles", "drivers", "documents", "notifications"] and re.fullmatch(r"/api/[\w-]+(?:/\{id\})?", path):
         status = "FE_PATCHED" if group in ["customers", "employees", "trucks", "loads", "trips", "invoices"] else "MATCHED"
         note = "Flat projection/request; schema string vocabulary; exact role grants" if status == "FE_PATCHED" else "Retain existing envelope adapter and query contract; new authority matrix applied"
@@ -46,38 +46,38 @@ def mapping(method, path):
             note += "; authoritative pre-read permits legacy DRAFT only, rated/issued guarded"
         return ["src/pages/resourceRegistry.ts", "src/providers/dataProvider.ts"], "ACTIVE", status, note
     if path.startswith("/api/trips/") and path.endswith(("/drivers", "/unassign", "/stops")) or path.startswith("/api/trip-stops/") and "calculate-detention" not in path:
-        return ["src/features/trips/tripExecution.api.ts", "src/features/trips/useTripDriverAssignments.ts", "src/features/trips/useTripStopActions.ts"], "ACTIVE", "MATCHED", "Existing execution commands; no collection creation/nested stop mutation"
+        return ["src/features/trips/api/tripExecution.api.ts", "src/features/trips/hooks/useTripDriverAssignments.ts", "src/features/trips/hooks/useTripStopActions.ts"], "ACTIVE", "MATCHED", "Existing execution commands; no collection creation/nested stop mutation"
     if path.endswith("/timeline"):
-        return ["src/features/loads/LoadTimelinePanel.tsx"], "ACTIVE", "MATCHED", "Tenant/Load scoped read; original occurrence times"
+        return ["src/features/loads/components/LoadTimelinePanel.tsx"], "ACTIVE", "MATCHED", "Tenant/Load scoped read; original occurrence times"
     if "accessorial" in path or "calculate-detention" in path:
         return ["src/features/accessorials/accessorials.api.ts"], "ACTIVE", "MATCHED", "Independent customer/company/driver amounts; explicit approve and measured detention"
     if "/costs" in path and path.startswith("/api/loads/"):
         return ["src/features/shipment-costs/shipmentCosts.api.ts"], "ACTIVE", "MATCHED", "Load ledger only; estimate/actual and source evidence kept separate"
     if path.startswith("/api/reports/profitability") or path.endswith("/financial-summary"):
-        return ["src/features/profitability/profitability.api.ts", "src/features/profitability/financialDisplay.ts"], "ACTIVE", "MATCHED", "Authoritative availability/currency/unit/reason; no zero/FX/attribution reconstruction"
+        return ["src/features/profitability/api/profitability.api.ts", "src/features/profitability/utils/financialDisplay.ts"], "ACTIVE", "MATCHED", "Authoritative availability/currency/unit/reason; no zero/FX/attribution reconstruction"
     if path in ["/api/reports/fleet/health", "/api/reports/fleet/utilization-history"]:
-        return ["src/features/fleet/fleetReport.api.ts"], "ACTIVE" if path.endswith("utilization-history") else "NOT_USED_BY_FE", "MATCHED", "Explicit policy/trucks/period/zone; report roles; historical DONE remains distinct from new certification"
+        return ["src/features/fleet/api/fleetReport.api.ts"], "ACTIVE" if path.endswith("utilization-history") else "NOT_USED_BY_FE", "MATCHED", "Explicit policy/trucks/period/zone; report roles; historical DONE remains distinct from new certification"
     if path.startswith("/api/reports/") or path.endswith("/balance"):
-        return ["src/features/executive/executive.queries.ts"], "DORMANT", "CONTRACT_BLOCKED", "Executive foundation retained; legacy DTO/parameter compatibility and summary missing"
+        return ["src/features/executive/api/executive.queries.ts"], "DORMANT", "CONTRACT_BLOCKED", "Executive foundation retained; legacy DTO/parameter compatibility and summary missing"
     if path.startswith("/api/driver-settlements"):
         if path.endswith(("/recalculate-revenue", "/billing-adjustments")):
-            return ["src/features/settlements/settlementRevenue.api.ts"], "DORMANT", "FE_PATCHED", "Distinct Recalculate expectedSnapshotId and Adjustment affectedDocumentId; separate outcomes/intent"
-        return ["src/features/settlements/settlement.query.ts", "src/features/settlements/useSettlementActions.ts"], "ACTIVE", "MATCHED", "List is envelope array; exposed commands only; immutable correction history"
+            return ["src/features/settlements/api/settlementRevenue.api.ts"], "DORMANT", "FE_PATCHED", "Distinct Recalculate expectedSnapshotId and Adjustment affectedDocumentId; separate outcomes/intent"
+        return ["src/features/settlements/api/settlement.query.ts", "src/features/settlements/hooks/useSettlementActions.ts"], "ACTIVE", "MATCHED", "List is envelope array; exposed commands only; immutable correction history"
     if path.startswith("/api/driver-pay-policies"):
-        return ["src/features/settlements/driverPayPolicy.query.ts"], "ACTIVE", "FE_PATCHED", "Existing versioned policy contract; tenant/permission query scope added"
+        return ["src/features/settlements/api/driverPayPolicy.query.ts"], "ACTIVE", "FE_PATCHED", "Existing versioned policy contract; tenant/permission query scope added"
     if path.startswith("/api/pay-periods"):
-        return ["src/features/settlements/settlement.query.ts"], "ACTIVE" if method == "GET" else "NOT_USED_BY_FE", "MATCHED", "Explicit period read for calculation; no inferred period"
+        return ["src/features/settlements/api/settlement.query.ts"], "ACTIVE" if method == "GET" else "NOT_USED_BY_FE", "MATCHED", "Explicit period read for calculation; no inferred period"
     if path.startswith("/api/payroll/"):
         if "/configuration/" in path or "provider-callbacks" in path or "no-payment-required" in path:
             return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "Configuration editor reads absent; provider callback is server-only; no-payment command has no current UI"
         if path.endswith("/payslips"): return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "Lock issues slips atomically; no standalone browser reissuance"
-        return ["src/features/payroll/payroll.api.ts", "src/features/payroll/usePayrollActions.ts", "src/features/payroll/usePayrollPaymentActions.ts"], "ACTIVE", "FE_PATCHED", "Explicit RAW adapter; run/item/payment semantics distinct; keyed commands frozen; reconciliation Spring page 0-based"
+        return ["src/features/payroll/api/payroll.api.ts", "src/features/payroll/hooks/usePayrollActions.ts", "src/features/payroll/hooks/usePayrollPaymentActions.ts"], "ACTIVE", "FE_PATCHED", "Explicit RAW adapter; run/item/payment semantics distinct; keyed commands frozen; reconciliation Spring page 0-based"
     if path.startswith("/api/payslips") or path == "/api/driver/me/payslips":
-        return ["src/features/payslips/payslip.api.ts", "src/pages/payslips/MyPayslipsPage.tsx", "src/pages/payslips/PayslipShow.tsx"], "ACTIVE", "FE_PATCHED", "RAW metadata/self list; PDF blob/no-store; employee ownership; no current payment claim"
+        return ["src/features/payslips/api/payslip.api.ts", "src/pages/payslips/MyPayslipsPage.tsx", "src/pages/payslips/PayslipShow.tsx"], "ACTIVE", "FE_PATCHED", "RAW metadata/self list; PDF blob/no-store; employee ownership; no current payment claim"
     if path.startswith("/api/optimization/runs"):
-        return ["src/features/optimization/optimization.api.ts", "src/features/optimization/useOptimizationActions.ts"], "ACTIVE", "FE_PATCHED", "Server rank/score/fingerprint; frozen command; scoped resource/version refresh; conflict guard"
+        return ["src/features/optimization/api/optimization.api.ts", "src/features/optimization/hooks/useOptimizationActions.ts"], "ACTIVE", "FE_PATCHED", "Server rank/score/fingerprint; frozen command; scoped resource/version refresh; conflict guard"
     if path == "/api/notifications/mark-all-read":
-        return ["src/features/notifications/useNotificationActions.ts"], "ACTIVE", "MATCHED", "Existing tenant-wide command; no per-object read-receipt API"
+        return ["src/features/notifications/hooks/useNotificationActions.ts"], "ACTIVE", "MATCHED", "Existing tenant-wide command; no per-object read-receipt API"
     return [], "NOT_USED_BY_FE", "NOT_USED_BY_FE", "No current frontend consumer; catalog records backend surface only"
 
 

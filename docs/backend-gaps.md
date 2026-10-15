@@ -51,12 +51,12 @@ The following original non-feature items were not revalidated in this scoped con
 > This original reporting/seeder snapshot is retained for audit only. Its six-endpoint claims, legacy DTOs, source/seed descriptions and BE-014–019 resolutions are not current runtime certification. In 2026-10-06 runtime, executive-summary is absent, Fleet history exists with explicit policy/truck/date/zone, and monthly financial requires year/month with a different DTO. Current CRUD scope BE-016 and Executive compatibility BE-031 are in the first table. No seed/database/migration action was performed or authorized here.
 
 The executive dashboard (`src/pages/dashboard/DashboardPage.tsx`) reads its
-numbers from `src/features/executive/executive.queries.ts`, which calls the six
+numbers from `src/features/executive/api/executive.queries.ts`, which calls the six
 endpoints under `/api/reports/**` and nothing else. There are two independent
 layers of "no number here", and both must be read before a value reaches the
 screen:
 
-1. **Static.** `src/features/executive/executive.metrics.ts` declares whether an
+1. **Static.** `src/features/executive/utils/executive.metrics.ts` declares whether an
    endpoint serves a metric at all. A metric no endpoint returns renders an
    empty frame naming the endpoint it would need — never a fabricated or
    extrapolated value.
@@ -134,7 +134,7 @@ could be written, and the failure looked like a new-code bug when it was not.
 
 ### The requested currency must match the unit the rows are actually in
 
-`src/features/executive/executive.constants.ts` sets `DISPLAY_CURRENCY = "VND"`.
+`src/features/executive/config/executive.constants.ts` sets `DISPLAY_CURRENCY = "VND"`.
 An earlier revision had it as `"USD"` while every seeded invoice, payment and
 expense row is in VND, so all six endpoints answered `available: false` with
 reason `NO_ROWS_IN_CURRENCY`. That was the correct answer to the question being
@@ -170,7 +170,7 @@ currencies are still never summed into one total.
 - **Every threshold the dashboard displays carries its provenance.** The
   frontend distinguishes an internal target, an industry benchmark and a
   historical baseline by ink weight, dash pattern and a lettered mark (T/I/H),
-  and it never renders one as another — see `src/features/executive/executive.refs.ts`.
+  and it never renders one as another — see `src/features/executive/utils/executive.refs.ts`.
   Where a benchmark is not applicable to the selected fleet type, the table
   holds `industry: null` and the UI is structurally unable to show it as an
   industry benchmark. None of the six endpoints returns a benchmark, so the

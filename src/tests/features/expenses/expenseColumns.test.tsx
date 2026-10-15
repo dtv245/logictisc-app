@@ -9,13 +9,13 @@ import { I18nextProvider } from "react-i18next";
 import type { i18n as I18nInstance } from "i18next";
 
 import { initializeAppI18n } from "@locales";
-import { useLocalizedColumns } from "@components/useLocalizedColumns";
+import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import {
   expenseColumns,
   expenseStatusMap,
   formatExpenseAmount,
 } from "@features/expenses/components/columns";
-import type { Expense } from "@/types/expense.types";
+import type { Expense } from "@/features/expenses/types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

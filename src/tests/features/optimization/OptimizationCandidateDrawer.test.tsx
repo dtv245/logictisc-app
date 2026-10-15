@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { OptimizationCandidateDrawer } from "@/features/optimization/OptimizationCandidateDrawer";
+import { OptimizationCandidateDrawer } from "@/features/optimization/components/OptimizationCandidateDrawer";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { candidate, optimization, rejectedCandidate } from "@/tests/fixtures/optimization";
 describe("OptimizationCandidateDrawer", () => {

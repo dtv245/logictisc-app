@@ -2,8 +2,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { canJwtRolesAccess } from "@/providers/permissions/roleMatrix";
 import { JWT_ROLES } from "@/types/roles.types";
-import { readPayslipSnapshot } from "@/features/payslips/payslip.snapshot";
-import { downloadPayslipPdf, type PayslipDownloader } from "@/features/payslips/payslip.api";
+import { readPayslipSnapshot } from "@/features/payslips/utils/payslip.snapshot";
+import { downloadPayslipPdf, type PayslipDownloader } from "@/features/payslips/api/payslip.api";
 import { payslipSnapshot } from "@/tests/fixtures/payslip";
 import { enMessages, viMessages, jaMessages } from "@/locales";
 describe("payslip contract", () => {

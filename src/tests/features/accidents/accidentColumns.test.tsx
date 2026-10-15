@@ -9,13 +9,13 @@ import { I18nextProvider } from "react-i18next";
 import type { i18n as I18nInstance } from "i18next";
 
 import { initializeAppI18n } from "@locales";
-import { useLocalizedColumns } from "@components/useLocalizedColumns";
+import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import {
   accidentColumns,
   accidentSeverityMap,
   accidentStatusMap,
 } from "@features/accidents/components/columns";
-import type { AccidentReport } from "@/types/accident.types";
+import type { AccidentReport } from "@/features/accidents/types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

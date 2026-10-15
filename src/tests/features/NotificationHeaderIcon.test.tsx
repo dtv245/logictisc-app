@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { NotificationHeaderIcon } from "@/features/notifications/components/NotificationHeaderIcon";
-import { playNotificationSound } from "@/features/notifications/notificationSound";
+import { playNotificationSound } from "@/features/notifications/utils/notificationSound";
 
 describe("NotificationHeaderIcon & Audio Sound", () => {
   it("exports NotificationHeaderIcon component and playNotificationSound helper", () => {

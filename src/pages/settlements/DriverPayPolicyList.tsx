@@ -28,9 +28,9 @@ import { EmptyState } from "@/components/EmptyState";
 import {
   useDriverPayPolicies,
   useDriverPayPolicyMutations,
-} from "@/features/settlements/driverPayPolicy.query";
-import { DriverPayPolicyForm } from "@/features/settlements/DriverPayPolicyForm";
-import { DriverPayPolicyVersionHistory } from "@/features/settlements/DriverPayPolicyVersionHistory";
+} from "@/features/settlements/api/driverPayPolicy.query";
+import { DriverPayPolicyForm } from "@/features/settlements/components/DriverPayPolicyForm";
+import { DriverPayPolicyVersionHistory } from "@/features/settlements/components/DriverPayPolicyVersionHistory";
 import {
   formatPercentDisplay,
   PAY_METHODS,

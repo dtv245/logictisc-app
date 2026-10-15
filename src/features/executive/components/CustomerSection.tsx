@@ -23,15 +23,15 @@ import type {
   CustomerConcentrationRow,
   MetricUnit,
   MetricValue,
-} from "@/types/executive.types";
+} from "@/features/executive/types";
 import {
   formatMetricOrDash,
   formatMetricValue,
   metricNumber,
-} from "../executive.format";
-import { unavailableReasonKey } from "../executive.metrics";
-import { resolveConcentrationRisk } from "../executive.refs";
-import { useIntlLocale } from "../useIntlLocale";
+} from "../utils/executive.format";
+import { unavailableReasonKey } from "../utils/executive.metrics";
+import { resolveConcentrationRisk } from "../utils/executive.refs";
+import { useIntlLocale } from "../hooks/useIntlLocale";
 import { SectionCard } from "./SectionCard";
 import { StatusPill } from "./StatusPill";
 import { UnavailableNotice } from "./UnavailableNotice";

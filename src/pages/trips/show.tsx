@@ -5,9 +5,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { formatDateTime } from "@/formatters/dateTime";
-import { TripDriverAssignments } from "@/features/trips/TripDriverAssignments";
-import { TripMileageSummary } from "@/features/trips/TripMileageSummary";
-import { TripStopsTimeline } from "@/features/trips/TripStopsTimeline";
+import { TripDriverAssignments } from "@/features/trips/components/TripDriverAssignments";
+import { TripMileageSummary } from "@/features/trips/components/TripMileageSummary";
+import { TripStopsTimeline } from "@/features/trips/components/TripStopsTimeline";
 import type { ApiError } from "@/types/api.types";
 import type { Trip } from "@/types/trip.types";
 

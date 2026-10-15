@@ -12,9 +12,9 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { routes } from "@/constants/routes";
 import { isUuid } from "@/utils/uuid";
 import { formatDateOnly, formatDateTime } from "@/formatters/dateTime";
-import { financialAmount } from "@/features/profitability/financialDisplay";
-import { payslipApi, payslipKeys } from "@/features/payslips/payslip.api";
-import { readPayslipSnapshot } from "@/features/payslips/payslip.snapshot";
+import { financialAmount } from "@formatters/financialDisplay";
+import { payslipApi, payslipKeys } from "@/features/payslips/api/payslip.api";
+import { readPayslipSnapshot } from "@/features/payslips/utils/payslip.snapshot";
 import type { PayslipDto } from "@/types/payslip.dto";
 import type { ApiHttpError } from "@/utils/httpError";
 export function MyPayslipsPage() {

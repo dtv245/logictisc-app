@@ -7,8 +7,8 @@ import { ForbiddenState } from "@/components/ErrorStates";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { isUuid } from "@/utils/uuid";
 import { routes } from "@/constants/routes";
-import { useOptimizationActions } from "@/features/optimization/useOptimizationActions";
-import { OptimizationRunForm } from "@/features/optimization/OptimizationRunForm";
+import { useOptimizationActions } from "@/features/optimization/hooks/useOptimizationActions";
+import { OptimizationRunForm } from "@/features/optimization/components/OptimizationRunForm";
 
 export function OptimizationPage() {
   const { t } = useTranslation();

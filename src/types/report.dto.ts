@@ -3,7 +3,7 @@
  *
  * Đây là DTO thô đúng như backend trả về — không format, không suy diễn
  * (`.agents/rules/frontend-engineering.md` §2). Lớp chuyển đổi sang mô hình
- * hiển thị nằm ở `features/executive/executive.queries.ts`.
+ * hiển thị nằm ở `features/executive/api/executive.queries.ts`.
  *
  * Điểm quan trọng nhất của tệp này: `ReportMetric` là một union rẽ nhánh theo
  * `available`, không phải `{ value: number | null }`. Mọi chỉ số backend trả về

@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LatLngBounds, Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-import type { VehicleMapPoint } from "../operations.data";
-import "../operations.scss";
+import type { VehicleMapPoint } from "../utils/operations.data";
+import "../styles/operations.scss";
 
 interface VehicleTrackingMapProps {
   errorMessage?: string;

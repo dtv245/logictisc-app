@@ -9,7 +9,7 @@ import { I18nextProvider } from "react-i18next";
 import type { i18n as I18nInstance } from "i18next";
 
 import { initializeAppI18n } from "@locales";
-import { useLocalizedColumns } from "@components/useLocalizedColumns";
+import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import { terminalColumns, formatTerminalAddress } from "@features/terminals/components/columns";
 import type { Terminal } from "@/types/terminal.types";
 

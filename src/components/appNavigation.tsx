@@ -21,7 +21,7 @@ import {
 import type { AccessResource } from "@/types/roles.types";
 
 import { routes } from "@constants/routes";
-import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/executive.contract";
+import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
 
 export interface AppNavItem {
   icon: React.ReactNode;

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { TripMileageSummary } from "@/features/trips/TripMileageSummary";
+import { TripMileageSummary } from "@/features/trips/components/TripMileageSummary";
 
 describe("TripMileageSummary", () => {
   it("renders 4 separate mileage metrics with formatted values when provided", () => {

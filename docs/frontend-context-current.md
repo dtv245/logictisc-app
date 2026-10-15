@@ -105,7 +105,6 @@ src/
 │   ├── appNavigation.tsx            # Navigation icons & labels
 │   ├── crudColumns.tsx              # Factory tạo cột antd table từ resource definition
 │   ├── statusTone.ts                # Ánh xạ trạng thái chuỗi -> StatusTone
-│   ├── useLocalizedColumns.tsx      # Hook dịch tự động tiêu đề cột
 │   └── resources/                   # Config fields, filters, forms cho resources
 │       ├── resourceCapabilities.ts
 │       ├── resourceFilterControls.ts
@@ -169,7 +168,8 @@ src/
 │   ├── useLarkLogin.ts              # Hook xác thực Lark SSO (redirect & callback)
 │   ├── useLogoutUser.ts
 │   ├── useSwitchTenant.ts           # Chuyển đổi tenant (buộc tái xác thực IdP)
-│   └── useTenantList.ts
+│   ├── useTenantList.ts
+│   └── useLocalizedColumns.tsx      # Hook dịch tự động tiêu đề cột
 ├── locales/                         # Đa ngôn ngữ (i18next)
 │   ├── en.ts
 │   ├── ja.ts
@@ -374,7 +374,7 @@ flowchart TD
   - 10 resources hoạt động: `customers`, `employees`, `terminals`, `trucks`, `loads`, `trips`, `invoices`, `payments`, `documents` (chỉ list/show/delete), `notifications` (chỉ list/show).
   - 2 lookup resources: `drivers`, `roles`.
 - **Sử dụng Custom API / `useCustom`**:
-  - Executive Overview Dashboard (`src/features/executive/executive.queries.ts`): Gọi 6 aggregate endpoints:
+  - Executive Overview Dashboard (`src/features/executive/api/executive.queries.ts`): Gọi 6 aggregate endpoints:
     1. `GET /api/reports/executive-summary`
     2. `GET /api/reports/financials/monthly`
     3. `GET /api/reports/costs/by-category`
@@ -661,7 +661,7 @@ Các khu vực tuyệt đối **KHÔNG ĐƯỢC CHẠM VÀO HOẶC TỰ Ý THAY 
    - Cơ chế single-flight refresh token, Axios interceptors, unwrap envelope, error normalization và query serializer đã được kiểm chứng qua 100% unit tests và xử lý được các ca biên phức tạp.
 2. **`src/providers/permissions/roleMatrix.ts` & `accessControlProvider.ts`**:
    - Ma trận phân quyền fail-closed của dự án. Không được nới lỏng hoặc bỏ qua kiểm tra quyền.
-3. **`src/features/executive/executive.queries.ts` & `executive.metrics.ts`**:
+3. **`src/features/executive/api/executive.queries.ts` & `executive.metrics.ts`**:
    - Nguyên tắc xử lý số liệu điều hành ("Không có số nghĩa là không có số"). Tuyệt đối không thay thế `UNAVAILABLE` bằng `0` hoặc tự ý tính toán ngoại suy số liệu tài chính trên frontend.
 4. **Cơ chế xác định Tenant**:
    - Không được thêm header `X-Tenant*` hoặc gọi API đổi tenant nhân tạo. Tenant bắt buộc phải được giải quyết từ JWT claims qua Identity Server.

@@ -23,7 +23,7 @@ import { defaultStatusStyles } from "@components/StatusTag";
 import {
   createSettlementColumns,
   SETTLEMENT_TYPE_TONE_MAP,
-} from "@features/settlements/settlement.columns";
+} from "@features/settlements/components/settlement.columns";
 import type { DriverSettlementView } from "@/types/settlement.dto";
 
 let i18nInstance: I18nInstance;

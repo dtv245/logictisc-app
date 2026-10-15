@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AiConfigModal } from "@/features/ai-dispatch/components/AiConfigModal";
-import { getStoredAiSettings } from "@/features/ai-dispatch/aiConfigStorage";
+import { getStoredAiSettings } from "@/features/ai-dispatch/hooks/aiConfigStorage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { useState } from "react";
 

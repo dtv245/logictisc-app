@@ -20,9 +20,9 @@ import {
   useDriverPayPolicies,
   useDriverPayPolicy,
   useDriverPayPolicyMutations,
-} from "@/features/settlements/driverPayPolicy.query";
-import { DriverPayPolicyForm } from "@/features/settlements/DriverPayPolicyForm";
-import { DriverPayPolicyVersionHistory } from "@/features/settlements/DriverPayPolicyVersionHistory";
+} from "@/features/settlements/api/driverPayPolicy.query";
+import { DriverPayPolicyForm } from "@/features/settlements/components/DriverPayPolicyForm";
+import { DriverPayPolicyVersionHistory } from "@/features/settlements/components/DriverPayPolicyVersionHistory";
 import {
   formatPercentDisplay,
   type DriverPayPolicyRequest,

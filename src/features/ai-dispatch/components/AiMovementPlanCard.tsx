@@ -32,10 +32,10 @@ import { useNavigate } from "react-router-dom";
 import { StatusTag } from "@/components/StatusTag";
 import { formatDateTime } from "@/formatters/dateTime";
 import { routes } from "@/constants/routes";
-import type { AiMovementPlan, AiPlanStopType } from "@/types/ai-dispatch.types";
-import type { AiDispatchActionsResult } from "../useAiDispatchActions";
+import type { AiMovementPlan, AiPlanStopType } from "@/features/ai-dispatch/types/ai-dispatch.types";
+import type { AiDispatchActionsResult } from "../hooks/useAiDispatchActions";
 
-import "../ai-dispatch.scss";
+import "../styles/ai-dispatch.scss";
 
 interface Props {
   plan: AiMovementPlan | null;

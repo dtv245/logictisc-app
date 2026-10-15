@@ -12,9 +12,9 @@
 import { Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 
-import type { MetricUnit, StatusLevel } from "@/types/executive.types";
-import { formatMetricValue } from "../executive.format";
-import { useIntlLocale } from "../useIntlLocale";
+import type { MetricUnit, StatusLevel } from "@/features/executive/types";
+import { formatMetricValue } from "../utils/executive.format";
+import { useIntlLocale } from "../hooks/useIntlLocale";
 
 interface BulletMeterProps {
   label: string;

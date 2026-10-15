@@ -12,15 +12,15 @@ import { routes } from "@/constants/routes";
 import { isUuid } from "@/utils/uuid";
 import type { DriverSettlementView } from "@/types/settlement.dto";
 import type { ApiHttpError } from "@/utils/httpError";
-import { SETTLEMENT_ENDPOINTS } from "@/features/settlements/settlement.api";
-import { settlementKeys } from "@/features/settlements/settlement.keys";
-import { useSettlementActions } from "@/features/settlements/useSettlementActions";
-import { SettlementSummary } from "@/features/settlements/SettlementSummary";
-import { SettlementLinesTable } from "@/features/settlements/SettlementLinesTable";
-import { SettlementAudit } from "@/features/settlements/SettlementAudit";
-import { SettlementActions } from "@/features/settlements/SettlementActions";
-import { SettlementAdjustments } from "@/features/settlements/SettlementAdjustments";
-import { CreateAdjustmentModal } from "@/features/settlements/CreateAdjustmentModal";
+import { SETTLEMENT_ENDPOINTS } from "@/features/settlements/api/settlement.api";
+import { settlementKeys } from "@/features/settlements/api/settlement.keys";
+import { useSettlementActions } from "@/features/settlements/hooks/useSettlementActions";
+import { SettlementSummary } from "@/features/settlements/components/SettlementSummary";
+import { SettlementLinesTable } from "@/features/settlements/components/SettlementLinesTable";
+import { SettlementAudit } from "@/features/settlements/components/SettlementAudit";
+import { SettlementActions } from "@/features/settlements/components/SettlementActions";
+import { SettlementAdjustments } from "@/features/settlements/components/SettlementAdjustments";
+import { CreateAdjustmentModal } from "@/features/settlements/components/CreateAdjustmentModal";
 import "./Settlements.scss";
 
 function SettlementDetail({ settlement }: { settlement: DriverSettlementView }) {

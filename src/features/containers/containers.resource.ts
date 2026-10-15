@@ -1,7 +1,7 @@
 /** Khai báo Container resource cho Refine. */
 import { InboxOutlined } from "@ant-design/icons";
 import { routes } from "../../constants/routes";
-import { createResourceConfig } from "@pages/resourceConfig";
+import { createResourceConfig } from "@utils/resourceConfig";
 export const containersResource = createResourceConfig({
   icon: InboxOutlined,
   label: "Container",

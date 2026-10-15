@@ -9,13 +9,13 @@ import { I18nextProvider } from "react-i18next";
 import type { i18n as I18nInstance } from "i18next";
 
 import { initializeAppI18n } from "@locales";
-import { useLocalizedColumns } from "@components/useLocalizedColumns";
+import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import {
   dvirColumns,
   dvirResultMap,
   dvirStatusMap,
 } from "@features/dvir/components/columns";
-import type { DvirReport } from "@/types/dvir.types";
+import type { DvirReport } from "@/features/dvir/types";
 import { defaultStatusStyles } from "@components/StatusTag";
 
 const queryClient = new QueryClient({

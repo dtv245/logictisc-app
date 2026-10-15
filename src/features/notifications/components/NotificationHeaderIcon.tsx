@@ -25,8 +25,8 @@ import { useNavigate } from "react-router-dom";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { NotificationMarkAllRead } from "./NotificationMarkAllRead";
 import { routes } from "@/constants/routes";
-import type { Notification } from "@/types/notification.types";
-import { playNotificationSound } from "../notificationSound";
+import type { Notification } from "../types";
+import { playNotificationSound } from "../utils/notificationSound";
 
 export const NotificationHeaderIcon = ({ placement = "bottomRight" }: Pick<PopoverProps, "placement">) => {
   const { t } = useTranslation();

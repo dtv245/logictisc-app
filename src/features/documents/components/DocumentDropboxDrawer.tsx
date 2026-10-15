@@ -20,7 +20,7 @@ import type { Document } from "@/types/document.types";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateTime } from "@/formatters/dateTime";
-import { formatFileSize, getFileVisual } from "../utils/documentUtils";
+import { formatFileSize, getFileVisual } from "./documentUtils";
 
 const { Text, Title, Paragraph } = Typography;
 

@@ -1,6 +1,6 @@
 /** Centralizes UI capabilities that differ from generic JSON CRUD. */
 
-import { PAYMENT_COMMANDS_RUNTIME_VERIFIED } from "@/features/payments/paymentCommands";
+import { PAYMENT_COMMANDS_RUNTIME_VERIFIED } from "@/features/payments/api/paymentCommands";
 
 export interface ResourceCapabilities {
   create: boolean;

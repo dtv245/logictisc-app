@@ -9,7 +9,7 @@ import {
   inclusiveToExclusiveLastDate,
   isDateDisabledAfterToday,
   COMMON_TIMEZONES,
-} from "@/features/fleet/fleetDateRange";
+} from "@/features/fleet/utils/fleetDateRange";
 
 describe("fleetDateRange", () => {
   describe("inclusiveToExclusiveLastDate", () => {

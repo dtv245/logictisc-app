@@ -6,7 +6,7 @@ import { createCrudColumns } from "@components/crudColumns";
 import { displayValue } from "@formatters/display";
 import { formatMoney } from "@formatters/money";
 import { formatDateTime } from "@formatters/dateTime";
-import type { LoadBoardListing } from "@/types/load-board.types";
+import type { LoadBoardListing } from "../types";
 import type { Address, Money } from "@/types/common.types";
 import type { StatusTone } from "@components/StatusTag";
 

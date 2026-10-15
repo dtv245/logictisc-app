@@ -38,12 +38,12 @@ import {
   type AiProviderConfig,
   type AiProviderId,
   type AiSettings,
-} from "@/types/aiConfig.types";
+} from "@/features/ai-dispatch/types/aiConfig.types";
 import {
   testAiConnection,
   useAiSettings,
-} from "../aiConfigStorage";
-import "../ai-dispatch.scss";
+} from "../hooks/aiConfigStorage";
+import "../styles/ai-dispatch.scss";
 
 export interface AiConfigModalProps {
   open: boolean;

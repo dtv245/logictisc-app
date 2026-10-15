@@ -1,7 +1,7 @@
 /** Khai báo DVIR resource cho Refine. */
 import { SafetyCertificateOutlined } from "@ant-design/icons";
 import { routes } from "../../constants/routes";
-import { createResourceConfig } from "@pages/resourceConfig";
+import { createResourceConfig } from "@utils/resourceConfig";
 export const dvirResource = createResourceConfig({
   icon: SafetyCertificateOutlined,
   label: "DVIR",

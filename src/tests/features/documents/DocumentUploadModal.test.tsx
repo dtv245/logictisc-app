@@ -1,16 +1,16 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ConfigProvider, App as AntdApp } from "antd";
-import { DocumentUploadModal } from "@/features/documents/DocumentUploadModal";
-import * as useDocumentUploadModule from "@/features/documents/useDocumentUpload";
+import { DocumentUploadModal } from "@/features/documents/components/DocumentUploadModal";
+import * as useDocumentUploadModule from "@/features/documents/hooks/useDocumentUpload";
 
 const uploadContract = vi.hoisted(() => ({ confirmed: true }));
-vi.mock("@/features/documents/documents.api", async (importOriginal) => ({
-  ...await importOriginal<typeof import("@/features/documents/documents.api")>(),
+vi.mock("@/features/documents/api/documents.api", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@/features/documents/api/documents.api")>(),
   get DOCUMENT_UPLOAD_CONTRACT_CONFIRMED() { return uploadContract.confirmed; },
 }));
 
-vi.mock("@/features/documents/useDocumentUpload");
+vi.mock("@/features/documents/hooks/useDocumentUpload");
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => {

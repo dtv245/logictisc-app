@@ -5,12 +5,12 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
-import { LoadDocumentsPanel } from "@/features/loads/LoadDocumentsPanel";
-import { LoadExceptionsPanel } from "@/features/loads/LoadExceptionsPanel";
-import { LoadFinancialPanel } from "@/features/loads/LoadFinancialPanel";
-import { LoadOverviewPanel } from "@/features/loads/LoadOverviewPanel";
-import { LoadTimelinePanel } from "@/features/loads/LoadTimelinePanel";
-import { LoadTripPanel } from "@/features/loads/LoadTripPanel";
+import { LoadDocumentsPanel } from "@/features/loads/components/LoadDocumentsPanel";
+import { LoadExceptionsPanel } from "@/features/loads/components/LoadExceptionsPanel";
+import { LoadFinancialPanel } from "@/features/loads/components/LoadFinancialPanel";
+import { LoadOverviewPanel } from "@/features/loads/components/LoadOverviewPanel";
+import { LoadTimelinePanel } from "@/features/loads/components/LoadTimelinePanel";
+import { LoadTripPanel } from "@/features/loads/components/LoadTripPanel";
 import type { ApiError } from "@/types/api.types";
 import type { Load } from "@/types/load.types";
 

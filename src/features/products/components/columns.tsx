@@ -17,7 +17,7 @@ import { routes } from "@constants/routes";
 import { createCrudColumns } from "@components/crudColumns";
 import { StatusTag } from "@components/StatusTag";
 import { formatMoney } from "@formatters/money";
-import type { Product } from "@/types/product.types";
+import type { Product } from "../types";
 
 export interface ProductColumnActions {
   onEdit: (id: string | number) => void;

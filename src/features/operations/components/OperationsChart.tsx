@@ -1,7 +1,7 @@
 import { LockOutlined } from "@ant-design/icons";
 import { Empty, Skeleton, Typography } from "antd";
 
-import "../operations.scss";
+import "../styles/operations.scss";
 
 export interface OperationsChartItem {
   color: string;

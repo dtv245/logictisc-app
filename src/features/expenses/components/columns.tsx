@@ -7,7 +7,7 @@ import { displayValue } from "@formatters/display";
 import { formatMoney } from "@formatters/money";
 import { formatDateOnly } from "@formatters/dateTime";
 import type { StatusTone } from "@components/StatusTag";
-import type { Expense } from "@/types/expense.types";
+import type { Expense } from "../types";
 import type { Money } from "@/types/common.types";
 
 /** Bảng ánh xạ trạng thái chi phí sang tone ngữ nghĩa */

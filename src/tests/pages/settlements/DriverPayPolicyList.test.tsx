@@ -17,7 +17,7 @@ const render = (ui: ReactNode) => rtlRender(
   </Refine>,
 );
 
-vi.mock("@/features/settlements/driverPayPolicy.query", () => ({
+vi.mock("@/features/settlements/api/driverPayPolicy.query", () => ({
   useDriverPayPolicies: () => mockUseDriverPayPolicies(),
   useDriverPayPolicyMutations: () => mockUseDriverPayPolicyMutations(),
 }));

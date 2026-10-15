@@ -1,6 +1,6 @@
 /** Định nghĩa columns cho AI Dispatch resource. */
 import { createCrudColumns } from "@components/crudColumns";
-import type { AiDispatchSession } from "@/types/ai-dispatch.types";
+import type { AiDispatchSession } from "@/features/ai-dispatch/types/ai-dispatch.types";
 export const aiDispatchColumns = createCrudColumns<AiDispatchSession>("ai-dispatch", [
   { dataIndex: "number", titleKey: "columns.ai-dispatch.number", sorter: true },
   { dataIndex: "mode", titleKey: "columns.ai-dispatch.mode", sorter: true },

@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { PaymentCommandForm } from "@/features/payments/PaymentCommandForm";
+import { PaymentCommandForm } from "@/features/payments/components/PaymentCommandForm";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 
 describe("Payment activation", () => {
