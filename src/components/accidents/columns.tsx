@@ -5,7 +5,7 @@ import { createCrudColumns } from "@components/crudColumns";
 import { displayValue } from "@formatters/display";
 import { formatDateTime } from "@formatters/dateTime";
 import type { StatusStyleConfig, StatusTone } from "@components/StatusTag";
-import type { AccidentReport } from "../types";
+import type { AccidentReport } from "@/types/accidents/accidents.types";
 
 /**
  * Bảng ánh xạ mức độ nghiêm trọng (severity) sang semantic StatusTone / StatusStyleConfig:

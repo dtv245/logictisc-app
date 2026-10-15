@@ -1,7 +1,7 @@
 /** Khai báo Accident resource cho Refine. */
 import { WarningOutlined } from "@ant-design/icons";
-import { routes } from "../../constants/routes";
-import { createResourceConfig } from "@utils/resourceConfig";
+import { routes } from "@/constants/routes";
+import { createResourceConfig } from "@/utils/resourceConfig";
 export const accidentsResource = createResourceConfig({
   icon: WarningOutlined,
   label: "Tai nạn",

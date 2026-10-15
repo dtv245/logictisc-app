@@ -10,7 +10,7 @@ Agent cập nhật cuối mỗi phiên. Mục [DUYỆT] do người dùng đánh
 |---|---|---|---|
 | 1 Chuẩn bị | done | 7a54262 | Xác minh commit gốc, bộ kiểm tra xanh (1205 test pass), đặt tag pre-restructure |
 | 2 Khung + mapping | done | HEAD | Lập docs/restructure/mapping.md đầy đủ các domain |
-| 3 Domain thử nghiệm | in-progress | | Domain accidents: 3 file |
+| 3 Domain thử nghiệm | done | HEAD | Domain accidents: 3 file (components, resources, types) + test |
 | 4 Tiền lương | todo | | |
 | 5 Vận hành | todo | | |
 | 6 Điều phối + bản đồ | todo | | |
@@ -22,6 +22,7 @@ Agent cập nhật cuối mỗi phiên. Mục [DUYỆT] do người dùng đánh
 ## Domain
 | Domain | Số file | Trạng thái |
 |---|---|---|
+| accidents | 3 | done |
 
 ## Quyết định đã duyệt
 ## Vấn đề mở

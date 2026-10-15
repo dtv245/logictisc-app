@@ -282,7 +282,7 @@ export default defineConfig(({ mode }) => {
   test: {
     environment: 'jsdom',
     testTimeout: 20000,
-    include: ['src/tests/**/*.test.{ts,tsx}'],
+    include: ['src/tests/**/*.test.{ts,tsx}', 'src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     setupFiles: ['./src/tests/setup.ts'],
     env: {
