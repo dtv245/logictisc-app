@@ -129,9 +129,29 @@ describe("FleetKpiGrid", () => {
 
     const button = await loadedCard.findByRole("button", { name: "Nhập phân bổ dặm" });
     expect(button).toBeInTheDocument();
-    expect(button).toHaveAttribute("data-endpoint", "/api/fleet/mileage-attributions");
+    expect(button).toBeEnabled();
     fireEvent.click(button);
     expect(onNavigate).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not route to an unavailable mileage attribution screen", async () => {
+    await renderFinance(
+      <FleetKpiGrid
+        report={{
+          ...fleetReport,
+          loadedMilesPercent: fleetMetric("LOADED_MILES_PERCENT", null, {
+            availability: "UNAVAILABLE",
+            reason: "FLEET_MILEAGE_ATTRIBUTION_REQUIRED",
+          }),
+        }}
+      />,
+      vi.fn(),
+      { role: "ADMIN" },
+    );
+
+    const loadedCard = metric("LOADED_MILES_PERCENT");
+    expect(await loadedCard.findByRole("button", { name: "Nhập phân bổ dặm" })).toBeDisabled();
+    expect(loadedCard.getByTestId("fleet-attribution-unavailable-LOADED_MILES_PERCENT")).toHaveTextContent(/not available in this runtime/i);
   });
 
   it("hides attribution action button when user does not have permission (Requirement 2)", async () => {

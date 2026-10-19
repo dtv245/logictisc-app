@@ -1,15 +1,25 @@
 /**
- * Sidebar dạng rail: nhóm điều hướng trắng bo tròn trên nền kem,
- * mục đang chọn nền than và icon vàng, tài khoản neo ở cuối thanh.
+ * AppSider — Thanh điều hướng Icon Rail hiện đại, phẳng, tinh gọn theo mockup tham chiếu.
+ * Rail 64px, không thẻ, không viền, không bóng, nền đồng nhất xám nhạt (#f2f2f4).
+ * Cột icon liên tục, ô chọn nền trắng bóng nhẹ, tiện ích thông báo và cụm đáy ghim chân.
  */
 
 .app-sider.ant-layout-sider {
-  --sider-surface: var(--color-bg-layout, #f4f1eb);
-  --sider-ink: #24292b;
-  --sider-accent: #ffe16a;
+  --sider-width: 64px;
+  --sider-surface: var(--color-bg-layout, #f2f2f4);
+  --sider-ink: #111111;
+  --sider-icon: #6b6b76;
+  --sider-hover: rgba(0, 0, 0, 0.04);
+  --sider-active-bg: #ffffff;
+  --sider-active-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
-  background: var(--sider-surface);
-  border-right: 0;
+  width: var(--sider-width) !important;
+  min-width: var(--sider-width) !important;
+  max-width: var(--sider-width) !important;
+  flex: 0 0 var(--sider-width) !important;
+  background: var(--sider-surface) !important;
+  border-right: 0 !important;
+  box-shadow: none !important;
   height: 100%;
   position: relative;
   align-self: flex-start;
@@ -18,108 +28,105 @@
 
   > .ant-layout-sider-children {
     height: 100%;
+    background: transparent;
   }
 
-  // Rail luôn hiện trên mobile vì Header không còn nút mở Drawer.
+  // Trên mobile giữ rail 60px để tối ưu diện tích hiển thị nội dung
   @media (max-width: 767.98px) {
     display: block !important;
-    width: 72px !important;
-    min-width: 72px !important;
-    max-width: 72px !important;
-    flex: 0 0 72px !important;
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    flex: 0 0 60px !important;
   }
 }
 
 .app-sider__content {
-  --sider-surface: var(--color-bg-layout, #f4f1eb);
-  --sider-ink: #24292b;
-  --sider-accent: #ffe16a;
+  --sider-surface: var(--color-bg-layout, #f2f2f4);
+  --sider-ink: #111111;
+  --sider-icon: #6b6b76;
+  --sider-hover: rgba(0, 0, 0, 0.04);
+  --sider-active-bg: #ffffff;
+  --sider-active-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 24px 16px 20px;
-  background: var(--sider-surface);
+  padding: 16px 10px 14px;
+  background: transparent;
   color: var(--sider-ink);
   box-sizing: border-box;
 
   @media (max-width: 767.98px) {
-    padding: 16px 8px;
+    padding: 12px 8px 10px;
   }
 
+  // 1. Khối logo ô vuông bo góc trên cùng
   .app-sider__logo {
     flex-shrink: 0;
-    height: 72px;
-    padding: 0 8px 20px;
+    height: 48px;
+    padding: 0 0 8px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 0;
     background: transparent;
-    justify-content: space-between;
   }
 
   .app-sider__brand {
-    min-width: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
+    transition: all 0.2s ease;
   }
 
   .app-brand {
-    gap: 10px;
-    color: var(--sider-ink) !important;
-    font-size: 19px;
+    margin: 0 !important;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
   }
 
   .app-brand__mark {
-    font-size: 26px;
+    font-size: 20px !important;
+    color: #ffffff !important;
   }
 
   .app-brand__name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: none;
   }
 
+  // 2. Cột icon điều hướng ở giữa, cuộn dọc độc lập ẩn scrollbar
   .app-sider__navigation {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
     padding: 4px 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-  }
-
-  .app-sider__group {
-    padding: 6px;
-    border-radius: 28px;
-    background: #fff;
-  }
-
-  .app-sider__group--utilities {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
-    margin-top: auto;
-
-    &:empty {
-      display: none;
-    }
-
-    > .ant-badge .ant-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      color: var(--sider-ink);
-    }
   }
 
+  // Menu các khu vực
   .app-sider__menu.ant-menu {
-    width: 100%;
+    width: 44px;
+    margin: 0 auto;
     border: 0;
     background: transparent;
-    color: var(--sider-ink);
+    color: var(--sider-icon, #6b6b76);
     font-size: 13px;
 
     .ant-menu-sub {
@@ -128,21 +135,61 @@
 
     .ant-menu-item,
     .ant-menu-submenu-title {
-      width: 100%;
-      height: 44px;
-      line-height: 44px;
-      margin: 2px 0;
-      border-radius: 22px;
+      width: 44px !important;
+      height: 44px !important;
+      min-height: 44px !important;
+      line-height: 44px !important;
+      margin: 3px 0 !important;
+      padding: 0 !important;
+      border-radius: 14px !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--sider-icon, #6b6b76);
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+
+      &:hover {
+        background: var(--sider-hover, rgba(0, 0, 0, 0.04)) !important;
+        color: var(--sider-ink, #111111) !important;
+      }
+    }
+
+    .ant-menu-submenu-open > .ant-menu-submenu-title {
+      background: var(--sider-hover, rgba(0, 0, 0, 0.04)) !important;
+      color: var(--sider-ink, #111111) !important;
     }
 
     .ant-menu-item-icon {
-      font-size: 18px;
+      font-size: 20px !important;
+      color: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 20px;
+      width: 20px;
+      height: 20px;
+      line-height: 1;
+      margin: 0;
     }
 
+    .app-sider__icon-wrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    // Mục đang chọn (Active): Nền TRẮNG, đổ bóng rất nhẹ, icon màu đậm gần đen
     .ant-menu-item-selected,
     .app-sider__zone--active > .ant-menu-submenu-title {
-      color: var(--sider-accent);
-      background: var(--sider-ink);
+      color: var(--sider-ink, #111111) !important;
+      background: var(--sider-active-bg, #ffffff) !important;
+      box-shadow: var(--sider-active-shadow, 0 2px 8px rgba(0, 0, 0, 0.06)) !important;
+
+      .ant-menu-item-icon {
+        color: var(--sider-ink, #111111) !important;
+      }
     }
 
     .ant-menu-item-selected::after {
@@ -150,99 +197,116 @@
     }
 
     .ant-menu-submenu-arrow {
-      color: inherit;
-    }
-
-    .ant-menu-item:not(.ant-menu-item-selected):hover,
-    .ant-menu-submenu:not(.app-sider__zone--active) > .ant-menu-submenu-title:hover {
-      background: #f4f1eb;
-      color: var(--sider-ink);
+      display: none !important;
     }
   }
 
+  // Khối thông báo (khoảng trống nhỏ ~16px sau Menu chính)
+  .app-sider__notifications {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    .app-sider__notification-btn.ant-btn {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      padding: 0;
+      border-radius: 14px;
+      color: var(--sider-icon, #6b6b76);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--sider-hover, rgba(0, 0, 0, 0.04));
+        color: var(--sider-ink, #111111);
+      }
+    }
+  }
+
+  // 3. Cụm tiện ích ghim ở đáy: Cài đặt, nút AI Agent, Avatar người dùng
   .app-sider__footer {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     flex-shrink: 0;
-    padding: 6px;
-    margin-top: 20px;
-    border-radius: 28px;
-    background: #fff;
+    padding: 10px 0 0;
+    margin-top: auto;
+    background: transparent;
   }
 
-  .app-sider__action.ant-btn,
+  // Nút AI Agent hình tròn nền tối viền tím
+  .app-sider__ai-agent-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #18181b;
+    border: 2px solid #8b5cf6;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.35);
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease;
+
+    &:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 14px rgba(139, 92, 246, 0.55);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #8b5cf6;
+    }
+  }
+
   .app-sider__account.ant-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
     padding: 0;
     border-radius: 50%;
-    color: var(--sider-ink);
+    border: 0;
+    background: transparent;
 
     &:hover {
-      color: var(--sider-ink);
-      background: #f4f1eb;
+      opacity: 0.9;
     }
-  }
-
-  .app-sider__action {
-    flex-shrink: 0;
-    font-size: 17px;
-  }
-
-  .app-sider__account.ant-btn {
-    flex: 1;
-    min-width: 0;
-    gap: 8px;
-    padding-right: 6px;
-    border-radius: 22px;
   }
 
   .app-sider__account .ant-avatar {
     flex-shrink: 0;
-    color: #343c32;
-    background: #d7d3bd;
-    border: 2px solid #fff;
-  }
-
-  .app-sider__account-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 12px;
+    color: #ffffff;
+    background: #111111;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    font-weight: 600;
+    font-size: 13px;
   }
 
   .ant-btn:focus-visible,
   .ant-menu-item:focus-visible,
   .ant-menu-submenu-title:focus-visible {
-    outline: 2px solid #82701e;
+    outline: 2px solid rgba(17, 17, 17, 0.35);
     outline-offset: -2px;
   }
-
 }
 
+// Chế độ thu gọn inline-collapsed
 .app-sider__content--compact {
-  .app-sider__logo {
-    height: 92px;
-    justify-content: center;
-    padding: 0 0 24px;
-  }
-
-  .app-brand--compact {
-    flex-direction: column;
-    gap: 3px;
-    font-size: 9px;
-    line-height: 1.4;
-    max-width: 56px;
-  }
-
-  .app-brand__mark {
-    font-size: 25px;
-  }
-
   .app-sider__menu.ant-menu-inline-collapsed {
     > .ant-menu-submenu > .ant-menu-submenu-title {
       display: flex;
@@ -251,17 +315,6 @@
       padding: 0;
     }
 
-    .ant-menu-item-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 18px;
-      width: 18px;
-      margin: 0;
-      line-height: 1;
-    }
-
-    // Nhãn vẫn đọc được bằng screen reader nhưng không chiếm khoảng cách cạnh icon.
     .ant-menu-title-content {
       position: absolute;
       width: 0;
@@ -274,34 +327,48 @@
       display: none;
     }
   }
-
-  .app-sider__footer {
-    flex-direction: column;
-  }
-
-  .app-sider__account.ant-btn {
-    flex: none;
-    width: 44px;
-    padding: 0;
-  }
 }
 
+// Menu nổi (Flyout popup)
 .app-sider-popup.ant-menu-submenu-popup {
   .ant-menu {
-    padding: 6px;
-    border-radius: 20px;
-    border: 1px solid #eeeae2;
-    box-shadow: 0 12px 36px rgb(36 41 43 / 12%);
+    padding: 8px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
   }
 
   .ant-menu-item {
-    min-height: 44px;
-    border-radius: 14px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 10px;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+      color: #111111;
+    }
   }
 
   .ant-menu-item-selected {
-    color: #ffe16a;
-    background: #24292b;
+    color: #ffffff !important;
+    background: #111111 !important;
+  }
+
+  .ant-menu-item-group-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #9ca3af;
+    padding: 6px 12px 2px;
   }
 }
 
@@ -309,7 +376,13 @@
   .app-sider.ant-layout-sider,
   .app-sider__content .ant-menu,
   .app-sider__content .ant-menu-submenu-title,
-  .app-sider__content .ant-btn {
+  .app-sider__content .ant-btn,
+  .app-sider__ai-agent-btn {
     transition: none;
   }
+}
+
+// Khi ứng dụng có thanh Sider, ẩn button tròn nổi ở góc dưới phải để không choáng chỗ
+body:has(.app-sider) [data-testid="ai-gap-chat-container"] {
+  display: none !important;
 }

@@ -1,21 +1,15 @@
-import React, { useState } from "react";
-import { Col, Row, Space } from "antd";
-import { useCan } from "@refinedev/core";
+import React, { useMemo } from "react";
 import dayjs from "dayjs";
-
-import { TopFilterBar } from "./TopFilterBar";
-import { KpiCards } from "./KpiCards";
-import { FinancialSection } from "./FinancialSection";
-import { OperationsSection } from "./OperationsSection";
-import { DriverRankingTable } from "./DriverRankingTable";
-import { ProfitabilityRankingsTable } from "./ProfitabilityRankingsTable";
 import { useDashboardData } from "../hooks/useDashboardData";
-import { useDriverRanking } from "../hooks/useDriverRanking";
+import { DEFAULT_CURRENCY, INITIAL_DASHBOARD_FILTERS } from "../config/rankingWeights";
 import type { DashboardFilters } from "../types";
-import {
-  DEFAULT_CURRENCY,
-  INITIAL_DASHBOARD_FILTERS,
-} from "../config/rankingWeights";
+import type { KpiItemProps } from "../types/primitives.types";
+import { DashboardHeader } from "./DashboardHeader";
+import { KpiStrip } from "./KpiStrip";
+import { PriorityShipmentCard } from "./PriorityShipmentCard";
+import { OperationsBrief } from "./OperationsBrief";
+import { NetworkMiniMap } from "./NetworkMiniMap";
+import { DispatchTimeline } from "./DispatchTimeline";
 import "./OperationsDashboardView.scss";
 
 export interface OperationsDashboardViewProps {
@@ -23,164 +17,119 @@ export interface OperationsDashboardViewProps {
   className?: string;
 }
 
+const getKpiState = (
+  isLoading: boolean,
+  error: unknown,
+  value: number | null,
+): KpiItemProps["state"] => {
+  if (isLoading) return "loading";
+  if (error) return "error";
+  return value === null ? "unavailable" : "ready";
+};
+
 export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = ({
   initialFilters,
-  className,
+  className = "",
 }) => {
-  // Check role authorization for financial metrics
-  const profitAccess = useCan({ resource: "profitability", action: "PROFITABILITY_VIEW" });
-  const invoiceAccess = useCan({ resource: "invoices", action: "BILLING_VIEW" });
-  const canViewFinancials = profitAccess.data?.can === true || invoiceAccess.data?.can === true;
-
-  // Initialize filters
   const today = dayjs();
-  const [filters, setFilters] = useState<DashboardFilters>(() => ({
-    ...INITIAL_DASHBOARD_FILTERS,
-    from: today.subtract(30, "day").format("YYYY-MM-DD"),
-    to: today.format("YYYY-MM-DD"),
-    currency: DEFAULT_CURRENCY,
-    ...initialFilters,
-  }));
+  const filters: DashboardFilters = useMemo(
+    () => ({
+      ...INITIAL_DASHBOARD_FILTERS,
+      from: today.subtract(30, "day").format("YYYY-MM-DD"),
+      to: today.format("YYYY-MM-DD"),
+      currency: DEFAULT_CURRENCY,
+      ...initialFilters,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [initialFilters],
+  );
 
-  const [lastRefreshed, setLastRefreshed] = useState<Date>(() => new Date());
+  // Fetch real queries using existing useDashboardData
+  const dashboardData = useDashboardData(filters, { enableFinancials: false });
 
-  // Dashboard queries
-  const dashboardData = useDashboardData(filters, {
-    enableFinancials: canViewFinancials,
-  });
+  // KPI chỉ dùng field có trong response hiện tại; thiếu field không được thay bằng số mẫu.
+  const kpiItems: KpiItemProps[] = useMemo(() => {
+    const otd = dashboardData.otd;
+    const delays = dashboardData.delays;
+    const exceptions = dashboardData.exceptions;
 
-  // Driver ranking query
-  const driverRankingData = useDriverRanking(filters);
+    const otdValue = typeof otd.data?.otdPercentage === "number" && Number.isFinite(otd.data.otdPercentage)
+      ? Math.round(otd.data.otdPercentage)
+      : null;
+    const delaysCount = typeof delays.data?.totalLateLoads === "number" && Number.isFinite(delays.data.totalLateLoads)
+      ? delays.data.totalLateLoads
+      : null;
+    const exceptionsCount = typeof exceptions.data?.totalExceptions === "number" && Number.isFinite(exceptions.data.totalExceptions)
+      ? exceptions.data.totalExceptions
+      : null;
 
-  const handleRefresh = () => {
-    dashboardData.refetchAll();
-    driverRankingData.refetch();
-    setLastRefreshed(new Date());
-  };
-
-  const isRefreshing =
-    dashboardData.monthlyTrend.isFetching ||
-    dashboardData.expenses.isFetching ||
-    dashboardData.otd.isFetching ||
-    driverRankingData.isFetching;
-
-  const handleExportCsv = () => {
-    // Generate simple CSV of current KPIs and driver rankings
-    const rows = [
-      ["Báo cáo", "Dashboard Điều Phối Vận Hành"],
-      ["Khoảng thời gian", `${filters.from} - ${filters.to}`],
-      ["Loại tiền tệ", filters.currency],
-      [],
-      ["Hạng", "Tài xế", "Điểm", "Hoàn thành đơn", "Tổng dặm", "Đúng giờ %", "Doanh thu"],
-      ...(driverRankingData.data?.drivers || []).map((d) => [
-        d.rank,
-        d.driverName,
-        d.score,
-        d.completedLoads,
-        d.totalMiles,
-        `${d.onTimePercent}%`,
-        d.revenue,
-      ]),
+    return [
+      {
+        label: "Đang trên đường",
+        value: null,
+        state: "unavailable",
+      },
+      {
+        label: "Nguy cơ trễ (At Risk)",
+        value: delaysCount,
+        context: "ETA sát giờ SLA",
+        state: getKpiState(delays.isLoading, delays.error, delaysCount),
+      },
+      {
+        label: "Đúng giờ (OTD)",
+        value: otdValue,
+        state: getKpiState(otd.isLoading, otd.error, otdValue),
+      },
+      {
+        label: "Đã giao hôm nay",
+        value: null,
+        state: "unavailable",
+      },
+      {
+        label: "Xe sẵn sàng gán",
+        value: null,
+        state: "unavailable",
+      },
+      {
+        label: "Ngoại lệ phát sinh",
+        value: exceptionsCount,
+        context: "Sự cố giao nhận",
+        state: getKpiState(exceptions.isLoading, exceptions.error, exceptionsCount),
+      },
     ];
-
-    const csvContent =
-      "data:text/csv;charset=utf-8,\uFEFF" +
-      rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `dashboard_report_${filters.from}_${filters.to}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  }, [dashboardData]);
 
   return (
-    <div
-      className={`ops-dashboard-view ${className ?? ""}`.trim()}
-    >
-      {/* Sticky Top Filter Bar */}
-      <TopFilterBar
-        filters={filters}
-        onChange={setFilters}
-        onRefresh={handleRefresh}
-        onExportCsv={handleExportCsv}
-        isRefreshing={isRefreshing}
-        lastUpdated={lastRefreshed}
-      />
+    <div className={`ops-dashboard-layout ${className}`}>
+      {/* 1. Header (Full Width) */}
+      <div className="ops-grid-area-header">
+        <DashboardHeader onRefresh={dashboardData.refetchAll} />
+      </div>
 
-      <div className="ops-overview-content">
-        <Space direction="vertical" size={24} style={{ width: "100%" }}>
-          {/* Row 1: KPI Cards (4-6 thẻ) */}
-          <KpiCards
-            currency={filters.currency}
-            monthlyTrendPoints={dashboardData.monthlyTrend.points}
-            expenses={dashboardData.expenses}
-            prevExpenses={dashboardData.prevExpenses}
-            operatingCpm={dashboardData.operatingCpm}
-            prevOperatingCpm={dashboardData.prevOperatingCpm}
-            otd={dashboardData.otd}
-            prevOtd={dashboardData.prevOtd}
-            fleetCount={{
-              totalTrucks: dashboardData.counts.totalTrucks,
-              totalLoads: dashboardData.counts.totalLoads,
-            }}
-            enableFinancials={canViewFinancials}
-          />
+      {/* 2. KPI Strip (Full Width) */}
+      <div className="ops-grid-area-kpi">
+        <KpiStrip items={kpiItems} />
+      </div>
 
-          {/* Row 2: Financial Charts (Doanh thu/Chi phí/Lợi nhuận theo tháng + Chi phí theo hạng mục) */}
-          {canViewFinancials && (
-            <FinancialSection
-              currency={filters.currency}
-              monthlyTrendPoints={dashboardData.monthlyTrend.points}
-              monthlyTrendLoading={dashboardData.monthlyTrend.isLoading}
-              onRefreshMonthly={dashboardData.monthlyTrend.refetch}
-              expenses={dashboardData.expenses}
-              fuel={dashboardData.fuel}
-              maintenance={dashboardData.maintenance}
-            />
-          )}
+      {/* 3. Priority Shipment Card (8 cols) & Operations Brief (4 cols) */}
+      <div className="ops-grid-area-priority">
+        <PriorityShipmentCard />
+      </div>
 
-          {/* Row 3: Operations Indicators (OTD, Delays, Exceptions, Transit Time, Fleet) */}
-          <OperationsSection
-            otd={dashboardData.otd}
-            delays={dashboardData.delays}
-            transitTime={dashboardData.transitTime}
-            exceptions={dashboardData.exceptions}
-            counts={{
-              totalLoads: dashboardData.counts.totalLoads,
-              totalTrips: dashboardData.counts.totalTrips,
-              totalTrucks: dashboardData.counts.totalTrucks,
-            }}
-          />
+      <div className="ops-grid-area-brief">
+        <OperationsBrief />
+      </div>
 
-          {/* Row 4: Rankings (Top 10 Tài xế + Top/Bottom Tuyến đường & Xe theo lợi nhuận) */}
-          <Row gutter={[16, 16]}>
-            <Col xs={24} xl={canViewFinancials ? 12 : 24}>
-              <DriverRankingTable
-                drivers={driverRankingData.data?.drivers || []}
-                isLoading={driverRankingData.isLoading}
-                isMock={driverRankingData.isMock}
-                sortBy={driverRankingData.sortBy}
-                onSortChange={driverRankingData.setSortBy}
-                currency={filters.currency}
-                onRetry={driverRankingData.refetch}
-                error={driverRankingData.error}
-              />
-            </Col>
+      {/* 4. Mini Map (4 cols) & Dispatch Timeline (8 cols) */}
+      <div className="ops-grid-area-map">
+        <NetworkMiniMap />
+      </div>
 
-            {canViewFinancials && (
-              <Col xs={24} xl={12}>
-                <ProfitabilityRankingsTable
-                  laneRankings={dashboardData.laneProfitability}
-                  truckRankings={dashboardData.truckProfitability}
-                  currency={filters.currency}
-                />
-              </Col>
-            )}
-          </Row>
-        </Space>
+      <div className="ops-grid-area-timeline">
+        <DispatchTimeline />
       </div>
     </div>
   );
 };
+
+export default OperationsDashboardView;

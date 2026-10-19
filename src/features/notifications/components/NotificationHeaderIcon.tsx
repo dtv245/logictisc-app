@@ -2,7 +2,7 @@
  * Nút thông báo dùng chung với dấu chưa đọc, âm thanh và popover xem nhanh.
  */
 
-import { BellOutlined } from "@ant-design/icons";
+import { NotificationNavIcon } from "@/components/navIcons";
 import { useCan, useList } from "@refinedev/core";
 import {
   Alert,
@@ -39,7 +39,8 @@ export const NotificationHeaderIcon = ({ placement = "bottomRight" }: Pick<Popov
     resource: "notifications",
     pagination: { current: 1, pageSize: 5 },
     queryOptions: {
-      refetchInterval: 10000,
+      refetchInterval: (_data, query) =>
+        query?.state?.status === "error" ? false : 10000,
       enabled: Boolean(tenant?.tenantKey && access.data?.can),
       queryKey: ["notification-header", tenant?.tenantKey],
     },
@@ -166,11 +167,17 @@ export const NotificationHeaderIcon = ({ placement = "bottomRight" }: Pick<Popov
       placement={placement}
       trigger="click"
     >
-      <Badge dot={unreadCount > 0 && !isError} title={t("notifications.recentUnread")} size="small">
+      <Badge
+        color="#e5484d"
+        count={unreadCount > 0 && !isError ? unreadCount : 0}
+        overflowCount={99}
+        size="small"
+        title={t("notifications.recentUnread")}
+      >
         <Button
           aria-label={t("resources.notifications")}
-          icon={<BellOutlined style={{ fontSize: 18 }} />}
-          shape="circle"
+          className="app-sider__notification-btn"
+          icon={<NotificationNavIcon size={20} strokeWidth={1.5} />}
           type="text"
         />
       </Badge>

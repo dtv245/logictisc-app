@@ -40,9 +40,9 @@ import { createRemoteJwkAccessTokenVerifier } from "./providers/auth/jwtVerifier
 import { useAntdNotificationProvider } from "./providers/notificationProvider";
 import { createBrowserOidcGateway } from "./providers/auth/oidcGateway";
 import { createLarkGateway } from "./providers/auth/larkGateway";
-import { shouldRetryQuery, queryRetryDelay } from "@/utils/retryPolicy";
+import { queryRetryDelay } from "@/utils/retryPolicy";
+import { isClientError } from "@/utils/isClientError";
 import { AuthSessionManager } from "./providers/auth/sessionManager";
-import { isRecord } from "./utils/envelope";
 
 export interface AppProps
   extends Omit<AppBootstrapProps, "renderReady"> {
@@ -191,15 +191,12 @@ export function RuntimeApplication({
               defaultOptions: {
                 queries: {
                   retry: (failureCount, error: unknown) => {
-                    const status = isRecord(error)
-                      ? error.statusCode ?? error.status ??
-                        (isRecord(error.response) ? error.response.status : undefined)
-                      : undefined;
-                    if (typeof status === "number" && status >= 400 && status < 600) {
+                    if (isClientError(error)) {
                       return false;
                     }
-                    return shouldRetryQuery(failureCount, error);
+                    return failureCount < 2;
                   },
+                  refetchOnWindowFocus: false,
                   retryDelay: queryRetryDelay,
                 },
               },

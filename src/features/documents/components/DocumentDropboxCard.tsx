@@ -2,7 +2,7 @@ import React from "react";
 import {
   Card,
   Dropdown,
-  Popconfirm,
+  Modal,
   Tag,
   Tooltip,
   Typography,
@@ -60,19 +60,16 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
       key: "delete",
       icon: <DeleteOutlined />,
       danger: true,
-      label: (
-        <Popconfirm
-          title={t("documents.dropbox.deleteConfirm")}
-          onConfirm={(e) => {
-            e?.stopPropagation();
-            onDelete(doc);
-          }}
-          okText={t("actions.confirm")}
-          cancelText={t("actions.cancel")}
-        >
-          <span style={{ display: "block" }}>{t("documents.dropbox.delete")}</span>
-        </Popconfirm>
-      ),
+      label: t("documents.dropbox.delete"),
+      onClick: () => {
+        Modal.confirm({
+          title: t("documents.dropbox.deleteConfirm"),
+          okText: t("actions.confirm"),
+          cancelText: t("actions.cancel"),
+          okButtonProps: { danger: true },
+          onOk: () => onDelete(doc),
+        });
+      },
     },
   ];
 

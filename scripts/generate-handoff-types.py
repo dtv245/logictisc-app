@@ -16,7 +16,12 @@ def generate():
         assert hashlib.sha256((BUNDLE.parent.parent / name).read_bytes()).hexdigest() == digest, name
     api = json.loads((BUNDLE / "openapi-backend-remediation.json").read_text())
     notes = json.loads((BUNDLE / "contract-notes.json").read_text())
-    schemas = api["components"]["schemas"]
+    schemas = dict(api["components"]["schemas"])
+    lark_path = ROOT / "docs/lark-base-openapi.json"
+    lark_contract = json.loads(lark_path.read_text())
+    for name, schema in lark_contract["components"]["schemas"].items():
+        if name not in schemas:
+            schemas[name] = schema
     for name, override in notes["request_schema_overrides"].items():
         schemas[name]["properties"].update(override["properties"])
     current = schemas["CurrentUserResponse"]
@@ -48,7 +53,7 @@ def generate():
             result = {"string": "string", "boolean": "boolean", "integer": "number", "number": "number", "null": "null"}.get(schema.get("type"), "unknown")
         return result + " | null" if schema.get("nullable") and "null" not in result.split(" | ") else result
 
-    lines = ["/** Generated transport catalog: 291 schemas. Run scripts/generate-handoff-types.py; do not edit.",
+    lines = [f"/** Generated transport catalog: {len(schemas)} schemas. Run scripts/generate-handoff-types.py; do not edit.",
              " * Source canonical SHA256: " + manifest["openapi_canonical_sha256"],
              " * Required/optional follow OAS; optional alone does not prove response non-nullability.",
              " * Semantic notes apply to CurrentUserResponse and metadata clears; runtime validators remain separate. */"]
@@ -79,6 +84,6 @@ if __name__ == "__main__":
     result = generate()
     if args.check:
         assert target.read_text() == result, "Generated catalog drift"
-        print("PASS: manifest hashes and 291 generated schemas")
+        print("PASS: handoff hashes and Lark runtime contract generated catalog")
     else:
         target.write_text(result)

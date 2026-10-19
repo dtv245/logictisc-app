@@ -1,0 +1,706 @@
+/* Shipment Detail Redesign Styles - LogisticsX TMS */
+
+.shipment-detail-container {
+  background-color: #f2f2f4;
+  min-height: calc(100vh - 64px);
+  padding: 24px;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
+}
+
+/* Header */
+.shipment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__back-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #334155;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      transform: translateX(-2px);
+    }
+  }
+
+  &__breadcrumb {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 4px;
+  }
+
+  &__title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.2;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  &__pill-btn {
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+    height: 38px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #0f172a;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    &--success {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+  }
+}
+
+/* Base Card */
+.shipment-card {
+  background: #ffffff;
+  border-radius: 22px;
+  border: 1px solid #e6e8eb;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.03);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  &--agent {
+    border: 1.5px solid #d8b4fe;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.06);
+  }
+}
+
+/* Two Column Layout */
+.shipment-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+
+  @media (max-width: 1100px) {
+    flex-direction: column;
+  }
+
+  &__main {
+    flex: 1 1 65%;
+    min-width: 0;
+    width: 100%;
+  }
+
+  &__side {
+    flex: 1 1 35%;
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* Hero Card Components */
+.shipment-hero {
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  &__event-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #7c3aed;
+    background: #f5f3ff;
+    padding: 4px 10px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+  }
+
+  &__route-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+    line-height: 1.2;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
+  }
+
+  &__subtitle {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  &__stats-group {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+
+    @media (max-width: 600px) {
+      width: 100%;
+      justify-content: space-between;
+      gap: 12px;
+    }
+  }
+
+  &__stat-box {
+    text-align: right;
+
+    @media (max-width: 600px) {
+      text-align: left;
+    }
+  }
+
+  &__stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 4px;
+  }
+
+  &__stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+  }
+
+  &__stat-sub {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 3px;
+
+    &--green {
+      color: #16a34a;
+    }
+
+    &--red {
+      color: #dc2626;
+    }
+
+    &--purple {
+      color: #7c3aed;
+    }
+  }
+}
+
+/* Truck Showcase Area */
+.truck-showcase {
+  position: relative;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 18px;
+  padding: 32px 20px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 220px;
+  overflow: hidden;
+
+  &__svg-wrapper {
+    max-width: 500px;
+    width: 100%;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__callouts {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+
+    @media (max-width: 850px) {
+      position: static;
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+    }
+  }
+
+  &__callout {
+    pointer-events: auto;
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 8px 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    @media (max-width: 850px) {
+      position: static;
+    }
+
+    &--driver {
+      top: 16px;
+      left: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    &--load {
+      bottom: 20px;
+      right: 20px;
+      text-align: right;
+
+      @media (max-width: 850px) {
+        text-align: left;
+      }
+    }
+
+    &--telemetry {
+      bottom: 20px;
+      left: 16px;
+    }
+
+    &--reefer {
+      top: 16px;
+      right: 20px;
+      text-align: right;
+
+      @media (max-width: 850px) {
+        text-align: left;
+      }
+    }
+  }
+
+  &__callout-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  &__callout-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+}
+
+/* Route Progress Track */
+.route-progress {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+
+  &__track {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 36px 16px 12px;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 9px;
+      left: 20px;
+      right: 20px;
+      height: 4px;
+      background: #e2e8f0;
+      z-index: 0;
+    }
+  }
+
+  &__fill {
+    position: absolute;
+    top: 9px;
+    left: 20px;
+    height: 4px;
+    background: #0f172a;
+    z-index: 1;
+    transition: width 0.4s ease;
+  }
+
+  &__detour-arc {
+    position: absolute;
+    top: -22px;
+    left: 35%;
+    width: 30%;
+    height: 22px;
+    border-top: 2px dashed #8b5cf6;
+    border-radius: 50% 50% 0 0;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__detour-badge {
+    position: absolute;
+    top: -12px;
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  &__stop {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+  }
+
+  &__dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3px solid #64748b;
+    box-sizing: border-box;
+
+    &--active {
+      border-color: #0f172a;
+      background: #0f172a;
+    }
+
+    &--completed {
+      border-color: #0f172a;
+      background: #0f172a;
+    }
+
+    &--current {
+      width: 26px;
+      height: 26px;
+      background: #0f172a;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 0 2px #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 13px;
+      margin-top: -4px;
+    }
+  }
+
+  &__stop-name {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: center;
+  }
+
+  &__stop-time {
+    font-size: 11px;
+    color: #64748b;
+    text-align: center;
+    margin-top: 2px;
+  }
+}
+
+/* Two Cards Below Hero */
+.shipment-subgrid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 850px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Agent Card Styles */
+.agent-card {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f5f3ff;
+    color: #6d28d9;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  &__meta {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 16px;
+  }
+
+  &__section {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    font-size: 13px;
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+      gap: 4px;
+    }
+  }
+
+  &__label {
+    width: 140px;
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  &__content {
+    color: #1e293b;
+    line-height: 1.5;
+  }
+
+  &__metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 18px 0;
+    text-align: center;
+    gap: 8px;
+  }
+
+  &__metric-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__metric-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+
+    &--green {
+      color: #16a34a;
+    }
+  }
+
+  &__metric-desc {
+    font-size: 11px;
+    color: #64748b;
+  }
+
+  &__footer {
+    background: #f5f3ff;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: #5b21b6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+}
+
+/* Timeline Card */
+.timeline-card {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  &__timezone {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #94a3b8;
+  }
+}
+
+/* Modern Pill Tabs Styling */
+.shipment-tabs-modern {
+  .ant-tabs-nav {
+    margin-bottom: 16px;
+    padding: 0 24px;
+
+    @media (max-width: 768px) {
+      padding: 0 12px;
+    }
+
+    &::before {
+      border-bottom: none !important;
+    }
+  }
+
+  .ant-tabs-tab {
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-right: 8px !important;
+    transition: all 0.2s ease !important;
+
+    .ant-tabs-tab-btn {
+      color: #64748b !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+    }
+
+    &:hover {
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    &.ant-tabs-tab-active {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+
+      .ant-tabs-tab-btn {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+      }
+    }
+  }
+
+  .ant-tabs-ink-bar {
+    display: none !important;
+  }
+
+  .ant-tabs-content-holder {
+    background: transparent;
+  }
+}
+
+/* Reset Refine Show default Card and Header */
+.shipment-detail-show-wrapper {
+  background: transparent !important;
+
+  .ant-page-header-heading {
+    display: none !important;
+  }
+
+  .ant-page-header {
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .ant-page-header-content {
+    padding-top: 0 !important;
+  }
+
+  .ant-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    .ant-card-body {
+      padding: 0 !important;
+    }
+  }
+}
+
+

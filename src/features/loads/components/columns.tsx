@@ -5,6 +5,7 @@ import { routes } from "@constants/routes";
 import { createCrudColumns } from "@components/crudColumns";
 import { displayValue } from "@formatters/display";
 import type { Load } from "@/types/load.types";
+import { LoadAiOverviewCell } from "@/components/ai/LoadAiOverviewCell";
 
 export const loadColumns = createCrudColumns<Load>(
   "loads",
@@ -84,6 +85,15 @@ export const loadColumns = createCrudColumns<Load>(
           </Tooltip>
         );
       },
+    },
+    {
+      dataIndex: "id",
+      titleKey: "columns.loads.aiAssistant",
+      width: 170,
+      minWidth: 150,
+      render: (_value: unknown, record: Load) => (
+        <LoadAiOverviewCell loadId={record.id} />
+      ),
     },
   ],
   {

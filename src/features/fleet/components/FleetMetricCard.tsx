@@ -8,11 +8,9 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import { Button, Card, Space, Statistic, Tooltip, Typography } from "antd";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { useCan } from "@refinedev/core";
 import { StatusTag } from "@/components/StatusTag";
 import { formatDateTime } from "@/formatters/dateTime";
-import { routes } from "@/constants/routes";
 import type { FleetMetricAvailability, FleetReport } from "@/types/fleetReport.dto";
 import { formatMetricValue } from "../utils/fleetMetricFormat";
 
@@ -90,7 +88,6 @@ export function FleetMetricCard({
   testId,
 }: FleetMetricCardProps) {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
 
   const currentStatus = (statusProp ?? availabilityProp ?? "UNAVAILABLE") as FleetMetricAvailability;
   const displayTitle = title ?? (code ? t(`fleet.metrics.${code}`, { defaultValue: code }) : "");
@@ -108,14 +105,6 @@ export function FleetMetricCard({
   });
   const hasMileagePermission =
     canAttributeMileageProp ?? Boolean(attributionAccess.data?.can || tripsAccess.data?.can);
-
-  const handleNavigateMileageAttributions = () => {
-    if (onNavigateMileageAttributions) {
-      onNavigateMileageAttributions();
-    } else {
-      navigate(routes.fleetMileageAttributions || "/fleet/mileage-attributions");
-    }
-  };
 
   const periodText = period ? formatPeriod(period, i18n.language) : "";
 
@@ -238,16 +227,28 @@ export function FleetMetricCard({
           </Typography.Text>
         )}
         {hasMileageAttributionRequired && hasMileagePermission && (
-          <Button
-            type="link"
-            size="small"
-            style={{ padding: 0, height: "auto" }}
-            data-testid={`fleet-attribution-btn-${code}`}
-            data-endpoint="/api/fleet/mileage-attributions"
-            onClick={handleNavigateMileageAttributions}
-          >
-            {t("fleet.enterMileageAttribution", { defaultValue: "Nhập phân bổ dặm" })}
-          </Button>
+          <>
+            <Button
+              type="link"
+              size="small"
+              style={{ padding: 0, height: "auto" }}
+              data-testid={`fleet-attribution-btn-${code}`}
+              disabled={!onNavigateMileageAttributions}
+              onClick={onNavigateMileageAttributions}
+            >
+              {t("fleet.enterMileageAttribution", { defaultValue: "Nhập phân bổ dặm" })}
+            </Button>
+            {!onNavigateMileageAttributions && (
+              <Typography.Text
+                type="secondary"
+                data-testid={`fleet-attribution-unavailable-${code}`}
+              >
+                {t("fleet.mileageAttributionUnavailable", {
+                  defaultValue: "Màn nhập phân bổ dặm chưa khả dụng.",
+                })}
+              </Typography.Text>
+            )}
+          </>
         )}
         {hasActualMileageHistoryUnavailable && (
           <Typography.Text type="secondary" data-testid={`fleet-metric-explanation-${code}`}>

@@ -31,6 +31,9 @@ vi.mock("@refinedev/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@refinedev/core")>();
   return { ...actual, useCanWithoutCache: () => ({ can: actions.can }) };
 });
+vi.mock("@/hooks/ai/useAiFeatures", () => ({
+  useAiFeatures: () => ({ enabled: false, isLoading: false, isError: false }),
+}));
 
 let i18n: I18nInstance;
 beforeAll(async () => {
@@ -64,17 +67,18 @@ describe("Shell với sidebar chứa thông báo và tài khoản", () => {
     expect(within(sider).getByRole("navigation", { name: "Thanh điều hướng" })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "Thông báo" })).toHaveLength(1);
     expect(within(sider).getByRole("button", { name: "Thông báo" })).toBeInTheDocument();
-    expect(await within(sider).findByText("Điều hành")).toBeInTheDocument();
+    expect(await within(sider).findByLabelText("Trung tâm điều hành")).toBeInTheDocument();
 
     fireEvent.click(within(sider).getByRole("button", { name: "Menu tài khoản" }));
     fireEvent.click(await screen.findByText("Đổi công ty"));
     expect(actions.switchTenant).toHaveBeenCalledTimes(1);
   });
 
-  it("nút đăng xuất ở sidebar tiếp tục gọi thao tác đăng xuất hiện có", () => {
+  it("thao tác đăng xuất từ menu tài khoản ở sidebar tiếp tục gọi thao tác đăng xuất hiện có", async () => {
     setViewport(375);
     renderShell();
-    fireEvent.click(screen.getByRole("button", { name: "Đăng xuất" }));
+    fireEvent.click(screen.getByRole("button", { name: "Menu tài khoản" }));
+    fireEvent.click(await screen.findByText("Đăng xuất"));
     expect(actions.logout).toHaveBeenCalledTimes(1);
   });
 });

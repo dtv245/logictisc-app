@@ -67,23 +67,23 @@ describe("aiConfigStorage — Quản lý lưu trữ cấu hình AI", () => {
     expect(res.message).toMatch(/API Key không được để trống/i);
   });
 
-  it("kiểm tra kết nối thành công khi có API Key hợp lệ", async () => {
+  it("không tuyên bố kết nối thật khi provider chưa có API kiểm tra", async () => {
     const res = await testAiConnection("gemini", {
       ...DEFAULT_AI_SETTINGS.providers.gemini,
       apiKey: "AIzaValidTestKey123",
     });
-    expect(res.success).toBe(true);
-    expect(res.message).toMatch(/Kết nối thành công tới Google Gemini/i);
+    expect(res.success).toBe(false);
+    expect(res.message).toMatch(/chưa thể xác minh/i);
     expect(res.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
-  it("cho phép kết nối Custom/Local LLM mà không bắt buộc API Key", async () => {
+  it("không mô phỏng kết nối Custom/Local LLM", async () => {
     const res = await testAiConnection("custom", {
       ...DEFAULT_AI_SETTINGS.providers.custom,
       apiKey: "",
       baseUrl: "http://localhost:11434/v1",
     });
-    expect(res.success).toBe(true);
-    expect(res.message).toMatch(/Kết nối thành công tới Custom \/ Local LLM/i);
+    expect(res.success).toBe(false);
+    expect(res.message).toMatch(/chưa thể xác minh/i);
   });
 });

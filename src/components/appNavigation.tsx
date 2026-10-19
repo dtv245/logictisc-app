@@ -107,8 +107,6 @@ export const visibleAppNavItems = (
 
 export {
   NAV_ZONES,
-  SIDER_NAV_GROUPS,
   type NavZone,
   type NavZoneItem,
-  type SiderNavGroup,
 } from "./AppSider";

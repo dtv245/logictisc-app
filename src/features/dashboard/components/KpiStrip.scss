@@ -1,0 +1,127 @@
+.ops-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  background: #fff;
+  padding: 4px 0 6px;
+  gap: 0;
+  border-radius: 24px;
+}
+
+.ops-kpi-item-link {
+  display: block;
+  text-decoration: none !important;
+  color: inherit;
+  min-width: 0;
+}
+
+.ops-kpi-item {
+  min-width: 0;
+  position: relative;
+  padding: 6px 18px 6px 0;
+  min-height: 85px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 24px;
+  box-sizing: border-box;
+}
+
+.ops-kpi-item-link:not(:first-child) .ops-kpi-item,
+.ops-kpi-strip > .ops-kpi-item:not(:first-child) {
+  padding-left: 20px;
+  border-left: 1px solid #eeedf0;
+}
+
+.ops-kpi-item__label {
+  color: #8c8a95;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.ops-kpi-item__value-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+.ops-kpi-item__value {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  line-height: 1.05;
+  color: #26242c;
+}
+
+.ops-kpi-item__context {
+  font-size: 12px;
+  color: #92909a;
+  margin-top: 6px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.ops-kpi-item .ops-kpi-item__tag {
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 0;
+}
+
+.ops-kpi-item__error {
+  color: #eb4b61;
+  display: flex;
+  gap: 4px;
+  font-size: 12px;
+}
+
+@media (min-width: 1600px) {
+  .ops-kpi-item {
+    min-height: 95px;
+    padding: 8px 22px 8px 0;
+  }
+
+  .ops-kpi-item-link:not(:first-child) .ops-kpi-item,
+  .ops-kpi-strip > .ops-kpi-item:not(:first-child) {
+    padding-left: 24px;
+  }
+
+  .ops-kpi-item__label {
+    font-size: 13px;
+  }
+
+  .ops-kpi-item__value {
+    font-size: 36px;
+  }
+
+  .ops-kpi-item__context {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .ops-kpi-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px 0;
+  }
+
+  .ops-kpi-item {
+    padding-left: 14px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .ops-kpi-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ops-kpi-item__value {
+    font-size: 26px;
+  }
+}

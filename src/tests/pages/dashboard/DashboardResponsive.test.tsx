@@ -1,27 +1,19 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { parseTableParams } from "@refinedev/core";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TopFilterBar } from "@features/dashboard/components/TopFilterBar";
-import { KpiCards } from "@features/dashboard/components/KpiCards";
-import { FinancialSection } from "@features/dashboard/components/FinancialSection";
-import { DriverRankingTable } from "@features/dashboard/components/DriverRankingTable";
-import { ProfitabilityRankingsTable } from "@features/dashboard/components/ProfitabilityRankingsTable";
+import { DashboardHeader } from "@features/dashboard/components/DashboardHeader";
+import { KpiStrip } from "@features/dashboard/components/KpiStrip";
+import { PriorityShipmentCard } from "@/components/dashboard/PriorityShipmentCard";
+import { OperationsBrief } from "@features/dashboard/components/OperationsBrief";
+import { NetworkMiniMap } from "@features/dashboard/components/NetworkMiniMap";
+import { DispatchTimeline } from "@features/dashboard/components/DispatchTimeline";
+import { OperationsDashboardView } from "@features/dashboard/components/OperationsDashboardView";
 import { VehicleTrackingMap } from "@features/operations/components/VehicleTrackingMap";
 import { OperationsChart } from "@features/operations/components/OperationsChart";
-import type {
-  DashboardFilters,
-  DriverRankingItem,
-  ExpenseSummaryReport,
-  FuelReport,
-  KnownOperatingCpmReport,
-  LaneProfitabilityReport,
-  MaintenanceSummaryReport,
-  MonthlyTrendPoint,
-  OtdReport,
-  TruckProfitabilityReport,
-  WidgetAsyncState,
-} from "@features/dashboard/types";
+import type { KpiItemProps } from "@features/dashboard/types/primitives.types";
 
 // Helper to set viewport
 const setViewport = (width: number, height = 800) => {
@@ -30,370 +22,260 @@ const setViewport = (width: number, height = 800) => {
   window.dispatchEvent(new Event("resize"));
 };
 
-const createMockAsync = <T,>(data: T): WidgetAsyncState<T> => ({
-  data,
-  isLoading: false,
-  isFetching: false,
-  isForbidden: false,
-  error: null,
-  refetch: vi.fn(),
-});
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  const queryClient = createTestQueryClient();
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>,
+  );
+};
+
+const SearchLocationProbe = () => {
+  const location = useLocation();
+  return <output data-testid="search-location">{location.pathname}{location.search}</output>;
+};
+
+// Mock Refine core hooks used by DashboardHeader & OperationsDashboardView
+vi.mock("@hooks/useCurrentUser", () => ({
+  useCurrentUser: () => ({
+    data: { id: "u-1", name: "Nguyễn Văn Điều Phối", email: "dispatcher@logistics.com", roles: ["DISPATCHER"] },
+    isLoading: false,
+  }),
+}));
+
+vi.mock("@hooks/useCurrentTenant", () => ({
+  useCurrentTenant: () => ({
+    tenant: { id: "t-1", tenantName: "Logistics Hub Miền Nam" },
+  }),
+}));
+
+vi.mock("@features/dashboard/hooks/useDashboardData", () => ({
+  useDashboardData: () => ({
+    otd: { data: { otdPercentage: 94 }, isLoading: false, error: null },
+    delays: { data: { totalLateLoads: 3 }, isLoading: false, error: null },
+    exceptions: { data: { totalExceptions: 2 }, isLoading: false, isError: false },
+    refetchAll: vi.fn(),
+  }),
+}));
+
+vi.mock("react-map-gl/maplibre", () => ({
+  default: ({ children }: { children?: React.ReactNode }) => <div data-testid="maplibre-map">{children}</div>,
+  NavigationControl: () => <div data-testid="navigation-control" />,
+  Source: ({ children }: { children?: React.ReactNode }) => <div data-testid="map-source">{children}</div>,
+  Layer: () => <div data-testid="map-layer" />,
+}));
 
 describe("Dashboard & Operations Responsive Verification", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("1. TopFilterBar responsive controls", () => {
-    const mockFilters: DashboardFilters = {
-      preset: "30d",
-      from: "2026-09-12",
-      to: "2026-10-12",
-      currency: "VND",
-      comparePrevious: true,
-      businessZoneId: "ALL",
-    };
-
-    it("renders presets container across mobile, tablet, and desktop viewports (375px, 414px, 768px, 1024px, 1440px)", () => {
+  describe("1. DashboardHeader responsive controls", () => {
+    it("renders greeting, search trigger, and monitoring pill across viewports", () => {
       const viewports = [375, 414, 768, 1024, 1440];
 
       viewports.forEach((width) => {
         setViewport(width);
-        const onChange = vi.fn();
-        const onRefresh = vi.fn();
-
-        const { container, unmount } = render(
-          <TopFilterBar
-            filters={mockFilters}
-            onChange={onChange}
-            onRefresh={onRefresh}
-            title="Điều Phối Vận Hành"
-          />
+        const { unmount } = renderWithProviders(
+          <DashboardHeader approvalsCount={3} monitoringCount={28} />,
         );
 
-        const presetsContainer = container.querySelector(".top-filter-bar__presets-container");
-        expect(presetsContainer).toBeInTheDocument();
-        expect(presetsContainer).toHaveAttribute("role", "region");
-
-        // Verify all 5 quick date presets are present
-        expect(screen.getByRole("radio", { name: "Hôm nay" })).toBeInTheDocument();
-        expect(screen.getByRole("radio", { name: "7 ngày" })).toBeInTheDocument();
-        expect(screen.getByRole("radio", { name: "30 ngày" })).toBeInTheDocument();
-        expect(screen.getByRole("radio", { name: "Tháng này" })).toBeInTheDocument();
-        expect(screen.getByRole("radio", { name: "Tuỳ chọn" })).toBeInTheDocument();
-
-        // RangePicker and Currency have responsive classes
-        expect(container.querySelector(".top-filter-bar__range-picker")).toBeInTheDocument();
-        expect(container.querySelector(".top-filter-bar__currency-select")).toBeInTheDocument();
+        expect(screen.getByText(/Giám sát 28/)).toBeInTheDocument();
+        expect(screen.getByText(/Tìm chuyến hàng, tài xế/)).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Tìm chuyến hàng, tài xế" })).toHaveAttribute(
+          "aria-keyshortcuts",
+          "Meta+K Control+K",
+        );
+        expect(screen.getByRole("button", { name: /Tạo đơn hàng/ })).toBeInTheDocument();
 
         unmount();
       });
     });
 
-    it("disables range picker when preset is not 'custom' and enables on 'custom'", () => {
-      const onChange = vi.fn();
-      const { container, rerender } = render(
-        <TopFilterBar
-          filters={mockFilters}
-          onChange={onChange}
-          onRefresh={vi.fn()}
-        />
-      );
+    it("opens quick search from Ctrl+K and Meta+K", async () => {
+      const firstRender = renderWithProviders(<DashboardHeader />);
 
-      const rangeInputs = container.querySelectorAll(".ant-picker-input input");
-      rangeInputs.forEach((input) => {
-        expect(input).toBeDisabled();
-      });
+      fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+      expect(await screen.findByPlaceholderText(/Nhập mã đơn hàng/)).toBeInTheDocument();
 
-      rerender(
-        <TopFilterBar
-          filters={{ ...mockFilters, preset: "custom" }}
-          onChange={onChange}
-          onRefresh={vi.fn()}
-        />
-      );
-
-      const activeRangeInputs = container.querySelectorAll(".ant-picker-input input");
-      activeRangeInputs.forEach((input) => {
-        expect(input).not.toBeDisabled();
-      });
-    });
-  });
-
-  describe("2. KpiCards responsive layout & data integrity", () => {
-    const sampleTrend: MonthlyTrendPoint[] = [
-      { monthKey: "2026-05", label: "T5", revenue: 120000000, cost: 95000000, profit: 25000000, marginPercent: 20.8, currency: "VND", isAvailable: true },
-      { monthKey: "2026-06", label: "T6", revenue: 145000000, cost: 110000000, profit: 35000000, marginPercent: 24.1, currency: "VND", isAvailable: true },
-    ];
-
-    const mockExpenses = createMockAsync<ExpenseSummaryReport>({
-      totalApprovedAmount: 110000000,
-      currency: "VND",
-      byCategory: { Fuel: 60000000, Maintenance: 30000000, Tolls: 20000000 },
+      firstRender.unmount();
+      renderWithProviders(<DashboardHeader />);
+      fireEvent.keyDown(window, { key: "k", metaKey: true });
+      expect(await screen.findByPlaceholderText(/Nhập mã đơn hàng/)).toBeInTheDocument();
     });
 
-    const mockCpm = createMockAsync<KnownOperatingCpmReport>({
-      knownOperatingCostPerMile: { value: 1.85, unit: "USD/mi" },
-      driverCostIncluded: true,
-      fixedCostIncluded: true,
-      currency: "USD",
-    });
-
-    const mockOtd = createMockAsync<OtdReport>({
-      otdPercentage: 96.4,
-      onTimeLoads: 241,
-      totalEligibleLoads: 250,
-    });
-
-    it("renders all 6 KPI cards with responsive column properties without distorting values", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <KpiCards
-            currency="VND"
-            monthlyTrendPoints={sampleTrend}
-            expenses={mockExpenses}
-            operatingCpm={mockCpm}
-            otd={mockOtd}
-            fleetCount={{ totalTrucks: 52, totalLoads: 180 }}
-            enableFinancials={true}
-          />
-        </MemoryRouter>
-      );
-
-      expect(container.querySelector(".kpi-cards-row")).toBeInTheDocument();
-      const cols = container.querySelectorAll(".kpi-card-col");
-      expect(cols.length).toBe(6);
-
-      // Verify numbers and labels are rendered safely
-      expect(screen.getByText("Doanh Thu")).toBeInTheDocument();
-      expect(screen.getByText("Chi Phí Hoạt Động")).toBeInTheDocument();
-      expect(screen.getByText("Lợi Nhuận Thuần")).toBeInTheDocument();
-      expect(screen.getByText("Đúng Giờ (OTD)")).toBeInTheDocument();
-      expect(screen.getByText("Chi Phí / Dặm (CPM)")).toBeInTheDocument();
-      expect(screen.getByText("Đội Xe Hoạt Động")).toBeInTheDocument();
-    });
-
-    it("supports role restriction (hide financials) without breaking layout", () => {
+    it("opens the loads list with a Refine-compatible search filter", async () => {
+      const queryClient = createTestQueryClient();
       render(
-        <MemoryRouter>
-          <KpiCards
-            currency="VND"
-            monthlyTrendPoints={sampleTrend}
-            expenses={mockExpenses}
-            operatingCpm={mockCpm}
-            otd={mockOtd}
-            fleetCount={{ totalTrucks: 52, totalLoads: 180 }}
-            enableFinancials={false}
-          />
-        </MemoryRouter>
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <>
+              <DashboardHeader />
+              <SearchLocationProbe />
+            </>
+          </MemoryRouter>
+        </QueryClientProvider>,
       );
 
-      expect(screen.queryByText("Doanh Thu")).not.toBeInTheDocument();
-      expect(screen.queryByText("Chi Phí Hoạt Động")).not.toBeInTheDocument();
-      expect(screen.getByText("Đúng Giờ (OTD)")).toBeInTheDocument();
-      expect(screen.getByText("Đội Xe Hoạt Động")).toBeInTheDocument();
-    });
-  });
-
-  describe("3. FinancialSection charts & mobile readability", () => {
-    const sampleTrend: MonthlyTrendPoint[] = [
-      { monthKey: "2026-05", label: "T5", revenue: 120000000, cost: 95000000, profit: 25000000, marginPercent: 20.8, currency: "VND", isAvailable: true },
-      { monthKey: "2026-06", label: "T6", revenue: 145000000, cost: 110000000, profit: 35000000, marginPercent: 24.1, currency: "VND", isAvailable: true },
-    ];
-
-    it("renders trend and pie chart containers with valid responsive dimensions", () => {
-      const mockExpenses = createMockAsync<ExpenseSummaryReport>({
-        totalApprovedAmount: 85000000,
-        currency: "VND",
-        byCategory: { "Nhiên liệu": 45000000, "Bảo trì": 25000000, "Cầu đường": 15000000 },
+      fireEvent.click(screen.getByRole("button", { name: "Tìm chuyến hàng, tài xế" }));
+      fireEvent.change(await screen.findByPlaceholderText(/Nhập mã đơn hàng/), {
+        target: { value: "  LD-42  " },
       });
+      fireEvent.click(screen.getByRole("button", { name: "Tìm" }));
 
-      const { container } = render(
-        <MemoryRouter>
-          <FinancialSection
-            currency="VND"
-            monthlyTrendPoints={sampleTrend}
-            monthlyTrendLoading={false}
-            onRefreshMonthly={vi.fn()}
-            expenses={mockExpenses}
-            fuel={createMockAsync<FuelReport>({ totalFuelCost: 45000000, currency: "VND" })}
-            maintenance={createMockAsync<MaintenanceSummaryReport>({ totalCost: 25000000, currency: "VND" })}
-          />
-        </MemoryRouter>
-      );
-
-      expect(screen.getByText("Xu Hướng Tài Chính 6 Tháng Gần Nhất")).toBeInTheDocument();
-      expect(screen.getByText("Cơ Cấu Chi Phí Theo Hạng Mục")).toBeInTheDocument();
-
-      const responsiveContainers = container.querySelectorAll(".recharts-responsive-container");
-      expect(responsiveContainers.length).toBeGreaterThan(0);
+      const location = screen.getByTestId("search-location").textContent ?? "";
+      const query = location.slice(location.indexOf("?"));
+      expect(location).toContain("/loads?");
+      expect(parseTableParams(query)).toMatchObject({
+        parsedCurrent: 1,
+        parsedFilters: [{ field: "search", operator: "contains", value: "LD-42" }],
+      });
     });
   });
 
-  describe("4. DriverRankingTable & ProfitabilityRankingsTable sticky columns & horizontal scroll", () => {
-    const mockDrivers: DriverRankingItem[] = [
-      {
-        rank: 1,
-        driverId: "DRV-101",
-        driverName: "Trần Văn Nam",
-        score: 98,
-        completedLoads: 45,
-        totalMiles: 18500,
-        onTimePercent: 97.5,
-        revenue: 125000000,
-        revenuePerMile: 2.85,
-        driverPay: 35000000,
-        exceptionsCount: 0,
-      },
+  describe("2. KpiStrip responsive cards", () => {
+    const mockKpiItems: KpiItemProps[] = [
+      { label: "Đang trên đường", value: 28, delta: { text: "+4", tone: "positive" } },
+      { label: "Nguy cơ trễ", value: 3, delta: { text: "+2", tone: "negative" } },
+      { label: "Đúng giờ (OTD)", value: 94, delta: { text: "+1.2%", tone: "positive" } },
+      { label: "Đã giao hôm nay", value: 46 },
+      { label: "Xe sẵn sàng", value: 14 },
+      { label: "Ngoại lệ", value: 2 },
     ];
 
-    it("renders DriverRankingTable with fixed left columns for Rank & Driver Name", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <DriverRankingTable
-            drivers={mockDrivers}
-            isLoading={false}
-            isMock={false}
-            sortBy="score"
-            onSortChange={vi.fn()}
-            currency="VND"
-          />
-        </MemoryRouter>
-      );
+    it("renders all 6 KPI items across viewports", () => {
+      const viewports = [375, 768, 1200];
 
+      viewports.forEach((width) => {
+        setViewport(width);
+        const { unmount } = renderWithProviders(
+          <KpiStrip items={mockKpiItems} />,
+        );
+
+        expect(screen.getByText("Đang trên đường")).toBeInTheDocument();
+        expect(screen.getByText("Nguy cơ trễ")).toBeInTheDocument();
+        expect(screen.getByText("Đúng giờ (OTD)")).toBeInTheDocument();
+
+        unmount();
+      });
+    });
+  });
+
+  describe("3. PriorityShipmentCard details", () => {
+    it("renders priority header, time window stats and telemetry callouts", () => {
+      renderWithProviders(<PriorityShipmentCard shipments={[{
+        id: "load-test", reference: "#42", origin: "Điểm đi", destination: "Điểm đến", deliveryWindow: "15:00–15:30", eta: "15:49",
+      }]} />);
+
+      expect(screen.getByText("Chuyến vận chuyển ưu tiên")).toBeInTheDocument();
+      expect(screen.getByText("Khung giờ giao")).toBeInTheDocument();
+      expect(screen.getByText("ETA hiện tại")).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Tiến độ hành trình" })).toBeInTheDocument();
+    });
+  });
+
+  describe("4. OperationsBrief AI analysis", () => {
+    it("renders AI brief summary, causes and proposed actions", () => {
+      renderWithProviders(<OperationsBrief />);
+
+      expect(screen.getByRole("region", { name: "Operations brief" })).toBeInTheDocument();
+      expect(screen.getByText(/NGUYÊN NHÂN ĐÓNG GÓP/)).toBeInTheDocument();
+      expect(screen.getByText(/CẦN BẠN PHÊ DUYỆT/)).toBeInTheDocument();
+    });
+  });
+
+  describe("5. NetworkMiniMap network status", () => {
+    it("renders live status badge, map canvas and legend", () => {
+      renderWithProviders(<NetworkMiniMap isLive vehicles={[{
+        id: "truck-test", plate: "TEST-001", latitude: 10.7769, longitude: 106.7009, status: "moving",
+      }]} />);
+
+      expect(screen.getByText(/Mạng lưới xe thời gian thực/)).toBeInTheDocument();
+      expect(screen.getByText(/Trực tuyến/)).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Chi tiết bản đồ" })).not.toBeInTheDocument();
+    });
+  });
+
+  describe("6. DispatchTimeline driver schedule blocks", () => {
+    it("renders time axis and driver rows", () => {
+      renderWithProviders(<DispatchTimeline drivers={[
+        { driverId: "driver-1", driverName: "Nguyễn Văn Hùng", vehiclePlate: "TEST-001", blocks: [] },
+        { driverId: "driver-2", driverName: "Trần Văn Nam", vehiclePlate: "TEST-002", blocks: [] },
+      ]} />);
+
+      expect(screen.getByRole("region", { name: "Biểu đồ điều phối tài xế" })).toBeInTheDocument();
+      expect(screen.getByText("Nguyễn Văn Hùng")).toBeInTheDocument();
       expect(screen.getByText("Trần Văn Nam")).toBeInTheDocument();
-      const fixedCells = container.querySelectorAll(".ant-table-cell-fix-left");
-      expect(fixedCells.length).toBeGreaterThan(0);
     });
+  });
 
-    it("renders ProfitabilityRankingsTable with fixed left column and tab toggle", () => {
-      const mockLanes: LaneProfitabilityReport[] = [
-        {
-          originState: "HCM",
-          destinationState: "DAN",
-          loadCount: 30,
-          totalMiles: 28500,
-          totalRevenue: 220000000,
-          totalCost: 165000000,
-          totalProfit: 55000000,
-          averageMarginPercent: 25.0,
-          averageRpm: 2.7,
-          currency: "VND",
-        },
-      ];
+  describe("7. OperationsDashboardView full assembly", () => {
+    it("renders entire operations dashboard view in 12-column grid", () => {
+      renderWithProviders(<OperationsDashboardView />);
 
-      const mockTrucks: TruckProfitabilityReport[] = [
-        {
-          truckId: "TRK-01",
-          truckNumber: "51C-999.88",
-          loadCount: 22,
-          totalMiles: 14200,
-          totalRevenue: 135000000,
-          totalCost: 98000000,
-          totalProfit: 37000000,
-          averageMarginPercent: 27.4,
-          costPerMile: 2.45,
-          currency: "VND",
-        },
-      ];
+      expect(screen.getByText("Mở AI Dispatch")).toBeInTheDocument();
+      expect(screen.getByText(/Chuyến vận chuyển ưu tiên/)).toBeInTheDocument();
+      expect(screen.getByRole("region", { name: "Operations brief" })).toBeInTheDocument();
+      expect(screen.getByText("94")).toBeInTheDocument();
+      expect(screen.getByText("3")).toBeInTheDocument();
+      expect(screen.getByText("2")).toBeInTheDocument();
+      expect(screen.queryByText("28")).not.toBeInTheDocument();
+      expect(screen.queryByText("46")).not.toBeInTheDocument();
+      expect(screen.queryByText("14")).not.toBeInTheDocument();
+    });
+  });
 
+  describe("8. VehicleTrackingMap standalone controls", () => {
+    it("renders map container with controls when points are available", () => {
       render(
-        <MemoryRouter>
-          <ProfitabilityRankingsTable
-            laneRankings={createMockAsync(mockLanes)}
-            truckRankings={createMockAsync(mockTrucks)}
-            currency="VND"
-          />
-        </MemoryRouter>
+        <VehicleTrackingMap
+          inaccessibleText=""
+          isLoading={false}
+          loadErrorText="Lỗi bản đồ"
+          mapLabel="Bản đồ vị trí gần nhất của phương tiện"
+          noLocationText="Không có dữ liệu vị trí"
+          points={[
+            {
+              id: "trk-1",
+              label: "51D-89241",
+              status: "in_transit",
+              latitude: 10.8231,
+              longitude: 106.6297,
+            },
+          ]}
+          statusLabel={(s) => s}
+        />,
       );
 
-      expect(screen.getByText("Tuyến đường (Lanes)")).toBeInTheDocument();
-      expect(screen.getByText("HCM")).toBeInTheDocument();
-
-      // Switch to Trucks tab
-      fireEvent.click(screen.getByText("Đội xe (Trucks)"));
-      expect(screen.getAllByText("Đầu xe").length).toBeGreaterThan(0);
-      expect(screen.getByText("51C-999.88")).toBeInTheDocument();
+      expect(screen.getByLabelText("Bản đồ vị trí gần nhất của phương tiện")).toBeInTheDocument();
     });
   });
 
-  describe("5. VehicleTrackingMap viewport responsiveness & interactive controls", () => {
-    it("renders map container, status filter pills, and locate button", () => {
-      const points = [
-        { id: "1", label: "51C-123.45", latitude: 10.77, longitude: 106.70, status: "available" },
-        { id: "2", label: "29H-678.90", latitude: 21.02, longitude: 105.83, status: "in_transit" },
-      ];
-
-      const { container } = render(
-        <VehicleTrackingMap
-          points={points}
+  describe("9. OperationsChart standalone controls", () => {
+    it("renders chart items", () => {
+      render(
+        <OperationsChart
           isLoading={false}
-          loadErrorText="Lỗi tải bản đồ"
-          inaccessibleText=""
-          noLocationText="Không có toạ độ"
-          mapLabel="Bản đồ theo dõi xe"
-          statusLabel={(s) => (s === "available" ? "Sẵn sàng" : "Đang chạy")}
-        />
+          items={[
+            { label: "Phương tiện", value: 10, color: "#2563eb" },
+            { label: "Chuyến hàng", value: 20, color: "#14b8a6" },
+          ]}
+          lockedText="Cần quyền xem dữ liệu vận hành"
+        />,
       );
 
-      expect(container.querySelector(".vehicle-map-container")).toBeInTheDocument();
-      expect(screen.getByText("Định vị xe")).toBeInTheDocument();
-      expect(screen.getByText("Tất cả (2)")).toBeInTheDocument();
-      expect(screen.getByText("Sẵn sàng (1)")).toBeInTheDocument();
-      expect(screen.getByText("Đang chạy (1)")).toBeInTheDocument();
-
-      // Filter by status
-      fireEvent.click(screen.getByText("Sẵn sàng (1)"));
-    });
-
-    it("displays friendly empty and error states without crashing", () => {
-      const { rerender } = render(
-        <VehicleTrackingMap
-          points={[]}
-          isLoading={false}
-          loadErrorText="Lỗi"
-          inaccessibleText=""
-          noLocationText="Không có xe nào được ghi nhận vị trí"
-          mapLabel="Bản đồ"
-          statusLabel={(s) => s}
-        />
-      );
-
-      expect(screen.getByText("Không có xe nào được ghi nhận vị trí")).toBeInTheDocument();
-
-      rerender(
-        <VehicleTrackingMap
-          points={[]}
-          errorMessage="Máy chủ ngắt kết nối"
-          isLoading={false}
-          loadErrorText="Lỗi"
-          inaccessibleText=""
-          noLocationText="Trống"
-          mapLabel="Bản đồ"
-          statusLabel={(s) => s}
-        />
-      );
-
-      expect(screen.getByText("Máy chủ ngắt kết nối")).toBeInTheDocument();
-    });
-  });
-
-  describe("6. OperationsChart responsiveness", () => {
-    it("renders bar percentages safely for responsive container", () => {
-      const items = [
-        { color: "#2563eb", label: "Đầu xe", value: 45 },
-        { color: "#14b8a6", label: "Đơn hàng", value: 120 },
-      ];
-
-      const { container } = render(
-        <OperationsChart items={items} isLoading={false} lockedText="Khoá" />
-      );
-
-      expect(container.querySelector(".operations-chart")).toBeInTheDocument();
-      expect(screen.getByText("Đầu xe")).toBeInTheDocument();
-      expect(screen.getByText("Đơn hàng")).toBeInTheDocument();
-      expect(screen.getByText("45")).toBeInTheDocument();
-      expect(screen.getByText("120")).toBeInTheDocument();
+      expect(screen.getByText("Phương tiện")).toBeInTheDocument();
+      expect(screen.getByText("Chuyến hàng")).toBeInTheDocument();
     });
   });
 });

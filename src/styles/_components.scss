@@ -325,8 +325,20 @@
 
 // Resource List Page & Card
 .resource-list-page {
+  padding: 0 !important;
+
+  .ant-page-header {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
   .ant-page-header-heading {
     display: none !important;
+  }
+
+  .ant-page-header-content {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
   }
 }
 

@@ -1,6 +1,7 @@
+import { LoadLarkSyncPanel } from "@/components/lark-base/LoadLarkSyncPanel";
 import { Show } from "@refinedev/antd";
 import { useCan, useShow } from "@refinedev/core";
-import { Alert, Button, Space, Tabs, Tag, Typography } from "antd";
+import { Alert, Button, Tabs } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -8,14 +9,15 @@ import { useParams } from "react-router-dom";
 import { LoadDocumentsPanel } from "@/features/loads/components/LoadDocumentsPanel";
 import { LoadExceptionsPanel } from "@/features/loads/components/LoadExceptionsPanel";
 import { LoadFinancialPanel } from "@/features/loads/components/LoadFinancialPanel";
-import { LoadOverviewPanel } from "@/features/loads/components/LoadOverviewPanel";
+import { ShipmentDetailView } from "@/features/loads/components/redesign/ShipmentDetailView";
 import { LoadTimelinePanel } from "@/features/loads/components/LoadTimelinePanel";
 import { LoadTripPanel } from "@/features/loads/components/LoadTripPanel";
+import { LoadAiPanel } from "@/components/ai/LoadAiPanel";
+import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
+import { ShipmentHeader } from "@/features/loads/components/redesign/ShipmentHeader";
 import type { ApiError } from "@/types/api.types";
 import type { Load } from "@/types/load.types";
 
-import { StatusTag } from "@/components/StatusTag";
-import { statusTone } from "@/components/statusTone";
 
 export const LoadShow = () => {
   const { t } = useTranslation();
@@ -28,6 +30,8 @@ export const LoadShow = () => {
     },
   });
   const [activeTab, setActiveTab] = useState<string>("overview");
+  const { enabled: isAiEnabled } = useAiFeatures();
+  const larkAccess = useCan({ resource: "loads", action: "LARK_BASE_SYNC" });
   const costAccess = useCan({ resource: "shipment-costs", action: "COST_VIEW" });
   const accessorialAccess = useCan({ resource: "accessorials", action: "ACCESSORIAL_VIEW" });
   const canViewFinancial = costAccess.data?.can === true || accessorialAccess.data?.can === true;
@@ -60,11 +64,24 @@ export const LoadShow = () => {
   }
 
   const tabItems = [
+    ...(larkAccess.data?.can === true ? [{ key: "lark-base", label: "Lark Base", children: activeTab === "lark-base" ? <LoadLarkSyncPanel key={loadId} loadId={loadId} /> : null }] : []),
     {
       key: "overview",
       label: t("loads.tabs.overview", "Overview"),
-      children: activeTab === "overview" ? <LoadOverviewPanel load={load} /> : null,
+      children:
+        activeTab === "overview" ? (
+          <ShipmentDetailView load={load} />
+        ) : null,
     },
+    ...(isAiEnabled
+      ? [
+          {
+            key: "ai",
+            label: "🧠 Trợ lý AI",
+            children: activeTab === "ai" ? <LoadAiPanel loadId={loadId} /> : null,
+          },
+        ]
+      : []),
     {
       key: "timeline",
       label: t("loads.tabs.timeline", "Timeline"),
@@ -107,33 +124,25 @@ export const LoadShow = () => {
   ].filter((item) => item.key !== "financial" || canViewFinancial);
 
   return (
-    <Show
-      isLoading={queryResult.isLoading}
-      title={
-        <Space align="center" wrap>
-          <Typography.Title level={4} style={{ margin: 0 }}>
-            {load.name || t("resources.loads", "Load")} #{load.number}
-          </Typography.Title>
-          <StatusTag label={load.status} tone={statusTone(load.status)} />
-          {load.assignedTruckNumber && (
-            <Tag color="cyan">🚛 {load.assignedTruckNumber}</Tag>
-          )}
-          {load.deliveryCostAmount != null && load.deliveryCostCurrency && (
-            <Tag color="green">
-              💰 {Number(load.deliveryCostAmount).toLocaleString()}{" "}
-              {load.deliveryCostCurrency}
-            </Tag>
-          )}
-        </Space>
-      }
-      data-testid="load-show-page"
-    >
-      <Tabs
-        activeKey={activeTab}
-        onChange={setActiveTab}
-        items={tabItems}
-        data-testid="load-detail-tabs"
-      />
-    </Show>
+    <div className="shipment-detail-show-wrapper">
+      <ShipmentHeader load={load} />
+      <Show
+        isLoading={queryResult.isLoading}
+        breadcrumb={null}
+        goBack={null}
+        headerButtons={null}
+        title={null}
+        data-testid="load-show-page"
+      >
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={tabItems}
+          className="shipment-tabs-modern"
+          data-testid="load-detail-tabs"
+        />
+      </Show>
+    </div>
   );
 };
+

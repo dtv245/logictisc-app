@@ -100,7 +100,7 @@ export function useAiSettings() {
 }
 
 /**
- * Kiểm tra kết nối nhanh tới AI Provider.
+ * Reports local validation only; this frontend has no provider verification endpoint.
  */
 export async function testAiConnection(
   providerId: AiProviderId,
@@ -125,13 +125,9 @@ export async function testAiConnection(
     };
   }
 
-  // Giả lập kiểm tra handshake / ping endpoint
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const latencyMs = Date.now() - startTime;
-
   return {
-    success: true,
-    message: `Kết nối thành công tới ${config.name} (${config.model})! Độ trễ: ${latencyMs}ms.`,
-    latencyMs,
+    success: false,
+    message: "Chưa thể xác minh kết nối provider: giao diện chưa có API kiểm tra trực tiếp.",
+    latencyMs: Date.now() - startTime,
   };
 }

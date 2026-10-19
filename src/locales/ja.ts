@@ -210,6 +210,7 @@ export const jaMessages = {
     "maintenanceModuleUnavailable": "この指標は定期整備モジュール連携後に利用可能となります",
     "actualMileageHistoryUnavailableExplanation": "現在の車両状態から推測することはありません。",
     "enterMileageAttribution": "走行距離帰属を入力",
+    "mileageAttributionUnavailable": "走行距離帰属画面は現在利用できません。",
     "formula": "計算式",
     "appliedPeriod": "適用期間",
     "metrics": {

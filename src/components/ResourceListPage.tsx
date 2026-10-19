@@ -26,6 +26,7 @@ import {
 } from "./resources/resourceForms";
 import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import { DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE, normalizePage, normalizePageSize } from "@/utils/querySerializer";
+import { TableDataContext } from "./TableDataContext";
 
 interface ResourceListPageProps<TData extends BaseRecord> {
   columns: ColumnsType<TData>;
@@ -170,8 +171,13 @@ export const ResourceListPage = <TData extends BaseRecord>({
         breadcrumb={<></>}
         canCreate={false}
         headerButtons={<></>}
+        headerProps={{ style: { padding: 0 } }}
+        contentProps={{ style: { padding: 0 } }}
         title={<></>}
-        wrapperProps={{ className: "resource-list-page" }}
+        wrapperProps={{
+          className: "resource-list-page",
+          style: { padding: 0 },
+        }}
       >
         <div className="resource-list-card">
           <ResourceListToolbar
@@ -189,17 +195,19 @@ export const ResourceListPage = <TData extends BaseRecord>({
 
           {/* Việc xử lý lỗi/đang tải/rỗng của bảng nằm trong `BaseTable` — xem chú thích
               ở đó để biết vì sao chỉ nhánh lỗi mới thay hẳn bảng. */}
-          <BaseTable<TData>
-            fitToShell
-            onAdaptivePageSizeChange={handleAdaptivePageSizeChange}
-            columns={localizedColumns}
-            queryResult={{
-              error: tableQueryResult.error,
-              isFetching: tableQueryResult.isFetching,
-              refetch: tableQueryResult.refetch,
-            }}
-            tableProps={safeTableProps}
-          />
+          <TableDataContext.Provider value={(safeTableProps.dataSource as unknown as BaseRecord[]) ?? []}>
+            <BaseTable<TData>
+              fitToShell
+              onAdaptivePageSizeChange={handleAdaptivePageSizeChange}
+              columns={localizedColumns}
+              queryResult={{
+                error: tableQueryResult.error,
+                isFetching: tableQueryResult.isFetching,
+                refetch: tableQueryResult.refetch,
+              }}
+              tableProps={safeTableProps}
+            />
+          </TableDataContext.Provider>
         </div>
       </List>
 

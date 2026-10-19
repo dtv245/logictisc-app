@@ -1,4 +1,4 @@
-/** Generated transport catalog: 291 schemas. Run scripts/generate-handoff-types.py; do not edit.
+/** Generated transport catalog: 297 schemas. Run scripts/generate-handoff-types.py; do not edit.
  * Source canonical SHA256: 2d10d31b8c7a013fa10aca92b5cf3411cadf8dcd5a1ca88f540201b3771e7774
  * Required/optional follow OAS; optional alone does not prove response non-nullability.
  * Semantic notes apply to CurrentUserResponse and metadata clears; runtime validators remain separate. */
@@ -293,6 +293,12 @@ export type ValidationRequest = { "reason": string; };
 export type Weight = { "normalizedPounds"?: number; "originalUnit"?: string; "originalValue"?: number; };
 export type WeightRequest = { "unit": string; "value": number; };
 export type ZeroCostEvidence = { "confirmedAt"?: string; "confirmedBy"?: string; "reason"?: string; "reasonCode"?: string; };
+export type BackfillRequest = { "entityId": string; "recordId": string; "dryRun"?: boolean; };
+export type ApiResponseBackfill = { "success"?: boolean; "code"?: string; "message"?: string; "data"?: Backfill; "errors"?: Array<ApiError>; "meta"?: ResponseMeta; "params"?: Record<string, unknown>; };
+export type ApiResponseLarkSyncView = { "success"?: boolean; "code"?: string; "message"?: string; "data"?: LarkSyncView; "errors"?: Array<ApiError>; "meta"?: ResponseMeta; "params"?: Record<string, unknown>; };
+export type ApiResponseListLarkSyncView = { "success"?: boolean; "code"?: string; "message"?: string; "data"?: Array<LarkSyncView>; "errors"?: Array<ApiError>; "meta"?: ResponseMeta; "params"?: Record<string, unknown>; };
+export type Backfill = { "entityId"?: string; "recordId"?: string; "dryRun"?: boolean; "eligible"?: boolean; "reason"?: string; };
+export type LarkSyncView = { "entityId": string; "domain": string; "state": string; "recordId"?: string; "lastSyncedAt"?: string; "lastError"?: string; "unchanged"?: boolean; };
 export const resourceMutationContracts = {
   "customers": {
     "createFields": [

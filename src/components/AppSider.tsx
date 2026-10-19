@@ -1,70 +1,23 @@
 /* eslint-disable react-refresh/only-export-components */
 /**
- * AppSider — Thanh điều hướng bên trái ứng dụng (dạng Rail thu gọn).
+ * AppSider — Thanh điều hướng bên trái dạng Icon Rail hiện đại, phẳng theo thiết kế hệ thống.
  *
- * Nguyên tắc sắp xếp: theo CÔNG VIỆC của nhân viên logistics, không theo cách hệ thống được xây dựng.
- *   Đơn hàng -> chuyến xe -> container/bến bãi -> đội xe -> hóa đơn -> lương.
+ * Cấu trúc từ trên xuống:
+ *   1. Logo thương hiệu: Ô vuông bo ~12px nền đen (~40px), dấu thương hiệu trắng.
+ *   2. Cột icon: MỘT cột liên tục, khoảng cách đều, không thẻ bọc ngoài, không đường kẻ,
+ *      dùng một Menu duy nhất để phím mũi tên đi liền qua toàn cột. Có hai loại mục:
+ *        - Khu vực (Điều hành, Vận tải, Đội xe, Tài chính, Lương): bấm mở menu nổi
+ *          chứa các màn hình con.
+ *        - Mục lẻ (Khách hàng, Sản phẩm, Nhân viên, Tài liệu): bấm là sang trang luôn.
+ *   3. Tiện ích thông báo: Chuông thông báo kèm badge đỏ góc trên phải.
+ *   4. Cụm tiện ích & hồ sơ ghim ở đáy:
+ *      - Nút Trợ lý AI: Vòng tròn nền tối viền tím, biểu tượng Sparkles trắng.
+ *      - Avatar người dùng: Tròn 32px, nhấp mở menu tài khoản (Đổi công ty, Đăng xuất).
  *
- * Cấu trúc 3 tầng:
- *   Thẻ trắng (app-sider__group)  ->  Khu vực (icon trên rail)  ->  Mục nhỏ (tiêu đề trong menu nổi)  ->  Màn hình
- *
- * 1. Thẻ "Điều hành & Vận tải":
- *    - Điều hành: Trung tâm điều hành, Dashboard quản lý | AI điều phối, Tối ưu điều phối
- *    - Vận tải:   Bảng điều phối, Đơn hàng, Chuyến xe | Container, Bến bãi
- * 2. Thẻ "Đội xe & Khách hàng":
- *    - Đội xe & An toàn:      Xe tải, Bảo trì | HOS/ELD, DVIR, Tai nạn | Báo cáo đội xe
- *    - Khách hàng & Hàng hóa: Khách hàng, Hàng hóa
- * 3. Thẻ "Tài chính & Lương":
- *    - Hóa đơn & Thu chi: Hóa đơn, Thanh toán, Chi phí | Báo cáo lợi nhuận
- *    - Lương & Quyết toán: Quyết toán, Chính sách lương | Bảng lương, Đối soát | Phiếu lương của tôi
- * 4. Khối tiện ích: Thông báo, Quản trị (Nhân viên, Hồ sơ & tài liệu).
- *
- * Quy tắc hiển thị:
- * - Mỗi icon trên rail mở một menu nổi. Trong menu nổi, các màn hình cùng việc được gom dưới một tiêu đề nhỏ.
- * - Khu vực chỉ có 1 mục nhỏ thì hiển thị danh sách phẳng, không có tiêu đề.
- * - Mục nhỏ nào không còn màn hình nào được phép xem thì tự ẩn; khu vực rỗng cũng tự ẩn.
- * - Nhãn lấy từ i18n: navigation.zones.*, navigation.sections.*, navigation.items.*
- *   (xem file navigation.i18n.json).
- * - Mục đang chọn tự đồng bộ theo URL; quyền truy cập kiểm tra theo vai trò.
+ * Thứ tự theo đúng NAV_ZONES, sắp xếp theo luồng công việc thực tế:
+ *   Điều hành -> Vận tải -> Đội xe -> Khách hàng -> Sản phẩm -> Tài chính -> Lương -> Nhân viên -> Tài liệu.
  */
 
-import {
-  AccountBookOutlined,
-  AppstoreOutlined,
-  AuditOutlined,
-  BarChartOutlined,
-  CarOutlined,
-  ClockCircleOutlined,
-  CodeSandboxOutlined,
-  CompassOutlined,
-  ContactsOutlined,
-  ControlOutlined,
-  CreditCardOutlined,
-  DashboardOutlined,
-  DesktopOutlined,
-  DollarOutlined,
-  EnvironmentOutlined,
-  FileTextOutlined,
-  FolderOpenOutlined,
-  InboxOutlined,
-  LineChartOutlined,
-  LogoutOutlined,
-  ReconciliationOutlined,
-  RiseOutlined,
-  RobotOutlined,
-  RocketOutlined,
-  SafetyCertificateOutlined,
-  SendOutlined,
-  SettingOutlined,
-  ShopOutlined,
-  ShoppingOutlined,
-  TeamOutlined,
-  ToolOutlined,
-  TransactionOutlined,
-  UserOutlined,
-  WalletOutlined,
-  WarningOutlined,
-} from "@ant-design/icons";
 import type { RefineThemedLayoutV2SiderProps } from "@refinedev/antd";
 import { useCanWithoutCache } from "@refinedev/core";
 import { Avatar, Button, Dropdown, Layout, Menu, Tooltip, type MenuProps } from "antd";
@@ -76,98 +29,109 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@hooks/useCurrentUser";
 import { useLogoutUser } from "@hooks/useLogoutUser";
 import { useSwitchTenant } from "@hooks/useSwitchTenant";
+import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
 import { NotificationHeaderIcon } from "@features/notifications/components/NotificationHeaderIcon";
 import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import type { AccessResource } from "@/types/roles.types";
 import { routes } from "@constants/routes";
 import { AppTitle } from "./AppTitle";
+import {
+  AiAgentNavIcon,
+  AiDispatchNavIcon,
+  CustomersNavIcon,
+  DocumentsNavIcon,
+  EmployeesNavIcon,
+  FinanceZoneIcon,
+  FleetReportNavIcon,
+  InvoicesNavIcon,
+  LoadsNavIcon,
+  LogoutNavIcon,
+  MyPayslipsNavIcon,
+  OperationsDashboardIcon,
+  OperationsMonitorIcon,
+  OptimizationNavIcon,
+  PaymentsNavIcon,
+  PayPoliciesNavIcon,
+  PayrollNavIcon,
+  PayrollReconciliationNavIcon,
+  PayrollZoneIcon,
+  ProfitabilityNavIcon,
+  SettlementsNavIcon,
+  SwitchTenantNavIcon,
+  TerminalsNavIcon,
+  TripsNavIcon,
+  TrucksNavIcon,
+} from "./navIcons";
 import "./AppSider.scss";
 
-export interface NavZoneItem {
+type MenuItems = NonNullable<MenuProps["items"]>;
+
+type NavPermission = { resource: AccessResource; action: string };
+
+export type NavZoneItem = {
   icon: ReactNode;
   key: string;
   labelKey: string;
   route: string;
-  permission?: { resource: AccessResource; action: string };
+  /** Resource của Refine — kiểm tra quyền "list". */
   resource?: string;
-  /**
-   * Mục nhỏ trong menu nổi, ví dụ "dispatch" -> navigation.sections.dispatch.
-   * Các màn hình liền nhau có cùng sectionKey sẽ được gom dưới một tiêu đề.
-   */
+  /** Quyền chi tiết — được ưu tiên hơn `resource`. */
+  permission?: NavPermission;
+  /** Nhóm con trong menu nổi của khu vực (tiêu đề `navigation.sections.*`). */
   sectionKey?: string;
-}
+};
 
-export interface NavZone {
-  icon: ReactNode;
+/** Khu vực có menu nổi chứa các màn hình con. */
+type NavZoneGroup = {
   key: string;
   labelKey: string;
+  icon: ReactNode;
   items: readonly NavZoneItem[];
-}
+};
 
-type MenuItems = NonNullable<MenuProps["items"]>;
+/** Mỗi phần tử của NAV_ZONES là một khu vực (có `items`) hoặc một mục lẻ (có `route`). */
+export type NavZone = NavZoneGroup | NavZoneItem;
 
-/**
- * Thứ tự khu vực và màn hình đi theo luồng công việc thực tế.
- * Mỗi icon trong file này chỉ dùng cho đúng một màn hình để nhìn là nhận ra.
- */
 export const NAV_ZONES: readonly NavZone[] = [
-  {
-    key: "zone:operations",
-    labelKey: "navigation.zones.operations",
-    icon: <DashboardOutlined />,
-    items: [
+    
       {
-        icon: <DesktopOutlined />,
+        icon: <OperationsMonitorIcon />,
         key: "app:operations",
         labelKey: "navigation.items.operations",
         route: routes.operations,
         sectionKey: "monitor",
       },
       ...(EXECUTIVE_CONTRACT_CONFIRMED
-        ? [
+        ? ([
             {
-              icon: <BarChartOutlined />,
+              icon: <OperationsDashboardIcon />,
               key: "app:dashboard",
               labelKey: "navigation.items.dashboard",
               route: routes.dashboard,
               sectionKey: "monitor",
             },
-          ]
+          ] satisfies readonly NavZoneItem[])
         : []),
       {
-        icon: <RobotOutlined />,
-        key: "res:ai-dispatch",
+        icon: <AiDispatchNavIcon />,
+        key: "app:ai-dispatch",
         labelKey: "navigation.items.ai-dispatch",
         route: routes.aiDispatch,
         permission: { resource: "ai-dispatch", action: "AI_DISPATCH_VIEW" },
         sectionKey: "smart-tools",
       },
       {
-        icon: <RocketOutlined />,
+        icon: <OptimizationNavIcon />,
         key: "app:optimization",
         labelKey: "navigation.items.optimization",
         route: routes.optimization,
         permission: { resource: "optimization", action: "OPTIMIZATION_VIEW" },
         sectionKey: "smart-tools",
       },
-    ],
-  },
-  {
-    key: "zone:transport",
-    labelKey: "navigation.zones.transport",
-    icon: <SendOutlined />,
-    items: [
+    
       {
-        icon: <AppstoreOutlined />,
-        key: "res:load-board",
-        labelKey: "navigation.items.load-board",
-        route: routes.resources.loadBoard.list,
-        resource: "load-board",
-        sectionKey: "dispatch",
-      },
-      {
-        icon: <InboxOutlined />,
+        icon: <LoadsNavIcon />,
         key: "res:loads",
         labelKey: "navigation.items.loads",
         route: routes.resources.loads.list,
@@ -175,7 +139,7 @@ export const NAV_ZONES: readonly NavZone[] = [
         sectionKey: "dispatch",
       },
       {
-        icon: <CompassOutlined />,
+        icon: <TripsNavIcon />,
         key: "res:trips",
         labelKey: "navigation.items.trips",
         route: routes.resources.trips.list,
@@ -183,30 +147,15 @@ export const NAV_ZONES: readonly NavZone[] = [
         sectionKey: "dispatch",
       },
       {
-        icon: <CodeSandboxOutlined />,
-        key: "res:containers",
-        labelKey: "navigation.items.containers",
-        route: routes.resources.containers.list,
-        resource: "containers",
-        sectionKey: "cargo",
-      },
-      {
-        icon: <EnvironmentOutlined />,
+        icon: <TerminalsNavIcon />,
         key: "res:terminals",
         labelKey: "navigation.items.terminals",
         route: routes.resources.terminals.list,
         resource: "terminals",
         sectionKey: "cargo",
       },
-    ],
-  },
   {
-    key: "zone:fleet",
-    labelKey: "navigation.zones.fleet",
-    icon: <CarOutlined />,
-    items: [
-      {
-        icon: <CarOutlined />,
+        icon: <TrucksNavIcon />,
         key: "res:trucks",
         labelKey: "navigation.items.trucks",
         route: routes.resources.trucks.list,
@@ -214,75 +163,27 @@ export const NAV_ZONES: readonly NavZone[] = [
         sectionKey: "vehicles",
       },
       {
-        icon: <ToolOutlined />,
-        key: "res:maintenance",
-        labelKey: "navigation.items.maintenance",
-        route: routes.resources.maintenance.list,
-        resource: "maintenance",
-        sectionKey: "vehicles",
-      },
-      {
-        icon: <ClockCircleOutlined />,
-        key: "res:hos-eld",
-        labelKey: "navigation.items.hos-eld",
-        route: routes.resources.hosEld.list,
-        resource: "hos-eld",
-        sectionKey: "safety",
-      },
-      {
-        icon: <SafetyCertificateOutlined />,
-        key: "res:dvir",
-        labelKey: "navigation.items.dvir",
-        route: routes.resources.dvir.list,
-        resource: "dvir",
-        sectionKey: "safety",
-      },
-      {
-        icon: <WarningOutlined />,
-        key: "res:accidents",
-        labelKey: "navigation.items.accidents",
-        route: routes.resources.accidents.list,
-        resource: "accidents",
-        sectionKey: "safety",
-      },
-      {
-        icon: <LineChartOutlined />,
+        icon: <FleetReportNavIcon />,
         key: "app:fleet-report",
         labelKey: "navigation.items.fleet-report",
         route: routes.fleetReport,
         permission: { resource: "fleet-reports", action: "FLEET_REPORT_VIEW" },
         sectionKey: "reports",
       },
-    ],
-  },
-  {
-    key: "zone:partners",
-    labelKey: "navigation.zones.partners",
-    icon: <ShopOutlined />,
-    items: [
       {
-        icon: <ContactsOutlined />,
+        icon: <CustomersNavIcon />,
         key: "res:customers",
         labelKey: "navigation.items.customers",
         route: routes.resources.customers.list,
         resource: "customers",
       },
-      {
-        icon: <ShoppingOutlined />,
-        key: "res:products",
-        labelKey: "navigation.items.products",
-        route: routes.resources.products.list,
-        resource: "products",
-      },
-    ],
-  },
   {
     key: "zone:finance",
     labelKey: "navigation.zones.finance",
-    icon: <AccountBookOutlined />,
+    icon: <FinanceZoneIcon />,
     items: [
       {
-        icon: <FileTextOutlined />,
+        icon: <InvoicesNavIcon />,
         key: "res:invoices",
         labelKey: "navigation.items.invoices",
         route: routes.resources.invoices.list,
@@ -290,7 +191,7 @@ export const NAV_ZONES: readonly NavZone[] = [
         sectionKey: "cashflow",
       },
       {
-        icon: <CreditCardOutlined />,
+        icon: <PaymentsNavIcon />,
         key: "res:payments",
         labelKey: "navigation.items.payments",
         route: routes.resources.payments.list,
@@ -298,15 +199,7 @@ export const NAV_ZONES: readonly NavZone[] = [
         sectionKey: "cashflow",
       },
       {
-        icon: <TransactionOutlined />,
-        key: "res:expenses",
-        labelKey: "navigation.items.expenses",
-        route: routes.resources.expenses.list,
-        resource: "expenses",
-        sectionKey: "cashflow",
-      },
-      {
-        icon: <RiseOutlined />,
+        icon: <ProfitabilityNavIcon />,
         key: "app:profitability",
         labelKey: "navigation.items.profitability",
         route: routes.profitability,
@@ -318,10 +211,10 @@ export const NAV_ZONES: readonly NavZone[] = [
   {
     key: "zone:payroll",
     labelKey: "navigation.zones.payroll",
-    icon: <WalletOutlined />,
+    icon: <PayrollZoneIcon />,
     items: [
       {
-        icon: <AuditOutlined />,
+        icon: <SettlementsNavIcon />,
         key: "app:settlements",
         labelKey: "navigation.items.settlements",
         route: routes.resources.settlements.list,
@@ -329,7 +222,7 @@ export const NAV_ZONES: readonly NavZone[] = [
         sectionKey: "settlement",
       },
       {
-        icon: <ControlOutlined />,
+        icon: <PayPoliciesNavIcon />,
         key: "app:pay-policies",
         labelKey: "navigation.items.pay-policies",
         route: routes.resources.settlements.policies,
@@ -337,7 +230,7 @@ export const NAV_ZONES: readonly NavZone[] = [
         sectionKey: "settlement",
       },
       {
-        icon: <DollarOutlined />,
+        icon: <PayrollNavIcon />,
         key: "app:payroll",
         labelKey: "navigation.items.payroll",
         route: routes.payroll,
@@ -345,19 +238,19 @@ export const NAV_ZONES: readonly NavZone[] = [
         sectionKey: "payroll-run",
       },
       ...(PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED
-        ? [
+        ? ([
             {
-              icon: <ReconciliationOutlined />,
+              icon: <PayrollReconciliationNavIcon />,
               key: "app:payroll-reconciliation",
               labelKey: "navigation.items.payroll-reconciliation",
               route: routes.payrollReconciliation,
-              permission: { resource: "payroll" as const, action: "PAYROLL_VIEW" },
+              permission: { resource: "payroll", action: "PAYROLL_VIEW" },
               sectionKey: "payroll-run",
             },
-          ]
+          ] satisfies readonly NavZoneItem[])
         : []),
       {
-        icon: <UserOutlined />,
+        icon: <MyPayslipsNavIcon />,
         key: "app:my-payslips",
         labelKey: "navigation.items.my-payslips",
         route: routes.myPayslips,
@@ -367,66 +260,31 @@ export const NAV_ZONES: readonly NavZone[] = [
     ],
   },
   {
-    key: "zone:admin",
-    labelKey: "navigation.zones.admin",
-    icon: <SettingOutlined />,
-    items: [
-      {
-        icon: <TeamOutlined />,
-        key: "res:employees",
-        labelKey: "navigation.items.employees",
-        route: routes.resources.employees.list,
-        resource: "employees",
-      },
-      {
-        icon: <FolderOpenOutlined />,
-        key: "res:documents",
-        labelKey: "navigation.items.documents",
-        route: routes.resources.documents.list,
-        resource: "documents",
-      },
-    ],
+    icon: <EmployeesNavIcon />,
+    key: "res:employees",
+    labelKey: "navigation.items.employees",
+    route: routes.resources.employees.list,
+    resource: "employees",
+  },
+  {
+    icon: <DocumentsNavIcon />,
+    key: "res:documents",
+    labelKey: "navigation.items.documents",
+    route: routes.resources.documents.list,
+    resource: "documents",
   },
 ];
 
-/**
- * Các thẻ trắng bo tròn trên rail (app-sider__group). Mỗi thẻ là một nhóm việc:
- * - Điều hành & Vận tải: theo dõi, điều phối đơn/chuyến, container, bến bãi.
- * - Đội xe & Khách hàng: xe, tuân thủ an toàn, khách hàng, hàng hóa.
- * - Tài chính & Lương: hóa đơn, thu chi, quyết toán, bảng lương.
- * Khối tiện ích (thông báo, quản trị) nằm riêng ở cuối, không thuộc danh sách này.
- */
-export interface SiderNavGroup {
-  key: string;
-  name: string;
-  zoneKeys: readonly string[];
-}
-
-export const SIDER_NAV_GROUPS: readonly SiderNavGroup[] = [
-  {
-    key: "group:operations-transport",
-    name: "Điều hành & Vận tải",
-    zoneKeys: ["zone:operations", "zone:transport"],
-  },
-  {
-    key: "group:fleet-partners",
-    name: "Đội xe & Khách hàng",
-    zoneKeys: ["zone:fleet", "zone:partners"],
-  },
-  {
-    key: "group:finance",
-    name: "Tài chính & Lương",
-    zoneKeys: ["zone:finance", "zone:payroll"],
-  },
-];
+/** Phân biệt khu vực có menu con với mục lẻ (bấm là sang trang luôn). */
+const isZoneGroup = (entry: NavZone): entry is NavZoneGroup =>
+  "items" in entry;
 
 /**
  * Dựng danh sách màn hình trong menu nổi của một khu vực.
  * Màn hình cùng sectionKey được gom dưới một tiêu đề, giữa các mục có đường kẻ.
- * Khu vực chỉ có 0-1 mục nhỏ thì trả về danh sách phẳng.
  */
 const buildZoneChildren = (
-  zone: NavZone,
+  zone: NavZoneGroup,
   t: TFunction,
   navigate: (route: string) => void,
 ): MenuItems => {
@@ -479,6 +337,8 @@ const buildZoneChildren = (
   return children;
 };
 
+type ActiveMatch = { entryKey: string; item: NavZoneItem };
+
 export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
   Title: TitleComponent,
 }) => {
@@ -488,24 +348,37 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
 
   const { can } = useCanWithoutCache();
   const currentUser = useCurrentUser();
-  // Giữ lifecycle xác thực và dọn cache tenant khi thao tác ở cuối sidebar.
   const { logoutUser, isLoading: isLoggingOut } = useLogoutUser();
   const tenantSwitch = useSwitchTenant();
+
+  // Kiểm tra cờ tính năng AI GAP để hiển thị nút AI agent ở footer
+  const aiFeatures = useAiFeatures();
+  const isAiAvailable = useMemo(() => {
+    const devForce =
+      typeof window !== "undefined" &&
+      window.localStorage?.getItem("logistics_force_ai_gap") === "true";
+    return Boolean(aiFeatures.enabled || devForce || (import.meta.env.DEV && !aiFeatures.isError));
+  }, [aiFeatures.enabled, aiFeatures.isError]);
 
   const [allowedKeys, setAllowedKeys] = useState<ReadonlySet<string>>(
     new Set(),
   );
 
+  // Quản lý trạng thái mở submenu để tự động ẩn tooltip khi menu nổi đang hiển thị
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+
+  // Gom mọi chức năng (trong khu vực và mục lẻ) để kiểm tra quyền một lượt
   const allNavItems = useMemo(
-    () => NAV_ZONES.flatMap((zone) => zone.items),
+    () =>
+      NAV_ZONES.flatMap((entry) => (isZoneGroup(entry) ? entry.items : [entry])),
     [],
   );
 
-  // Kiểm tra quyền hạn bất đồng bộ cho từng chức năng trong các khu
+  // Kiểm tra quyền hạn bất đồng bộ cho từng chức năng
   useEffect(() => {
     let active = true;
 
-    void Promise.all(
+    void Promise.allSettled(
       allNavItems.map(async (item) => {
         if (item.permission) {
           const res = can ? await can(item.permission) : { can: true };
@@ -522,7 +395,7 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
     ).then((results) => {
       if (active) {
         const nextAllowed = new Set(
-          results.filter((r) => r.allowed).map((r) => r.key),
+          results.flatMap((result) => result.status === "fulfilled" && result.value.allowed ? [result.value.key] : []),
         );
         setAllowedKeys((prev) => {
           if (
@@ -541,58 +414,100 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
     };
   }, [can, allNavItems, currentUser.data]);
 
-  // Lọc các Khu vực và Chức năng theo quyền truy cập
-  const visibleZones = useMemo(() => {
-    return NAV_ZONES.map((zone) => ({
-      ...zone,
-      items: zone.items.filter((item) => allowedKeys.has(item.key)),
-    })).filter((zone) => zone.items.length > 0);
+  // Lọc theo quyền: khu vực hết chức năng thì ẩn luôn, mục lẻ không có quyền thì ẩn
+  const visibleEntries = useMemo(() => {
+    const result: NavZone[] = [];
+    for (const entry of NAV_ZONES) {
+      if (isZoneGroup(entry)) {
+        const items = entry.items.filter((item) => allowedKeys.has(item.key));
+        if (items.length > 0) {
+          result.push({ ...entry, items });
+        }
+      } else if (allowedKeys.has(entry.key)) {
+        result.push(entry);
+      }
+    }
+    return result;
   }, [allowedKeys]);
 
-  // Xác định mục đang active và khu vực chứa mục đó dựa trên pathname
-  let activeMatch: { zoneKey: string; itemKey: string; routeLength: number } | undefined;
-  for (const zone of visibleZones) {
-    for (const item of zone.items) {
-      if (pathname === item.route || pathname.startsWith(item.route + "/")) {
-        if (!activeMatch || item.route.length > activeMatch.routeLength) {
-          activeMatch = {
-            zoneKey: zone.key,
-            itemKey: item.key,
-            routeLength: item.route.length,
-          };
+  // Xác định mục đang active (route dài nhất khớp pathname) và mục cha chứa nó
+  const activeMatch = useMemo(() => {
+    let best: ActiveMatch | undefined;
+    for (const entry of visibleEntries) {
+      const items = isZoneGroup(entry) ? entry.items : [entry];
+      for (const item of items) {
+        const matches =
+          pathname === item.route || pathname.startsWith(item.route + "/");
+        if (matches && (!best || item.route.length > best.item.route.length)) {
+          best = { entryKey: entry.key, item };
         }
       }
     }
-  }
+    return best;
+  }, [visibleEntries, pathname]);
 
-  const activeZoneKey = activeMatch?.zoneKey;
+  const activeEntryKey = activeMatch?.entryKey;
 
-  // Tạo cây menu theo tầng: khu vực -> (mục nhỏ) -> màn hình
+  // Dựng menu items: khu vực có submenu nổi, mục lẻ là leaf bấm sang trang luôn.
+  // Khu vực bọc icon bằng Tooltip (ẩn khi submenu đang mở); mục lẻ dùng tooltip mặc định
+  // của antd khi Menu đang inlineCollapsed.
   const menuItems: MenuItems = useMemo(() => {
-    return visibleZones.map((zone) => ({
-      key: zone.key,
-      className: activeZoneKey === zone.key ? "app-sider__zone--active" : undefined,
-      popupClassName: "app-sider-popup",
-      icon: zone.icon,
-      label: t(zone.labelKey),
-      children: buildZoneChildren(zone, t, navigate),
-    }));
-  }, [visibleZones, activeZoneKey, t, navigate]);
+    return visibleEntries.map((entry) => {
+      const isActive = activeEntryKey === entry.key;
+      const title = t(entry.labelKey);
+      const className = isActive ? "app-sider__zone--active" : undefined;
 
-  const renderMenu = (items: MenuProps["items"]) => (
-    <Menu
-      className="app-sider__menu"
-      inlineCollapsed
-      items={items}
-      mode="inline"
-      selectedKeys={activeMatch ? [activeMatch.itemKey] : []}
-      theme="light"
-      triggerSubMenuAction="click"
-    />
-  );
+      if (!isZoneGroup(entry)) {
+        return {
+          key: entry.key,
+          className,
+          icon: (
+            <span
+              className="app-sider__icon-wrapper"
+              aria-label={title}
+              {...(isActive ? { "aria-current": "page" } : {})}
+            >
+              {entry.icon}
+            </span>
+          ),
+          label: title,
+          onClick: () => {
+            setOpenKeys([]);
+            navigate(entry.route);
+          },
+        };
+      }
+
+      const isSubmenuOpen = openKeys.includes(entry.key);
+
+      return {
+        key: entry.key,
+        className,
+        popupClassName: "app-sider-popup",
+        icon: (
+          <Tooltip
+            placement="right"
+            title={title}
+            open={isSubmenuOpen ? false : undefined}
+          >
+            <span
+              className="app-sider__icon-wrapper"
+              aria-label={title}
+              {...(isActive ? { "aria-current": "page" } : {})}
+            >
+              {entry.icon}
+            </span>
+          </Tooltip>
+        ),
+        label: title,
+        children: buildZoneChildren(entry, t, navigate),
+      };
+    });
+  }, [visibleEntries, activeEntryKey, openKeys, t, navigate]);
 
   const renderContent = () => (
     <div className="app-sider__content app-sider__content--compact">
+      {/* 1. Logo thương hiệu trên cùng: Chỉ hiển thị nhận diện, không phải nút AI chat */}
       <div className="app-sider__logo">
         <div className="app-sider__brand">
           {TitleComponent ? (
@@ -603,50 +518,78 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
         </div>
       </div>
 
+      {/* 2. Cột icon liên tục (khu vực + mục lẻ) và thông báo, cuộn độc lập ẩn scrollbar */}
       <nav className="app-sider__navigation" aria-label={t("navigation.drawerTitle")}>
-        {/* Mỗi nhóm việc là một thẻ bo tròn app-sider__group độc lập */}
-        {SIDER_NAV_GROUPS.map((group) => {
-          const groupMenuItems = menuItems.filter(
-            (item) => item?.key && group.zoneKeys.includes(String(item.key)),
-          );
-          if (groupMenuItems.length === 0) {
-            return null;
-          }
-          return (
-            <div
-              key={group.key}
-              aria-label={group.name}
-              className="app-sider__group"
-              role="group"
-            >
-              {renderMenu(groupMenuItems)}
-            </div>
-          );
-        })}
-
-        {/* Khối tiện ích & quản trị hệ thống */}
-        <div className="app-sider__group app-sider__group--utilities">
+        <Menu
+          className="app-sider__menu"
+          inlineCollapsed
+          items={menuItems}
+          mode="inline"
+          openKeys={openKeys}
+          onOpenChange={(keys) => setOpenKeys(keys as string[])}
+          selectedKeys={activeMatch ? [activeMatch.item.key] : []}
+          theme="light"
+          triggerSubMenuAction="click"
+        />
+        <div className="app-sider__notifications">
           <NotificationHeaderIcon placement="rightTop" />
-          {visibleZones.some((zone) => zone.key === "zone:admin") &&
-            renderMenu(menuItems.filter((item) => item?.key === "zone:admin"))}
         </div>
       </nav>
 
+      {/* 3. Cụm tiện ích ghim ở đáy: nút AI Agent, Avatar tài khoản */}
       <div className="app-sider__footer">
-        <Tooltip placement="right" title={t("common.logout")}>
-          <Button aria-label={t("common.logout")} className="app-sider__action" icon={<LogoutOutlined />} loading={isLoggingOut} onClick={() => void logoutUser()} type="text" />
-        </Tooltip>
-        {/* Bọc nhãn để Ant Design không rút chữ thành ký tự đầu khi Sider thu gọn. */}
+        {isAiAvailable && (
+          <Tooltip placement="right" title={t("navigation.aiAssistant")}>
+            <button
+              type="button"
+              className="app-sider__ai-agent-btn"
+              data-testid="app-sider-ai-agent-button"
+              aria-label={t("navigation.openAiAssistant")}
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("toggle-ai-gap-chat"));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  window.dispatchEvent(new CustomEvent("toggle-ai-gap-chat"));
+                }
+              }}
+            >
+              <AiAgentNavIcon size={18} strokeWidth={1.5} />
+            </button>
+          </Tooltip>
+        )}
+
         <Dropdown
-          placement="topRight"
+          placement="topLeft"
           trigger={["click"]}
-          menu={{ items: [
-            { key: "change-tenant", label: <span>{t("common.changeTenant")}</span>, disabled: tenantSwitch.isLoading, onClick: () => void tenantSwitch.switchTenant() },
-            { key: "logout", label: <span>{t("common.logout")}</span>, disabled: isLoggingOut, onClick: () => void logoutUser() },
-          ] }}
+          menu={{
+            items: [
+              {
+                key: "change-tenant",
+                icon: <SwitchTenantNavIcon size={16} strokeWidth={1.5} />,
+                label: <span>{t("common.changeTenant")}</span>,
+                disabled: tenantSwitch.isLoading,
+                onClick: () => void tenantSwitch.switchTenant(),
+              },
+              {
+                key: "logout",
+                icon: <LogoutNavIcon size={16} strokeWidth={1.5} />,
+                label: <span>{t("common.logout")}</span>,
+                disabled: isLoggingOut,
+                onClick: () => void logoutUser(),
+              },
+            ],
+          }}
         >
-          <Button className="app-sider__account" type="text" aria-label={t("navigation.accountMenu")}>
-            <Avatar size={36} src={currentUser.data?.avatar}>{currentUser.data?.name?.charAt(0)}</Avatar>
+          <Button
+            className="app-sider__account"
+            type="text"
+            aria-label={t("navigation.accountMenu")}
+          >
+            <Avatar size={32} src={currentUser.data?.avatar}>
+              {currentUser.data?.name?.charAt(0)}
+            </Avatar>
           </Button>
         </Dropdown>
       </div>
@@ -655,12 +598,12 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
 
   return (
     <Layout.Sider
-      className="app-sider app-sider--floating"
+      className="app-sider"
       collapsed
-      collapsedWidth={88}
+      collapsedWidth={64}
       theme="light"
       trigger={null}
-      width={88}
+      width={64}
     >
       {renderContent()}
     </Layout.Sider>

@@ -27,6 +27,7 @@ export const ROLE_MATRIX = [
   { resources: ["employees", "inspections"], actions: CRUD_ACTIONS, roles: DISPATCH },
   { resources: ["drivers"], actions: READ_ACTIONS, roles: DISPATCH },
   { resources: ["customers", "trucks"], actions: CRUD_ACTIONS, roles: OPERATIONS },
+  { resources: ["loads"], actions: ["LARK_BASE_SYNC"], roles: DISPATCH },
   { resources: ["loads"], actions: [...CRUD_ACTIONS, "dispatch", "cancel", "pickup", "deliver", "PICKUP_BUSINESS_DATE"], roles: OPERATIONS },
   { resources: ["trips"], actions: [...CRUD_ACTIONS, "dispatch", "cancel", "complete"], roles: DISPATCH },
   { resources: ["invoices"], actions: [...CRUD_ACTIONS, "write", "BILLING_VIEW", "BILLING_GENERATE", "BILLING_ISSUE", "BILLING_CORRECT"], roles: ACCOUNTING },

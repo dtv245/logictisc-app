@@ -22,6 +22,7 @@ const mockQueryResult: {
 vi.mock("@refinedev/core", () => ({
   useCan: () => ({ data: { can: permissions.can } }),
   useShow: () => ({ queryResult: mockQueryResult }),
+  useGetIdentity: () => ({ data: { tenantId: "tenant-test", role: "DISPATCHER" } }),
   useCustom: () => ({
     data: { data: [] },
     isLoading: false,
@@ -64,6 +65,37 @@ vi.mock("@/features/loads/components/LoadFinancialPanel", () => ({
   ),
 }));
 
+vi.mock("@/hooks/ai/useAiFeatures", () => ({
+  useAiFeatures: () => ({ enabled: true, dryRun: false, data: undefined }),
+}));
+
+vi.mock("@/hooks/ai/useLoadAiGaps", () => ({
+  useLoadAiGaps: () => ({
+    blockingGaps: [],
+    warningGaps: [],
+    aiState: "idle",
+    refetch: vi.fn(),
+    retryAfterSeconds: null,
+    isRerunning: false,
+    rerunAi: vi.fn(),
+    dismissGap: vi.fn(),
+  }),
+}));
+
+vi.mock("@/hooks/ai/useLoadAiDispatch", () => ({
+  useLoadAiDispatch: () => ({
+    dispatchState: "not_started",
+    suggestions: [],
+    activeSuggestion: undefined,
+    approveSuggestion: vi.fn(),
+    rejectSuggestion: vi.fn(),
+  }),
+}));
+
+vi.mock("@/components/ai/LoadAiPanel", () => ({
+  LoadAiPanel: () => <div data-testid="mock-ai-panel">AI Panel</div>,
+}));
+
 describe("LoadShow Page", () => {
   const sampleLoad: Load = {
     id: "load-101",
@@ -103,12 +135,13 @@ describe("LoadShow Page", () => {
     mockQueryResult.data = { data: sampleLoad };
   });
 
-  it("renders load header info with number, truck, and delivery cost", () => {
+  it("renders a persistent load header with back navigation, truck and delivery cost", () => {
     render(<LoadShow />);
 
-    expect(screen.getByTestId("show-header")).toHaveTextContent("Express Freight #9001");
-    expect(screen.getByTestId("show-header")).toHaveTextContent("TRK-88");
-    expect(screen.getByTestId("show-header")).toHaveTextContent("1,800 USD");
+    expect(screen.getByTestId("shipment-header")).toHaveTextContent("Express Freight #9001");
+    expect(screen.getByTestId("shipment-header")).toHaveTextContent("TRK-88");
+    expect(screen.getByTestId("shipment-header")).toHaveTextContent("1,800 USD");
+    expect(screen.getByRole("button", { name: "Quay lại" })).toBeInTheDocument();
   });
 
   it("renders default Overview tab and switches to Timeline and Financials tabs", () => {
@@ -122,6 +155,8 @@ describe("LoadShow Page", () => {
     const timelineTab = screen.getByRole("tab", { name: /Timeline|Lịch trình/i });
     fireEvent.click(timelineTab);
     expect(screen.getByTestId("mock-timeline-panel")).toHaveTextContent("load-101");
+    expect(screen.getByTestId("shipment-header")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Quay lại" })).toBeInTheDocument();
 
     // Click Financials tab
     const financialTab = screen.getByRole("tab", { name: /Financials|Tài chính/i });

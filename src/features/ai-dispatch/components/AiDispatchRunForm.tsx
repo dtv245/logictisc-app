@@ -61,8 +61,6 @@ export function AiDispatchRunForm({
           objective: "minimize_deadhead",
           modelUsed: "LogisticsX Neural Dispatcher v2",
           businessZoneId: "Asia/Ho_Chi_Minh",
-          truckId: "4a2b9183-1100-4b2e-a551-912c7d91a123",
-          loadId: "7e5f3922-2200-4c3d-b442-823d6e82b456",
         }}
         onFinish={onFinish}
         disabled={actions.pending}

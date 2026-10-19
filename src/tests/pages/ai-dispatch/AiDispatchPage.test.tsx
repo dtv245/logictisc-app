@@ -4,12 +4,57 @@ import { getStoredAiSettings } from "@/features/ai-dispatch/hooks/aiConfigStorag
 import { AiDispatchPage } from "@/pages/ai-dispatch/AiDispatchPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 
+import { initialMovementPlan } from "@/tests/fixtures/aiMovementPlan";
+
 const session = vi.hoisted(() => ({ tenantKey: "tenant-finance" }));
 vi.mock("@/hooks/useCurrentTenant", () => ({
   useCurrentTenant: () => ({
     tenant: session.tenantKey ? { tenantKey: session.tenantKey } : null,
   }),
 }));
+
+vi.mock("@/features/ai-dispatch/api/aiDispatch.api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/ai-dispatch/api/aiDispatch.api")>();
+  return {
+    ...actual,
+    approveAiDispatchDecision: vi.fn(async (decisionId: string) => ({
+      decisionId,
+      rank: 1,
+      truckId: "trk-1",
+      driverId: "drv-1",
+      score: 95,
+      confidence: "HIGH",
+      reasoning: "OK",
+      status: "approved",
+    })),
+    rejectAiDispatchDecision: vi.fn(async (decisionId: string) => ({
+      decisionId,
+      rank: 1,
+      truckId: "trk-1",
+      driverId: "drv-1",
+      score: 95,
+      confidence: "HIGH",
+      reasoning: "OK",
+      status: "rejected",
+    })),
+    executeAiDispatchRun: vi.fn(async () => ({
+      sessionId: "sess-1",
+      status: "COMPLETED",
+      mode: "HumanInTheLoop",
+      summary: "Run complete",
+      suggestions: [],
+    })),
+  };
+});
+
+vi.mock("@/features/ai-dispatch/hooks/useAiDispatchActions", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/ai-dispatch/hooks/useAiDispatchActions")>();
+  return {
+    ...actual,
+    useAiDispatchActions: (options?: Record<string, unknown>) =>
+      actual.useAiDispatchActions({ initialPlans: [initialMovementPlan], ...options }),
+  };
+});
 
 beforeEach(() => {
   session.tenantKey = "tenant-finance";

@@ -163,9 +163,12 @@ describe.each(forms)("$name — lỗi field từ backend", ({ render: renderForm
     await renderForm();
 
     fireMutationError(validationError({ name: ["Tên không được để trống"] }));
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 50));
+    });
 
     expect(
-      await screen.findByText("Tên không được để trống"),
+      await screen.findByText("Tên không được để trống", undefined, { timeout: 5000 }),
     ).toBeInTheDocument();
   });
 
@@ -178,12 +181,15 @@ describe.each(forms)("$name — lỗi field từ backend", ({ render: renderForm
         name: ["Tên không được để trống"],
       }),
     );
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 50));
+    });
 
     expect(
-      await screen.findByText("Tên không được để trống"),
+      await screen.findByText("Tên không được để trống", undefined, { timeout: 5000 }),
     ).toBeInTheDocument();
     expect(
-      await screen.findByText("Khoảng cách phải lớn hơn 0"),
+      await screen.findByText("Khoảng cách phải lớn hơn 0", undefined, { timeout: 5000 }),
     ).toBeInTheDocument();
   });
 

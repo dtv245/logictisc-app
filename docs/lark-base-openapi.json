@@ -1,0 +1,579 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "LogisticsX API",
+    "description" : "Transportation Management System API",
+    "contact" : {
+      "name" : "DANG THE VU",
+      "email" : "[EMAIL_ADDRESS]"
+    },
+    "license" : {
+      "name" : "MIT"
+    },
+    "version" : "v1.0"
+  },
+  "paths" : {
+    "/api/lark/base/{domain}/backfill" : {
+      "post" : {
+        "tags" : [ "lark-sync-controller" ],
+        "operationId" : "backfill",
+        "parameters" : [ {
+          "name" : "domain",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BackfillRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseBackfill"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lark/base/sync/load/{loadId}" : {
+      "post" : {
+        "tags" : [ "lark-base-controller" ],
+        "operationId" : "syncLoad",
+        "parameters" : [ {
+          "name" : "loadId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseLarkBaseRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lark/base/sync/driver/{employeeId}" : {
+      "post" : {
+        "tags" : [ "lark-base-controller" ],
+        "operationId" : "syncDriver",
+        "parameters" : [ {
+          "name" : "employeeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseLarkBaseRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lark/base/loads/{id}/sync" : {
+      "get" : {
+        "tags" : [ "lark-sync-controller" ],
+        "operationId" : "loadStatus",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseLarkSyncView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "lark-sync-controller" ],
+        "operationId" : "syncLoad_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "recreateMissing",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseLarkSyncView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lark/base/drivers/{id}/sync" : {
+      "get" : {
+        "tags" : [ "lark-sync-controller" ],
+        "operationId" : "driverStatus",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseLarkSyncView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "lark-sync-controller" ],
+        "operationId" : "syncDriver_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "recreateMissing",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseLarkSyncView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lark/base/missing" : {
+      "get" : {
+        "tags" : [ "lark-sync-controller" ],
+        "operationId" : "missing",
+        "parameters" : [ {
+          "name" : "domain",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "load"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseListLarkSyncView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lark/base/loads" : {
+      "get" : {
+        "tags" : [ "lark-base-controller" ],
+        "operationId" : "listSyncedLoads",
+        "parameters" : [ {
+          "name" : "pageSize",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20
+          }
+        }, {
+          "name" : "pageToken",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseListLarkBaseRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "BackfillRequest" : {
+        "type" : "object",
+        "properties" : {
+          "entityId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "recordId" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "dryRun" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "entityId", "recordId" ]
+      },
+      "ApiResponseBackfill" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/Backfill"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ApiError"
+            }
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/ResponseMeta"
+          },
+          "params" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          }
+        }
+      },
+      "ApiResponseLarkBaseRecord" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/LarkBaseRecord"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ApiError"
+            }
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/ResponseMeta"
+          },
+          "params" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          }
+        }
+      },
+      "ApiResponseLarkSyncView" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/LarkSyncView"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ApiError"
+            }
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/ResponseMeta"
+          },
+          "params" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          }
+        }
+      },
+      "ApiResponseListLarkSyncView" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LarkSyncView"
+            }
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ApiError"
+            }
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/ResponseMeta"
+          },
+          "params" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          }
+        }
+      },
+      "ApiResponseListLarkBaseRecord" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LarkBaseRecord"
+            }
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ApiError"
+            }
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/ResponseMeta"
+          },
+          "params" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          }
+        }
+      },
+      "Backfill" : {
+        "type" : "object",
+        "properties" : {
+          "entityId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "recordId" : {
+            "type" : "string"
+          },
+          "dryRun" : {
+            "type" : "boolean"
+          },
+          "eligible" : {
+            "type" : "boolean"
+          },
+          "reason" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ApiError" : {
+        "type" : "object",
+        "properties" : {
+          "field" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "params" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          }
+        }
+      },
+      "ResponseMeta" : {
+        "type" : "object",
+        "properties" : {
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "path" : {
+            "type" : "string"
+          },
+          "requestId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "LarkBaseRecord" : {
+        "type" : "object",
+        "properties" : {
+          "record_id" : {
+            "type" : "string"
+          },
+          "fields" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          }
+        }
+      },
+      "LarkSyncView" : {
+        "type" : "object",
+        "properties" : {
+          "entityId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "domain" : {
+            "type" : "string"
+          },
+          "state" : {
+            "type" : "string"
+          },
+          "recordId" : {
+            "type" : "string"
+          },
+          "lastSyncedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "lastError" : {
+            "type" : "string"
+          },
+          "unchanged" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "domain", "entityId", "state" ]
+      }
+    }
+  }
+}

@@ -40,7 +40,6 @@ import {
   type AiSettings,
 } from "@/features/ai-dispatch/types/aiConfig.types";
 import {
-  testAiConnection,
   useAiSettings,
 } from "../hooks/aiConfigStorage";
 import "../styles/ai-dispatch.scss";
@@ -78,12 +77,6 @@ function AiConfigModalContent({
   const { t } = useTranslation();
   const [draftSettings, setDraftSettings] = useState<AiSettings>(settings);
   const [activeTab, setActiveTab] = useState<string>(settings.activeProvider);
-  const [testingProvider, setTestingProvider] = useState<string | null>(null);
-  const [testResult, setTestResult] = useState<{
-    providerId: string;
-    success: boolean;
-    message: string;
-  } | null>(null);
 
   const handleProviderConfigChange = (
     providerId: AiProviderId,
@@ -112,38 +105,6 @@ function AiConfigModalContent({
     }));
   };
 
-  const handleTestConnection = async (providerId: AiProviderId) => {
-    const config = draftSettings.providers[providerId];
-    if (!config) return;
-
-    setTestingProvider(providerId);
-    setTestResult(null);
-
-    try {
-      const res = await testAiConnection(providerId, config);
-      setTestResult({
-        providerId,
-        success: res.success,
-        message: res.message,
-      });
-      if (res.success) {
-        message.success(res.message);
-      } else {
-        message.error(res.message);
-      }
-    } catch (err) {
-      const errMsg = err instanceof Error ? err.message : t("aiDispatch.connectionFailed");
-      setTestResult({
-        providerId,
-        success: false,
-        message: errMsg,
-      });
-      message.error(errMsg);
-    } finally {
-      setTestingProvider(null);
-    }
-  };
-
   const handleSave = () => {
     updateSettings(draftSettings);
     message.success(t("aiDispatch.configSaved"));
@@ -161,7 +122,6 @@ function AiConfigModalContent({
 
     const isCurrentActive = draftSettings.activeProvider === providerId;
     const hasKey = config.apiKey.trim().length > 0;
-    const isTesting = testingProvider === providerId;
 
     return (
       <Space direction="vertical" size="middle" style={{ width: "100%" }}>
@@ -295,24 +255,19 @@ function AiConfigModalContent({
         <div className="ai-config-test-row">
           <Button
             icon={<ApiOutlined />}
-            loading={isTesting}
-            onClick={() => handleTestConnection(providerId)}
+            disabled
             data-testid={`btn-test-connection-${providerId}`}
             className="ai-config-test-btn"
           >
             {t("aiDispatch.testConnection")}
           </Button>
-
-          {testResult && testResult.providerId === providerId && (
-            <Alert
-              type={testResult.success ? "success" : "error"}
-              showIcon
-              message={testResult.message}
-              className="ai-config-test-alert"
-              style={{ flex: 1, padding: "4px 12px" }}
-            />
-          )}
         </div>
+        <Alert
+          type="warning"
+          showIcon
+          message={t("aiDispatch.connectionCheckUnavailable")}
+          className="ai-config-test-alert"
+        />
       </Space>
     );
   };

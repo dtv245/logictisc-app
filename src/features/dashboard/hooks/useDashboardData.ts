@@ -19,7 +19,11 @@ import type {
   TruckProfitabilityReport,
   WidgetAsyncState,
 } from "../types";
-import { DASHBOARD_ENDPOINTS, normalizeWidgetError } from "../api";
+import {
+  computeReportDateWindows,
+  DASHBOARD_ENDPOINTS,
+  normalizeWidgetError,
+} from "../api";
 import { calculateProfit } from "../utils/calculations";
 
 export interface UseDashboardDataOptions {
@@ -52,25 +56,9 @@ export function useDashboardData(
 
   const opsPollInterval: number | false = isDocumentVisible ? 60_000 : false;
 
-  // 2. Compute date windows (current and previous for comparison)
+  // 2. Compute date windows (current and previous for comparison) serialized for ISO-8601
   const dateWindows = useMemo(() => {
-    const toDate = filters.to ? dayjs(filters.to) : dayjs();
-    const fromDate = filters.from ? dayjs(filters.from) : toDate.subtract(30, "day");
-
-    const daysDiff = Math.max(1, toDate.diff(fromDate, "day"));
-    const prevTo = fromDate.subtract(1, "day");
-    const prevFrom = prevTo.subtract(daysDiff, "day");
-
-    return {
-      current: {
-        from: fromDate.format("YYYY-MM-DD"),
-        to: toDate.format("YYYY-MM-DD"),
-      },
-      previous: {
-        from: prevFrom.format("YYYY-MM-DD"),
-        to: prevTo.format("YYYY-MM-DD"),
-      },
-    };
+    return computeReportDateWindows(filters.from, filters.to);
   }, [filters.from, filters.to]);
 
   const currentFrom = dateWindows.current.from;
@@ -123,6 +111,7 @@ export function useDashboardData(
       enabled: Boolean(enableFinancials && currentFrom && currentTo),
       staleTime: 5 * 60_000,
       refetchInterval: false as const,
+      retry: false,
     })),
   });
 
@@ -239,6 +228,7 @@ export function useDashboardData(
       query: {
         from: currentFrom,
         to: currentTo,
+        currency: filters.currency,
       },
     },
     queryOptions: {
@@ -257,6 +247,7 @@ export function useDashboardData(
       query: {
         from: currentFrom,
         to: currentTo,
+        currency: filters.currency,
       },
     },
     queryOptions: {
@@ -283,7 +274,8 @@ export function useDashboardData(
       enabled: Boolean(currentFrom && currentTo),
       staleTime: 30_000,
       keepPreviousData: true,
-      refetchInterval: opsPollInterval,
+      refetchInterval: (_data, query) =>
+        query?.state?.status === "error" ? false : opsPollInterval,
     },
   });
 
@@ -318,7 +310,8 @@ export function useDashboardData(
       enabled: Boolean(currentFrom && currentTo),
       staleTime: 30_000,
       keepPreviousData: true,
-      refetchInterval: opsPollInterval,
+      refetchInterval: (_data, query) =>
+        query?.state?.status === "error" ? false : opsPollInterval,
     },
   });
 
@@ -336,7 +329,8 @@ export function useDashboardData(
       enabled: Boolean(currentFrom && currentTo),
       staleTime: 30_000,
       keepPreviousData: true,
-      refetchInterval: opsPollInterval,
+      refetchInterval: (_data, query) =>
+        query?.state?.status === "error" ? false : opsPollInterval,
     },
   });
 
@@ -354,7 +348,8 @@ export function useDashboardData(
       enabled: Boolean(currentFrom && currentTo),
       staleTime: 30_000,
       keepPreviousData: true,
-      refetchInterval: opsPollInterval,
+      refetchInterval: (_data, query) =>
+        query?.state?.status === "error" ? false : opsPollInterval,
     },
   });
 
@@ -402,7 +397,8 @@ export function useDashboardData(
     pagination: { current: 1, pageSize: 1 },
     queryOptions: {
       staleTime: 30_000,
-      refetchInterval: opsPollInterval,
+      refetchInterval: (_data, query) =>
+        query?.state?.status === "error" ? false : opsPollInterval,
     },
   });
 
@@ -411,7 +407,8 @@ export function useDashboardData(
     pagination: { current: 1, pageSize: 1 },
     queryOptions: {
       staleTime: 30_000,
-      refetchInterval: opsPollInterval,
+      refetchInterval: (_data, query) =>
+        query?.state?.status === "error" ? false : opsPollInterval,
     },
   });
 
@@ -420,7 +417,8 @@ export function useDashboardData(
     pagination: { current: 1, pageSize: 1 },
     queryOptions: {
       staleTime: 30_000,
-      refetchInterval: opsPollInterval,
+      refetchInterval: (_data, query) =>
+        query?.state?.status === "error" ? false : opsPollInterval,
     },
   });
 
@@ -469,6 +467,13 @@ export function useDashboardData(
       points: monthlyTrendPoints,
       isLoading: monthlyTrendQueries.some((q) => q.isLoading),
       isFetching: monthlyTrendQueries.some((q) => q.isFetching),
+      error:
+        monthlyTrendQueries.some((q) => q.isError) &&
+        monthlyTrendQueries.every((q) => !q.data)
+          ? normalizeWidgetError(
+              monthlyTrendQueries.find((q) => q.error)?.error,
+            )
+          : null,
       refetch: () => monthlyTrendQueries.forEach((q) => void q.refetch()),
     },
     expenses: toWidgetState(expensesQuery),

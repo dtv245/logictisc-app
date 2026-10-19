@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AiConfigModal } from "@/features/ai-dispatch/components/AiConfigModal";
 import { getStoredAiSettings } from "@/features/ai-dispatch/hooks/aiConfigStorage";
@@ -97,21 +97,10 @@ describe("AiConfigModal — Popup cấu hình mô hình AI & API Key", () => {
     expect(saved.providers.gemini.apiKey).toBe("AIzaSyTestGeminiKey987");
   });
 
-  it("thực hiện kiểm tra kết nối (Test Connection) khi người dùng yêu cầu", async () => {
-    const onClose = vi.fn();
-    await renderFinance(<AiConfigModal open={true} onClose={onClose} />, vi.fn(async () => undefined));
+  it("nêu rõ live provider check chưa khả dụng và khóa nút kiểm tra", async () => {
+    await renderFinance(<AiConfigModal open={true} onClose={vi.fn()} />, vi.fn(async () => undefined));
 
-    // Nhập API Key hợp lệ
-    const apiKeyInput = await screen.findByTestId("input-api-key-openai");
-    fireEvent.change(apiKeyInput, { target: { value: "sk-proj-valid-test-key" } });
-
-    // Bấm Test Connection
-    const testBtn = screen.getByTestId("btn-test-connection-openai");
-    fireEvent.click(testBtn);
-
-    // Chờ kết quả thông báo
-    await waitFor(() => {
-      expect(screen.getByText(/Kết nối thành công tới OpenAI/i)).toBeInTheDocument();
-    });
+    expect(await screen.findByTestId("btn-test-connection-openai")).toBeDisabled();
+    expect(screen.getByText(/does not contact the AI provider/i)).toBeInTheDocument();
   });
 });

@@ -199,7 +199,7 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
           <Card size="small" bordered className="ai-kpi-card">
             <Statistic
               title={t("aiDispatch.totalDistance")}
-              value={plan.totalDistanceMiles}
+              value={plan.totalDistanceMiles ?? undefined}
               suffix="miles"
               precision={0}
             />
@@ -212,7 +212,7 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
           <Card size="small" bordered className="ai-kpi-card">
             <Statistic
               title={t("aiDispatch.estimatedMargin")}
-              value={plan.estimatedMargin}
+              value={plan.estimatedMargin ?? undefined}
               prefix="$"
               valueStyle={{ color: "#3f8600" }}
             />
@@ -225,7 +225,7 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
           <Card size="small" bordered className="ai-kpi-card">
             <Statistic
               title={t("aiDispatch.aiScore")}
-              value={plan.aiConfidenceScore}
+              value={plan.aiConfidenceScore ?? undefined}
               suffix="/ 100"
               valueStyle={{ color: "#1890ff" }}
             />

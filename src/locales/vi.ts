@@ -151,6 +151,7 @@ export const viMessages = {
     "maintenanceModuleUnavailable": "Chỉ số này sẽ có khi kết nối module bảo dưỡng định kỳ",
     "actualMileageHistoryUnavailableExplanation": "Hệ thống không suy đoán từ trạng thái xe hiện tại.",
     "enterMileageAttribution": "Nhập phân bổ dặm",
+    "mileageAttributionUnavailable": "Màn nhập phân bổ dặm chưa khả dụng trong phiên bản này.",
     "formula": "Công thức",
     "appliedPeriod": "Kỳ áp dụng",
     "metrics": {
@@ -192,7 +193,20 @@ export const viMessages = {
         "futureDateNotAllowed": "Không được chọn ngày trong tương lai.",
         "timeZoneRequired": "Vui lòng chọn múi giờ."
     }
-},
+  },
+  larkBase: {
+    notSynced: "Chưa đồng bộ",
+    pending: "Chờ đồng bộ",
+    synced: "Đã đồng bộ",
+    error: "Lỗi đồng bộ",
+    conflict: "Xung đột",
+    missing: "Mất ở Base",
+    lastSynced: "Đồng bộ gần nhất",
+    noData: "Chưa có trạng thái đồng bộ",
+    recreateConfirm: "Tạo lại record đã mất ở Base?",
+    recreate: "Đẩy lại record đã mất",
+    push: "Đồng bộ sang Base",
+  },
   aiDispatch: {
     title: "Điều phối thông minh bằng AI",
     subtitle: "Tối ưu hóa phân bổ xe, lộ trình di chuyển và duyệt kế hoạch điều phối theo thời gian thực",
@@ -293,6 +307,12 @@ export const viMessages = {
     testingConnection: "Đang kiểm tra...",
     connectionSuccess: "Kết nối thành công tới mô hình AI!",
     connectionFailed: "Kết nối thất bại. Vui lòng kiểm tra lại API Key hoặc Endpoint.",
+    connectionCheckUnavailable: "Chưa thể kiểm tra trực tiếp. Màn hình này không gửi yêu cầu tới nhà cung cấp AI.",
+    freeChatDemoNotice: "Chat tự do đang ở chế độ mẫu. Tin nhắn không được gửi tới nhà cung cấp AI; hãy dùng dữ liệu GAP từ backend để xem thông tin đã xác nhận.",
+    freeChatDemoTitle: "Phản hồi mẫu AI GAP",
+    freeChatDemoWelcome: "Đây là hội thoại mẫu. Chat tự do chưa kết nối với nhà cung cấp AI.",
+    freeChatDemoResponse: "Đây là câu trả lời mẫu, không được tạo bởi nhà cung cấp AI và không phân tích dữ liệu chuyến hàng trực tiếp.",
+    coreLoadEditorUnavailable: "Màn chỉnh sửa Load chưa khả dụng trong runtime. Không mở yêu cầu chỉnh sửa.",
     saveConfig: "Lưu cấu hình",
     configSaved: "Đã lưu cài đặt AI thành công!",
     resetDefault: "Khôi phục mặc định",
@@ -1138,6 +1158,8 @@ export const viMessages = {
     expand: "Mở rộng thanh điều hướng",
     drawerTitle: "Thanh điều hướng",
     accountMenu: "Menu tài khoản",
+    aiAssistant: "Trợ lý AI GAP",
+    openAiAssistant: "Mở Trợ lý AI GAP",
   },
   crud: {
     identifier: "ID",
@@ -1280,6 +1302,7 @@ export const viMessages = {
       status: "Trạng thái",
       customerName: "Khách hàng",
       assignedTruckNumber: "Xe phụ trách",
+      aiAssistant: "Trợ lý AI",
     },
     maintenance: {
       serviceDate: "Ngày bảo trì",

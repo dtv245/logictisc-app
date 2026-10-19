@@ -1,142 +1,230 @@
 /**
- * API endpoints và dữ liệu mẫu cho AI Dispatch.
+ * API endpoints và lớp gọi API thật cho AI Dispatch (/api/ai/dispatch/...).
  */
-import type { AiMovementPlan, CreateAiDispatchParams } from "@/features/ai-dispatch/types/ai-dispatch.types";
+import axios from "axios";
+import { getAuthHeaders } from "@/api/ai/ai.api";
+import type {
+  AiMovementPlan,
+  AiDispatchSession,
+} from "@/features/ai-dispatch/types/ai-dispatch.types";
 
 export const aiDispatchEndpoints = {
-  sessions: "/api/ai-dispatch/sessions",
-  session: (id: string) => `/api/ai-dispatch/sessions/${encodeURIComponent(id)}`,
-  plans: "/api/ai-dispatch/plans",
-  plan: (id: string) => `/api/ai-dispatch/plans/${encodeURIComponent(id)}`,
-  approve: (id: string) => `/api/ai-dispatch/plans/${encodeURIComponent(id)}/approve`,
-  reject: (id: string) => `/api/ai-dispatch/plans/${encodeURIComponent(id)}/reject`,
-};
+  runs: "/api/ai/dispatch/runs",
+  sessions: "/api/ai/dispatch/sessions",
+  session: (id: string) => `/api/ai/dispatch/sessions/${encodeURIComponent(id)}`,
+  pending: "/api/ai/dispatch/pending",
+  approve: (decisionId: string) =>
+    `/api/ai/dispatch/decisions/${encodeURIComponent(decisionId)}/approve`,
+  reject: (decisionId: string) =>
+    `/api/ai/dispatch/decisions/${encodeURIComponent(decisionId)}/reject`,
+  cancel: (sessionId: string) =>
+    `/api/ai/dispatch/sessions/${encodeURIComponent(sessionId)}/cancel`,
+  config: "/api/ai/config",
+  features: "/api/ai/features",
+} as const;
 
 export const aiDispatchKeys = {
   all: ["ai-dispatch"] as const,
   sessions: (tenant?: string) => ["ai-dispatch", tenant, "sessions"] as const,
   session: (tenant: string | undefined, id: string) => ["ai-dispatch", tenant, "session", id] as const,
   activePlan: (tenant?: string) => ["ai-dispatch", tenant, "active-plan"] as const,
+  pending: (tenant?: string) => ["ai-dispatch", tenant, "pending"] as const,
 };
 
-/** Tạo kế hoạch di chuyển mẫu chuẩn mực khi người dùng khởi chạy AI điều phối */
-export function generateAiMovementPlan(params: CreateAiDispatchParams): AiMovementPlan {
-  const planId = crypto.randomUUID();
-  const sessionId = crypto.randomUUID();
-  const truckShort = params.truckId.slice(0, 8);
-  const loadShort = params.loadId.slice(0, 8);
+export interface BackendSuggestionMetric {
+  deadheadMiles?: number | null;
+  expectedMarginRatio?: number | null;
+  hosRemainingHours?: number | null;
+  onTimeProbability?: number | null;
+  totalDistanceMiles?: number | null;
+}
 
+export interface BackendSuggestion {
+  decisionId: string;
+  rank: number;
+  truckId: string;
+  truckNumber?: string | null;
+  driverId: string;
+  driverName?: string | null;
+  score: number | string;
+  confidence: string;
+  reasoning: string;
+  metrics?: BackendSuggestionMetric;
+  status: string;
+}
+
+export interface BackendRunResult {
+  sessionId: string;
+  sessionNumber?: number;
+  status: string;
+  mode: string;
+  rankingSource?: string;
+  modelUsed?: string;
+  tokensUsed?: { input: number; output: number; total: number };
+  estimatedCostUsd?: number;
+  summary?: string;
+  suggestions: BackendSuggestion[];
+}
+
+export interface BackendSessionDetail {
+  id: string;
+  number?: number;
+  mode?: string;
+  status: string;
+  triggeredByUserId?: string | null;
+  startedAt?: string;
+  completedAt?: string | null;
+  modelUsed?: string | null;
+  decisionCount?: number;
+  estimatedCostUsd?: number;
+  summary?: string | null;
+  errorMessage?: string | null;
+  decisions: BackendSuggestion[];
+}
+
+/**
+ * Executes an AI dispatch run on the real backend.
+ * POST /api/ai/dispatch/runs
+ */
+export async function executeAiDispatchRun(payload: {
+  loadId: string;
+  mode?: string;
+  maxSuggestions?: number;
+  instructions?: string;
+}): Promise<BackendRunResult> {
+  const res = await axios.post(
+    aiDispatchEndpoints.runs,
+    {
+      loadId: payload.loadId,
+      mode: payload.mode || "HumanInTheLoop",
+      maxSuggestions: payload.maxSuggestions ?? 5,
+      instructions: payload.instructions,
+    },
+    { headers: getAuthHeaders() },
+  );
+  return res.data?.data ?? res.data;
+}
+
+/**
+ * Fetches recent AI dispatch sessions from the real backend.
+ * GET /api/ai/dispatch/sessions
+ */
+export async function fetchAiDispatchSessions(
+  page = 0,
+  size = 20,
+  status?: string,
+): Promise<{ content: AiDispatchSession[]; totalElements: number }> {
+  const params: Record<string, unknown> = { page, size };
+  if (status) params.status = status;
+
+  const res = await axios.get(aiDispatchEndpoints.sessions, {
+    params,
+    headers: getAuthHeaders(),
+  });
+  const envelope = res.data?.data ?? res.data;
   return {
-    id: planId,
-    sessionId,
-    truckId: params.truckId,
-    truckNumber: `TRK-${truckShort.toUpperCase()}`,
-    driverId: crypto.randomUUID(),
-    driverName: "Nguyễn Văn Hùng",
-    loadId: params.loadId,
-    loadNumber: `LD-${loadShort.toUpperCase()}`,
-    totalDistanceMiles: 245,
-    deadheadMiles: 18,
-    deadheadReductionPercent: 32,
-    estimatedDurationHours: 5.5,
-    estimatedRevenue: 1450,
-    estimatedCost: 680,
-    estimatedMargin: 770,
-    currency: "USD",
-    hosStatus: "compliant",
-    hosRemainingHours: 7.5,
-    aiConfidenceScore: 96,
-    aiReasoning:
-      params.instructions && params.instructions.trim().length > 0
-        ? `AI đã tối ưu theo chỉ đạo: "${params.instructions.trim()}". Xe TRK-${truckShort.toUpperCase()} có vị trí xuất phát tối ưu nhất, giảm 32% quãng đường chạy rỗng, đảm bảo tuân thủ giờ nghỉ HOS theo quy định an toàn và giao hàng đúng khung giờ hẹn.`
-        : `AI đã phân tích các xe và đơn hàng khả dụng. Xe TRK-${truckShort.toUpperCase()} được chỉ định cho chuyến hàng LD-${loadShort.toUpperCase()} với mức giảm chạy rỗng 32%, tiết kiệm chi phí nhiên liệu và lộ trình có điểm dừng nghỉ 30 phút bắt buộc tuân thủ HOS.`,
-    status: "proposed",
-    stops: [
-      {
-        id: crypto.randomUUID(),
-        order: 1,
-        type: "terminal_origin",
-        name: "Bến xe Tân Bình (Bãi xe xuất phát)",
-        address: "142 Hoàng Hoa Thám",
-        city: "TP. Hồ Chí Minh",
-        state: "HCM",
-        plannedArrival: "2026-10-11T07:00:00Z",
-        plannedDeparture: "2026-10-11T07:15:00Z",
-        distanceFromLastStopMiles: 0,
-        durationMinutes: 15,
-        dwellTimeMinutes: 15,
-        instructions: "Kiểm tra kỹ thuật xe trước khi khởi hành (Pre-trip Inspection DVIR).",
-      },
-      {
-        id: crypto.randomUUID(),
-        order: 2,
-        type: "pickup",
-        name: "Kho Tổng Sotrans Thủ Đức (Điểm lấy hàng)",
-        address: "Khu Công Nghệ Cao, Xa lộ Hà Nội",
-        city: "TP. Thủ Đức",
-        state: "HCM",
-        plannedArrival: "2026-10-11T08:00:00Z",
-        plannedDeparture: "2026-10-11T08:45:00Z",
-        distanceFromLastStopMiles: 18,
-        durationMinutes: 45,
-        dwellTimeMinutes: 45,
-        instructions: `Nhận đơn hàng LD-${loadShort.toUpperCase()}. Kiểm tra niêm phong seal và chứng từ vận tải.`,
-      },
-      {
-        id: crypto.randomUUID(),
-        order: 3,
-        type: "rest_break",
-        name: "Trạm Dừng Nghỉ Cao Tốc Km 104 (Nghỉ HOS bắt buộc)",
-        address: "Km 104 Cao tốc Dầu Giây - Phan Thiết",
-        city: "Xuân Lộc",
-        state: "Đồng Nai",
-        plannedArrival: "2026-10-11T12:00:00Z",
-        plannedDeparture: "2026-10-11T12:30:00Z",
-        distanceFromLastStopMiles: 86,
-        durationMinutes: 30,
-        dwellTimeMinutes: 30,
-        instructions: "Nghỉ ngơi 30 phút theo luật an toàn HOS (30-minute rest break compliance).",
-      },
-      {
-        id: crypto.randomUUID(),
-        order: 4,
-        type: "delivery",
-        name: "Trung Tâm Phân Phối Mega Bình Dương (Điểm giao hàng)",
-        address: "Khu Công Nghiệp VSIP 1, Đại Lộ Độc Lập",
-        city: "Thuận An",
-        state: "Bình Dương",
-        plannedArrival: "2026-10-11T14:30:00Z",
-        plannedDeparture: "2026-10-11T15:15:00Z",
-        distanceFromLastStopMiles: 110,
-        durationMinutes: 45,
-        dwellTimeMinutes: 45,
-        instructions: "Bàn giao hàng hóa, chụp ảnh ký nhận biên bản giao nhận e-POD.",
-      },
-      {
-        id: crypto.randomUUID(),
-        order: 5,
-        type: "terminal_return",
-        name: "Bến xe Tân Bình (Bãi xe tập kết về)",
-        address: "142 Hoàng Hoa Thám",
-        city: "TP. Hồ Chí Minh",
-        state: "HCM",
-        plannedArrival: "2026-10-11T16:30:00Z",
-        plannedDeparture: "2026-10-11T16:45:00Z",
-        distanceFromLastStopMiles: 31,
-        durationMinutes: 15,
-        dwellTimeMinutes: 15,
-        instructions: "Kết thúc chuyến đi, ghi nhận số km Odometer và hoàn thành Post-trip DVIR.",
-      },
-    ],
+    content: Array.isArray(envelope?.content)
+      ? envelope.content
+      : Array.isArray(envelope)
+      ? envelope
+      : [],
+    totalElements: Number(envelope?.totalElements ?? envelope?.content?.length ?? 0),
   };
 }
 
-export const initialMovementPlan = generateAiMovementPlan({
-  mode: "assisted",
-  objective: "minimize_deadhead",
-  modelUsed: "LogisticsX Neural Dispatcher v2",
-  truckId: "4a2b9183-1100-4b2e-a551-912c7d91a123",
-  loadId: "7e5f3922-2200-4c3d-b442-823d6e82b456",
-  businessZoneId: "Asia/Ho_Chi_Minh",
-  instructions: "Ưu tiên xe có hệ thống định vị GPS và tài xế đã quen tuyến cao tốc phía Nam.",
-});
+/**
+ * Fetches detail of an AI dispatch session from the real backend.
+ * GET /api/ai/dispatch/sessions/{id}
+ */
+export async function fetchAiDispatchSessionDetail(
+  sessionId: string,
+): Promise<BackendSessionDetail> {
+  const res = await axios.get(aiDispatchEndpoints.session(sessionId), {
+    headers: getAuthHeaders(),
+  });
+  return res.data?.data ?? res.data;
+}
+
+/**
+ * Fetches all pending decisions across sessions from the real backend.
+ * GET /api/ai/dispatch/pending
+ */
+export async function fetchAiDispatchPending(): Promise<BackendSuggestion[]> {
+  const res = await axios.get(aiDispatchEndpoints.pending, {
+    headers: getAuthHeaders(),
+  });
+  const data = res.data?.data ?? res.data;
+  return Array.isArray(data) ? data : [];
+}
+
+/**
+ * Approves an AI dispatch decision on the real backend.
+ * POST /api/ai/dispatch/decisions/{id}/approve
+ */
+export async function approveAiDispatchDecision(
+  decisionId: string,
+  notes?: string,
+): Promise<BackendSuggestion> {
+  const res = await axios.post(
+    aiDispatchEndpoints.approve(decisionId),
+    notes ? { notes } : {},
+    { headers: getAuthHeaders() },
+  );
+  return res.data?.data ?? res.data;
+}
+
+/**
+ * Rejects an AI dispatch decision on the real backend.
+ * POST /api/ai/dispatch/decisions/{id}/reject
+ */
+export async function rejectAiDispatchDecision(
+  decisionId: string,
+  reason: string,
+): Promise<BackendSuggestion> {
+  const res = await axios.post(
+    aiDispatchEndpoints.reject(decisionId),
+    { reason },
+    { headers: getAuthHeaders() },
+  );
+  return res.data?.data ?? res.data;
+}
+
+/**
+ * Maps a real backend Suggestion and Session into the frontend AiMovementPlan model.
+ */
+export function mapSuggestionToPlan(
+  suggestion: BackendSuggestion,
+  sessionInfo?: {
+    sessionId?: string;
+    loadId?: string;
+    loadNumber?: string;
+    summary?: string;
+    instructions?: string;
+  },
+): AiMovementPlan {
+  return {
+    id: String(suggestion.decisionId),
+    sessionId: sessionInfo?.sessionId ?? "",
+    truckId: suggestion.truckId,
+    truckNumber: suggestion.truckNumber ?? suggestion.truckId,
+    driverId: suggestion.driverId,
+    driverName: suggestion.driverName ?? suggestion.driverId,
+    loadId: sessionInfo?.loadId ?? "",
+    loadNumber: sessionInfo?.loadNumber ?? sessionInfo?.loadId ?? "",
+    totalDistanceMiles: suggestion.metrics?.totalDistanceMiles ?? null,
+    deadheadMiles: suggestion.metrics?.deadheadMiles ?? null,
+    deadheadReductionPercent: null,
+    estimatedDurationHours: null,
+    estimatedRevenue: null,
+    estimatedCost: null,
+    estimatedMargin: null,
+    currency: null,
+    hosStatus: null,
+    hosRemainingHours: suggestion.metrics?.hosRemainingHours ?? null,
+    aiConfidenceScore: null,
+    aiReasoning: suggestion.reasoning || sessionInfo?.summary || "Chưa có giải thích từ máy chủ",
+    status: suggestion.status?.toLowerCase() === "approved" ? "approved"
+      : suggestion.status?.toLowerCase() === "rejected" ? "rejected" : "proposed",
+    stops: [],
+  };
+}

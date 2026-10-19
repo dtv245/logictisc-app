@@ -1,0 +1,148 @@
+.ops-mini-map-card {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 320px;
+  height: 100%;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 0 !important;
+  border-radius: 24px;
+  background: #f1f2ee;
+}
+
+.ops-mini-map-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ops-mini-map-header {
+  position: absolute;
+  z-index: 3;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 72px);
+  padding: 8px 14px;
+  border-radius: 24px;
+  background: #fffffff5;
+  box-shadow: 0 3px 12px #33352b08;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  border: 0;
+  cursor: pointer;
+
+  strong {
+    color: #2b2e28;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  > span:last-child:not(.ops-mini-map-live-dot) {
+    overflow: hidden;
+    color: #83857d;
+    font-size: 11px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #7442ff;
+    outline-offset: 2px;
+  }
+
+  &.is-static {
+    cursor: default;
+  }
+}
+
+.ops-mini-map-live-dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a5a99e;
+
+  &.is-live {
+    background: #28a472;
+    box-shadow: 0 0 0 2px #28a47233;
+  }
+}
+
+.ops-mini-map-canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  overflow: hidden;
+  border-radius: inherit;
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 320px;
+    height: 100%;
+    padding: 52px 24px 40px;
+    box-sizing: border-box;
+    color: #727b6d;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  &__overlay {
+    position: absolute;
+    z-index: 3;
+    bottom: 12px;
+    left: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: calc(100% - 70px);
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 24px;
+    background: #ffffffeb;
+    color: #444a40;
+    font-size: 12px;
+    font-weight: 550;
+    cursor: pointer;
+    box-shadow: 0 2px 8px #00000010;
+
+    &:hover {
+      background: #fff;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #7442ff;
+      outline-offset: 2px;
+    }
+  }
+}
+
+@media (min-width: 1600px) {
+  .ops-mini-map-card,
+  .ops-mini-map-canvas,
+  .ops-mini-map-canvas__empty {
+    min-height: 340px;
+  }
+
+  .ops-mini-map-header strong {
+    font-size: 13px;
+  }
+
+  .ops-mini-map-canvas__overlay {
+    font-size: 13px;
+    padding: 9px 16px;
+  }
+}

@@ -1,0 +1,369 @@
+.ops-timeline-card {
+  --timeline-driver-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 20px 22px 16px;
+  border: 0;
+  border-radius: 24px;
+  background: #f5f6f3;
+  color: #353336;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ops-timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.35;
+    color: #2b2732;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: #83818a;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+}
+
+.ops-timeline-open {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 18px;
+  background: #ede8fc;
+  color: #7442ff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: #e2d9fc;
+  }
+
+  &:focus-visible,
+  .ops-timeline-scrollable:focus-visible,
+  .ops-timeline-block:focus-visible {
+    outline: 2px solid #7442ff;
+    outline-offset: 2px;
+  }
+}
+
+.ops-timeline-scrollable {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.ops-timeline-grid {
+  position: relative;
+  min-width: 580px;
+  padding-top: 0;
+}
+
+.ops-timeline-axis-row,
+.ops-timeline-driver-row {
+  display: grid;
+  grid-template-columns: var(--timeline-driver-width) minmax(0, 1fr);
+}
+
+.ops-timeline-axis-row {
+  height: 30px;
+}
+
+.ops-timeline-driver-row {
+  min-height: 50px;
+  border-top: 1px solid #eaebe7;
+  align-items: center;
+}
+
+.ops-timeline-driver-cell {
+  position: sticky;
+  z-index: 2;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-right: 12px;
+  background: #f5f6f3;
+
+  &--header {
+    align-items: center;
+    color: #82808a;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 650;
+  }
+}
+
+.ops-timeline-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #e0e2db;
+  color: #6e7066;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.ops-timeline-driver-info {
+  min-width: 0;
+
+  strong {
+    display: block;
+    overflow: hidden;
+    color: #2b2732;
+    font-size: 13px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  > span {
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    color: #83818a;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  > .ops-timeline-driver-status--positive { color: #258956; font-weight: 600; }
+  > .ops-timeline-driver-status--negative { color: #d44555; font-weight: 600; }
+  > .ops-timeline-driver-status--warning { color: #ad751a; font-weight: 600; }
+  > .ops-timeline-driver-status--ai { color: #7442ff; font-weight: 600; }
+}
+
+.ops-timeline-track {
+  position: relative;
+  min-width: 0;
+  height: 48px;
+
+  &--axis {
+    height: 30px;
+  }
+}
+
+.ops-time-marker {
+  position: absolute;
+  top: 8px;
+  transform: translateX(-50%);
+  color: #86848c;
+  font-size: 11px;
+  font-weight: 550;
+  white-space: nowrap;
+
+  &:first-child { transform: none; }
+  &:last-child { transform: translateX(-100%); }
+}
+
+.ops-timeline-gridline {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: #e9ebe5;
+}
+
+.ops-timeline-block {
+  position: absolute;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 28px;
+  padding: 0 10px;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px #0000000a;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px #00000018;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &--active {
+    background: #7540ff;
+    color: #fff;
+  }
+
+  &--delayed {
+    background: #ff4254;
+    color: #fff;
+  }
+
+  &--scheduled {
+    background: #eaeae7;
+    color: #6a6870;
+  }
+
+  &--ai-suggested {
+    border: 1.5px dashed #996eff;
+    background: #f3efff;
+    color: #7540ff;
+  }
+
+  &--overrun {
+    justify-content: center;
+    padding: 0 5px;
+    border-color: #fa8291;
+    background: #fff0f2;
+    color: #db4053;
+    font-size: 10px;
+  }
+}
+
+.ops-timeline-now-layer {
+  position: absolute;
+  z-index: 3;
+  top: 1px;
+  bottom: 0;
+  left: var(--timeline-driver-width);
+  right: 0;
+  pointer-events: none;
+}
+
+.ops-now-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+
+  &__badge {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: #7540ff;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    box-shadow: 0 2px 6px #7540ff40;
+  }
+
+  &__line {
+    position: absolute;
+    top: 18px;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background: #7540ff;
+  }
+}
+
+.ops-timeline-state {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 140px;
+  color: #7f7d86;
+  font-size: 13px;
+  text-align: center;
+
+  p { margin: 0; }
+  button {
+    border: 0;
+    background: transparent;
+    color: #7442ff;
+    cursor: pointer;
+    font-weight: 600;
+  }
+}
+
+@media (min-width: 1600px) {
+  .ops-timeline-card {
+    --timeline-driver-width: 185px;
+    padding: 22px 24px 18px;
+  }
+
+  .ops-timeline-header h2 {
+    font-size: 15px;
+  }
+
+  .ops-timeline-driver-row {
+    min-height: 54px;
+  }
+
+  .ops-timeline-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .ops-timeline-driver-info strong {
+    font-size: 14px;
+  }
+
+  .ops-timeline-track {
+    height: 52px;
+  }
+
+  .ops-timeline-block {
+    height: 30px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ops-timeline-card {
+    padding: 14px 12px;
+  }
+
+  .ops-timeline-header {
+    align-items: flex-start;
+  }
+
+  .ops-timeline-open {
+    font-size: 11px;
+    min-height: 28px;
+  }
+}

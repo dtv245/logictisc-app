@@ -11,6 +11,11 @@ import {
   calculateDriverScore,
   calculateProfit,
 } from "../../../features/dashboard/utils/calculations";
+import {
+  computeReportDateWindows,
+  normalizeWidgetError,
+  serializeReportDateRange,
+} from "../../../features/dashboard/api";
 import type { MetricDto } from "../../../features/dashboard/types";
 
 describe("Dashboard Formatters", () => {
@@ -190,5 +195,91 @@ describe("Dashboard Calculations", () => {
       );
       expect(lowScore).toBe(0);
     });
+  });
+});
+
+describe("Dashboard Report Parameter Serialization", () => {
+  describe("serializeReportDateRange", () => {
+    it("serializes date range to YYYY-MM-DD format", () => {
+      const range = serializeReportDateRange("2026-09-16", "2026-10-16");
+      expect(range.from).toBe("2026-09-16");
+      expect(range.to).toBe("2026-10-16");
+    });
+
+    it("falls back to default 30-day window when from is missing", () => {
+      const range = serializeReportDateRange(null, "2026-10-16", 30);
+      expect(range.from).toBe("2026-09-16");
+      expect(range.to).toBe("2026-10-16");
+    });
+  });
+
+  describe("computeReportDateWindows", () => {
+    it("computes current and previous comparison windows with YYYY-MM-DD formats", () => {
+      const windows = computeReportDateWindows("2026-09-16", "2026-10-16");
+      expect(windows.current.from).toBe("2026-09-16");
+      expect(windows.current.to).toBe("2026-10-16");
+      // Previous window should be immediately before current
+      expect(windows.previous.to).toBe("2026-09-15");
+      expect(windows.previous.from).toBe("2026-08-16");
+    });
+  });
+});
+
+describe("normalizeWidgetError", () => {
+  it("translates 403 to friendly Vietnamese message", () => {
+    const error = normalizeWidgetError({ statusCode: 403, code: "FORBIDDEN" });
+    expect(error.statusCode).toBe(403);
+    expect(error.message).toBe("Không có quyền xem thông tin này");
+  });
+
+  it("translates 404 to friendly Vietnamese message", () => {
+    const error = normalizeWidgetError({ statusCode: 404, code: "RESOURCE_NOT_FOUND" });
+    expect(error.statusCode).toBe(404);
+    expect(error.message).toBe("Dữ liệu hoặc báo cáo chưa khả dụng");
+  });
+
+  it("translates 400 with invalid type to friendly Vietnamese message without technical leak", () => {
+    const error = normalizeWidgetError({
+      statusCode: 400,
+      code: "MALFORMED_REQUEST",
+      message: "Request parameter has an invalid type",
+      response: {
+        status: 400,
+        data: {
+          code: "MALFORMED_REQUEST",
+          message: "Request parameter has an invalid type",
+          requestId: "req-123",
+        },
+      },
+    });
+    expect(error.statusCode).toBe(400);
+    expect(error.message).toBe("Tham số báo cáo không hợp lệ");
+    expect(error.message).not.toContain("invalid type");
+    expect(error.requestId).toBe("req-123");
+  });
+
+  it("translates 500 unexpected error to friendly Vietnamese message without technical leak", () => {
+    const error = normalizeWidgetError({
+      statusCode: 500,
+      code: "INTERNAL_ERROR",
+      message: "An unexpected error occurred",
+      response: {
+        status: 500,
+        data: {
+          code: "INTERNAL_ERROR",
+          message: "An unexpected error occurred",
+          requestId: "req-500",
+        },
+      },
+    });
+    expect(error.statusCode).toBe(500);
+    expect(error.message).toBe("Dữ liệu tạm thời không khả dụng. Vui lòng thử lại sau.");
+    expect(error.message).not.toContain("unexpected error");
+    expect(error.requestId).toBe("req-500");
+  });
+
+  it("handles null or undefined safely", () => {
+    const error = normalizeWidgetError(null);
+    expect(error.message).toBe("Đã xảy ra lỗi không xác định");
   });
 });

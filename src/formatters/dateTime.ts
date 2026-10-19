@@ -197,3 +197,17 @@ export function toDateOrNull(
 ): Date | null {
   return value ? new Date(value) : null;
 }
+
+/**
+ * Format time-only string (HH:mm) từ instant hoặc Date.
+ */
+export function formatTimeOnly(
+  value: InstantInput | null | undefined,
+  options: DateTimeFormatOptions = {},
+): string {
+  return formatDateTime(value, {
+    format: { hour: "2-digit", minute: "2-digit", hourCycle: "h23" },
+    ...options,
+  });
+}
+

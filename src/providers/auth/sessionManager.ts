@@ -8,6 +8,7 @@
 import type { JwtRole } from "../../types/roles.types";
 import type { LarkAuthLoginResponse } from "../../types/auth.types";
 import { normalizeJwtRoles } from "../permissions/jwtRoles";
+import { setActiveAccessToken } from "./activeToken";
 import type {
   AccessTokenVerifier,
   AuthIdentity,
@@ -364,6 +365,8 @@ export class AuthSessionManager {
   };
 
   private setSession = (nextSession: AuthSessionSnapshot | null): void => {
+    setActiveAccessToken(nextSession?.accessToken ?? null);
+
     const previousBoundary = this.session
       ? `${this.session.tenantId}\u0000${this.session.identity.id}`
       : null;
