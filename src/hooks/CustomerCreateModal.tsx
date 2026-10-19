@@ -7,7 +7,7 @@ import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { buildResourceMutation } from "@/components/resources/resourceMutation";
 import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
-import { CustomerForm } from "./CustomerForm";
+import { CustomerForm } from "@/features/customers/components/CustomerForm";
 
 export interface CustomerCreateModalProps {
   trigger: (show: () => void) => ReactNode;

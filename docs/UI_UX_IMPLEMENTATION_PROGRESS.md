@@ -11,11 +11,20 @@ Plan có **76 ticket triển khai**. Tám mã `UX-01..UX-08` là nhãn traceabil
 | Lệnh | Kết quả | Ghi chú |
 |---|---|---|
 | `npm run build` | PASS — exit 0 | `tsc -b` và Vite build thành công. Vite cảnh báo một số bundle lớn hơn 500 kB. |
-| `npm run lint` | PASS — exit 0 | 0 lỗi, 1 cảnh báo hook dependencies có sẵn tại `src/features/dashboard/hooks/useDriverRanking.ts:57`. |
+| `npm run lint` | PASS — exit 0 | 0 lỗi, 1 cảnh báo hook dependencies có sẵn tại `src/hooks/useDriverRanking.ts:57`. |
 | `npm test -- --reporter=dot` | PASS — exit 0, 191 files / 1290 tests | Vượt baseline 1205 tests của `docs/restructure/PROGRESS.md`. Các cảnh báo Ant Design/Sass/React Router/jsdom và error logs từ test conflict là không fatal. |
 | `npx vitest run src/tests/pages/dashboard/DashboardResponsive.test.tsx --reporter=dot` | PASS — exit 0, 1 file / 11 tests | Có kiểm tra shortcut Ctrl/Cmd+K và parse filter bằng Refine. |
 | `npx vitest run src/tests/pages/loads/LoadShow.test.tsx src/tests/features/loads/ShipmentDetailRedesign.test.tsx --reporter=dot` | PASS — exit 0, 2 files / 9 tests | Xác nhận header/back ổn định khi đổi tab và states của Load detail. |
 | `npx playwright test e2e/dashboard-panels.spec.ts --grep "keeps missing panel data empty"` | PASS — 1/1 | Chạy với browser fixture; không phải backend-live/UAT. |
+
+## Kiểm chứng sau hòa nhập `origin/main` — 19/10/2026
+
+- `origin/main` chuyển các dashboard/map hooks sang `src/hooks/`; lần build đầu phát hiện import cũ còn sót. Đã cập nhật import trong 14 file, không đổi nghiệp vụ/API.
+- `npm run build`: PASS, exit 0.
+- `npm run lint`: PASS, exit 0; còn 1 cảnh báo `react-hooks/exhaustive-deps` tại `src/hooks/useDriverRanking.ts:57`.
+- Test liên quan: PASS, 6 file / 26 tests.
+- `npx vitest run`: PASS, exit 0, 191 files / 1290 tests.
+- Playwright không chạy lại ở bước hòa nhập này vì các spec screenshot ghi vào `docs/design/` đang chứa bằng chứng hiện có. E2E fixture 1/1 ở bảng trên là kết quả lần chạy trước; không phải live UAT.
 
 ## Tiến độ theo milestone
 

@@ -1,4 +1,4 @@
-import type { MetricDto } from "../types";
+import type { MetricDto } from "@/features/dashboard/types";
 
 /**
  * Format currency with compact (e.g. $1.2K, $3.4M) or full number display.

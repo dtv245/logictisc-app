@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import dayjs from "dayjs";
-import { useDashboardData } from "../hooks/useDashboardData";
+import { useDashboardData } from "@/hooks/useDashboardData";
 import { DEFAULT_CURRENCY, INITIAL_DASHBOARD_FILTERS } from "../config/rankingWeights";
 import type { DashboardFilters } from "../types";
 import type { KpiItemProps } from "../types/primitives.types";

@@ -1,4 +1,4 @@
-import type { DriverRankingWeights } from "../types";
+import type { DriverRankingWeights } from "@/features/dashboard/types";
 
 export interface DeltaResult {
   delta: number;

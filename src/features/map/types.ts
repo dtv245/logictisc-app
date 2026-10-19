@@ -132,7 +132,7 @@ export const DeliveryZoneSchema = z.object({
   color: z.tuple([z.number(), z.number(), z.number()]).optional(),
 });
 export type DeliveryZone = z.infer<typeof DeliveryZoneSchema>;
-export type { RouteRequest } from "./hooks/useRoutes";
+export type { RouteRequest } from "@/hooks/useRoutes";
 
 /**
  * Dữ liệu tuyến đường (Route Data)

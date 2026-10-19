@@ -18,13 +18,13 @@ import type {
   TransitTimeReport,
   TruckProfitabilityReport,
   WidgetAsyncState,
-} from "../types";
+} from "@/features/dashboard/types";
 import {
   computeReportDateWindows,
   DASHBOARD_ENDPOINTS,
   normalizeWidgetError,
-} from "../api";
-import { calculateProfit } from "../utils/calculations";
+} from "@/features/dashboard/api";
+import { calculateProfit } from "@/utils/calculations";
 
 export interface UseDashboardDataOptions {
   enableFinancials?: boolean;

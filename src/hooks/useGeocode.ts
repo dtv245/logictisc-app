@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import type { GeocodingResult, LngLat } from "../types";
-import { VietnamPostalCodeSchema } from "../types";
+import type { GeocodingResult, LngLat } from "@/features/map/types";
+import { VietnamPostalCodeSchema } from "@/features/map/types";
 
 export interface GeocodeAdapter {
   search(query: string): Promise<GeocodingResult[]>;

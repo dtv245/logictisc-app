@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import type { LngLat, RouteData, VehicleType } from "../types";
-import { VEHICLE_CONFIGS } from "../types";
-import { decodePolyline } from "../lib/polyline";
+import type { LngLat, RouteData, VehicleType } from "@/features/map/types";
+import { VEHICLE_CONFIGS } from "@/features/map/types";
+import { decodePolyline } from "@/features/map/lib/polyline";
 
 export interface RouteRequest {
   id: string;

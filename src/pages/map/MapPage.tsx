@@ -1,7 +1,7 @@
 import { Alert } from "antd";
 import { AddressSearch } from "@/features/map/components/AddressSearch";
 import { MapView } from "@/features/map/components/MapView";
-import { useDeliveryPoints } from "@/features/map/hooks/useDeliveryPoints";
+import { useDeliveryPoints } from "@/hooks/useDeliveryPoints";
 
 export function MapPage() {
   const { points, zones } = useDeliveryPoints();

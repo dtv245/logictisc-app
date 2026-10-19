@@ -59,7 +59,7 @@ vi.mock("@hooks/useCurrentTenant", () => ({
   }),
 }));
 
-vi.mock("@features/dashboard/hooks/useDashboardData", () => ({
+vi.mock("@/hooks/useDashboardData", () => ({
   useDashboardData: () => ({
     otd: { data: { otdPercentage: 94 }, isLoading: false, error: null },
     delays: { data: { totalLateLoads: 3 }, isLoading: false, error: null },

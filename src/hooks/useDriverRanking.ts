@@ -6,12 +6,12 @@ import type {
   DriverRankingReport,
   DriverRankingSortBy,
   WidgetAsyncState,
-} from "../types";
+} from "@/features/dashboard/types";
 import {
   DASHBOARD_ENDPOINTS,
   normalizeWidgetError,
   serializeReportDateRange,
-} from "../api";
+} from "@/features/dashboard/api";
 
 export function useDriverRanking(filters: DashboardFilters) {
   const [sortBy, setSortBy] = useState<DriverRankingSortBy>("score");
