@@ -3,6 +3,6 @@ import { PriorityShipmentCard } from "@/components/dashboard/PriorityShipmentCar
 import { usePriorityShipments } from "@/hooks/dashboard/usePriorityShipments";
 
 export function DashboardPriorityShipment(): ReactElement {
-  const { shipments, locale, isLoading, error, retry } = usePriorityShipments();
-  return <PriorityShipmentCard shipments={shipments} locale={locale} isLoading={isLoading} error={error} onRetry={retry} />;
+  const { shipments, locale, isLoading, isUnavailable, error, retry } = usePriorityShipments();
+  return <PriorityShipmentCard shipments={shipments} locale={locale} isLoading={isLoading} isUnavailable={isUnavailable} error={error} onRetry={retry} />;
 }

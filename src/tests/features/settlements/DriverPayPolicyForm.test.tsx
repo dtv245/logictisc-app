@@ -1,10 +1,15 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { setTestLocale } from "@/tests/testLocale";
 
 import { DriverPayPolicyForm } from "@/features/settlements/components/DriverPayPolicyForm";
 import type { DriverPayPolicyView } from "@/types/driverPayPolicy.dto";
 
 describe("DriverPayPolicyForm", () => {
+  beforeEach(async () => {
+    await setTestLocale("en");
+  });
+
   const samplePolicy: DriverPayPolicyView = {
     id: "pol-101",
     policyCode: "POL-REG-01",
@@ -53,10 +58,10 @@ describe("DriverPayPolicyForm", () => {
     const codeInput = screen.getByDisplayValue("POL-REG-01");
     expect(codeInput).toBeDisabled();
 
-    // Alert showing previous version and immutability notice
-    expect(
-      screen.getByText(/Creating new version \(v2\) for policy "POL-REG-01"/i)
-    ).toBeInTheDocument();
+    // Alert and previous effective date remain visible while scope/code are immutable.
+    expect(screen.getByText("Creating new version for policy. Scope and Code are immutable.")).toBeVisible();
+    expect(screen.getByText(/^Previous Effective From:/)).toBeVisible();
+    expect(screen.getByText("2026-01-01")).toBeVisible();
 
     // Submit button shows Create New Version
     expect(screen.getByText("Create New Version")).toBeInTheDocument();

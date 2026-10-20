@@ -78,7 +78,7 @@ export const RouteProgressBar: React.FC<RouteProgressBarProps> = ({ load }) => {
           </div>
         </div>
       </div>
-      <Typography.Text type="secondary" style={{ display: "block", marginTop: 12, fontSize: 11 }}>
+      <Typography.Text type="secondary" style={{ display: "block", marginTop: "var(--spacing-sm)", fontSize: 11 }}>
         {t("loads.redesign.statusBasedProgress")}
       </Typography.Text>
     </div>

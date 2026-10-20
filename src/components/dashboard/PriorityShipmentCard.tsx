@@ -8,7 +8,8 @@ import "@/components/dashboard/PriorityShipmentCard.scss";
 const labels = {
   vi: {
     title: "Chuyến vận chuyển ưu tiên", empty: "Chưa có chuyến đang vận chuyển",
-    emptyHint: "Chuyến đang trên đường sẽ xuất hiện tại đây.", window: "Khung giờ giao",
+    emptyHint: "Chuyến đang trên đường sẽ xuất hiện tại đây.", unavailable: "Chưa có dữ liệu chuyến từ API",
+    unavailableHint: "Nguồn dữ liệu hiện tại chưa cung cấp thông tin chuyến để hiển thị.", window: "Khung giờ giao",
     scheduled: "Giờ giao đã hẹn", eta: "ETA hiện tại", detour: "Với tuyến tránh",
     inside: "trong khung giờ", ahead: "phút sớm hơn kế hoạch", late: "phút so với kế hoạch",
     onTime: "đúng kế hoạch", speed: "Vận tốc", fuel: "Nhiên liệu · tầm chạy", reefer: "Thùng lạnh",
@@ -19,6 +20,7 @@ const labels = {
   },
   en: {
     title: "Priority shipment", empty: "No shipments in transit", emptyHint: "Active shipments will appear here.",
+    unavailable: "Live shipment data unavailable", unavailableHint: "The current data source did not provide shipment records.",
     window: "Window", scheduled: "Scheduled delivery", eta: "ETA now", detour: "With detour", inside: "inside window",
     ahead: "min ahead of plan", late: "min vs plan", onTime: "on schedule", speed: "Speed",
     fuel: "Fuel · range", reefer: "Reefer", load: "Load", pallets: "pallets", set: "set",
@@ -100,7 +102,7 @@ function ShipmentRoute({ shipment, locale }: { shipment: PriorityShipment; local
 }
 
 /** Screenshot-inspired card. Business values are supplied by its caller, never sample fallbacks. */
-export function PriorityShipmentCard({ shipments = [], isLoading = false, error, onRetry, onSelectShipment, locale = "vi", className = "" }: PriorityShipmentCardProps): ReactElement {
+export function PriorityShipmentCard({ shipments = [], isLoading = false, isUnavailable = false, error, onRetry, onSelectShipment, locale = "vi", className = "" }: PriorityShipmentCardProps): ReactElement {
   const text = labels[locale];
   const headingId = useId();
   const [selectedId, setSelectedId] = useState<string>();
@@ -148,13 +150,13 @@ export function PriorityShipmentCard({ shipments = [], isLoading = false, error,
             <span>{shipment.agent.label}{shipment.agent.timeLabel ? ` · ${shipment.agent.timeLabel}` : ""}</span>
           </div>}
           <div className="priority-shipment__title-row">
-            <h2 id={headingId}>{shipment ? <>{shipment.origin} <span aria-hidden="true">→</span> {shipment.destination}</> : text.empty}</h2>
+            <h2 id={headingId}>{shipment ? <>{shipment.origin} <span aria-hidden="true">→</span> {shipment.destination}</> : isUnavailable ? text.unavailable : text.empty}</h2>
             {shipment?.status && <span className={`priority-shipment__status priority-shipment__status--${shipment.status.tone}`}>
               {(shipment.status.tone === "warning" || shipment.status.tone === "danger") && <AlertTriangle size={11} fill="currentColor" aria-hidden="true" />}
               {shipment.status.label}
             </span>}
           </div>
-          <p className="priority-shipment__meta">{shipment ? [shipment.reference, shipment.customer, cargo?.pallets != null ? `${number.format(cargo.pallets)} ${text.pallets}` : undefined].filter(Boolean).join(" · ") : text.emptyHint}</p>
+        <p className="priority-shipment__meta">{shipment ? [shipment.reference, shipment.customer, cargo?.pallets != null ? `${number.format(cargo.pallets)} ${text.pallets}` : undefined].filter(Boolean).join(" · ") : isUnavailable ? text.unavailableHint : text.emptyHint}</p>
         </div>
         <dl className="priority-shipment__metrics">
           <Metric label={shipment?.deliveryWindow ? text.window : text.scheduled} value={shipment?.deliveryWindow ?? shipment?.scheduledDelivery} />
@@ -190,7 +192,7 @@ export function PriorityShipmentCard({ shipments = [], isLoading = false, error,
         <Callout kind="load" label={text.load} unavailable={cargoParts.length === 0}>{cargoParts.length ? cargoParts.join(" · ") : unavailable}</Callout>
       </div>
 
-      {shipment ? <ShipmentRoute shipment={shipment} locale={locale} /> : <p className="priority-shipment__empty" role="status">{text.noTelemetry}</p>}
+      {shipment ? <ShipmentRoute shipment={shipment} locale={locale} /> : <p className="priority-shipment__empty" role="status">{isUnavailable ? text.unavailable : text.noTelemetry}</p>}
       {shipments.length > 1 && <nav className="priority-shipment__pager" aria-label={text.title}>
         <span aria-live="polite">{index + 1} / {shipments.length}</span>
         <button type="button" aria-label={text.previous} onClick={() => select(-1)}><ChevronLeft size={16} /></button>

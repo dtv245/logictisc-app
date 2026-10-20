@@ -112,8 +112,8 @@ describe("ShipmentDetail Redesign Components", () => {
     render(<ShipmentLoadPlanCard load={mockLoad} />);
 
     expect(screen.getByTestId("shipment-load-plan-card")).toBeInTheDocument();
-    expect(screen.getByText(/Phương tiện & Kế hoạch xếp hàng/i)).toBeInTheDocument();
-    expect(screen.getByText(/Hàng bách hóa thông thường/i)).toBeInTheDocument();
+    expect(screen.getByText("Phương tiện và kế hoạch xếp hàng")).toBeInTheDocument();
+    expect(screen.getByText("Hàng hóa thông thường")).toBeInTheDocument();
   });
 
   it("renders ShipmentDocumentsCard with real document list", () => {
@@ -128,7 +128,7 @@ describe("ShipmentDetail Redesign Components", () => {
     render(<ShipmentAgentCard loadId="load-101" />);
 
     expect(screen.getByTestId("shipment-agent-card")).toBeInTheDocument();
-    expect(screen.getByText(/92% tin cậy/i)).toBeInTheDocument();
+    expect(screen.getByText(/92% · Mô hình LLM/i)).toBeInTheDocument();
     expect(screen.getByText(/95%/i)).toBeInTheDocument();
     expect(screen.getByText(/Marcus Johnson/i)).toBeInTheDocument();
   });

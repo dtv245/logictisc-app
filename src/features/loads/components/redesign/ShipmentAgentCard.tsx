@@ -78,7 +78,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
 
   if (isLoading) {
     return (
-      <div className="shipment-card shipment-card--agent" style={{ textAlign: "center", padding: 32 }}>
+      <div className="shipment-card shipment-card--agent" style={{ textAlign: "center", padding: "var(--spacing-xl)" }}>
         <Spin tip={t("loads.redesign.agentLoading")} />
       </div>
     );
@@ -107,7 +107,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
           </div>
           <span className="agent-card__meta">{t("loads.redesign.agentReady")}</span>
         </div>
-        <div style={{ color: "#64748B", fontSize: 13, padding: "12px 0" }}>
+        <div style={{ color: "var(--color-text-tertiary)", fontSize: "var(--font-size-sm)", padding: "12px 0" }}>
           {t("loads.redesign.noAgentSuggestion")}
         </div>
       </div>
@@ -181,7 +181,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
       {/* Footer: Approved State or Action Buttons */}
       {isExecuted ? (
         <div className="agent-card__footer">
-          <CheckCircleFilled style={{ color: "#16A34A", fontSize: 16 }} />
+          <CheckCircleFilled style={{ color: "var(--color-success-text)", fontSize: "var(--font-size-md)" }} />
           <span>
             {t("loads.redesign.suggestionApproved")}
           </span>
@@ -194,7 +194,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
               style={{
                 backgroundColor: "#7C3AED",
                 borderColor: "#7C3AED",
-                borderRadius: 20,
+                borderRadius: "var(--radius-2xl)",
                 fontWeight: 700,
                 flex: 1,
                 height: 40,
@@ -211,7 +211,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
             <Button
               danger
               style={{
-                borderRadius: 20,
+                borderRadius: "var(--radius-2xl)",
                 fontWeight: 600,
                 height: 40,
               }}

@@ -1,8 +1,8 @@
 .ops-kpi-strip {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  background: #fff;
-  padding: 4px 0 6px;
+  background: var(--color-bg-container);
+  padding: var(--spacing-xxs) 0 6px;
   gap: 0;
   border-radius: 24px;
 }
@@ -33,10 +33,10 @@
 }
 
 .ops-kpi-item__label {
-  color: #8c8a95;
+  color: var(--color-text-tertiary);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 650;
   white-space: nowrap;
 }
@@ -54,12 +54,12 @@
   font-weight: 500;
   letter-spacing: -1px;
   line-height: 1.05;
-  color: #26242c;
+  color: var(--color-text);
 }
 
 .ops-kpi-item__context {
-  font-size: 12px;
-  color: #92909a;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
   margin-top: 6px;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -67,33 +67,33 @@
 }
 
 .ops-kpi-item .ops-kpi-item__tag {
-  padding: 3px 8px;
+  padding: 3px var(--spacing-xs);
   font-size: 11px;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 0;
 }
 
 .ops-kpi-item__error {
   color: #eb4b61;
   display: flex;
-  gap: 4px;
-  font-size: 12px;
+  gap: var(--spacing-xxs);
+  font-size: var(--font-size-xs);
 }
 
 @media (min-width: 1600px) {
   .ops-kpi-item {
     min-height: 95px;
-    padding: 8px 22px 8px 0;
+    padding: var(--spacing-xs) 22px var(--spacing-xs) 0;
   }
 
   .ops-kpi-item-link:not(:first-child) .ops-kpi-item,
   .ops-kpi-strip > .ops-kpi-item:not(:first-child) {
-    padding-left: 24px;
+    padding-left: var(--spacing-lg);
   }
 
   .ops-kpi-item__label {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .ops-kpi-item__value {
@@ -101,7 +101,7 @@
   }
 
   .ops-kpi-item__context {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 }
 

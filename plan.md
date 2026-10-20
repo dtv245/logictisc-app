@@ -486,15 +486,16 @@ Plan có **76 ticket triển khai**; 8 mã `UX-01..UX-08` là nhãn traceability
 |---|---|---|---|
 | M0 | `BASE-001..003`, `BASE-007` | `DONE` | Git/source/scripts/routes/data modes và UX/gap inventory được ghi tại `docs/ux/sprint0-triage.md`; working tree đầu lượt sạch. |
 | M0 | `BASE-004..005` | `BLOCKED` | Thiếu hai video và authenticated backend session cho AI/Optimization; ảnh fixture hiện có được phân loại riêng. |
-| M0 | `BASE-006` | `IN_REVIEW` | Route/capability được đối chiếu source; role + tenant runtime vẫn cần UAT. |
+| M0 | `BASE-006` | `UI_SAFE_DONE` | Ma trận đầy đủ route/role/tenant/capability/mode tại `docs/ux/route-capability-matrix.md`; giải quyết ON/OFF theo route registry/runtime. Role/tenant thật vẫn `NEEDS-LIVE`. |
 | M1 | `NAV-001..006` | `UI_SAFE_DONE` | GAP Fill bị khóa có giải thích; route chưa mount không còn CTA gây 404; dashboard search dùng indexed Refine filter. |
 | M1 | `NAV-007..008` | `DONE` | Search trigger dùng button/keyboard shortcut; Load header/back giữ ổn định khi đổi tab; đã có test evidence trước lượt này. |
 | M1 | `NAV-009..011` | `UI_SAFE_DONE` | Trip link dùng ID có trong response hoặc báo unavailable; notification nêu phạm vi 5 bản ghi; AI Dispatch giữ deep link/session và retry/error states. Các assertion liên quan đã qua trong targeted Vitest; không xác nhận backend-live. |
 | M1 | `CORE-001` | `BLOCKED` | `CORE_VERSIONED_WRITES_RUNTIME_VERIFIED=false`; không bật flag. |
 | M2 | `DS-001` | `DONE` | Bảng token hiện tại có trong `docs/ux/sprint0-triage.md`; giữ nguyên brand primary. |
 | M2 | `DS-002` | `BLOCKED` | Cần Product Owner chốt brand primary trước khi inject AntD theme toàn cục. |
-| M2 | `DS-003` | `IN_REVIEW` | Semantic tokens và focus/reduced-motion styles đã bổ sung; chưa audit keyboard/focus và rollout toàn bộ component. |
-| M2 | `DS-004..005` | `IN_REVIEW` | Shared async primitives và hai card được audit; live card thiếu dataset, preview card dùng fixture và model khác. Chưa gộp presentation khi chưa có mapping/data contract để tránh hiển thị sample trong live. |
+| M2 | `DS-003` | `IN_REVIEW` | Token semantic được rollout trong scope; ảnh before/after 1440/768/390 và keyboard focus đã kiểm tra. `node scripts/audit-ux-contrast.mjs --after` đạt 15/15 cặp đại diện; giữ IN_REVIEW tới audit QA-003 đầy đủ trên màu hard-code trong scope. Ảnh `docs/design/ds003-before-after-i18n/` và `docs/design/ds003-after/` là `BROWSER-FIXTURE`. |
+| M2 | `DS-004` | `DONE` | Ma trận 6 component × 5 trạng thái tại `docs/ux/component-state-matrix.md`; test component 9 file/33 test pass; `npm run build` exit 0; `npm run lint` exit 0 (0 lỗi, 4 warning có sẵn). Các N/A có lý do; không tạo component song song. |
+| M2 | `DS-005` | `UI_SAFE_DONE` | `PriorityShipmentViewModel` dùng chung, adapter preview/live và test ngăn sample `LD-84920` trong live/missing dataset; targeted Vitest 9 file/33 test pass. Live dataset/session vẫn `NEEDS-LIVE`. |
 | M2 | `DS-006`, `I18N-001` | `IN_REVIEW` | Bổ sung locale keys en/vi/ja cho AI/Load và Operations dashboard header/KPI. Operations Brief, map, timeline và Priority Shipment còn chuỗi trình bày riêng; task chưa đạt i18n toàn scope. |
 | M2 | `SHELL-001` | `IN_REVIEW` | Route menu không còn khai báo mục unsupported; role, keyboard và screenshot còn cần nghiệm thu. |
 | M3 | `OPS-001..006` | `UI_SAFE_DONE` | Live/preview rõ ràng; KPI thiếu hiển thị unavailable; brief/map/timeline có empty/disabled states. |
@@ -502,7 +503,7 @@ Plan có **76 ticket triển khai**; 8 mã `UX-01..UX-08` là nhãn traceability
 | M3 | `OPS-008` | `BLOCKED` | Thiếu backend contract/dataset cho brief, telemetry, vehicles, routes và drivers. |
 | M4 | `LOAD-001..002` | `UI_SAFE_DONE` | Load form/list đã source-reviewed; full Vitest có các suite liên quan pass trong lượt đầu. Build/typecheck đã pass trước lần refactor modal cuối; không xác nhận live API. |
 | M4 | `LOAD-003`, `LOAD-005` | `UI_SAFE_DONE` | Header Load giữ ổn định; GAP Fill không điều hướng vào editor bị khóa. Không xác nhận core write integration. |
-| M4 | `LOAD-004` | `UI_SAFE_DONE` | Timeline/Agent/Documents có retry/error states; ETA/tuyến không giả lập GPS; test liên quan không thuộc các lỗi full Vitest đã báo. |
+| M4 | `LOAD-004` | `UI_SAFE_DONE` | Đã khôi phục sau khi shared i18n harness dùng resource thật: `ShipmentDetailRedesign.test.tsx` 5/5 pass; các assertion stale được sửa theo locale vi hiện tại. Chỉ fixture/source evidence, chưa UAT live. |
 | M4 | `TRIP-001..002` | `UI_SAFE_DONE` | Stop commands fail-closed theo permission và refresh sau mutation; test Trip liên quan pass trong lượt Vitest. |
 | M4 | `AI-001` | `UI_SAFE_DONE` | Connection check/chat demo được nói rõ, không báo success live. |
 | M4 | `AI-002..003`, `AI-006` | `UI_SAFE_DONE` | Run form hiển thị request fields thật; history/deep link giữ URL; initial load error có retry. AI test assertions liên quan pass trong targeted run; backend-live chưa xác nhận. |
@@ -516,10 +517,11 @@ Plan có **76 ticket triển khai**; 8 mã `UX-01..UX-08` là nhãn traceability
 | M5 | `FLT-001` | `UI_SAFE_DONE` | Không suy deadhead bằng phép bù; metric chỉ hiện khi có đủ số liệu độc lập. 15 targeted tests gồm Fleet regression pass. |
 | M5 | `FIN-001` | `UI_SAFE_DONE` | Profitability fail-closed theo quyền; Rating/Invoice UI vẫn gated. Không bật billing flag; regression test đã chạy trong full Vitest. |
 | M5 | `SET-001`, `PAY-001..002`, `PSL-001` | `UI_SAFE_DONE` | Xác nhận UI/source và tests hiện hữu; UUID/idempotency/immutable snapshot giữ nguyên. Chỉ evidence test/fixture, không xác nhận API live. |
-| M6 | `QA-001`, `QA-006` | `UI_SAFE_DONE` | Playwright exit 0, 7 fixture tests, một worker; viewport checks 320/390/768/1024/1440 và ảnh lưu ngoài repo. Không phải live UAT. |
+| M6 | `QA-001` | `UI_SAFE_DONE` | Khôi phục sau rerun fixture: dashboard Playwright 3/3 pass, gồm scrollWidth/layout viewport 320/390/768/1024/1440; Load screenshot 1/1 pass tại 320–1440. Ảnh BROWSER-FIXTURE, không phải live. |
+| M6 | `QA-006` | `IN_REVIEW` | Dashboard Playwright 3/3 và Load detail screenshot 1/1 đã pass; còn rerun regression auth/tenant, CRUD, AI approval, financial/payroll guard với harness strict. `bootstrap.spec.ts:46` known-failing do thiếu OIDC thật, không sửa. |
 | M6 | `QA-002`, `QA-004..005` | `IN_REVIEW` | Focus-visible/reduced-motion và recovery states được bổ sung; keyboard/focus management toàn flow chưa audit bằng trình duyệt. |
 | M6 | `QA-003` | `IN_REVIEW` | Sửa token tertiary có contrast thấp; audit màu trực tiếp và trạng thái trên toàn app còn thiếu. |
 | M6 | `QA-007` | `UI_SAFE_DONE` | Progress report phân loại SOURCE, MOCK/STATIC, BROWSER-FIXTURE và NEEDS-LIVE; screenshots Playwright fixture được tách khỏi live evidence. |
-| M6 | `QA-008` | `IN_REVIEW` | Data modes đã được kiểm kê; còn xác minh sâu proxy/fallback runtime. |
+| M6 | `QA-008` | `UI_SAFE_DONE` | Đã chạy Vite dev server với backend target offline và quan sát health/me/GET/POST/PUT fallback; report tại `docs/ux/data-provenance-runtime.md`. Mutation trả success là `MOCK/STATIC`, không phải business evidence; backend thật `NEEDS-LIVE`. |
 
-**Trạng thái sau triển khai và kiểm chứng hiện có:** `DONE` 7; `UI_SAFE_DONE` 45; `IN_REVIEW` 13; `BLOCKED` 11; `BACKLOG` 0; `INTEGRATION_DONE` 0. Tổng: 76. Các 13 task IN_REVIEW cần review/UAT còn thiếu; 11 task BLOCKED phụ thuộc contract, quyền, video/session hoặc Product Owner. Không có task tạm pending-test.
+**Trạng thái sau triển khai và kiểm chứng hiện có:** `DONE` 8; `UI_SAFE_DONE` 47; `IN_REVIEW` 10; `BLOCKED` 11; `BACKLOG` 0; `INTEGRATION_DONE` 0. Tổng: 76. QA-001 và LOAD-004 đã được khôi phục sau rerun xanh; QA-006 vẫn IN_REVIEW tới khi các regression flow còn lại được chạy; BASE-006 và QA-008 hoàn tất phần source/local fixture, điều kiện live ghi `NEEDS-LIVE`.

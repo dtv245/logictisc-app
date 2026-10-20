@@ -10,7 +10,7 @@ export interface ShipmentRouteStop {
 }
 
 /** Presentation values; absent telemetry must stay absent, rather than be inferred. */
-export interface PriorityShipment {
+export interface PriorityShipmentViewModel {
   id: string;
   reference: string;
   origin: string;
@@ -34,9 +34,13 @@ export interface PriorityShipment {
   congestion?: { startPercent: number; endPercent: number; label: string; changePercent?: number };
 }
 
+/** Backwards-compatible name for the shared card presentation contract. */
+export type PriorityShipment = PriorityShipmentViewModel;
+
 export interface PriorityShipmentCardProps {
-  shipments?: readonly PriorityShipment[];
+  shipments?: readonly PriorityShipmentViewModel[];
   isLoading?: boolean;
+  isUnavailable?: boolean;
   error?: string;
   onRetry?: () => void;
   onSelectShipment?: (shipmentId: string) => void;

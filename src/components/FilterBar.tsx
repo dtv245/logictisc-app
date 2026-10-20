@@ -22,6 +22,7 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { translateOptional } from "@/locales";
 
 import { useDebouncedSearch } from "@hooks/useDebouncedSearch";
 import { EntityPicker } from "./EntityPicker";
@@ -125,7 +126,7 @@ export function FilterBar({
   value = {},
   children,
 }: FilterBarProps) {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const hasControls = Boolean(controls && controls.length > 0);
   const hasChildren = Boolean(children);
@@ -186,7 +187,7 @@ export function FilterBar({
                   onChange?.(control.field, next)
                 }
                 options={(control.options ?? []).map((option) => ({
-                  label: t(`forms.options.${option}`, { defaultValue: option }),
+                  label: translateOptional(i18n, (key) => t(key), `forms.options.${option}`, option),
                   value: option,
                 }))}
                 placeholder={label}

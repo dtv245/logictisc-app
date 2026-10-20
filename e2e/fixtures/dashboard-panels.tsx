@@ -2,6 +2,8 @@ import { createRoot } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 import { ConfigProvider, App as AntdApp } from "antd";
 import { Refine } from "@refinedev/core";
+import { I18nextProvider } from "react-i18next";
+import { initializeAppI18n } from "../../src/locales";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
 import { KpiStrip } from "@/features/dashboard/components/KpiStrip";
 import { OperationsBrief } from "@/features/dashboard/components/OperationsBrief";
@@ -11,7 +13,14 @@ import { PriorityShipmentCard } from "@/components/dashboard/PriorityShipmentCar
 import type { DriverTimelineRow, OperationsBriefProps } from "@/types/dashboard/operations-panels.types";
 import type { NetworkRouteLine, NetworkVehiclePoint } from "@/types/dashboard/network-map.types";
 import { referenceShipment } from "./dashboard-reference.data";
+import "@/styles/global.scss";
 import "@/features/dashboard/components/OperationsDashboardView.scss";
+
+const i18n = await initializeAppI18n({
+  locale: "en",
+  fallbackLocale: "en",
+  strictMissingKeys: true,
+});
 
 // Screenshot-reference content is isolated to this visual test page.
 const brief: OperationsBriefProps = {
@@ -55,7 +64,7 @@ const root = document.getElementById("root");
 const map = <NetworkMiniMap locale="en" isLive vehicles={empty ? [] : vehicles} routes={empty ? [] : networkRoutes} onRoadCount={empty ? undefined : 214} />;
 const briefCard = <OperationsBrief {...(empty ? { locale: "en" } : brief)} />;
 const timeline = <DispatchTimeline locale="en" drivers={empty ? [] : drivers} totalDriversCount={empty ? undefined : 214} now="11:58" />;
-if (root) createRoot(root).render(<ConfigProvider><AntdApp><MemoryRouter><Refine options={{ disableTelemetry: true }} authProvider={{ login: async () => ({ success: false }), logout: async () => ({ success: true }), check: async () => ({ authenticated: true }), onError: async () => ({}), getIdentity: async () => ({ name: "Sarah Bennett" }) }}>
+if (root) createRoot(root).render(<I18nextProvider i18n={i18n}><ConfigProvider><AntdApp><MemoryRouter><Refine options={{ disableTelemetry: true }} authProvider={{ login: async () => ({ success: false }), logout: async () => ({ success: true }), check: async () => ({ authenticated: true }), onError: async () => ({}), getIdentity: async () => ({ name: "Sarah Bennett" }) }}>
   {view ? <div style={{ maxWidth: view === "brief" ? 328 : view === "map" ? 335 : 640, height: view === "map" ? 185 : undefined, margin: "auto" }}>{view === "brief" ? briefCard : view === "map" ? map : timeline}</div>
     : <div className="ops-dashboard-layout"><div className="ops-grid-area-header"><DashboardHeader monitoringCount={214} approvalsCount={3} /></div><div className="ops-grid-area-kpi"><KpiStrip items={[{ label: "Đang trên đường", value: 214 }, { label: "Nguy cơ trễ", value: 18 }, { label: "Đúng giờ (OTD)", value: 94 }, { label: "Đã giao hôm nay", value: 46 }, { label: "Xe sẵn sàng", value: 14 }, { label: "Ngoại lệ", value: 2 }]} /></div><div className="ops-grid-area-priority"><PriorityShipmentCard locale="en" shipments={empty ? [] : [referenceShipment]} /></div><div className="ops-grid-area-brief">{briefCard}</div><div className="ops-grid-area-map">{map}</div><div className="ops-grid-area-timeline">{timeline}</div></div>}
-</Refine></MemoryRouter></AntdApp></ConfigProvider>);
+</Refine></MemoryRouter></AntdApp></ConfigProvider></I18nextProvider>);

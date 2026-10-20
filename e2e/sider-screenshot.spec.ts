@@ -1,5 +1,6 @@
 import { test } from "@playwright/test";
 import path from "node:path";
+import { expectNoRawTranslationKeys } from "./fixtures/assertNoRawTranslationKeys";
 
 const targetDir = process.env.SCREENSHOT_DIR || "sider-before-2";
 
@@ -21,6 +22,7 @@ test("Capture Sider screenshots across 4 pages, viewports and states", async ({ 
     await page.waitForSelector(".app-sider", { timeout: 15000 });
     await page.waitForTimeout(600);
 
+    await expectNoRawTranslationKeys(page);
     await page.screenshot({
       path: path.join(process.cwd(), `docs/design/${targetDir}/${p.name}-desktop-1440.png`),
       fullPage: true,
@@ -29,6 +31,7 @@ test("Capture Sider screenshots across 4 pages, viewports and states", async ({ 
     // 2. Tablet 1024px
     await page.setViewportSize({ width: 1024, height: 768 });
     await page.waitForTimeout(400);
+    await expectNoRawTranslationKeys(page);
     await page.screenshot({
       path: path.join(process.cwd(), `docs/design/${targetDir}/${p.name}-tablet-1024.png`),
       fullPage: true,
@@ -37,6 +40,7 @@ test("Capture Sider screenshots across 4 pages, viewports and states", async ({ 
     // 3. Mobile 390px
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(400);
+    await expectNoRawTranslationKeys(page);
     await page.screenshot({
       path: path.join(process.cwd(), `docs/design/${targetDir}/${p.name}-mobile-390.png`),
       fullPage: true,
@@ -54,6 +58,7 @@ test("Capture Sider screenshots across 4 pages, viewports and states", async ({ 
   if (await transportIcon.isVisible()) {
     await transportIcon.click();
     await page.waitForTimeout(400);
+    await expectNoRawTranslationKeys(page);
     await page.screenshot({
       path: path.join(process.cwd(), `docs/design/${targetDir}/flyout-open-1440.png`),
       fullPage: false,
@@ -63,6 +68,7 @@ test("Capture Sider screenshots across 4 pages, viewports and states", async ({ 
   // 5. Short Viewport state (550px height) to verify independent scrolling while footer is pinned
   await page.setViewportSize({ width: 1440, height: 550 });
   await page.waitForTimeout(400);
+  await expectNoRawTranslationKeys(page);
   await page.screenshot({
     path: path.join(process.cwd(), `docs/design/${targetDir}/scroll-short-viewport-1440.png`),
     fullPage: false,

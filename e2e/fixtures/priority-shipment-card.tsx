@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import "@/styles/global.scss";
 import { PriorityShipmentCard } from "@/components/dashboard/PriorityShipmentCard";
 
 import { referenceShipment } from "./dashboard-reference.data";

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactElement } from "react";
 import { Alert, Button, Dropdown, Modal } from "antd";
 import { Check, ChevronRight, MoreHorizontal, Route, Send, Sparkles, UsersRound } from "lucide-react";
@@ -22,6 +22,19 @@ export function OperationsBrief({ summary, causes = [], actions = [], confidence
   const [submitting, setSubmitting] = useState(false);
   const [actionError, setActionError] = useState(false);
   const submittingRef = useRef(false);
+
+  useEffect(() => {
+    if (!selectedAction || submitting) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        setSelectedAction(null);
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape, true);
+    return () => window.removeEventListener("keydown", closeOnEscape, true);
+  }, [selectedAction, submitting]);
   const metadata = [agentCount != null ? `${agentCount} agents` : undefined, confidenceScore != null ? `${confidenceScore}% ${text.confidence}` : undefined, updatedAtLabel].filter(Boolean).join(" · ");
 
   const submit = async (handler?: (action: ProposedAction) => Promise<void>): Promise<void> => {
@@ -74,7 +87,7 @@ export function OperationsBrief({ summary, causes = [], actions = [], confidence
         <button type="button" className="ops-brief-review" onClick={() => navigate(routes.aiDispatch)}><Check size={12} />{text.review}</button>
         {canViewRuns && <button type="button" className="ops-brief-activity" onClick={() => navigate(routes.aiDispatch)}>{text.activity}</button>}
       </footer>
-      <Modal open={Boolean(selectedAction)} title={text.modal} onCancel={() => { if (!submitting) setSelectedAction(null); }} closable={!submitting} maskClosable={!submitting}
+      <Modal open={Boolean(selectedAction)} title={text.modal} onCancel={() => { if (!submitting) setSelectedAction(null); }} closable={!submitting} maskClosable={!submitting} keyboard={!submitting}
         footer={<><Button aria-label={text.reject} disabled={!onRejectAction || submitting} onClick={() => void submit(onRejectAction)}>{text.reject}</Button><Button type="primary" aria-label={text.approve} aria-busy={submitting} loading={submitting} disabled={!onApproveAction || submitting} onClick={() => void submit(onApproveAction)}>{text.approve}</Button></>}>
         <p>{selectedAction?.title}</p>{selectedAction?.hint && <p>{selectedAction.hint}</p>}
         {!onApproveAction && <p>{text.noHandler}</p>}

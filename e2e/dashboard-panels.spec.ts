@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import path from "node:path";
+import { expectNoRawTranslationKeys } from "./fixtures/assertNoRawTranslationKeys";
 
 const screenshotDir = process.env.SCREENSHOT_DIR || "dashboard-panels";
 const screenshotPath = (file: string) =>
@@ -42,6 +43,7 @@ test("renders brief, map and timeline at their reference sizes without WebGL", a
       await expect(page.getByText("11:58")).toBeVisible();
     }
     expect(await page.evaluate(() => (window as ProbeWindow).dashboardWebGLCalls)).toBe(0);
+    await expectNoRawTranslationKeys(page);
     await page.screenshot({ path: screenshotPath(`${view}.png`), fullPage: true });
   }
 });
@@ -62,6 +64,7 @@ test("fits the dashboard panels at desktop, tablet and narrow mobile widths", as
       expect(a.x + a.width <= b.x + 1 || b.x + b.width <= a.x + 1 || a.y + a.height <= b.y + 1 || b.y + b.height <= a.y + 1).toBe(true);
     }
     expect(await page.evaluate(() => (window as ProbeWindow).dashboardWebGLCalls)).toBe(0);
+    await expectNoRawTranslationKeys(page);
     await page.screenshot({ path: screenshotPath(`dashboard-${width}.png`), fullPage: true });
   }
 });

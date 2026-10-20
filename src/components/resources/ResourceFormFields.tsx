@@ -25,6 +25,7 @@ import type { Rule } from "antd/es/form";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { translateOptional } from "@/locales";
 
 import { FormGrid } from "@/forms/FormGrid";
 import type { FormGridColumns } from "@/forms/FormGrid";
@@ -125,7 +126,7 @@ const TripStopsField = () => {
 };
 
 const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProps) => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const form = Form.useFormInstance();
   // Lắng nghe tài xế chính để loại trừ khỏi danh sách tài xế phụ
   const mainDriverId = Form.useWatch("mainDriverId", form);
@@ -139,11 +140,17 @@ const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProp
   // vẹn khi update — đúng cả khi backend PUT là full-replace lẫn partial.
   const isReadOnly = field.readOnly === true;
 
-  const labelText = t(`forms.fields.${field.name}`);
+  const fieldLabelKey = `forms.fields.${field.name}`;
+  const labelText = translateOptional(
+    i18n,
+    (key) => t(key),
+    fieldLabelKey,
+    field.name.replace(/([A-Z])/g, " $1").replace(/^./, (value) => value.toUpperCase()),
+  );
   const isDirty = dirtyFields?.has(field.name);
   const readOnlyReasonKey = `forms.readOnlyReason.${field.name}`;
-  const readOnlyReason = t(readOnlyReasonKey);
-  const hasReason = readOnlyReason !== readOnlyReasonKey;
+  const hasReason = i18n.exists(readOnlyReasonKey);
+  const readOnlyReason = translateOptional(i18n, (key) => t(key), readOnlyReasonKey, "");
 
   const label = (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
@@ -301,7 +308,7 @@ const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProp
         disabled={isReadOnly}
         mode="tags"
         options={field.options?.map((value) => ({
-          label: t(`forms.options.${value}`, { defaultValue: value }),
+          label: translateOptional(i18n, (key) => t(key), `forms.options.${value}`, value),
           value,
         }))}
         placeholder={placeholder}
@@ -336,7 +343,7 @@ const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProp
         disabled={isReadOnly}
         mode={field.selectMode}
         options={field.options?.map((value) => ({
-          label: t(`forms.options.${value}`, { defaultValue: value }),
+          label: translateOptional(i18n, (key) => t(key), `forms.options.${value}`, value),
           value,
         }))}
         placeholder={placeholder}

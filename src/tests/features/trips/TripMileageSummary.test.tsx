@@ -19,7 +19,7 @@ describe("TripMileageSummary", () => {
     expect(screen.getByTestId("mileage-empty")).toHaveTextContent("40.25 mi");
   });
 
-  it("displays N/A and does NOT convert null or undefined mileage to 0", () => {
+  it("displays the localized unavailable state and does NOT convert null or undefined mileage to 0", () => {
     render(
       <TripMileageSummary
         plannedDistanceMiles={null}
@@ -34,16 +34,16 @@ describe("TripMileageSummary", () => {
     const loaded = screen.getByTestId("mileage-loaded");
     const empty = screen.getByTestId("mileage-empty");
 
-    expect(planned).toHaveTextContent("N/A");
+    expect(planned).toHaveTextContent("Không khả dụng");
     expect(planned).not.toHaveTextContent("0 mi");
 
-    expect(actual).toHaveTextContent("N/A");
+    expect(actual).toHaveTextContent("Không khả dụng");
     expect(actual).not.toHaveTextContent("0 mi");
 
-    expect(loaded).toHaveTextContent("N/A");
+    expect(loaded).toHaveTextContent("Không khả dụng");
     expect(loaded).not.toHaveTextContent("0 mi");
 
-    expect(empty).toHaveTextContent("N/A");
+    expect(empty).toHaveTextContent("Không khả dụng");
     expect(empty).not.toHaveTextContent("0 mi");
   });
 
@@ -56,7 +56,7 @@ describe("TripMileageSummary", () => {
     );
 
     // Actual distance is unavailable
-    expect(screen.getByTestId("mileage-actual")).toHaveTextContent("N/A");
+    expect(screen.getByTestId("mileage-actual")).toHaveTextContent("Không khả dụng");
 
     // Legacy distance is rendered separately
     expect(screen.getByText(/450 mi/)).toBeInTheDocument();

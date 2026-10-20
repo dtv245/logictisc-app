@@ -9,6 +9,7 @@ import { App as AntdApp, ConfigProvider } from "antd";
 import axios from "axios";
 
 import { initializeAppI18n } from "../../src/locales";
+import "@/styles/global.scss";
 import { AppLayout } from "../../src/components/AppLayout";
 import { LoadShow } from "../../src/pages/loads/show";
 import { LoadList } from "../../src/pages/loads/list";

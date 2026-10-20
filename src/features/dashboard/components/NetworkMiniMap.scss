@@ -8,7 +8,7 @@
   overflow: hidden;
   border: 0 !important;
   border-radius: 24px;
-  background: #f1f2ee;
+  background: var(--color-bg-subtle);
 }
 
 .ops-mini-map-sr-only {
@@ -28,26 +28,26 @@
   left: 14px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-xs);
   max-width: calc(100% - 72px);
-  padding: 8px 14px;
+  padding: var(--spacing-xs) 14px;
   border-radius: 24px;
   background: #fffffff5;
-  box-shadow: 0 3px 12px #33352b08;
+  box-shadow: var(--shadow-sm);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   border: 0;
   cursor: pointer;
 
   strong {
     color: #2b2e28;
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     white-space: nowrap;
   }
 
   > span:last-child:not(.ops-mini-map-live-dot) {
     overflow: hidden;
-    color: #83857d;
+    color: var(--color-text-tertiary);
     font-size: 11px;
     font-weight: 500;
     text-overflow: ellipsis;
@@ -55,7 +55,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid #7442ff;
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
@@ -90,13 +90,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: var(--spacing-sm);
     min-height: 320px;
     height: 100%;
-    padding: 52px 24px 40px;
+    padding: 52px var(--spacing-lg) 40px;
     box-sizing: border-box;
     color: #727b6d;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     text-align: center;
   }
 
@@ -109,22 +109,22 @@
     align-items: center;
     gap: 6px;
     max-width: calc(100% - 70px);
-    padding: 8px 14px;
+    padding: var(--spacing-xs) 14px;
     border: 0;
     border-radius: 24px;
     background: #ffffffeb;
     color: #444a40;
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     font-weight: 550;
     cursor: pointer;
-    box-shadow: 0 2px 8px #00000010;
+    box-shadow: var(--shadow-sm);
 
     &:hover {
-      background: #fff;
+      background: var(--color-bg-container);
     }
 
     &:focus-visible {
-      outline: 2px solid #7442ff;
+      outline: 2px solid var(--color-primary);
       outline-offset: 2px;
     }
   }
@@ -138,11 +138,11 @@
   }
 
   .ops-mini-map-header strong {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .ops-mini-map-canvas__overlay {
-    font-size: 13px;
-    padding: 9px 16px;
+    font-size: var(--font-size-sm);
+    padding: 9px var(--spacing-md);
   }
 }

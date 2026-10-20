@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import path from "node:path";
+import { expectNoRawTranslationKeys } from "./fixtures/assertNoRawTranslationKeys";
 
 const targetDir = process.env.SCREENSHOT_DIR || "after";
 
@@ -17,6 +18,7 @@ test("captures the Load detail fixture without horizontal overflow at release vi
     await page.setViewportSize({ width, height: width <= 390 ? 844 : 900 });
     await page.waitForTimeout(250);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await expectNoRawTranslationKeys(page);
     await page.screenshot({
       path: path.join(process.cwd(), `docs/design/${targetDir}/load-detail-${width}.png`),
       fullPage: true,

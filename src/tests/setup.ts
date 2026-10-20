@@ -14,6 +14,9 @@ import "@testing-library/jest-dom/vitest";
 
 import { cleanup, configure } from "@testing-library/react";
 import { afterEach } from "vitest";
+import { setTestLocale } from "@/tests/testLocale";
+
+await setTestLocale("vi");
 
 configure({ asyncUtilTimeout: 8000 });
 

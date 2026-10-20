@@ -1,0 +1,152 @@
+{
+  "token.text.primary-on-container": {
+    "id": "token.text.primary-on-container",
+    "source": "src/styles/_variables.scss",
+    "foreground": "$color-text",
+    "background": "$color-bg-container",
+    "ratio": 16.27,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "token.text.secondary-on-container": {
+    "id": "token.text.secondary-on-container",
+    "source": "src/styles/_variables.scss",
+    "foreground": "$color-text-secondary",
+    "background": "$color-bg-container",
+    "ratio": 7.58,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "token.text.tertiary-on-container": {
+    "id": "token.text.tertiary-on-container",
+    "source": "src/styles/_variables.scss",
+    "foreground": "$color-text-tertiary",
+    "background": "$color-bg-container",
+    "ratio": 4.76,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "token.status.success": {
+    "id": "token.status.success",
+    "source": "src/styles/_variables.scss",
+    "foreground": "$color-success-text",
+    "background": "$color-success-bg",
+    "ratio": 4.79,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "token.status.warning": {
+    "id": "token.status.warning",
+    "source": "src/styles/_variables.scss",
+    "foreground": "$color-warning-text",
+    "background": "$color-warning-bg",
+    "ratio": 4.84,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "token.status.error": {
+    "id": "token.status.error",
+    "source": "src/styles/_variables.scss",
+    "foreground": "$color-error-text",
+    "background": "$color-error-bg",
+    "ratio": 5.91,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "token.status.info": {
+    "id": "token.status.info",
+    "source": "src/styles/_variables.scss",
+    "foreground": "$color-info-text",
+    "background": "$color-info-bg",
+    "ratio": 5.57,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "token.status.neutral": {
+    "id": "token.status.neutral",
+    "source": "src/styles/_variables.scss",
+    "foreground": "$color-neutral-text",
+    "background": "$color-neutral-bg",
+    "ratio": 7.24,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "token.button.primary": {
+    "id": "token.button.primary",
+    "source": "src/styles/_variables.scss",
+    "foreground": "$color-text-inverse",
+    "background": "$color-primary",
+    "ratio": 5.17,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "dashboard.kpi.label": {
+    "id": "dashboard.kpi.label",
+    "source": "src/features/dashboard/components/KpiStrip.scss",
+    "foreground": "$color-text-tertiary",
+    "background": "$color-bg-container",
+    "ratio": 4.76,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "dashboard.kpi.context": {
+    "id": "dashboard.kpi.context",
+    "source": "src/features/dashboard/components/KpiStrip.scss",
+    "foreground": "$color-text-tertiary",
+    "background": "$color-bg-container",
+    "ratio": 4.76,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "dashboard.timeline.caption": {
+    "id": "dashboard.timeline.caption",
+    "source": "src/features/dashboard/components/DispatchTimeline.scss",
+    "foreground": "$color-text-tertiary",
+    "background": "$color-bg-subtle",
+    "ratio": 4.55,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "dashboard.map.caption": {
+    "id": "dashboard.map.caption",
+    "source": "src/features/dashboard/components/NetworkMiniMap.scss",
+    "foreground": "$color-text-tertiary",
+    "background": "$color-bg-subtle",
+    "ratio": 4.55,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "loads.metadata": {
+    "id": "loads.metadata",
+    "source": "src/features/loads/components/redesign/ShipmentDetail.scss",
+    "foreground": "$color-text-tertiary",
+    "background": "$color-bg-container",
+    "ratio": 4.76,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  },
+  "dashboard.purple-button": {
+    "id": "dashboard.purple-button",
+    "source": "src/features/dashboard/components/OperationsDashboardView.scss",
+    "foreground": "#ffffff",
+    "background": "#703eff",
+    "ratio": 5.49,
+    "threshold": 4.5,
+    "noWorse": true,
+    "pass": true
+  }
+}

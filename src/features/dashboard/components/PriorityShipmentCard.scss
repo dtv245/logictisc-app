@@ -2,9 +2,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 22px 24px 18px !important;
+  padding: 22px var(--spacing-lg) 18px !important;
   overflow: hidden;
-  gap: 8px;
+  gap: var(--spacing-xs);
   border-radius: 24px;
 }
 
@@ -14,12 +14,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  color: #667085;
+  gap: var(--spacing-xs);
+  color: var(--color-text-secondary);
   text-align: center;
 
   strong {
-    color: #242229;
+    color: var(--color-text);
     font-size: 15px;
   }
 }
@@ -28,7 +28,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--spacing-sm);
   z-index: 2;
 }
 
@@ -42,12 +42,12 @@
 .ops-priority-section-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
 
 .ops-priority-section-label {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -64,7 +64,7 @@
   font-size: 11px;
   letter-spacing: 0.02em;
   font-weight: 750;
-  padding: 5px 12px;
+  padding: 5px var(--spacing-sm);
   border-radius: 24px;
   border: 1px solid #c3acff;
 
@@ -86,34 +86,34 @@
   letter-spacing: -0.7px;
   line-height: 1.2;
   margin: 0;
-  color: #242229;
+  color: var(--color-text);
 }
 
 .ops-priority-risk {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-xxs);
   color: #b1791a;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
 .ops-priority-header__meta {
-  font-size: 12px;
-  color: #87858f;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
 }
 
 .ops-priority-header__switcher {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   border-radius: 24px;
 }
 
 .ops-priority-header__switcher-text {
   font-size: 11px;
-  color: #8c8a96;
+  color: var(--color-text-tertiary);
 }
 
 .ops-priority-time-stats {
@@ -121,19 +121,19 @@
   top: 22px;
   right: 24px;
   display: flex;
-  gap: 24px;
+  gap: var(--spacing-lg);
   z-index: 1;
 
   > div {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: var(--spacing-xxs);
   }
 
   span {
     font-size: 11px;
-    color: #8e8c97;
+    color: var(--color-text-tertiary);
     letter-spacing: 0.05em;
     font-weight: 650;
     text-transform: uppercase;
@@ -149,7 +149,7 @@
   small {
     font-size: 11px;
     white-space: nowrap;
-    color: #898792;
+    color: var(--color-text-tertiary);
   }
 
   .is-late,
@@ -202,9 +202,9 @@
 .ops-telemetry-callout {
   position: absolute;
   z-index: 2;
-  background: #fff;
+  background: var(--color-bg-container);
   padding: 9px 13px;
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   box-shadow: 0 4px 14px #1712230d;
   display: flex;
   flex-direction: column;
@@ -216,16 +216,16 @@
     gap: 5px;
     align-items: center;
     font-size: 11px;
-    color: #8c8a95;
+    color: var(--color-text-tertiary);
     text-transform: uppercase;
     font-weight: 600;
   }
 
   &__value {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     font-weight: 700;
     white-space: nowrap;
-    color: #24222a;
+    color: var(--color-text);
   }
 
   &:nth-child(1) { left: 0; top: 12%; }
@@ -239,7 +239,7 @@
   position: absolute;
   bottom: 0;
   right: 2px;
-  color: #9c9aa3;
+  color: var(--color-text-tertiary);
   font-size: 11px;
 }
 
@@ -253,7 +253,7 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #8c8997;
+  color: var(--color-text-tertiary);
   margin-bottom: 2px;
 }
 
@@ -295,7 +295,7 @@
     height: 9px;
     border: 2px solid #29272b;
     border-radius: 50%;
-    background: #fff;
+    background: var(--color-bg-container);
   }
 
   &__stop--passed &__dot {
@@ -307,17 +307,17 @@
   }
 
   &__name {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     line-height: 1.25;
     font-weight: 650;
-    color: #3e3c44;
+    color: var(--color-text);
     white-space: normal;
   }
 
   &__time {
     font-size: 11px;
-    color: #8d8a96;
-    margin-top: 4px;
+    color: var(--color-text-tertiary);
+    margin-top: var(--spacing-xxs);
   }
 }
 
@@ -327,7 +327,7 @@
   }
 
   .ops-priority-time-stats strong {
-    font-size: 24px;
+    font-size: var(--font-size-2xl);
   }
 
   .ops-priority-truck-stage {
@@ -335,11 +335,11 @@
   }
 
   .ops-telemetry-callout__value {
-    font-size: 14px;
+    font-size: var(--font-size-base);
   }
 
   .ops-route-timeline__name {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 }
 
@@ -347,8 +347,8 @@
   .ops-priority-time-stats {
     position: static;
     justify-content: space-around;
-    margin: 12px 0 0;
-    gap: 12px;
+    margin: var(--spacing-sm) 0 0;
+    gap: var(--spacing-sm);
   }
 
   .ops-priority-truck-stage {
@@ -356,7 +356,7 @@
   }
 
   .ops-priority-header__title {
-    font-size: 18px;
+    font-size: var(--font-size-lg);
   }
 }
 
@@ -367,7 +367,7 @@
   }
 
   .ops-telemetry-callout {
-    padding: 6px 8px;
+    padding: 6px var(--spacing-xs);
   }
 
   .ops-telemetry-callout__value {

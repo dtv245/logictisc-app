@@ -17,6 +17,13 @@ describe("PriorityShipmentCard", () => {
     expect(screen.queryByText(/Oakland|Cát Lái|Marcus|Nguyễn Văn Hùng/)).not.toBeInTheDocument();
   });
 
+  it("labels missing live records unavailable and never renders preview shipment data", () => {
+    render(<PriorityShipmentCard isUnavailable />);
+    expect(screen.getByRole("heading", { name: "Chưa có dữ liệu chuyến từ API" })).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Chưa có dữ liệu chuyến từ API");
+    expect(screen.queryByText(/LD-84920|Cảng Cát Lái|Oakland|Marcus|Nguyễn Văn Hùng/)).not.toBeInTheDocument();
+  });
+
   it("keeps scheduled delivery separate from absent ETA and telemetry", () => {
     render(<PriorityShipmentCard shipments={[shipment]} />);
     expect(screen.getByText("15:30")).toBeInTheDocument();

@@ -3,6 +3,7 @@ import type { ColumnsType } from "antd/es/table";
 import { Tooltip } from "antd";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { translateOptional } from "@/locales";
 
 import { StatusTag, type StatusStyleConfig, type StatusTone } from "../components/StatusTag";
 import { statusTone } from "../components/statusTone";
@@ -17,7 +18,7 @@ type LocalizableColumn<TData extends BaseRecord> = ColumnsType<TData>[number] & 
 export const useLocalizedColumns = <TData extends BaseRecord>(
   columns: LocalizableColumn<TData>[],
 ): ColumnsType<TData> => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   return useMemo(
     () =>
@@ -73,9 +74,8 @@ export const useLocalizedColumns = <TData extends BaseRecord>(
             if (value === null || value === undefined || value === "") {
               return defaultEmptyRender;
             }
-            const label = t(`forms.options.${String(value)}`, {
-              defaultValue: String(value),
-            });
+            const optionKey = `forms.options.${String(value)}`;
+            const label = translateOptional(i18n, (key) => t(key), optionKey, String(value));
 
             // Cột trạng thái: bọc trong StatusTag với màu ngữ nghĩa
             if (status) {

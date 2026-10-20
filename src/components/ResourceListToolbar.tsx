@@ -26,6 +26,7 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { translateOptional } from "@/locales";
 
 import { useDebouncedSearch } from "@hooks/useDebouncedSearch";
 import { EntityPicker } from "./EntityPicker";
@@ -66,7 +67,7 @@ export const ResourceListToolbar = ({
   onRefresh,
   headerButtons,
 }: ResourceListToolbarProps) => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const screens = Grid.useBreakpoint();
   // Dưới md (768px) được coi là mobile / tablet hẹp
   const isMobile = screens.md === false;
@@ -162,7 +163,7 @@ export const ResourceListToolbar = ({
       if (val !== undefined && val !== "") {
         let displayValue = val;
         if (control.kind === "select") {
-          displayValue = t(`forms.options.${val}`, { defaultValue: val });
+          displayValue = translateOptional(i18n, (key) => t(key), `forms.options.${val}`, val);
         }
         chips.push({
           field: control.field,
@@ -232,7 +233,7 @@ export const ResourceListToolbar = ({
                 onFilterChange(control.field, next)
               }
               options={(control.options ?? []).map((option) => ({
-                label: t(`forms.options.${option}`, { defaultValue: option }),
+                label: translateOptional(i18n, (key) => t(key), `forms.options.${option}`, option),
                 value: option,
               }))}
               placeholder={label}
@@ -283,7 +284,7 @@ export const ResourceListToolbar = ({
                 }))
               }
               options={(control.options ?? []).map((option) => ({
-                label: t(`forms.options.${option}`, { defaultValue: option }),
+                label: translateOptional(i18n, (key) => t(key), `forms.options.${option}`, option),
                 value: option,
               }))}
               placeholder={label}

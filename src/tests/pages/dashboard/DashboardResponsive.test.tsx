@@ -235,6 +235,8 @@ describe("Dashboard & Operations Responsive Verification", () => {
 
       expect(screen.getByText("Mở AI Dispatch")).toBeInTheDocument();
       expect(screen.getByText(/Chuyến vận chuyển ưu tiên/)).toBeInTheDocument();
+      expect(screen.getByText("Chưa có dữ liệu chuyến ưu tiên từ nguồn được xác nhận.")).toBeInTheDocument();
+      expect(screen.queryByText("LD-84920")).not.toBeInTheDocument();
       expect(screen.getByRole("region", { name: "Operations brief" })).toBeInTheDocument();
       expect(screen.getByText("94")).toBeInTheDocument();
       expect(screen.getByText("3")).toBeInTheDocument();

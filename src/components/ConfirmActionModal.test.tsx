@@ -19,7 +19,7 @@ await i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 });
 
-function renderConfirmAction(onConfirm: () => Promise<void> | void) {
+function renderConfirmAction(onConfirm: () => Promise<void> | void, disabled = false) {
   return render(
     <I18nextProvider i18n={i18n}>
       <ConfigProvider>
@@ -28,6 +28,7 @@ function renderConfirmAction(onConfirm: () => Promise<void> | void) {
           triggerAriaLabel="Approve action"
           title="Confirm action"
           description="This action will be sent to the service."
+          disabled={disabled}
           onConfirm={onConfirm}
         />
       </ConfigProvider>
@@ -63,5 +64,30 @@ describe("ConfirmActionModal", () => {
     // transition runs; the trigger becomes enabled once the dialog is closed.
     await waitFor(() => expect(trigger).toBeEnabled());
     expect(onConfirm).toHaveBeenCalledOnce();
+  });
+
+  it("disables the trigger and confirmation while the action is pending", async () => {
+    let resolveAction: (() => void) | undefined;
+    const onConfirm = vi.fn(() => new Promise<void>((resolve) => { resolveAction = resolve; }));
+    renderConfirmAction(onConfirm);
+
+    const trigger = screen.getByRole("button", { name: "Approve action" });
+    fireEvent.click(trigger);
+    const dialog = await screen.findByRole("dialog", { name: "Confirm action" });
+    const confirm = within(dialog).getByRole("button", { name: "Confirm" });
+    fireEvent.click(confirm);
+
+    await waitFor(() => {
+      expect(trigger).toBeDisabled();
+      expect(confirm).toBeDisabled();
+    });
+    resolveAction?.();
+    await waitFor(() => expect(trigger).toBeEnabled());
+  });
+
+  it("keeps an explicitly disabled confirmation trigger out of the action flow", () => {
+    renderConfirmAction(vi.fn(), true);
+    expect(screen.getByRole("button", { name: "Approve action" })).toBeDisabled();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

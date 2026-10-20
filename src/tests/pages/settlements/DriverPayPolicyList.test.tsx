@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { createAccessControlProvider } from "@providers/accessControlProvider";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
+import { setTestLocale } from "@/tests/testLocale";
 
 import { DriverPayPolicyList } from "@/pages/settlements/DriverPayPolicyList";
 import type { DriverPayPolicyView } from "@/types/driverPayPolicy.dto";
@@ -101,7 +102,8 @@ describe("DriverPayPolicyList", () => {
     },
   ];
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await setTestLocale("en");
     mockUseDriverPayPolicies.mockReturnValue({
       policies: samplePolicies,
       isLoading: false,

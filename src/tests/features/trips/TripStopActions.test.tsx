@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TripStopActions } from "@/features/trips/components/TripStopActions";
 import type { TripStopExecution } from "@/features/trips/types";
+import { setTestLocale } from "@/tests/testLocale";
 
 const createMockStop = (status: string): TripStopExecution => ({
   id: "stop-123",
@@ -12,6 +13,10 @@ const createMockStop = (status: string): TripStopExecution => ({
 });
 
 describe("TripStopActions", () => {
+  beforeEach(async () => {
+    await setTestLocale("en");
+  });
+
   it("renders Arrive button for PENDING and EN_ROUTE status", () => {
     const onTransition = vi.fn().mockResolvedValue(true);
 

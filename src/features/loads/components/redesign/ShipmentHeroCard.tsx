@@ -67,7 +67,7 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
           <div className="shipment-hero__stat-box">
             <div className="shipment-hero__stat-label">{t("loads.redesign.deliveryAppointment")}</div>
             <div className="shipment-hero__stat-value">{deliveryTimeFormatted}</div>
-            <div className="shipment-hero__stat-sub" style={{ color: "#64748B" }}>
+            <div className="shipment-hero__stat-sub" style={{ color: "var(--color-text-tertiary)" }}>
               {deliveryDate ? formatDateOnly(deliveryDate) : t("loads.redesign.notScheduled")}
             </div>
           </div>
@@ -75,7 +75,7 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
           {/* ETA NOW */}
           <div className="shipment-hero__stat-box">
             <div className="shipment-hero__stat-label">{t("loads.redesign.loadStatus")}</div>
-            <div className="shipment-hero__stat-value" style={{ fontSize: 16 }}>
+            <div className="shipment-hero__stat-value" style={{ fontSize: "var(--font-size-md)" }}>
               {load.status || t("loads.redesign.statusUnavailable")}
             </div>
           </div>
@@ -94,7 +94,7 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
           ) : (
             <div className="shipment-hero__stat-box">
               <div className="shipment-hero__stat-label">{t("loads.redesign.loadType")}</div>
-              <div className="shipment-hero__stat-value" style={{ fontSize: 18 }}>
+              <div className="shipment-hero__stat-value" style={{ fontSize: "var(--font-size-lg)" }}>
                 {load.type || t("loads.redesign.loadTypeUnavailable")}
               </div>
             </div>
@@ -117,13 +117,13 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                background: "#0F172A",
+                background: "var(--color-text)",
                 color: "#FFFFFF",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: 700,
-                fontSize: 14,
+                fontSize: "var(--font-size-base)",
               }}
             >
               <UserOutlined />

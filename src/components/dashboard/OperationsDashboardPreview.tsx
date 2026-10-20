@@ -9,6 +9,7 @@ import type { KpiItemProps } from "@/features/dashboard/types/primitives.types";
 import type { NetworkRouteLine, NetworkVehiclePoint } from "@/types/dashboard/network-map.types";
 import type { DriverTimelineRow, OperationsBriefProps } from "@/types/dashboard/operations-panels.types";
 import type { PriorityShipment } from "@/types/dashboard/priority-shipment.types";
+import { adaptPreviewShipment } from "@/features/dashboard/priorityShipmentAdapters";
 import "@/features/dashboard/components/OperationsDashboardView.scss";
 
 // Sample values are confined to this explicitly selected preview component.
@@ -106,7 +107,7 @@ export function OperationsDashboardPreview(): ReactElement {
     <div className="ops-dashboard-layout">
       <div className="ops-grid-area-header"><DashboardHeader monitoringCount={28} approvalsCount={3} /></div>
       <div className="ops-grid-area-kpi"><KpiStrip items={kpis} /></div>
-      <div className="ops-grid-area-priority"><PriorityShipmentCard shipments={shipments} /></div>
+      <div className="ops-grid-area-priority"><PriorityShipmentCard shipments={shipments.map(adaptPreviewShipment)} /></div>
       <div className="ops-grid-area-brief"><OperationsBrief {...brief} /></div>
       <div className="ops-grid-area-map"><NetworkMiniMap vehicles={vehicles} routes={networkRoutes} onRoadCount={28} /></div>
       <div className="ops-grid-area-timeline"><DispatchTimeline drivers={drivers} totalDriversCount={32} now="15:20" /></div>

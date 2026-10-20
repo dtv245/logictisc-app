@@ -48,6 +48,19 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     return () => window.removeEventListener("keydown", handleSearchShortcut);
   }, []);
 
+  useEffect(() => {
+    if (!searchOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        setSearchOpen(false);
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape, true);
+    return () => window.removeEventListener("keydown", closeOnEscape, true);
+  }, [searchOpen]);
+
   const now = dayjs();
   const hour = now.hour();
   let greeting = t("dashboard.opsView.greeting.morning");
@@ -156,6 +169,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       {/* Quick search modal */}
       <Modal
         footer={null}
+        keyboard
         onCancel={() => setSearchOpen(false)}
         open={searchOpen}
         title={t("dashboard.opsView.searchTitle")}

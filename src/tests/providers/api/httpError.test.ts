@@ -48,7 +48,7 @@ describe("toRefineHttpError", () => {
       "1c942799-f11b-4191-827c-d3a87e2dfa29",
     );
     expect(error.errors).toEqual({
-      email: ["invalid", "duplicate"],
+      email: ["Vui lòng nhập địa chỉ email hợp lệ.", "duplicate"],
     });
     expect(error.backendErrors).toHaveLength(3);
   });

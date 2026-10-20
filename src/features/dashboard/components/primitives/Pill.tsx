@@ -17,16 +17,16 @@ export const Pill: React.FC<PillProps> = ({
   className = "",
   onClick,
 }) => {
-  return (
-    <span
-      className={`ops-pill ops-pill--${tone} ${className}`}
-      onClick={onClick}
-      style={onClick ? { cursor: "pointer" } : undefined}
-    >
-      {icon && <span className="ops-pill__icon">{icon}</span>}
-      <span>{children}</span>
-    </span>
-  );
+  const content = <>
+    {icon && <span className="ops-pill__icon">{icon}</span>}
+    <span>{children}</span>
+  </>;
+
+  if (onClick) {
+    return <button className={`ops-pill ops-pill--${tone} ${className}`} onClick={onClick} type="button">{content}</button>;
+  }
+
+  return <span className={`ops-pill ops-pill--${tone} ${className}`}>{content}</span>;
 };
 
 export interface DeltaPillProps {

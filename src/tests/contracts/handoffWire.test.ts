@@ -1,7 +1,7 @@
 /** Contract tests use the actual Axios client and Refine provider with mocked wire responses. */
 import { readFileSync } from "node:fs";
 import { AxiosError, AxiosHeaders, type AxiosAdapter, type InternalAxiosRequestConfig } from "axios";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createApiClient } from "@/providers/api/apiClient";
 import { createLogisticsDataProvider } from "@/providers/dataProvider";
 import { foundationApiResources } from "@/pages/resourceRegistry";
@@ -13,6 +13,7 @@ import { buildResourceMutation } from "@/components/resources/resourceMutation";
 import { ApiHttpError } from "@/utils/httpError";
 import type { GenerateInvoiceRequest, RatingPreviewRequest } from "@/types/handoff.generated";
 import { handoffExamples, handoffExampleProvenance } from "@/tests/fixtures/handoffExamples";
+import { setTestLocale } from "@/tests/testLocale";
 
 const envelope = (data: unknown, code = "OK", errors: unknown[] = []) => ({ success: code === "OK", code, message: code, data, errors, meta: { timestamp: "2026-10-07T00:00:00Z", path: "/api/example", requestId: "request-contract" } });
 function wire(handler: (config: InternalAxiosRequestConfig) => unknown) {
@@ -24,6 +25,10 @@ const example = (name: string) => { const value = handoffExamples.find((row) => 
 const paymentValues = () => example("Create Payment").body as PaymentCreateValues & { idempotencyKey: string };
 
 describe("verified handoff requests on the frontend transport", () => {
+  beforeAll(async () => {
+    await setTestLocale("en");
+  });
+
   it.each(handoffExamples)("serializes $name with its declared body/query and response mode", async (sample) => {
     const observed: InternalAxiosRequestConfig[] = [];
     const raw = sample.path.startsWith("/api/payroll/");
@@ -72,7 +77,7 @@ describe("verified handoff requests on the frontend transport", () => {
       const data = envelope(null, "CURRENCY_MISMATCH", [{ field: "taxDecision.reason", code: "NotBlank", message: "required" }]);
       throw new AxiosError("domain", "ERR_BAD_REQUEST", config, undefined, { config, data, status: 422, statusText: "422", headers: new AxiosHeaders() });
     });
-    await expect(provider.custom!({ url: "/api/payroll/runs/calculate", method: "post", meta: RAW_RESPONSE_META, payload: {} })).rejects.toMatchObject({ statusCode: 422, code: "CURRENCY_MISMATCH", requestId: "request-contract", errors: { "taxDecision.reason": ["required"] } });
+    await expect(provider.custom!({ url: "/api/payroll/runs/calculate", method: "post", meta: RAW_RESPONSE_META, payload: {} })).rejects.toMatchObject({ statusCode: 422, code: "CURRENCY_MISMATCH", requestId: "request-contract", backendErrors: [{ field: "taxDecision.reason", code: "NotBlank", message: "required" }], errors: { "taxDecision.reason": ["This value is required."] } });
   });
 
   it("blocks generic payment writes and deprecated invoice employee filters", async () => {

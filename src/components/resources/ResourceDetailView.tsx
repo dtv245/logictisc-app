@@ -12,6 +12,7 @@
 import { Descriptions, Space, Tag, Typography } from "antd";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { translateOptional } from "@/locales";
 
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
@@ -49,23 +50,19 @@ export const ResourceDetailView = ({
   const getLabel = (key: string): string => {
     // 1. forms.fields.${key}
     const formKey = `forms.fields.${key}`;
-    const formTranslated = t(formKey);
-    if (formTranslated !== formKey) return formTranslated;
+    if (i18n.exists(formKey)) return t(formKey);
 
     // 2. columns.${resource}.${key}
     const colResKey = `columns.${resource}.${key}`;
-    const colResTranslated = t(colResKey);
-    if (colResTranslated !== colResKey) return colResTranslated;
+    if (i18n.exists(colResKey)) return t(colResKey);
 
     // 3. columns.${key}
     const colKey = `columns.${key}`;
-    const colTranslated = t(colKey);
-    if (colTranslated !== colKey) return colTranslated;
+    if (i18n.exists(colKey)) return t(colKey);
 
     // 4. crud.${key}
     const crudKey = `crud.${key}`;
-    const crudTranslated = t(crudKey);
-    if (crudTranslated !== crudKey) return crudTranslated;
+    if (i18n.exists(crudKey)) return t(crudKey);
 
     // 5. Fallback humanized
     return key
@@ -119,7 +116,7 @@ export const ResourceDetailView = ({
       if (parts.length > 0) {
         items.push({
           key: `${prefix}Address`,
-          label: t(labelKey, { defaultValue: defaultLabel }),
+      label: translateOptional(i18n, (key) => t(key), labelKey, defaultLabel),
           span: 2,
           value: parts.join(", "),
         });
@@ -157,7 +154,7 @@ export const ResourceDetailView = ({
     if (parts.length > 0) {
       items.push({
         key: "address",
-        label: t("forms.fields.address", { defaultValue: "Địa chỉ" }),
+        label: translateOptional(i18n, (key) => t(key), "forms.fields.address", "Địa chỉ"),
         span: 2,
         value: parts.join(", "),
       });
@@ -189,7 +186,7 @@ export const ResourceDetailView = ({
     if (parts.length > 0) {
       items.push({
         key: "addressObject",
-        label: t("forms.fields.address", { defaultValue: "Địa chỉ" }),
+        label: translateOptional(i18n, (key) => t(key), "forms.fields.address", "Địa chỉ"),
         span: 2,
         value: parts.join(", "),
       });
@@ -346,7 +343,7 @@ export const ResourceDetailView = ({
     if (key === "status" || key.endsWith("Status")) {
       const statusStr = String(rawValue);
       const tone = statusTone(statusStr);
-      const label = t(`forms.options.${statusStr.toLowerCase()}`, { defaultValue: statusStr });
+      const label = translateOptional(i18n, (key) => t(key), `forms.options.${statusStr.toLowerCase()}`, statusStr);
       items.push({
         key,
         label: getLabel(key),

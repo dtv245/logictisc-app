@@ -57,28 +57,28 @@ export const ShipmentTimelineCard: React.FC<ShipmentTimelineCardProps> = ({ load
           }
         />
       ) : events.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "16px 0", color: "#94A3B8", fontSize: 13 }}>
+        <div style={{ textAlign: "center", padding: "16px 0", color: "var(--color-text-tertiary)", fontSize: "var(--font-size-sm)" }}>
           {t("loads.timeline.empty")}
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
           {events.map((event, index) => {
             const norm = (event.eventType || "").toUpperCase();
-            let icon = <CheckCircleFilled style={{ color: "#16A34A", fontSize: 16 }} />;
-            let badgeBg = "#F0FDF4";
+            let icon = <CheckCircleFilled style={{ color: "var(--color-success-text)", fontSize: "var(--font-size-md)" }} />;
+            let badgeBg = "var(--color-success-bg)";
 
             if (norm.includes("DELAY") || norm.includes("WARNING") || norm.includes("CANCEL")) {
-              icon = <ExclamationCircleFilled style={{ color: "#DC2626", fontSize: 16 }} />;
-              badgeBg = "#FEF2F2";
+              icon = <ExclamationCircleFilled style={{ color: "var(--color-error-text)", fontSize: "var(--font-size-md)" }} />;
+              badgeBg = "var(--color-error-bg)";
             } else if (norm.includes("AI") || norm.includes("AGENT")) {
-              icon = <ThunderboltFilled style={{ color: "#7C3AED", fontSize: 16 }} />;
+              icon = <ThunderboltFilled style={{ color: "#7C3AED", fontSize: "var(--font-size-md)" }} />;
               badgeBg = "#F5F3FF";
             } else if (norm.includes("APPROV")) {
-              icon = <CheckCircleFilled style={{ color: "#7C3AED", fontSize: 16 }} />;
+              icon = <CheckCircleFilled style={{ color: "#7C3AED", fontSize: "var(--font-size-md)" }} />;
               badgeBg = "#F5F3FF";
             } else if (norm.includes("PENDING") || norm.includes("FUTURE")) {
-              icon = <ClockCircleFilled style={{ color: "#94A3B8", fontSize: 16 }} />;
-              badgeBg = "#F8FAFC";
+              icon = <ClockCircleFilled style={{ color: "var(--color-text-tertiary)", fontSize: "var(--font-size-md)" }} />;
+              badgeBg = "var(--color-bg-subtle)";
             }
 
             const title =
@@ -94,7 +94,7 @@ export const ShipmentTimelineCard: React.FC<ShipmentTimelineCardProps> = ({ load
                 style={{
                   display: "flex",
                   alignItems: "flex-start",
-                  gap: 12,
+                  gap: "var(--spacing-sm)",
                   position: "relative",
                 }}
               >
@@ -117,17 +117,17 @@ export const ShipmentTimelineCard: React.FC<ShipmentTimelineCardProps> = ({ load
 
                 {/* Content */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#64748B" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                       {event.occurredAt ? formatTimeOnly(event.occurredAt) : "—"}
                     </span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#0F172A" }}>
+                    <span style={{ fontSize: "var(--font-size-sm)", fontWeight: 700, color: "var(--color-text)" }}>
                       {title}
                     </span>
                   </div>
 
                   {description && (
-                    <div style={{ fontSize: 12, color: "#64748B", marginTop: 2, lineHeight: 1.4 }}>
+                    <div style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-tertiary)", marginTop: 2, lineHeight: 1.4 }}>
                       {description}
                     </div>
                   )}

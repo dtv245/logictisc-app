@@ -20,8 +20,8 @@
     min-height: 0 !important;
     background: v.$color-bg-layout;
     border: 1px solid rgb(255 255 255 / 65%);
-    border-radius: clamp(20px, 2vw, 28px);
-    box-shadow: 0 18px 48px rgb(65 57 43 / 5%);
+    border-radius: clamp(var(--radius-2xl), 2vw, 28px);
+    box-shadow: var(--shadow-secondary);
     overflow: hidden;
   }
 
@@ -53,14 +53,14 @@
     min-width: 0;
     min-height: 100%;
     box-sizing: border-box;
-    padding: 5px 5px 5px 16px;
+    padding: 5px 5px 5px var(--spacing-md);
     background: transparent;
   }
 
   @media (min-width: 768px) and (max-width: 991.98px) {
     .app-content,
     #main-content {
-      padding: 5px 5px 5px 8px;
+      padding: 5px 5px 5px var(--spacing-xs);
     }
   }
 

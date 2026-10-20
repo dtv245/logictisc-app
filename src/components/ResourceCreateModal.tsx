@@ -5,6 +5,7 @@ import { Form } from "antd";
 import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateOptional } from "@/locales";
 
 import { ResourceModalFrame } from "./resources/ResourceModalFrame";
 import {
@@ -29,7 +30,7 @@ interface ResourceCreateModalProps {
 }
 
 export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalProps) => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const resourceLabel = t(`resources.${resource}`);
   const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -183,9 +184,13 @@ export const ResourceCreateModal = ({ resource, trigger }: ResourceCreateModalPr
 
   const formId = `create-${resource}-form`;
   const modalTitle = t("crud.createTitle", { resource: resourceLabel });
-  const modalSubtitle = t(`resources.${resource}.createSubtitle`, {
-    defaultValue: t("crud.createSubtitle", { resource: resourceLabel }),
-  });
+  const resourceSubtitleKey = `resources.${resource}.createSubtitle`;
+  const modalSubtitle = translateOptional(
+    i18n,
+    (key) => t(key),
+    resourceSubtitleKey,
+    t("crud.createSubtitle", { resource: resourceLabel }),
+  );
   const okText =
     resource === "trucks"
       ? t("actions.create_trucks", {

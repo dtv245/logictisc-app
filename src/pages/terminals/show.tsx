@@ -20,6 +20,7 @@ import {
   Typography,
 } from "antd";
 import { useTranslation } from "react-i18next";
+import { translateOptional } from "@/locales";
 import { useNavigate } from "react-router-dom";
 import { formatTerminalAddress } from "@/features/terminals/components/columns";
 import { TerminalContainersTab } from "@/features/terminals/components/TerminalContainersTab";
@@ -28,7 +29,7 @@ import type { Terminal } from "@/types/terminal.types";
 import { routes } from "@constants/routes";
 
 export const TerminalShow = () => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const navigate = useNavigate();
   const { queryResult } = useShow<Terminal, ApiError>({ resource: "terminals" });
 
@@ -68,7 +69,7 @@ export const TerminalShow = () => {
   }
 
   const fullAddress = formatTerminalAddress(terminal);
-  const typeLabel = t(`forms.options.${terminal.type}`, terminal.type);
+  const typeLabel = translateOptional(i18n, (key) => t(key), `forms.options.${terminal.type}`, terminal.type);
 
   const tabItems = [
     {

@@ -5,6 +5,7 @@ import { Button, Space, type TableProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { translateOptional } from "@/locales";
 
 import type { ApiError } from "@/types/api.types";
 import { useEntityFilters } from "@hooks/useEntityFilters";
@@ -39,7 +40,7 @@ export const ResourceListPage = <TData extends BaseRecord>({
   resource,
   headerButtons,
 }: ResourceListPageProps<TData>) => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const localizedColumns = useLocalizedColumns(columns);
 
   const capabilities = getResourceCapabilities(resource);
@@ -261,9 +262,11 @@ export const ResourceListPage = <TData extends BaseRecord>({
                   )}
                   {showQueryResult.data.data.status && (
                     <StatusTag
-                      label={t(
+                      label={translateOptional(
+                        i18n,
+                        (key) => t(key),
                         `forms.options.${String(showQueryResult.data.data.status).toLowerCase()}`,
-                        { defaultValue: String(showQueryResult.data.data.status) },
+                        String(showQueryResult.data.data.status),
                       )}
                       tone={statusTone(String(showQueryResult.data.data.status))}
                     />

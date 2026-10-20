@@ -102,7 +102,7 @@ describe("TripShow Page", () => {
     expect(screen.queryByTestId("mock-driver-assignments")).not.toBeInTheDocument();
 
     // Click Driver Assignments tab
-    const driverTab = screen.getByRole("tab", { name: /Driver Assignments/i });
+    const driverTab = screen.getByRole("tab", { name: "Phân công tài xế" });
     fireEvent.click(driverTab);
 
     expect(screen.getByTestId("mock-driver-assignments")).toHaveTextContent("trip-789");

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { createAccessControlProvider } from "@providers/accessControlProvider";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
+import { setTestLocale } from "@/tests/testLocale";
 
 import { SettlementList } from "@/pages/settlements/SettlementList";
 import type { DriverSettlementView } from "@/types/settlement.dto";
@@ -87,7 +88,8 @@ describe("SettlementList", () => {
     },
   ];
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await setTestLocale("en");
     mockUseSettlements.mockReturnValue({
       settlements: sampleSettlements,
       isLoading: false,
@@ -145,12 +147,12 @@ describe("SettlementList", () => {
     expect(screen.getByText("DS-2026-003")).toBeInTheDocument();
 
     // Status and type tags
-    expect(screen.getByText("ORIGINAL")).toBeInTheDocument();
-    expect(screen.getByText("ADJUSTMENT")).toBeInTheDocument();
-    expect(screen.getByText("REVERSAL")).toBeInTheDocument();
-    expect(screen.getByText("CALCULATED")).toBeInTheDocument();
-    expect(screen.getByText("APPROVED")).toBeInTheDocument();
-    expect(screen.getByText("LOCKED")).toBeInTheDocument();
+    expect(screen.getByText("Original")).toBeInTheDocument();
+    expect(screen.getByText("Adjustment")).toBeInTheDocument();
+    expect(screen.getByText("Reversal")).toBeInTheDocument();
+    expect(screen.getByText("Calculated")).toBeInTheDocument();
+    expect(screen.getByText("Approved")).toBeInTheDocument();
+    expect(screen.getByText("Locked")).toBeInTheDocument();
   });
 
   it("preserves row currencies and backend net values without inventing a combined payout", () => {

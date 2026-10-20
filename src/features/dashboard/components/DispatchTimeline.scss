@@ -2,15 +2,15 @@
   --timeline-driver-width: 170px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-sm);
   width: 100%;
   min-width: 0;
   height: 100%;
   box-sizing: border-box;
-  padding: 20px 22px 16px;
+  padding: 20px 22px var(--spacing-md);
   border: 0;
   border-radius: 24px;
-  background: #f5f6f3;
+  background: var(--color-bg-subtle);
   color: #353336;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -20,19 +20,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--spacing-sm);
 
   h2 {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--font-size-base);
     font-weight: 650;
     line-height: 1.35;
     color: #2b2732;
   }
 
   p {
-    margin: 4px 0 0;
-    color: #83818a;
+    margin: var(--spacing-xxs) 0 0;
+    color: var(--color-text-tertiary);
     font-size: 11px;
     line-height: 1.4;
   }
@@ -43,13 +43,13 @@
   flex: 0 0 auto;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px var(--spacing-sm);
   border: 0;
   border-radius: 18px;
   background: #ede8fc;
   color: #7442ff;
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -61,7 +61,7 @@
   &:focus-visible,
   .ops-timeline-scrollable:focus-visible,
   .ops-timeline-block:focus-visible {
-    outline: 2px solid #7442ff;
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 }
@@ -104,8 +104,8 @@
   align-items: center;
   gap: 10px;
   min-width: 0;
-  padding-right: 12px;
-  background: #f5f6f3;
+  padding-right: var(--spacing-sm);
+  background: var(--color-bg-subtle);
 
   &--header {
     align-items: center;
@@ -142,7 +142,7 @@
     display: block;
     overflow: hidden;
     color: #2b2732;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -152,7 +152,7 @@
     display: block;
     margin-top: 2px;
     overflow: hidden;
-    color: #83818a;
+    color: var(--color-text-tertiary);
     font-size: 11px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -211,13 +211,13 @@
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
-  box-shadow: 0 2px 6px #0000000a;
+  box-shadow: var(--shadow-xs);
   cursor: pointer;
   transition: transform 0.15s ease;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 3px 8px #00000018;
+    box-shadow: var(--shadow-sm);
   }
 
   span {
@@ -227,12 +227,12 @@
 
   &--active {
     background: #7540ff;
-    color: #fff;
+    color: var(--color-text-inverse);
   }
 
   &--delayed {
     background: #ff4254;
-    color: #fff;
+    color: var(--color-text-inverse);
   }
 
   &--scheduled {
@@ -278,10 +278,10 @@
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    padding: 4px 8px;
-    border-radius: 12px;
+    padding: var(--spacing-xxs) var(--spacing-xs);
+    border-radius: var(--radius-lg);
     background: #7540ff;
-    color: #fff;
+    color: var(--color-text-inverse);
     font-size: 11px;
     font-weight: 600;
     line-height: 1;
@@ -307,7 +307,7 @@
   gap: 10px;
   min-height: 140px;
   color: #7f7d86;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   text-align: center;
 
   p { margin: 0; }
@@ -323,7 +323,7 @@
 @media (min-width: 1600px) {
   .ops-timeline-card {
     --timeline-driver-width: 185px;
-    padding: 22px 24px 18px;
+    padding: 22px var(--spacing-lg) 18px;
   }
 
   .ops-timeline-header h2 {
@@ -340,7 +340,7 @@
   }
 
   .ops-timeline-driver-info strong {
-    font-size: 14px;
+    font-size: var(--font-size-base);
   }
 
   .ops-timeline-track {
@@ -349,13 +349,13 @@
 
   .ops-timeline-block {
     height: 30px;
-    font-size: 12px;
+    font-size: var(--font-size-xs);
   }
 }
 
 @media (max-width: 480px) {
   .ops-timeline-card {
-    padding: 14px 12px;
+    padding: 14px var(--spacing-sm);
   }
 
   .ops-timeline-header {

@@ -4,6 +4,7 @@ import { useWarnAboutChange } from "@refinedev/core";
 import { Alert, App, Button, Col, Form, Row, Skeleton, Space, Typography } from "antd";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateOptional } from "@/locales";
 
 import { ResourceModalFrame } from "./resources/ResourceModalFrame";
 
@@ -32,7 +33,7 @@ interface ResourceEditModalProps {
 }
 
 export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEditModalProps) => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { modal } = App.useApp();
   const { setWarnWhen } = useWarnAboutChange();
   const resourceLabel = t(`resources.${resource}`);
@@ -241,7 +242,7 @@ export const ResourceEditModal = ({ resource, id, visible, onClose }: ResourceEd
       </Typography.Text>
       {status && (
         <StatusTag
-          label={t(`forms.options.${status.toLowerCase()}`, { defaultValue: status })}
+          label={translateOptional(i18n, (key) => t(key), `forms.options.${status.toLowerCase()}`, status)}
           tone={statusTone(status)}
         />
       )}

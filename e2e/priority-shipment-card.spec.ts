@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import path from "node:path";
+import { expectNoRawTranslationKeys } from "./fixtures/assertNoRawTranslationKeys";
 
 const screenshotDir = process.env.SCREENSHOT_DIR || "priority-shipment-card";
 const screenshotPath = (file: string) =>
@@ -16,6 +17,7 @@ test("matches the reference card layout at desktop width", async ({ page }) => {
   const metrics = await page.locator(".priority-shipment__metrics").boundingBox();
   expect(header).not.toBeNull();
   expect(metrics!.y).toBeLessThan(header!.y + 10);
+  await expectNoRawTranslationKeys(page);
   await card.screenshot({ path: screenshotPath("desktop.png") });
 });
 
@@ -37,6 +39,7 @@ test("fits narrow screens and keeps telemetry cards apart", async ({ page }) => 
         expect(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y).toBe(true);
       }
     }
+    await expectNoRawTranslationKeys(page);
     await page.screenshot({ path: screenshotPath(`mobile-${width}.png`), fullPage: true });
   }
 });

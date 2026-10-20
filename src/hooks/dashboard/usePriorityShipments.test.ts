@@ -5,7 +5,7 @@ import type { Load } from "@/types/load.types";
 
 const mocks = vi.hoisted(() => ({ access: vi.fn(), list: vi.fn(), refetch: vi.fn(), accessRefetch: vi.fn() }));
 vi.mock("@refinedev/core", () => ({ useCan: mocks.access, useList: mocks.list }));
-vi.mock("react-i18next", () => ({ useTranslation: () => ({ i18n: { resolvedLanguage: "vi" }, t: (_key: string, options: { defaultValue: string }) => options.defaultValue }) }));
+vi.mock("react-i18next", () => ({ useTranslation: () => ({ i18n: { resolvedLanguage: "vi", exists: () => false }, t: (_key: string, options: { defaultValue: string }) => options.defaultValue }) }));
 
 const load: Load = {
   id: "load-1", number: 1001, name: "Chuyến kiểm thử", status: "in_transit", type: "reefer",
@@ -60,7 +60,16 @@ describe("usePriorityShipments", () => {
     mocks.list.mockReturnValue({ data: { data: [] }, isLoading: false, isError: false, refetch: mocks.refetch });
     const { result } = renderHook(() => usePriorityShipments());
     expect(result.current.shipments).toEqual([]);
+    expect(result.current.isUnavailable).toBe(false);
     expect(result.current.error).toBeUndefined();
     expect(result.current.isLoading).toBe(false);
+  });
+
+  it("marks an absent live dataset unavailable without substituting preview shipments", () => {
+    mocks.list.mockReturnValue({ data: undefined, isLoading: false, isError: false, refetch: mocks.refetch });
+    const { result } = renderHook(() => usePriorityShipments());
+    expect(result.current.shipments).toEqual([]);
+    expect(result.current.isUnavailable).toBe(true);
+    expect(result.current.shipments.map(({ id, reference }) => `${id} ${reference}`).join(" ")).not.toMatch(/LD-84920|demo-load/);
   });
 });

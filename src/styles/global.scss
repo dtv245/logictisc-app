@@ -34,19 +34,29 @@
   --color-bg-charcoal: #{v.$color-bg-charcoal};
   --color-bg-container: #{v.$color-bg-container};
   --color-bg-subtle: #{v.$color-bg-subtle};
+  --color-bg-hover: #{v.$color-bg-hover};
+  --color-bg-active: #{v.$color-bg-active};
+  --color-bg-disabled: #{v.$color-bg-disabled};
   --color-border: #{v.$color-border};
   --color-border-secondary: #{v.$color-border-secondary};
+  --color-border-light: #{v.$color-border-light};
+  --color-border-dark: #{v.$color-border-dark};
 
   --color-text: #{v.$color-text};
   --color-text-secondary: #{v.$color-text-secondary};
   --color-text-tertiary: #{v.$color-text-tertiary};
+  --color-text-disabled: #{v.$color-text-disabled};
+  --color-text-inverse: #{v.$color-text-inverse};
 
+  --radius-xs: #{v.$radius-xs};
   --radius-sm: #{v.$radius-sm};
   --radius-md: #{v.$radius-md};
   --radius-lg: #{v.$radius-lg};
   --radius-xl: #{v.$radius-xl};
+  --radius-2xl: #{v.$radius-2xl};
   --radius-full: #{v.$radius-full};
 
+  --spacing-xxs: #{v.$spacing-xxs};
   --spacing-xs: #{v.$spacing-xs};
   --spacing-sm: #{v.$spacing-sm};
   --spacing-md: #{v.$spacing-md};
@@ -59,7 +69,9 @@
   --shadow-card: #{v.$shadow-card};
   --shadow-md: #{v.$shadow-md};
   --shadow-lg: #{v.$shadow-lg};
+  --shadow-xl: #{v.$shadow-xl};
   --shadow-secondary: #{v.$shadow-secondary};
+  --shadow-card-hover: #{v.$shadow-card-hover};
 
   --font-family-base: #{v.$font-family-base};
   --font-family-mono: #{v.$font-family-mono};
@@ -70,6 +82,7 @@
   --font-size-lg: #{v.$font-size-lg};
   --font-size-xl: #{v.$font-size-xl};
   --font-size-2xl: #{v.$font-size-2xl};
+  --font-size-3xl: #{v.$font-size-3xl};
   --font-weight-regular: #{v.$font-weight-regular};
   --font-weight-medium: #{v.$font-weight-medium};
   --font-weight-semibold: #{v.$font-weight-semibold};

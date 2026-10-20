@@ -35,7 +35,7 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
   return (
     <div className="shipment-card" data-testid="shipment-gaps-card">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ fontSize: 16, fontWeight: 800, color: "#0F172A" }}>
+        <div style={{ fontSize: "var(--font-size-md)", fontWeight: 800, color: "var(--color-text)" }}>
           Rà Soát Dữ Liệu Chuyến Hàng
         </div>
         {totalGaps > 0 ? (
@@ -51,30 +51,30 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
 
       {totalGaps === 0 ? (
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", color: "#166534" }}>
-          <CheckCircleFilled style={{ fontSize: 18, color: "#16A34A" }} />
-          <span style={{ fontSize: 13, fontWeight: 600 }}>
+          <CheckCircleFilled style={{ fontSize: "var(--font-size-lg)", color: "var(--color-success-text)" }} />
+          <span style={{ fontSize: "var(--font-size-sm)", fontWeight: 600 }}>
             Thông tin chuyến hàng đầy đủ và sẵn sàng vận hành.
           </span>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-sm)" }}>
           {blockingGaps.map((gap) => (
             <div
               key={gap.id}
               style={{
-                border: "1px solid #FECACA",
-                background: "#FEF2F2",
-                borderRadius: 12,
-                padding: 12,
+                border: "1px solid var(--color-error-border)",
+                background: "var(--color-error-bg)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--spacing-sm)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                <ExclamationCircleFilled style={{ color: "#DC2626", fontSize: 14 }} />
-                <span style={{ fontSize: 12, fontWeight: 800, color: "#991B1B" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: "var(--spacing-xxs)" }}>
+                <ExclamationCircleFilled style={{ color: "var(--color-error-text)", fontSize: "var(--font-size-base)" }} />
+                <span style={{ fontSize: "var(--font-size-xs)", fontWeight: 800, color: "#991B1B" }}>
                   {gap.fieldLabel || gap.fieldName} (Bắt buộc)
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: "#7F1D1D", marginBottom: 8, lineHeight: 1.4 }}>
+              <div style={{ fontSize: "var(--font-size-xs)", color: "#7F1D1D", marginBottom: "var(--spacing-xs)", lineHeight: 1.4 }}>
                 {gap.questionNatural}
               </div>
               <Button
@@ -102,21 +102,21 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
               key={gap.id}
               style={{
                 border: "1px solid #FED7AA",
-                background: "#FFFBEB",
-                borderRadius: 12,
-                padding: 12,
+                background: "var(--color-warning-bg)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--spacing-sm)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                <ExclamationCircleFilled style={{ color: "#D97706", fontSize: 14 }} />
-                <span style={{ fontSize: 12, fontWeight: 800, color: "#92400E" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: "var(--spacing-xxs)" }}>
+                <ExclamationCircleFilled style={{ color: "#D97706", fontSize: "var(--font-size-base)" }} />
+                <span style={{ fontSize: "var(--font-size-xs)", fontWeight: 800, color: "#92400E" }}>
                   {gap.fieldLabel || gap.fieldName}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: "#78350F", marginBottom: 8, lineHeight: 1.4 }}>
+              <div style={{ fontSize: "var(--font-size-xs)", color: "#78350F", marginBottom: "var(--spacing-xs)", lineHeight: 1.4 }}>
                 {gap.questionNatural}
               </div>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
                 <Button
                   size="small"
                   aria-label="Bổ sung"

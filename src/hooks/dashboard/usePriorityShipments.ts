@@ -1,15 +1,17 @@
 import { useCan, useList } from "@refinedev/core";
 import { useTranslation } from "react-i18next";
-import { formatTimeOnly } from "@/formatters/dateTime";
+import { translateOptional } from "@/locales";
 import type { ApiError } from "@/types/api.types";
 import type { Load } from "@/types/load.types";
 import type { PriorityShipment, ShipmentCardLocale } from "@/types/dashboard/priority-shipment.types";
+import { adaptLiveLoadToPriorityShipment } from "@/features/dashboard/priorityShipmentAdapters";
 
 /** The existing load API supplies scheduled times, not predicted ETA or vehicle telemetry. */
 export function usePriorityShipments(): {
   shipments: PriorityShipment[];
   locale: ShipmentCardLocale;
   isLoading: boolean;
+  isUnavailable: boolean;
   error?: string;
   retry: () => void;
 } {
@@ -23,20 +25,13 @@ export function usePriorityShipments(): {
     pagination: { current: 1, pageSize: 20 },
     queryOptions: { enabled: canRead, staleTime: 30_000, retry: false },
   });
-  const shipments: PriorityShipment[] = canRead && !query.isError ? (query.data?.data ?? []).map((load) => ({
-    id: load.id,
-    reference: `#${load.number}`,
-    origin: load.originAddressCity || load.originAddressLine1 || (locale === "vi" ? "Chưa có điểm đi" : "Origin unavailable"),
-    destination: load.destinationAddressCity || load.destinationAddressLine1 || (locale === "vi" ? "Chưa có điểm đến" : "Destination unavailable"),
-    customer: load.customerName || undefined,
-    status: { label: t(`forms.options.${load.status.toLowerCase()}`, { defaultValue: load.status }), tone: "neutral" },
-    vehicleLabel: load.assignedTruckNumber || undefined,
-    scheduledDelivery: load.requestedDeliveryDate ? formatTimeOnly(load.requestedDeliveryDate) : undefined,
-    stops: [
-      { id: `${load.id}-origin`, name: load.originAddressCity || load.originAddressLine1 || (locale === "vi" ? "Điểm đi" : "Origin"), time: load.pickedUpAt ? formatTimeOnly(load.pickedUpAt) : undefined, completed: Boolean(load.pickedUpAt) },
-      { id: `${load.id}-destination`, name: load.destinationAddressCity || load.destinationAddressLine1 || (locale === "vi" ? "Điểm đến" : "Destination"), time: load.deliveredAt ? formatTimeOnly(load.deliveredAt) : undefined, completed: Boolean(load.deliveredAt) },
-    ],
-  })) : [];
+  const shipments: PriorityShipment[] = canRead && !query.isError
+    ? (query.data?.data ?? []).map((load) => adaptLiveLoadToPriorityShipment(
+      load,
+      locale,
+      (status) => translateOptional(i18n, (key) => t(key), `forms.options.${status.toLowerCase()}`, status),
+    ))
+    : [];
 
   let error: string | undefined;
   if (access.isError || (!access.isLoading && !canRead)) {
@@ -49,6 +44,7 @@ export function usePriorityShipments(): {
     shipments,
     locale,
     isLoading: access.isLoading || (canRead && query.isLoading),
+    isUnavailable: canRead && !query.isLoading && !query.isError && query.data === undefined,
     error,
     retry: () => { if (canRead) void query.refetch(); else void access.refetch(); },
   };

@@ -25,7 +25,7 @@
     text-transform: uppercase;
   }
   button { font-family: inherit; cursor: pointer; }
-  button:focus-visible { outline: 2px solid #7442ff; outline-offset: 3px; }
+  button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
 }
 
 .ops-brief-header {
@@ -53,7 +53,7 @@
 
   h2 {
     color: #2b2732;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     font-weight: 650;
     line-height: 1.35;
   }
@@ -89,7 +89,7 @@
 
 .ops-brief-summary {
   color: #342e3a;
-  font-size: 16px;
+  font-size: var(--font-size-md);
   font-weight: 450;
   letter-spacing: -0.4px;
   line-height: 1.42;
@@ -97,7 +97,7 @@
 
   &--empty {
     color: #797187;
-    font-size: 14px;
+    font-size: var(--font-size-base);
   }
 }
 
@@ -105,12 +105,12 @@
 .ops-brief-actions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-xs);
 
   ul {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--spacing-xs);
   }
 }
 
@@ -118,14 +118,14 @@
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr) 56px;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-xs);
   min-height: 18px;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   line-height: 1.35;
 
   &__count {
     color: #7442ff;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
@@ -134,7 +134,7 @@
     min-width: 0;
     overflow: hidden;
     color: #3a3443;
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -142,7 +142,7 @@
   &__meter {
     height: 5px;
     overflow: hidden;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     background: #e5dcfa;
 
     i {
@@ -157,13 +157,13 @@
 .ops-action-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-xs);
   width: 100%;
   min-height: 36px;
-  padding: 7px 12px;
+  padding: 7px var(--spacing-sm);
   border: 0;
   border-radius: 24px;
-  background: #fff;
+  background: var(--color-bg-container);
   color: #8c8996;
   text-align: left;
   transition: all 0.15s ease;
@@ -183,13 +183,13 @@
     display: flex;
     align-items: baseline;
     flex: 1;
-    gap: 8px;
+    gap: var(--spacing-xs);
     min-width: 0;
 
     strong {
       overflow: hidden;
       color: #2b2732;
-      font-size: 12px;
+      font-size: var(--font-size-xs);
       font-weight: 600;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -215,7 +215,7 @@
   gap: 10px;
   flex-wrap: wrap;
   margin-top: auto;
-  padding-top: 4px;
+  padding-top: var(--spacing-xxs);
 
   button {
     display: inline-flex;
@@ -226,7 +226,7 @@
     padding: 6px 14px;
     border: 0;
     border-radius: 24px;
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     line-height: 1.4;
   }
@@ -234,7 +234,7 @@
 
 .ops-brief-review {
   background: #7541ff;
-  color: #fff;
+  color: var(--color-text-inverse);
 
   &:hover {
     background: #6430eb;
@@ -254,7 +254,7 @@
 .ops-brief-state {
   padding: 10px 0;
   color: #766d84;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   line-height: 1.5;
 }
 
@@ -262,7 +262,7 @@
   flex: 1;
 
   button {
-    margin-top: 8px;
+    margin-top: var(--spacing-xs);
     border: 0;
     background: transparent;
     color: #703eff;
@@ -275,21 +275,21 @@
   }
 
   .ops-cause-row__label {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .ops-action-item__content strong {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .ops-action-item {
     min-height: 38px;
-    padding: 8px 14px;
+    padding: var(--spacing-xs) 14px;
   }
 
   .ops-brief-footer button {
     min-height: 34px;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 }
 
