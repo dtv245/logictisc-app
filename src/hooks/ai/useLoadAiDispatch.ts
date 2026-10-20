@@ -136,6 +136,7 @@ export function useLoadAiDispatch({ loadId, enabled = true }: UseLoadAiDispatchO
     feasibilityError,
     clearFeasibilityError: () => setFeasibilityError(null),
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isError: query.isError,
     error: query.error,
     refetch: query.refetch,

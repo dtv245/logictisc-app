@@ -5,6 +5,7 @@ import { useTripStopActions } from "@/features/trips/hooks/useTripStopActions";
 import type { TripStopExecution } from "@/features/trips/types";
 
 vi.mock("@refinedev/core", () => ({
+  useCan: vi.fn(),
   useCustom: vi.fn(),
   useCustomMutation: vi.fn(),
   useInvalidate: vi.fn(),
@@ -40,6 +41,12 @@ describe("useTripStopActions", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRefetch.mockResolvedValue({ isError: false });
+    mockInvalidate.mockResolvedValue(undefined);
+    vi.mocked(refineCore.useCan).mockReturnValue({
+      data: { can: true },
+      isLoading: false,
+    } as unknown as ReturnType<typeof refineCore.useCan>);
     vi.mocked(refineCore.useInvalidate).mockReturnValue(mockInvalidate);
     vi.mocked(refineCore.useNotification).mockReturnValue({
       open: mockOpenNotification,
@@ -146,6 +153,41 @@ describe("useTripStopActions", () => {
         type: "error",
         message: "Trip stop cannot transition from ARRIVED to DEPARTED",
       }),
+    );
+  });
+
+  it("does not issue a transition without trip edit permission", async () => {
+    vi.mocked(refineCore.useCan).mockReturnValue({
+      data: { can: false },
+      isLoading: false,
+    } as unknown as ReturnType<typeof refineCore.useCan>);
+
+    const { result } = renderHook(() => useTripStopActions("trip-100"));
+    let changed = true;
+    await act(async () => {
+      changed = await result.current.executeTransition("arrive", "stop-2");
+    });
+
+    expect(changed).toBe(false);
+    expect(mockMutateAsync).not.toHaveBeenCalled();
+    expect(mockOpenNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "error" }),
+    );
+  });
+
+  it("reports stale data separately after a confirmed transition", async () => {
+    mockMutateAsync.mockResolvedValue({ data: {} });
+    mockRefetch.mockResolvedValueOnce({ isError: true });
+
+    const { result } = renderHook(() => useTripStopActions("trip-100"));
+    let changed = false;
+    await act(async () => {
+      changed = await result.current.executeTransition("arrive", "stop-2");
+    });
+
+    expect(changed).toBe(true);
+    expect(mockOpenNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "error" }),
     );
   });
 });

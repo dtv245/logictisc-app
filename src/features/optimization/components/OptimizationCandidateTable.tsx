@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { EmptyState } from "@/components/EmptyState";
 import { financialAmount } from "@formatters/financialDisplay";
+import { ApiHttpError } from "@/utils/httpError";
 import type { OptimizationCandidate, OptimizationOutcome } from "@/types/optimization.dto";
 import type { OptimizationActionsResult } from "../hooks/useOptimizationActions";
 import { OptimizationCandidateDrawer } from "./OptimizationCandidateDrawer";
@@ -214,8 +215,11 @@ export function OptimizationCandidateTable({
                       expectedInputFingerprint: candidate.inputFingerprint,
                     },
                   });
-                } catch {
-                  // The hook displays the failure. Close confirmation; an explicit retry keeps its replay key.
+                } catch (error) {
+                  // Keep the review context open on a state conflict; recoverable input errors still close as before.
+                  if (error instanceof ApiHttpError && error.statusCode === 409 && error.code !== "OPTIMIZATION_INPUT_EVIDENCE_REQUIRED") {
+                    throw error;
+                  }
                 }
               }}
             />

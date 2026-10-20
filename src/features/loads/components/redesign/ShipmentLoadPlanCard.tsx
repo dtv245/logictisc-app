@@ -1,5 +1,8 @@
 import React from "react";
-import { Tag, Progress } from "antd";
+import { Alert, Tag } from "antd";
+import { useTranslation } from "react-i18next";
+import { StatusTag } from "@/components/StatusTag";
+import { statusTone } from "@/components/statusTone";
 import type { Load } from "@/types/load.types";
 
 export interface ShipmentLoadPlanCardProps {
@@ -7,20 +10,23 @@ export interface ShipmentLoadPlanCardProps {
 }
 
 export const ShipmentLoadPlanCard: React.FC<ShipmentLoadPlanCardProps> = ({ load }) => {
+  const { t } = useTranslation();
   return (
     <div className="shipment-card" data-testid="shipment-load-plan-card">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
         <div>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#0F172A", marginBottom: 4 }}>
-            Phương tiện & Kế hoạch xếp hàng
+            {t("loads.redesign.planTitle")}
           </div>
           <div style={{ fontSize: 12, color: "#64748B", fontWeight: 500 }}>
-            {load.assignedTruckNumber ? `Xe phân công: ${load.assignedTruckNumber}` : "Chưa phân bổ phương tiện cụ thể"}
-            {load.distance ? ` · Cự ly ${load.distance} km` : ""}
+            {load.assignedTruckNumber
+              ? t("loads.redesign.assignedTruck", { number: load.assignedTruckNumber })
+              : t("loads.redesign.truckUnavailable")}
+            {load.distance ? ` · ${t("loads.redesign.distance", { value: load.distance })}` : ""}
           </div>
         </div>
         <Tag color={load.type?.toLowerCase().includes("reefer") ? "blue" : "default"}>
-          {load.type || "Tiêu chuẩn"}
+          {load.type || t("loads.redesign.standardType")}
         </Tag>
       </div>
 
@@ -37,56 +43,62 @@ export const ShipmentLoadPlanCard: React.FC<ShipmentLoadPlanCardProps> = ({ load
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
           <div>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#64748B", textTransform: "uppercase" }}>
-              Phân loại hàng
+              {t("loads.redesign.cargoType")}
             </div>
             <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A", marginTop: 2 }}>
               {load.isHazmat ? (
-                <span style={{ color: "#DC2626" }}>⚠️ Hàng nguy hiểm (HAZMAT)</span>
+                <span style={{ color: "#DC2626" }}>⚠️ {t("loads.redesign.hazmatCargo")}</span>
               ) : (
-                "Hàng bách hóa thông thường"
+                t("loads.redesign.generalCargo")
               )}
             </div>
           </div>
 
           <div>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#64748B", textTransform: "uppercase" }}>
-              Nguồn tạo chuyến
+              {t("loads.redesign.sourceTitle")}
             </div>
             <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A", marginTop: 2 }}>
-              {load.source || "Thủ công (Manual)"}
+              {load.source || t("loads.redesign.manualSource")}
             </div>
           </div>
         </div>
 
         {load.notes && (
           <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #E2E8F0", fontSize: 12, color: "#475569" }}>
-            <span style={{ fontWeight: 600 }}>Ghi chú vận chuyển: </span>
+            <span style={{ fontWeight: 600 }}>{t("loads.redesign.notesLabel")}: </span>
             {load.notes}
           </div>
         )}
       </div>
 
-      {/* Weight & Load Capacity Indicator */}
-      <div>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 700, color: "#64748B", marginBottom: 6 }}>
-          <span>TẢI TRỌNG QUY ƯỚC</span>
-          <span style={{ color: "#0F172A" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#64748B", marginBottom: 6 }}>
+            {t("loads.redesign.statusTitle")}
+          </div>
+          {load.status ? (
+            <StatusTag label={load.status} tone={statusTone(load.status)} />
+          ) : (
+            <Tag>{t("loads.redesign.statusUnavailable")}</Tag>
+          )}
+        </div>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#64748B", marginBottom: 6 }}>
+            {t("loads.redesign.deliveryCost")}
+          </div>
+          <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>
             {load.deliveryCostAmount != null
-              ? `Cước: ${Number(load.deliveryCostAmount).toLocaleString()} ${load.deliveryCostCurrency || ""}`
-              : "Tiêu chuẩn"}
+              ? `${Number(load.deliveryCostAmount).toLocaleString()} ${load.deliveryCostCurrency || ""}`.trim()
+              : t("loads.redesign.deliveryCostUnavailable")}
           </span>
         </div>
-        <Progress
-          percent={load.isInProximity ? 85 : 50}
-          strokeColor={{ "0%": "#0F172A", "100%": "#7C3AED" }}
-          showInfo={false}
-          size={["100%", 8]}
+        <Alert
+          type="info"
+          showIcon
+          message={t("loads.redesign.statusDescription")}
+          style={{ flex: "1 1 240px", margin: 0 }}
         />
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#94A3B8", marginTop: 4 }}>
-          <span>Điểm lấy hàng</span>
-          <span>Đang vận chuyển</span>
-          <span>Giao thành công</span>
-        </div>
       </div>
     </div>
   );

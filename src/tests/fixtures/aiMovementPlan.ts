@@ -1,18 +1,26 @@
-import type { AiMovementPlan, CreateAiDispatchParams } from "@/features/ai-dispatch/types/ai-dispatch.types";
+import type { AiDispatchMode, AiMovementPlan } from "@/features/ai-dispatch/types/ai-dispatch.types";
 /**
  * Fixture mẫu dùng riêng cho kiểm thử tự động (Unit Tests).
  * KHÔNG sử dụng làm mock runtime trong ứng dụng thực tế.
  */
-export function generateAiMovementPlan(params: CreateAiDispatchParams): AiMovementPlan {
+interface AiMovementPlanFixtureParams {
+  mode: AiDispatchMode;
+  loadId: string;
+  truckId?: string;
+  instructions?: string;
+}
+
+export function generateAiMovementPlan(params: AiMovementPlanFixtureParams): AiMovementPlan {
   const planId = crypto.randomUUID();
   const sessionId = crypto.randomUUID();
-  const truckShort = (params.truckId || "TRK-01").slice(0, 8);
+  const truckId = params.truckId || "TRK-01";
+  const truckShort = truckId.slice(0, 8);
   const loadShort = (params.loadId || "LD-01").slice(0, 8);
 
   return {
     id: planId,
     sessionId,
-    truckId: params.truckId,
+    truckId,
     truckNumber: `TRK-${truckShort.toUpperCase()}`,
     driverId: crypto.randomUUID(),
     driverName: "Nguyễn Văn Hùng",
@@ -116,10 +124,7 @@ export function generateAiMovementPlan(params: CreateAiDispatchParams): AiMoveme
 
 export const initialMovementPlan = generateAiMovementPlan({
   mode: "assisted",
-  objective: "minimize_deadhead",
-  modelUsed: "LogisticsX Neural Dispatcher v2",
   truckId: "4a2b9183-1100-4b2e-a551-912c7d91a123",
   loadId: "7e5f3922-2200-4c3d-b442-823d6e82b456",
-  businessZoneId: "Asia/Ho_Chi_Minh",
   instructions: "Ưu tiên xe có hệ thống định vị GPS và tài xế đã quen tuyến cao tốc phía Nam.",
 });

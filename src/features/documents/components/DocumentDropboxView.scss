@@ -1,0 +1,34 @@
+.documents-dropbox-view {
+  width: 100%;
+  min-width: 0;
+}
+
+.documents-dropbox-drawer {
+  .ant-drawer-header-extra {
+    max-width: calc(100% - 36px);
+  }
+
+  .ant-drawer-header-extra .ant-space {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 575px) {
+  .documents-dropbox-view {
+    padding: 12px 12px 24px !important;
+  }
+
+  .documents-dropbox-drawer {
+    .ant-drawer-header {
+      align-items: flex-start;
+    }
+
+    .ant-drawer-header-extra .ant-space {
+      justify-content: flex-start;
+    }
+
+    .ant-drawer-header-extra .ant-btn {
+      min-height: 40px;
+    }
+  }
+}

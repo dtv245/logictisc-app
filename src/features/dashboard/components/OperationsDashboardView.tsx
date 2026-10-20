@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { DEFAULT_CURRENCY, INITIAL_DASHBOARD_FILTERS } from "../config/rankingWeights";
 import type { DashboardFilters } from "../types";
@@ -31,16 +32,18 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
   initialFilters,
   className = "",
 }) => {
-  const today = dayjs();
+  const { t } = useTranslation();
   const filters: DashboardFilters = useMemo(
-    () => ({
-      ...INITIAL_DASHBOARD_FILTERS,
-      from: today.subtract(30, "day").format("YYYY-MM-DD"),
-      to: today.format("YYYY-MM-DD"),
-      currency: DEFAULT_CURRENCY,
-      ...initialFilters,
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => {
+      const today = dayjs();
+      return {
+        ...INITIAL_DASHBOARD_FILTERS,
+        from: today.subtract(30, "day").format("YYYY-MM-DD"),
+        to: today.format("YYYY-MM-DD"),
+        currency: DEFAULT_CURRENCY,
+        ...initialFilters,
+      };
+    },
     [initialFilters],
   );
 
@@ -65,39 +68,39 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
     return [
       {
-        label: "Đang trên đường",
+        label: t("dashboard.opsView.kpi.inTransit"),
         value: null,
         state: "unavailable",
       },
       {
-        label: "Nguy cơ trễ (At Risk)",
+        label: t("dashboard.opsView.kpi.atRisk"),
         value: delaysCount,
-        context: "ETA sát giờ SLA",
+        context: t("dashboard.opsView.kpi.atRiskContext"),
         state: getKpiState(delays.isLoading, delays.error, delaysCount),
       },
       {
-        label: "Đúng giờ (OTD)",
+        label: t("dashboard.opsView.kpi.onTime"),
         value: otdValue,
         state: getKpiState(otd.isLoading, otd.error, otdValue),
       },
       {
-        label: "Đã giao hôm nay",
+        label: t("dashboard.opsView.kpi.deliveredToday"),
         value: null,
         state: "unavailable",
       },
       {
-        label: "Xe sẵn sàng gán",
+        label: t("dashboard.opsView.kpi.assignableVehicles"),
         value: null,
         state: "unavailable",
       },
       {
-        label: "Ngoại lệ phát sinh",
+        label: t("dashboard.opsView.kpi.exceptions"),
         value: exceptionsCount,
-        context: "Sự cố giao nhận",
+        context: t("dashboard.opsView.kpi.exceptionsContext"),
         state: getKpiState(exceptions.isLoading, exceptions.error, exceptionsCount),
       },
     ];
-  }, [dashboardData]);
+  }, [dashboardData, t]);
 
   return (
     <div className={`ops-dashboard-layout ${className}`}>

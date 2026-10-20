@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Button,
   Card,
   Dropdown,
   Modal,
@@ -26,6 +27,8 @@ const { Text } = Typography;
 
 export interface DocumentDropboxCardProps {
   document: Document;
+  deleting?: boolean;
+  downloading?: boolean;
   onPreview: (doc: Document) => void;
   onDownload: (doc: Document) => void;
   onDelete: (doc: Document) => void;
@@ -33,6 +36,8 @@ export interface DocumentDropboxCardProps {
 
 export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
   document: doc,
+  deleting = false,
+  downloading = false,
   onPreview,
   onDownload,
   onDelete,
@@ -51,6 +56,7 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
       key: "download",
       icon: <DownloadOutlined />,
       label: t("documents.dropbox.download"),
+      disabled: downloading,
       onClick: () => onDownload(doc),
     },
     {
@@ -60,13 +66,14 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
       key: "delete",
       icon: <DeleteOutlined />,
       danger: true,
+      disabled: deleting,
       label: t("documents.dropbox.delete"),
       onClick: () => {
         Modal.confirm({
           title: t("documents.dropbox.deleteConfirm"),
           okText: t("actions.confirm"),
           cancelText: t("actions.cancel"),
-          okButtonProps: { danger: true },
+          okButtonProps: { danger: true, loading: deleting, disabled: deleting },
           onOk: () => onDelete(doc),
         });
       },
@@ -75,7 +82,6 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
 
   return (
     <Card
-      hoverable
       bordered
       style={{
         borderRadius: 14,
@@ -85,7 +91,6 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        cursor: "pointer",
       }}
       styles={{
         body: {
@@ -94,16 +99,6 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
           flexDirection: "column",
           flex: 1,
         },
-      }}
-      onClick={() => onPreview(doc)}
-      tabIndex={0}
-      role="button"
-      aria-label={`Tài liệu: ${doc.fileName}`}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onPreview(doc);
-        }
       }}
     >
       {/* Top Header: Badge định dạng & Dropdown hành động */}
@@ -129,25 +124,27 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
           {visual.badgeLabel}
         </span>
 
-        <div onClick={(e) => e.stopPropagation()}>
+        <div>
           <Dropdown menu={{ items: menuItems }} trigger={["click"]} placement="bottomRight">
-            <span
+            <button
+              type="button"
+              aria-label={t("documents.dropbox.moreActions")}
+              onClick={(event) => event.stopPropagation()}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: 28,
-                height: 28,
+                width: 36,
+                height: 36,
+                border: 0,
                 borderRadius: "50%",
                 color: "#64748b",
+                background: "transparent",
                 cursor: "pointer",
-                transition: "background-color 0.15s ease",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f1f5f9")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
             >
-              <MoreOutlined style={{ fontSize: 16 }} />
-            </span>
+              <MoreOutlined aria-hidden="true" style={{ fontSize: 16 }} />
+            </button>
           </Dropdown>
         </div>
       </div>
@@ -169,23 +166,23 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
 
       {/* Thông tin tên file */}
       <Tooltip title={doc.fileName} placement="topLeft">
-        <Text
-          strong
+        <Button
+          type="link"
+          onClick={() => onPreview(doc)}
           style={{
+            padding: 0,
+            textAlign: "left",
+            whiteSpace: "normal",
+            height: "auto",
             fontSize: 14,
             lineHeight: "20px",
-            color: "#0f172a",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            minHeight: 40,
+            fontWeight: 600,
+            overflowWrap: "anywhere",
             marginBottom: 6,
           }}
         >
           {doc.fileName}
-        </Text>
+        </Button>
       </Tooltip>
 
       {/* Phân loại và trạng thái */}

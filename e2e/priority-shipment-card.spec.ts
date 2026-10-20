@@ -1,4 +1,9 @@
 import { expect, test } from "@playwright/test";
+import path from "node:path";
+
+const screenshotDir = process.env.SCREENSHOT_DIR || "priority-shipment-card";
+const screenshotPath = (file: string) =>
+  path.join(process.cwd(), "docs/design", screenshotDir, file);
 
 test("matches the reference card layout at desktop width", async ({ page }) => {
   await page.setViewportSize({ width: 752, height: 500 });
@@ -11,7 +16,7 @@ test("matches the reference card layout at desktop width", async ({ page }) => {
   const metrics = await page.locator(".priority-shipment__metrics").boundingBox();
   expect(header).not.toBeNull();
   expect(metrics!.y).toBeLessThan(header!.y + 10);
-  await card.screenshot({ path: "docs/design/priority-shipment-card/desktop.png" });
+  await card.screenshot({ path: screenshotPath("desktop.png") });
 });
 
 test("fits narrow screens and keeps telemetry cards apart", async ({ page }) => {
@@ -32,6 +37,6 @@ test("fits narrow screens and keeps telemetry cards apart", async ({ page }) => 
         expect(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y).toBe(true);
       }
     }
-    await page.screenshot({ path: `docs/design/priority-shipment-card/mobile-${width}.png`, fullPage: true });
+    await page.screenshot({ path: screenshotPath(`mobile-${width}.png`), fullPage: true });
   }
 });

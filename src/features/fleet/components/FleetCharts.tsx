@@ -8,6 +8,7 @@ import {
   Pagination,
   Row,
   Space,
+  Statistic,
   Tag,
   Typography,
 } from "antd";
@@ -16,9 +17,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  Legend,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip as RechartsTooltip,
   XAxis,
@@ -31,8 +29,6 @@ export interface FleetChartsProps {
   report: FleetReport;
   truckMap?: Record<string, string>;
 }
-
-const MILEAGE_COLORS = ["#10b981", "#f59e0b"];
 
 export const FleetCharts: React.FC<FleetChartsProps> = ({ report, truckMap }) => {
   const { t } = useTranslation();
@@ -72,36 +68,26 @@ export const FleetCharts: React.FC<FleetChartsProps> = ({ report, truckMap }) =>
   // Dynamic height based on number of trucks displayed
   const barChartHeight = Math.max(220, paginatedTrucks.length * 36 + 40);
 
-  // 2. Data for Donut Chart: Loaded vs Empty miles (only when real mileage data exists)
+  // These backend ratios have independent definitions; they are not complementary pie slices.
   const hasRealMileageData = useMemo(() => {
     const loaded = report.loadedMilesPercent;
+    const deadhead = report.deadheadPercent;
     return (
       loaded?.availability === "AVAILABLE" &&
       loaded?.value !== null &&
-      Number(loaded.value) >= 0
+      Number.isFinite(Number(loaded.value)) &&
+      Number(loaded.value) >= 0 &&
+      Number(loaded.value) <= 100 &&
+      deadhead?.availability === "AVAILABLE" &&
+      deadhead?.value !== null &&
+      Number.isFinite(Number(deadhead.value)) &&
+      Number(deadhead.value) >= 0 &&
+      Number(deadhead.value) <= 100
     );
-  }, [report.loadedMilesPercent]);
+  }, [report.loadedMilesPercent, report.deadheadPercent]);
 
-  const mileageDonutData = useMemo(() => {
-    if (!hasRealMileageData) return null;
-    const loadedPercent = Number(report.loadedMilesPercent.value);
-    const deadhead = report.deadheadPercent;
-    const emptyPercent =
-      deadhead?.availability === "AVAILABLE" && deadhead?.value !== null
-        ? Number(deadhead.value)
-        : Math.max(0, 100 - loadedPercent);
-
-    return [
-      {
-        name: t("fleet.charts.loadedMiles", { defaultValue: "Dặm có hàng (Loaded)" }),
-        value: loadedPercent,
-      },
-      {
-        name: t("fleet.charts.emptyMiles", { defaultValue: "Dặm rỗng (Empty)" }),
-        value: emptyPercent,
-      },
-    ];
-  }, [hasRealMileageData, report.loadedMilesPercent, report.deadheadPercent, t]);
+  const loadedMilesValue = Number(report.loadedMilesPercent.value);
+  const deadheadValue = Number(report.deadheadPercent?.value);
 
   return (
     <Space direction="vertical" size="middle" style={{ width: "100%" }}>
@@ -222,8 +208,8 @@ export const FleetCharts: React.FC<FleetChartsProps> = ({ report, truckMap }) =>
           </Card>
         </Col>
 
-        {/* Donut Chart: Loaded vs Empty Miles (rendered ONLY when real mileage data exists) */}
-        {hasRealMileageData && mileageDonutData && (
+        {/* Independent backend ratios; do not visualize them as a mutually exclusive composition. */}
+        {hasRealMileageData && (
           <Col xs={24} lg={10}>
             <Card
               variant="outlined"
@@ -231,52 +217,26 @@ export const FleetCharts: React.FC<FleetChartsProps> = ({ report, truckMap }) =>
                 defaultValue: "Tỷ trọng dặm có hàng vs dặm rỗng",
               })}
             >
-              <div style={{ width: "100%", height: 260, position: "relative" }}>
-                <ResponsiveContainer
-                  width="100%"
-                  height="100%"
-                  initialDimension={{ width: 400, height: 260 }}
-                >
-                  <PieChart>
-                    <Pie
-                      data={mileageDonutData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={88}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
-                      {mileageDonutData.map((_, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={MILEAGE_COLORS[index % MILEAGE_COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <RechartsTooltip formatter={(val) => [`${val}%`, "Tỷ lệ"]} />
-                    <Legend verticalAlign="bottom" height={36} />
-                  </PieChart>
-                </ResponsiveContainer>
-                {/* Center summary text */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "44%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    textAlign: "center",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <div style={{ fontSize: 20, fontWeight: 700, color: "#111827" }}>
-                    {report.loadedMilesPercent.value}%
-                  </div>
-                  <div style={{ fontSize: 11, color: "#6b7280" }}>
-                    {t("fleet.charts.loadedMiles", { defaultValue: "Có hàng" })}
-                  </div>
-                </div>
-              </div>
+              <Row gutter={[16, 16]}>
+                <Col xs={24} sm={12}>
+                  <Statistic
+                    data-testid="fleet-loaded-miles-ratio"
+                    title={t("fleet.charts.loadedMiles", { defaultValue: "Dặm có hàng (Loaded)" })}
+                    value={loadedMilesValue}
+                    precision={2}
+                    suffix="%"
+                  />
+                </Col>
+                <Col xs={24} sm={12}>
+                  <Statistic
+                    data-testid="fleet-empty-miles-ratio"
+                    title={t("fleet.charts.emptyMiles", { defaultValue: "Dặm rỗng (Empty)" })}
+                    value={deadheadValue}
+                    precision={2}
+                    suffix="%"
+                  />
+                </Col>
+              </Row>
             </Card>
           </Col>
         )}

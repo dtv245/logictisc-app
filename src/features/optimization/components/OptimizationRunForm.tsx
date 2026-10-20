@@ -127,7 +127,7 @@ export function OptimizationRunForm({
       <Form
         form={form}
         layout="vertical"
-        scrollToFirstError={{ behavior: "smooth", block: "center" }}
+        scrollToFirstError={{ block: "center" }}
         disabled={actions.pending}
         initialValues={initialValues}
         onValuesChange={() => setKey(crypto.randomUUID())}
@@ -429,7 +429,7 @@ export function OptimizationRunForm({
                     ),
                   scrollToField: (name, options) => {
                     const target = formName(name);
-                    if (target) form.scrollToField(target, { behavior: "smooth", block: "center", ...options });
+                    if (target) form.scrollToField(target, { block: "center", ...options });
                   },
                 },
                 error.errors

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   Descriptions,
@@ -29,7 +29,9 @@ export interface DocumentDropboxDrawerProps {
   document: Document | null;
   onClose: () => void;
   onDownload: (doc: Document) => void;
-  onDelete: (doc: Document) => void;
+  onDelete: (doc: Document) => Promise<boolean>;
+  deletePending?: boolean;
+  downloadPending?: boolean;
 }
 
 export const DocumentDropboxDrawer: React.FC<DocumentDropboxDrawerProps> = ({
@@ -38,8 +40,11 @@ export const DocumentDropboxDrawer: React.FC<DocumentDropboxDrawerProps> = ({
   onClose,
   onDownload,
   onDelete,
+  deletePending = false,
+  downloadPending = false,
 }) => {
   const { t, i18n } = useTranslation();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   if (!doc) return null;
 
@@ -47,29 +52,53 @@ export const DocumentDropboxDrawer: React.FC<DocumentDropboxDrawerProps> = ({
 
   return (
     <Drawer
+      className="documents-dropbox-drawer"
       open={open}
-      onClose={onClose}
-      width={480}
+      onClose={() => {
+        if (!deletePending) {
+          setDeleteConfirmOpen(false);
+          onClose();
+        }
+      }}
+      closable={!deletePending}
+      maskClosable={!deletePending}
+      keyboard={!deletePending}
+      width="min(480px, 100vw)"
       title={t("documents.dropbox.fileDetailsTitle")}
       extra={
-        <Space>
+        <Space wrap>
           <Button
             type="primary"
             icon={<CloudDownloadOutlined />}
             onClick={() => onDownload(doc)}
+            loading={downloadPending}
           >
             {t("documents.dropbox.download")}
           </Button>
           <Popconfirm
             title={t("documents.dropbox.deleteConfirm")}
-            onConfirm={() => {
-              onDelete(doc);
-              onClose();
+            open={deleteConfirmOpen}
+            onOpenChange={(nextOpen) => {
+              if (!deletePending) setDeleteConfirmOpen(nextOpen);
+            }}
+            onConfirm={async () => {
+              if (deletePending) return;
+              const deleted = await onDelete(doc);
+              if (deleted) {
+                setDeleteConfirmOpen(false);
+                onClose();
+              }
             }}
             okText={t("actions.confirm")}
             cancelText={t("actions.cancel")}
+            okButtonProps={{ loading: deletePending }}
           >
-            <Button danger icon={<DeleteOutlined />}>
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              disabled={deletePending}
+              aria-label={t("documents.dropbox.delete")}
+            >
               {t("documents.dropbox.delete")}
             </Button>
           </Popconfirm>

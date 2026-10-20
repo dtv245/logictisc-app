@@ -1,6 +1,6 @@
 import React from "react";
 import { useCustom } from "@refinedev/core";
-import { Spin } from "antd";
+import { Alert, Button, Spin } from "antd";
 import {
   CheckCircleFilled,
   ExclamationCircleFilled,
@@ -10,13 +10,15 @@ import {
 import { formatTimeOnly } from "@/formatters/dateTime";
 import type { ApiError } from "@/types/api.types";
 import type { LoadTimelineResponse } from "@/features/loads/types";
+import { useTranslation } from "react-i18next";
 
 export interface ShipmentTimelineCardProps {
   loadId: string;
 }
 
 export const ShipmentTimelineCard: React.FC<ShipmentTimelineCardProps> = ({ loadId }) => {
-  const { data, isLoading } = useCustom<LoadTimelineResponse, ApiError>({
+  const { t } = useTranslation();
+  const { data, isLoading, isError, error, refetch, isFetching } = useCustom<LoadTimelineResponse, ApiError>({
     url: `/api/loads/${loadId}/timeline`,
     method: "get",
     queryOptions: {
@@ -34,17 +36,29 @@ export const ShipmentTimelineCard: React.FC<ShipmentTimelineCardProps> = ({ load
   return (
     <div className="shipment-card" data-testid="shipment-timeline-card">
       <div className="timeline-card__header">
-        <h3 className="timeline-card__title">Dòng Thời Gian Chuyến Hàng</h3>
-        <span className="timeline-card__timezone">Múi giờ {timeZoneShort}</span>
+        <h3 className="timeline-card__title">{t("loads.timeline.title")}</h3>
+        <span className="timeline-card__timezone">{t("loads.timeline.timezone", { zone: timeZoneShort })}</span>
       </div>
 
       {isLoading ? (
         <div style={{ textAlign: "center", padding: "20px 0" }}>
-          <Spin tip="Đang tải sự kiện..." />
+          <Spin tip={t("loads.timeline.loading")} />
         </div>
+      ) : isError ? (
+        <Alert
+          type="error"
+          showIcon
+          message={t("loads.timeline.loadFailed")}
+          description={error?.message}
+          action={
+            <Button size="small" disabled={isFetching} onClick={() => void refetch()}>
+              {t("actions.retry")}
+            </Button>
+          }
+        />
       ) : events.length === 0 ? (
         <div style={{ textAlign: "center", padding: "16px 0", color: "#94A3B8", fontSize: 13 }}>
-          Chưa có sự kiện nào được ghi nhận.
+          {t("loads.timeline.empty")}
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>

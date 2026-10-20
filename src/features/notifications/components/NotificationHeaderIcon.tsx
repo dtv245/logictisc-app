@@ -92,6 +92,9 @@ export const NotificationHeaderIcon = ({ placement = "bottomRight" }: Pick<Popov
         </Typography.Text>
         {unreadCount > 0 && <NotificationMarkAllRead />}
       </Flex>
+      <Typography.Text type="secondary" style={{ display: "block", fontSize: 12, marginBottom: 8 }}>
+        {t("notifications.recentUnreadScope")}
+      </Typography.Text>
       <Divider style={{ margin: "4px 0 8px 0" }} />
       {isLoading ? <Spin /> : isError ? <Alert type="error" message={error?.message ?? t("queryError.description")} action={<Button disabled={isFetching} onClick={() => void refetch()}>{t("actions.retry")}</Button>} /> : notifications.length === 0 ? (
         <Empty

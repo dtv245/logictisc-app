@@ -9,14 +9,24 @@
 
   --color-success: #{v.$color-success};
   --color-success-bg: #{v.$color-success-bg};
+  --color-success-border: #{v.$color-success-border};
+  --color-success-text: #{v.$color-success-text};
   --color-warning: #{v.$color-warning};
   --color-warning-bg: #{v.$color-warning-bg};
+  --color-warning-border: #{v.$color-warning-border};
+  --color-warning-text: #{v.$color-warning-text};
   --color-error: #{v.$color-error};
   --color-error-bg: #{v.$color-error-bg};
+  --color-error-border: #{v.$color-error-border};
+  --color-error-text: #{v.$color-error-text};
   --color-info: #{v.$color-info};
   --color-info-bg: #{v.$color-info-bg};
+  --color-info-border: #{v.$color-info-border};
+  --color-info-text: #{v.$color-info-text};
   --color-neutral: #{v.$color-neutral};
   --color-neutral-bg: #{v.$color-neutral-bg};
+  --color-neutral-border: #{v.$color-neutral-border};
+  --color-neutral-text: #{v.$color-neutral-text};
 
   --color-bg-layout: #{v.$color-bg-layout};
   --color-bg-canvas: #{v.$color-bg-canvas};
@@ -34,14 +44,39 @@
   --radius-sm: #{v.$radius-sm};
   --radius-md: #{v.$radius-md};
   --radius-lg: #{v.$radius-lg};
+  --radius-xl: #{v.$radius-xl};
+  --radius-full: #{v.$radius-full};
 
   --spacing-xs: #{v.$spacing-xs};
   --spacing-sm: #{v.$spacing-sm};
   --spacing-md: #{v.$spacing-md};
   --spacing-lg: #{v.$spacing-lg};
+  --spacing-xl: #{v.$spacing-xl};
+  --spacing-2xl: #{v.$spacing-2xl};
 
+  --shadow-xs: #{v.$shadow-xs};
+  --shadow-sm: #{v.$shadow-sm};
   --shadow-card: #{v.$shadow-card};
+  --shadow-md: #{v.$shadow-md};
+  --shadow-lg: #{v.$shadow-lg};
   --shadow-secondary: #{v.$shadow-secondary};
+
+  --font-family-base: #{v.$font-family-base};
+  --font-family-mono: #{v.$font-family-mono};
+  --font-size-xs: #{v.$font-size-xs};
+  --font-size-sm: #{v.$font-size-sm};
+  --font-size-base: #{v.$font-size-base};
+  --font-size-md: #{v.$font-size-md};
+  --font-size-lg: #{v.$font-size-lg};
+  --font-size-xl: #{v.$font-size-xl};
+  --font-size-2xl: #{v.$font-size-2xl};
+  --font-weight-regular: #{v.$font-weight-regular};
+  --font-weight-medium: #{v.$font-weight-medium};
+  --font-weight-semibold: #{v.$font-weight-semibold};
+  --font-weight-bold: #{v.$font-weight-bold};
+  --line-height-tight: #{v.$line-height-tight};
+  --line-height-base: #{v.$line-height-base};
+  --line-height-relaxed: #{v.$line-height-relaxed};
 
   font-family: v.$font-family-base;
   color: v.$color-text;
@@ -91,5 +126,22 @@ a {
 
   &:hover {
     color: v.$color-primary-hover;
+  }
+}
+
+:where(a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
 }

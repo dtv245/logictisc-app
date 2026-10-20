@@ -27,6 +27,8 @@ const { Text } = Typography;
 export interface DocumentDropboxTableProps {
   documents: Document[];
   loading?: boolean;
+  deletingDocumentId?: string | null;
+  downloadingDocumentId?: string | null;
   onPreview: (doc: Document) => void;
   onDownload: (doc: Document) => void;
   onDelete: (doc: Document) => void;
@@ -35,6 +37,8 @@ export interface DocumentDropboxTableProps {
 export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
   documents,
   loading = false,
+  deletingDocumentId = null,
+  downloadingDocumentId = null,
   onPreview,
   onDownload,
   onDelete,
@@ -67,17 +71,21 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
               })}
             </div>
             <div>
-              <Text
-                strong
+              <Button
+                type="link"
+                onClick={() => onPreview(record)}
                 style={{
                   display: "block",
-                  color: "#0f172a",
-                  cursor: "pointer",
+                  height: "auto",
+                  padding: 0,
+                  fontWeight: 600,
+                  textAlign: "left",
+                  whiteSpace: "normal",
+                  overflowWrap: "anywhere",
                 }}
-                onClick={() => onPreview(record)}
               >
                 {fileName}
-              </Text>
+              </Button>
               {record.originalFileName && record.originalFileName !== fileName && (
                 <Text type="secondary" style={{ fontSize: 11 }}>
                   {record.originalFileName}
@@ -181,6 +189,7 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
               size="small"
               icon={<DownloadOutlined />}
               onClick={() => onDownload(record)}
+              loading={downloadingDocumentId === record.id}
               aria-label={t("documents.dropbox.download")}
             />
           </Tooltip>
@@ -190,12 +199,17 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
               onConfirm={() => onDelete(record)}
               okText={t("actions.confirm")}
               cancelText={t("actions.cancel")}
+              okButtonProps={{
+                loading: deletingDocumentId === record.id,
+                disabled: deletingDocumentId === record.id,
+              }}
             >
               <Button
                 type="text"
                 danger
                 size="small"
                 icon={<DeleteOutlined />}
+                disabled={deletingDocumentId === record.id}
                 aria-label={t("documents.dropbox.delete")}
               />
             </Popconfirm>
@@ -212,6 +226,7 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
       rowKey="id"
       loading={loading}
       pagination={false}
+      scroll={{ x: "max-content" }}
       style={{
         borderRadius: 12,
         overflow: "hidden",

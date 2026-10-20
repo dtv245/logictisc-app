@@ -1,4 +1,4 @@
-import { useCustom, useCustomMutation, useInvalidate, useNotification } from "@refinedev/core";
+import { useCan, useCustom, useCustomMutation, useInvalidate, useNotification } from "@refinedev/core";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -15,11 +15,14 @@ export interface UseTripStopActionsReturn {
   error: ApiError | null;
   refetch: () => void;
   isSubmitting: boolean;
+  canExecute: boolean;
+  permissionLoading: boolean;
   executeTransition: (action: TripStopAction, stopId: string) => Promise<boolean>;
 }
 
 export const useTripStopActions = (tripId: string): UseTripStopActionsReturn => {
   const { t } = useTranslation();
+  const access = useCan({ resource: "trips", action: "edit" });
   const invalidate = useInvalidate();
   const { open } = useNotification();
   const isSubmittingRef = useRef(false);
@@ -59,6 +62,14 @@ export const useTripStopActions = (tripId: string): UseTripStopActionsReturn => 
 
   const executeTransition = useCallback(
     async (action: TripStopAction, stopId: string): Promise<boolean> => {
+      if (access.data?.can !== true) {
+        open?.({
+          type: "error",
+          message: t("forbidden.title"),
+          description: t("forbidden.description"),
+        });
+        return false;
+      }
       if (isSubmittingRef.current) {
         return false;
       }
@@ -74,20 +85,31 @@ export const useTripStopActions = (tripId: string): UseTripStopActionsReturn => 
           values: {},
         });
 
-        open?.({
-          type: "success",
-          message: t(
-            `trips.execution.actions.${action}Success`,
-            "Stop status updated successfully",
-          ),
-        });
+        let refreshFailed = false;
+        try {
+          const stopRefresh = await refetch();
+          await invalidate({
+            resource: "trips",
+            invalidates: ["detail"],
+            id: tripId,
+          });
+          refreshFailed = stopRefresh.isError;
+        } catch {
+          refreshFailed = true;
+        }
 
-        invalidate({
-          resource: "trips",
-          invalidates: ["detail"],
-          id: tripId,
+        open?.({
+          type: refreshFailed ? "error" : "success",
+          message: refreshFailed
+            ? t("trips.execution.refreshFailed")
+            : t(
+                `trips.execution.actions.${action}Success`,
+                "Stop status updated successfully",
+              ),
+          description: refreshFailed
+            ? t("trips.execution.refreshFailedDescription")
+            : undefined,
         });
-        refetch();
         return true;
       } catch (err) {
         const apiError = err as ApiError;
@@ -106,7 +128,7 @@ export const useTripStopActions = (tripId: string): UseTripStopActionsReturn => 
         setIsSubmitting(false);
       }
     },
-    [tripId, mutateCustom, open, t, invalidate, refetch],
+    [tripId, mutateCustom, open, t, invalidate, refetch, access.data?.can],
   );
 
   const rawStops = Array.isArray(data?.data) ? data.data : [];
@@ -120,6 +142,8 @@ export const useTripStopActions = (tripId: string): UseTripStopActionsReturn => 
     error: (error as ApiError) || null,
     refetch: () => void refetch(),
     isSubmitting,
+    canExecute: access.data?.can === true,
+    permissionLoading: access.isLoading,
     executeTransition,
   };
 };

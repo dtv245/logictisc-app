@@ -1,74 +1,91 @@
 # LogisticsX UI/UX Implementation Progress
 
 **Cập nhật:** 19/10/2026  
-**Plan:** [`plan.md`](../plan.md)  
-**Baseline:** HEAD `cff6c8c89b80e5f5501feb4747caf786722a55c8`; working tree đã có nhiều thay đổi chưa commit trước khi triển khai. Không dọn, reset, commit hoặc ghi đè các thay đổi đó.
+**Plan:** [plan.md](../plan.md)
+**Branch / HEAD lúc bắt đầu:** main / bbc0394
+**Working tree lúc bắt đầu:** sạch. Các thay đổi trong phiên này do phiên triển khai tạo; không ghi đè thay đổi chưa commit. Không commit, push, merge hoặc bật feature flag.
 
-Plan có **76 ticket triển khai**. Tám mã `UX-01..UX-08` là nhãn traceability, không tính là ticket riêng. Trạng thái tóm tắt: **DONE 7, UI_SAFE_DONE 16, IN_REVIEW 4, BLOCKED 11, BACKLOG 38, INTEGRATION_DONE 0**.
+Plan có **76 ticket**; UX-01..UX-08 chỉ là nhãn traceability. Trạng thái hiện tại: **DONE 7, UI_SAFE_DONE 45, INTEGRATION_DONE 0, IN_REVIEW 13, BLOCKED 11, BACKLOG 0**. Có 24 ticket chưa nghiệm thu cuối (13 IN_REVIEW và 11 BLOCKED). Các UI_SAFE_DONE chỉ xác nhận phần frontend an toàn; không có tuyên bố backend-live.
 
-## Kết quả kiểm thử phiên này
+## Kết quả kiểm thử và review
 
-| Lệnh | Kết quả | Ghi chú |
+Các lệnh được chạy tuần tự, không chạy đồng thời. Full suite chạy sau đợt code chính; sau khi sửa lỗi và bổ sung Operations i18n, chỉ chạy lint/test mục tiêu cho phần bị ảnh hưởng. Không chạy lại full suite.
+
+| Kiểm tra | Trạng thái | Bằng chứng |
 |---|---|---|
-| `npm run build` | PASS — exit 0 | `tsc -b` và Vite build thành công. Vite cảnh báo một số bundle lớn hơn 500 kB. |
-| `npm run lint` | PASS — exit 0 | 0 lỗi, 1 cảnh báo hook dependencies có sẵn tại `src/hooks/useDriverRanking.ts:57`. |
-| `npm test -- --reporter=dot` | PASS — exit 0, 191 files / 1290 tests | Vượt baseline 1205 tests của `docs/restructure/PROGRESS.md`. Các cảnh báo Ant Design/Sass/React Router/jsdom và error logs từ test conflict là không fatal. |
-| `npx vitest run src/tests/pages/dashboard/DashboardResponsive.test.tsx --reporter=dot` | PASS — exit 0, 1 file / 11 tests | Có kiểm tra shortcut Ctrl/Cmd+K và parse filter bằng Refine. |
-| `npx vitest run src/tests/pages/loads/LoadShow.test.tsx src/tests/features/loads/ShipmentDetailRedesign.test.tsx --reporter=dot` | PASS — exit 0, 2 files / 9 tests | Xác nhận header/back ổn định khi đổi tab và states của Load detail. |
-| `npx playwright test e2e/dashboard-panels.spec.ts --grep "keeps missing panel data empty"` | PASS — 1/1 | Chạy với browser fixture; không phải backend-live/UAT. |
+| npm run lint — toàn dự án | **FAIL**, sau đó sửa lỗi; full rerun **NOT RUN** | Lượt đầu exit 1 do no-useless-escape tại DocumentDropboxView.tsx:199. Regex đã sửa. ESLint targeted trên các file thay đổi đã exit 0; targeted ESLint cho ConfirmActionModal.tsx và test của nó được chạy ở lượt chốt. Không khẳng định full lint xanh. |
+| npm run typecheck | **PASS — exit 0**, chạy trước refactor cuối của ConfirmActionModal và Operations i18n | Kết quả có trước các thay đổi cuối; không rerun typecheck toàn dự án sau đó. |
+| npm run build | **PASS — exit 0**, chạy trước refactor cuối của ConfirmActionModal và Operations i18n | Vite build hoàn tất; có cảnh báo bundle chunk trên 500 kB. Không rerun build toàn dự án sau đó. |
+| npm test -- --maxWorkers=1 --minWorkers=1 — full Vitest | **FAIL — exit 1** | 6 file lỗi, 9 test lỗi, 1,296/1,305 test pass và 2 unhandled errors. Nguyên nhân gồm expectation cũ và rejection từ modal khi API trả conflict. Đã cập nhật expectation và chuyển confirmation modal sang controlled state. |
+| Targeted Vitest sau sửa lỗi | **PASS — exit 0** | 3 file, 15 test pass: ConfirmActionModal, OptimizationRunShow, FleetCharts. Trước đó các assertion AI/Document liên quan cũng pass trong targeted run; process run đó chỉ còn lỗi unhandled Optimization được sửa sau. Full Vitest không rerun. |
+| Targeted Vitest — Operations localization | **PASS — exit 0** | 3 file, 15 test pass: DashboardResponsive (12), locale key contract (2), KpiStrip (1); xác nhận locale vi/en/ja keys và Japanese KPI/search UI. |
+| Playwright fixtures — 1 worker | **PASS — exit 0** | 7 test pass trên dashboard panels, Load detail, Priority Shipment và sidebar. Viewport fixtures bao gồm 320, 390, 768, 1024, 1440px. Ảnh được lưu ngoài repository tại /tmp/logisticsx-ui-ux-evidence. Không có authenticated backend session; không phải live UAT. |
+| npx eslint src/components/ConfirmActionModal.tsx src/components/ConfirmActionModal.test.tsx | **PASS — exit 0** | Targeted lint cho modal refactor cuối và test đi kèm. |
+| npx eslint — Operations localization files | **PASS — exit 0** | 8 file source/locale/test đã chỉnh trong nhóm này. |
+| git diff --check | **PASS — exit 0** | Kiểm tra whitespace sau khi cập nhật source, plan và báo cáo. |
 
-## Kiểm chứng sau hòa nhập `origin/main` — 19/10/2026
+Full Vitest và full lint đã từng trả lỗi nên các kết quả tổng thể không được ghi PASS. Typecheck/build thành công trước lần sửa cuối modal và Operations i18n; chúng chưa xác nhận snapshot source cuối. Playwright chỉ dùng fixture; không chạy các luồng AI Dispatch/Optimization trên trình duyệt vì chưa có spec phù hợp/authenticated session.
 
-- `origin/main` chuyển các dashboard/map hooks sang `src/hooks/`; lần build đầu phát hiện import cũ còn sót. Đã cập nhật import trong 14 file, không đổi nghiệp vụ/API.
-- `npm run build`: PASS, exit 0.
-- `npm run lint`: PASS, exit 0; còn 1 cảnh báo `react-hooks/exhaustive-deps` tại `src/hooks/useDriverRanking.ts:57`.
-- Test liên quan: PASS, 6 file / 26 tests.
-- `npx vitest run`: PASS, exit 0, 191 files / 1290 tests.
-- Playwright không chạy lại ở bước hòa nhập này vì các spec screenshot ghi vào `docs/design/` đang chứa bằng chứng hiện có. E2E fixture 1/1 ở bảng trên là kết quả lần chạy trước; không phải live UAT.
+## Trạng thái theo milestone
 
-## Tiến độ theo milestone
+| Milestone / Task ID | Trạng thái | Thực hiện / evidence | Blocker / tiếp theo |
+|---|---|---|---|
+| M0 BASE-001..003, BASE-007 | DONE | Baseline, routes, scripts, data modes và UX inventory; branch main, HEAD bbc0394, cây sạch lúc bắt đầu. | Không còn việc frontend trong scope này. |
+| M0 BASE-004..005 | BLOCKED | Không có video tham khảo và authenticated backend session. | Cần video/session từ môi trường được cấp. |
+| M0 BASE-006 | IN_REVIEW | Route/capability/role/tenant đã source-reviewed. | Thiếu runtime UAT cho từng role/tenant. |
+| M1 NAV-001..006, NAV-009..011 | UI_SAFE_DONE | Gating/route safety, Trip ID navigation, notification scope và AI Dispatch deep link/error/retry; test assertion liên quan pass. | Không xác nhận backend-live. |
+| M1 NAV-007..008 | DONE | Search shortcut và Load header/back có bằng chứng nghiệm thu trước đó. | Không có blocker đã biết. |
+| M1 CORE-001 | BLOCKED | Giữ CORE_VERSIONED_WRITES_RUNTIME_VERIFIED=false. | Cần versioned-write contract và runtime verification. |
+| M2 DS-001 | DONE | Token audit được ghi trong sprint0-triage; giữ brand primary hiện tại. | — |
+| M2 DS-002 | BLOCKED | Không thay brand primary. | Cần Product Owner chốt màu thương hiệu. |
+| M2 DS-003 | IN_REVIEW | Semantic tokens, focus-visible và reduced-motion styles được bổ sung. | Cần audit focus/keyboard và rollout trên các component còn lại. |
+| M2 DS-004..005 | IN_REVIEW | Shared async state và dashboard card được source-reviewed. | Live/preview dùng data model khác; cần mapping/data contract trước khi gộp. |
+| M2 DS-006, I18N-001 | IN_REVIEW | Bổ sung locale keys en/vi/ja cho AI/Load và Operations dashboard header/KPI; responsive test kiểm tra Japanese labels. | Operations Brief, map, timeline và Priority Shipment còn chuỗi trình bày riêng; chưa đạt i18n toàn scope. |
+| M2 SHELL-001 | IN_REVIEW | Sidebar fixture responsive được kiểm tra. | Cần keyboard và role/tenant UAT đầy đủ. |
+| M3 OPS-001..006 | UI_SAFE_DONE | KPI thiếu dữ liệu hiển thị unavailable; live/preview và brief/map/timeline giữ rõ data truth. | Dashboard live data contract còn thiếu. |
+| M3 OPS-007 | IN_REVIEW | Playwright fixture chạy tại năm viewport; bộ fixture chạy 7/7 test. | Keyboard/live mobile UAT chưa thực hiện. |
+| M3 OPS-008 | BLOCKED | Không tạo API hoặc dữ liệu giả. | Cần contract freshness/source cho brief, telemetry, vehicles, routes và drivers. |
+| M4 LOAD-001..005 | UI_SAFE_DONE | Load form/list/detail source-reviewed; retry/error states được bổ sung; GPS/ETA/progress giả bị loại. Vitest liên quan không nằm trong nhóm lỗi còn lại. | Không xác nhận create/edit API live; core edit vẫn bị gate. |
+| M4 TRIP-001..002 | UI_SAFE_DONE | Stop actions fail-closed theo permission, mutation refresh và error feedback; test Trip pass. | Cần backend runtime verification cho integration. |
+| M4 AI-001..006 | UI_SAFE_DONE | Demo/live labeling, run request fields, URL deep link, initial load retry, server response/conflict behavior; không còn affordance chat vô hiệu. | Không có authenticated AI UAT. |
+| M4 AI-007 | BLOCKED | Không đổi Axios transport/auth flow. | Cần regression auth/refresh/401/403 và xác nhận shared-client contract. |
+| M4 OPT-001..002 | UI_SAFE_DONE | Form/evidence và conflict review giữ request/idempotency semantics; targeted modal/optimization tests pass 15/15. | Backend optimization session chưa live-verified. |
+| M5 DOC-001..005 | UI_SAFE_DONE | Filter scope rõ; Blob download/error, pessimistic delete, drawer states; targeted assertions pass. | DOCUMENT_UPLOAD_CONTRACT_CONFIRMED vẫn false; upload chưa khả dụng. |
+| M5 NOT-001 | UI_SAFE_DONE | UI công bố phạm vi 5 bản ghi, không gọi là unread total. | API unread-total/mark-read chưa có. |
+| M5 NOT-002, FLT-002, FIN-002..003, EXEC-001 | BLOCKED | Không giả lập endpoint/workflow và giữ flags false. | Cần API contract hoặc quyết định scope/permission. |
+| M5 FLT-001 | UI_SAFE_DONE | Không suy deadhead bằng phép bù; targeted Fleet tests pass. | Fleet Gantt history API vẫn thiếu. |
+| M5 FIN-001 | UI_SAFE_DONE | Giữ permission và billing runtime gate; có regression test. | Billing command vẫn gated; không xác nhận integration. |
+| M5 SET-001, PAY-001..002, PSL-001 | UI_SAFE_DONE | UI/source và tests giữ confirmation, UUID/idempotency, immutable snapshot semantics. | Test fixture/source evidence, chưa xác minh API live. |
+| M6 QA-001, QA-006 | UI_SAFE_DONE | Viewport Playwright fixtures pass 7/7; screenshots ngoài repo. | Kết quả chỉ đại diện fixture. |
+| M6 QA-002, QA-004..005 | IN_REVIEW | Recovery states, focus-visible và reduced-motion styles được cập nhật. | Keyboard/focus-management audit toàn flow còn thiếu. |
+| M6 QA-003 | IN_REVIEW | Tertiary token đổi sang màu có contrast tính toán tốt hơn. | Chưa rà contrast từng state/component toàn app. |
+| M6 QA-007 | UI_SAFE_DONE | Nguồn SOURCE, MOCK/STATIC, BROWSER-FIXTURE, NEEDS-LIVE được phân biệt trong báo cáo. | Live provenance cần authenticated environment. |
+| M6 QA-008 | IN_REVIEW | Proxy/fixture/live được ghi nhận theo evidence có sẵn. | Cần xác minh runtime fallback trong môi trường tích hợp. |
 
-| Milestone / Task ID | Mô tả | Trạng thái | Files đã chỉnh sửa hoặc evidence | Kiểm thử / kết quả | Blocker và bước tiếp theo |
-|---|---|---|---|---|---|
-| M0 `BASE-001..003`, `BASE-007` | Baseline Git/scripts/routes, modes dữ liệu, UX/gap inventory | DONE | `docs/ux/sprint0-triage.md`, `plan.md`; đọc source `App.tsx`, router, resource registry, proxy, fixture | Build/lint/Vitest cuối phiên PASS; source và fixture phân loại riêng | Cần backend-live để tăng độ tin cậy của một số role/tenant. |
-| M0 `BASE-004..005` | Screenshot/reference video và live session | BLOCKED | Ảnh fixture sẵn có tại `docs/ux/baseline/`; danh sách và nguồn ảnh trong `docs/ux/sprint0-triage.md` | E2E fixture 1/1 PASS | Thiếu video đầu vào; thiếu authenticated tenant/backend-live; AI Dispatch và Optimization chưa có screenshot kiểm chứng phù hợp. |
-| M0 `BASE-006` | Ma trận route, capability, role, tenant | IN_REVIEW | Route/capability audit trong `docs/ux/sprint0-triage.md` | Source test suite PASS | UAT từng role/tenant còn lại. |
-| M1 `NAV-001..002` | Khóa GAP Fill khi Load edit bị gated; thống nhất focus field | UI_SAFE_DONE | `ShipmentGapsCard.tsx`, `LoadAiGapsSection.tsx`, `AiGapChatWidget.tsx`, `pages/loads/edit.tsx`, `locales/en.ts`, `locales/vi.ts`; tests AI/GAP | Full Vitest PASS; test xác nhận Fill disabled và có giải thích | `CORE-001` vẫn BLOCKED; không bật runtime flag. |
-| M1 `NAV-003..005` | CTA vào `/map`, `/load-board`, `/accidents`, mileage attribution | UI_SAFE_DONE | `src/components/AppSider.tsx`, dashboard map/timeline/CTA components, `FleetMetricCard.tsx`; AppSider/Fleet tests | Full Vitest PASS; test xác nhận route unsupported không hiện như chức năng khả dụng | Mount route chỉ khi có scope/data/permission đã xác nhận. |
-| M1 `NAV-006` | Dashboard quick search → Loads filter Refine | UI_SAFE_DONE | `src/features/dashboard/components/DashboardHeader.tsx`, `src/tests/pages/dashboard/DashboardResponsive.test.tsx` | DashboardResponsive 11/11 PASS; Refine `parseTableParams` khôi phục `{ field: search, operator: contains }` và trang 1 | UAT bằng list API thật còn lại; query URL giữ keyword cho back/refresh. |
-| M1 `NAV-007` | Search trigger và Ctrl/Cmd+K | DONE | `DashboardHeader.tsx`, `DashboardHeader.scss`, `DashboardResponsive.test.tsx` | DashboardResponsive 11/11 PASS; keyboard shortcut và native button được kiểm tra | Không có blocker đã biết. |
-| M1 `NAV-008` | Load detail giữ Back/Header khi đổi tab | DONE | `src/pages/loads/show.tsx`, `ShipmentDetailView.tsx`, `src/tests/pages/loads/LoadShow.test.tsx`, `src/tests/features/loads/ShipmentDetailRedesign.test.tsx` | Focused 9/9 PASS; build/lint/full Vitest PASS | Không có blocker đã biết. |
-| M1 `NAV-009..011` | Trip detail, notification target, AI session deep-link | BACKLOG | Chưa thay đổi các contract/ID | Full suite PASS, chưa nghiệm thu các task này | Cần `tripId`, target entity và endpoint session-by-ID xác thực. |
-| M1 `CORE-001` | Core Load/Trip/Truck edit | BLOCKED | `resourceCapabilities.ts` giữ `CORE_VERSIONED_WRITES_RUNTIME_VERIFIED=false` | Full suite PASS; guarded UI tests PASS | Cần versioned-write contract/runtime verification và permission tests backend. |
-| M2 `DS-001` | Kiểm kê design tokens/semantic colors | DONE | `docs/ux/sprint0-triage.md` §5; audit `styles/_variables.scss`, AntD provider, Operations/Load overrides | Docs/source audit | Không đổi màu thương hiệu trong task audit. |
-| M2 `DS-002` | Quyết định brand primary + AntD theme | BLOCKED | Không đổi `ConfigProvider` theme | Chưa chạy visual theme regression vì chưa có quyết định màu | Product Owner cần xác nhận brand primary. |
-| M2 `DS-003..006`, `I18N-001` | Typography/spacing/components/i18n rollout | BACKLOG | Chưa chỉnh trong phạm vi các task này | Build/lint/full suite PASS cho source hiện tại | Tiếp tục theo từng component sau quyết định theme. |
-| M2 `SHELL-001` | Sidebar discoverability, route và permission | IN_REVIEW | `src/components/AppSider.tsx`, `src/tests/components/AppSider.test.tsx`, `src/tests/components/AppResponsiveShell.test.tsx`; menu loại bỏ entries không có route runtime | Full Vitest PASS; role/permission fixture tests PASS | Còn xác minh screenshot và keyboard flow ở đủ role/viewport. |
-| M3 `OPS-001..006` | Truthful dashboard KPI/preview/brief/map/timeline | UI_SAFE_DONE | `OperationsDashboardView.tsx/.scss`, `DashboardHeader.tsx/.scss`, `KpiStrip.tsx/.scss`, `NetworkMiniMap.tsx/.scss`, `DispatchTimeline.tsx/.scss`, `OperationsBrief.tsx/.scss`, `PriorityShipmentCard.tsx/.scss`, `OperationsDashboardPage.tsx/.scss`; tests components/dashboard | Full Vitest PASS (1290); dashboard fixture E2E 1/1 PASS | Safe empty/unavailable/demo UI shipped; live panels depend on backend data. |
-| M3 `OPS-007` | Responsive density/layout and keyboard checks | IN_REVIEW | Dashboard responsive styles/tests and existing fixture screenshots | Full Vitest + targeted E2E PASS | Viewport 320px và complete live/manual responsive pass chưa thực hiện. |
-| M3 `OPS-008` | Live panel data contract | BLOCKED | No API/data contract change | Không giả lập success; test empty-data fixture PASS | Cần dashboard panel contract, freshness và ownership từ backend. |
-| M4 `LOAD-003`, `LOAD-005` | Load detail header/tab; safe GAP interactions | UI_SAFE_DONE | `pages/loads/show.tsx`, `ShipmentDetailView.tsx`, GAP components and tests | Load focused 9/9 + full Vitest PASS | Mutation integration/cache invalidation chờ core edit contract; không đổi business workflow. |
-| M4 `LOAD-001..002`, `LOAD-004`, `TRIP-001..002` | Load list/create/panel completeness and Trip transitions | BACKLOG | Chưa chỉnh trong nhóm ticket này | Full suite PASS, không thay state machine | Kiểm tra riêng form/API, role, timeline transition, refresh behavior. |
-| M4 `AI-001` | Phân biệt mô phỏng AI với provider/chat thật | UI_SAFE_DONE | `aiConfigStorage.ts`, `AiConfigModal.tsx`, `AiGapChatWidget.tsx`, `locales/en.ts`, `locales/vi.ts` và AI tests | Full Vitest PASS; test xác nhận không báo provider/chat success thật | AI backend/credential contract vẫn cần tích hợp riêng. |
-| M4 `AI-002..007`, `OPT-001..002` | AI inputs/history/approval/errors và optimization comparison | BACKLOG | Chưa thay đổi command/approval semantics | Full suite PASS với regression coverage hiện có | Cần task-specific source/contract review trước triển khai. |
-| M5 `DOC-002`, `NOT-002`, `FLT-002`, `FIN-002..003`, `EXEC-001` | Các chức năng phụ thuộc contract/flag/scope | BLOCKED | Feature flags vẫn false; no endpoint/schema changes | Activation contract tests PASS; không mở mutation | Cần upload/payment/billing/notification/fleet-history contracts hoặc quyết định executive scope. |
-| M5 `DOC-001`, `DOC-003..005`, `NOT-001`, `FLT-001`, `FIN-001`, `SET-001`, `PAY-001..002`, `PSL-001` | UX module documents/notifications/fleet/finance/payroll | BACKLOG | Chưa triển khai task cụ thể ở nhóm này | Full Vitest PASS cho source hiện tại | Tiếp tục theo backlog, giữ nguyên financial/payroll/settlement semantics. |
-| M6 `QA-006` | Regression suite | UI_SAFE_DONE | Repo test/build/lint; dashboard/load tests | Build exit 0; lint exit 0; Vitest 191/1290 PASS; targeted E2E 1/1 PASS | Chưa thay thế UAT/live tenant. |
-| M6 `QA-008` | Tách proxy/fallback/fixture khỏi live evidence | IN_REVIEW | `docs/ux/sprint0-triage.md` data-mode inventory và fixture E2E | Dashboard fixture 1/1 PASS | Cần kiểm tra Vite fallback trên môi trường runtime riêng. |
-| M6 `QA-001..005`, `QA-007` | Responsive/accessibility/contrast/reduced-motion/provenance | BACKLOG | Existing responsive/accessibility tests được chạy; chưa đủ toàn checklist | Full Vitest PASS | Bổ sung viewport 320px, keyboard/focus/contrast audit và reduced-motion verification. |
+## Feature flags và nguồn dữ liệu
 
-## Feature flags và dữ liệu
+- CORE_VERSIONED_WRITES_RUNTIME_VERIFIED=false.
+- DOCUMENT_UPLOAD_CONTRACT_CONFIRMED=false.
+- BILLING_COMMANDS_RUNTIME_VERIFIED=false.
+- PAYMENT_COMMANDS_RUNTIME_VERIFIED=false.
+- Không thay API contract/schema, tenant isolation, permission hoặc business state machine.
+- Screenshots Playwright là browser fixture; không dùng làm backend-live evidence.
 
-- `CORE_VERSIONED_WRITES_RUNTIME_VERIFIED=false`.
-- `DOCUMENT_UPLOAD_CONTRACT_CONFIRMED=false`.
-- `BILLING_COMMANDS_RUNTIME_VERIFIED=false`.
-- `PAYMENT_COMMANDS_RUNTIME_VERIFIED=false`.
-- Không bật flag, không tạo endpoint/API contract và không dùng fixture làm bằng chứng live.
-- Các screenshot baseline hiện có là `BROWSER-FIXTURE`; phiên này không chụp/ghi đè file ảnh.
+## File thay đổi trong phiên
+
+- Tài liệu: plan.md, docs/UI_UX_IMPLEMENTATION_PROGRESS.md.
+- Playwright: e2e/dashboard-panels.spec.ts, e2e/loads-show-screenshot.spec.ts, e2e/priority-shipment-card.spec.ts.
+- Shared UI/styles: src/components/ConfirmActionModal.tsx, src/components/ConfirmActionModal.test.tsx, src/components/ai/AiGapChatWidget.tsx, src/components/ai/LoadAiDispatchSection.tsx, src/components/ai/LoadAiGapsSection.tsx, src/styles/_variables.scss, src/styles/global.scss.
+- AI Dispatch/dashboard: src/features/ai-dispatch/api/aiDispatch.api.ts, src/features/ai-dispatch/components/AiDispatchRunForm.tsx, src/features/ai-dispatch/components/AiMovementPlanCard.tsx, src/features/ai-dispatch/hooks/useAiDispatchActions.ts, src/features/ai-dispatch/types/ai-dispatch.types.ts, src/features/dashboard/components/OperationsDashboardView.tsx, src/features/dashboard/components/KpiStrip.tsx, src/features/dashboard/components/DashboardHeader.tsx, src/features/dashboard/components/KpiStrip.test.tsx, src/tests/pages/dashboard/DashboardResponsive.test.tsx, src/hooks/ai/useLoadAiDispatch.ts, src/pages/ai-dispatch/AiDispatchPage.tsx, src/tests/fixtures/aiMovementPlan.ts, src/tests/pages/ai-dispatch/AiDispatchPage.test.tsx.
+- Documents: src/features/documents/api/documents.api.ts, src/features/documents/components/DocumentDropboxCard.tsx, src/features/documents/components/DocumentDropboxDrawer.tsx, src/features/documents/components/DocumentDropboxDropzone.tsx, src/features/documents/components/DocumentDropboxTable.tsx, src/features/documents/components/DocumentDropboxView.tsx, src/features/documents/components/DocumentDropboxView.scss, src/tests/features/documents/DocumentDropboxDrawer.test.tsx, src/tests/features/documents/DocumentDropboxDropzone.test.tsx, src/tests/features/documents/DocumentDropboxView.test.tsx, src/tests/features/documents/documents.api.test.ts.
+- Fleet/Loads/Trips/Notifications/Optimization: src/features/fleet/components/FleetCharts.tsx, src/features/loads/components/redesign/RouteProgressBar.tsx, src/features/loads/components/redesign/ShipmentAgentCard.tsx, src/features/loads/components/redesign/ShipmentDocumentsCard.tsx, src/features/loads/components/redesign/ShipmentHeroCard.tsx, src/features/loads/components/redesign/ShipmentLoadPlanCard.tsx, src/features/loads/components/redesign/ShipmentTimelineCard.tsx, src/features/notifications/components/NotificationHeaderIcon.tsx, src/features/optimization/components/OptimizationCandidateTable.tsx, src/features/optimization/components/OptimizationError.tsx, src/features/optimization/components/OptimizationRunForm.tsx, src/features/trips/components/TripStopActions.tsx, src/features/trips/components/TripStopsTimeline.tsx, src/features/trips/hooks/useTripStopActions.ts, src/hooks/useDriverRanking.ts.
+- Pages/locales/tests: src/locales/en.ts, src/locales/ja.ts, src/locales/vi.ts, src/pages/fleet/FleetReportPage.tsx, src/pages/loads/edit.tsx, src/pages/optimization/OptimizationPage.tsx, src/pages/payroll/PayrollEntryPage.tsx, src/tests/features/ai/LoadAiComponents.test.tsx, src/tests/features/fleet/FleetCharts.test.tsx, src/tests/features/trips/TripStopActions.test.tsx, src/tests/features/trips/useTripStopActions.test.tsx, src/tests/features/rates/RatingAcceptance.test.tsx, src/features/dashboard/components/KpiStrip.test.tsx, src/tests/pages/dashboard/DashboardResponsive.test.tsx.
 
 ## Công việc tiếp theo
 
-1. Hoàn thiện M1 audit runtime cho NAV-009..011 khi có API payload/permission contract.
-2. Chốt brand primary để DS-002 có thể triển khai theme với visual regression có kiểm soát.
-3. Lấy backend panel contract để unblock OPS-008; tiếp tục M3 layout sau viewport 320px.
-4. Giữ nguyên các task gated cho đến khi có API/permission/runtime evidence.
+1. Chạy lại full lint sau khi đã sửa no-useless-escape, khi có ngân sách tài nguyên phù hợp.
+2. Chạy typecheck/build có mục tiêu hoặc toàn dự án cho snapshot sau refactor ConfirmActionModal; hiện chưa có kết quả sau sửa cuối.
+3. Chạy lại full Vitest nếu cần release gate; targeted suite sau khi sửa đã pass.
+4. Hoàn tất keyboard/focus/contrast UAT trên 320/390/768/1024/1440 với authenticated role/tenant.
+5. Nhận contract/API hoặc quyết định Product Owner cho 11 task BLOCKED; nhận quyết định brand primary cho DS-002.
+6. Hoàn thiện i18n cho Operations Brief/map/timeline/Priority Shipment; tiếp tục kiểm chứng live data trước khi xét các task IN_REVIEW.

@@ -39,7 +39,7 @@ export function OptimizationPage() {
           >
             <Form
               layout="vertical"
-              scrollToFirstError={{ behavior: "smooth", block: "center" }}
+              scrollToFirstError={{ block: "center" }}
               onFinish={(values: { runId: string }) =>
                 navigate(routes.optimizationRun.replace(":id", values.runId.trim()))
               }

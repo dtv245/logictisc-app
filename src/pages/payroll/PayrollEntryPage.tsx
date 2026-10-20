@@ -62,7 +62,7 @@ export function PayrollEntryPage() {
           <Card title={t("payroll.openRun")}>
             <Form<{ id: string }>
               layout="vertical"
-              scrollToFirstError={{ behavior: "smooth", block: "center" }}
+              scrollToFirstError={{ block: "center" }}
               onFinish={({ id }) => go(id.trim())}
             >
               <Form.Item
@@ -86,7 +86,7 @@ export function PayrollEntryPage() {
               <Form
                 form={form}
                 layout="vertical"
-                scrollToFirstError={{ behavior: "smooth", block: "center" }}
+                scrollToFirstError={{ block: "center" }}
                 disabled={actions.pending}
                 onFinish={(values) =>
                   setPayload({
@@ -252,7 +252,7 @@ export function PayrollEntryPage() {
                     ),
                   scrollToField: (name, options) => {
                     if (isFormField(name))
-                      form.scrollToField(name, { behavior: "smooth", block: "center", ...options });
+                      form.scrollToField(name, { block: "center", ...options });
                   },
                 },
                 error.errors

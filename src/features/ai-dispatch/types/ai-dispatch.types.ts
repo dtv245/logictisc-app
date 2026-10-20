@@ -144,12 +144,7 @@ export interface AiMovementPlan {
 
 export interface CreateAiDispatchParams {
   mode: AiDispatchMode;
-  objective: string;
-  modelUsed: string;
-  departureTime?: string;
   instructions?: string;
-  truckId: string;
   loadId: string;
-  businessZoneId: string;
 }
 

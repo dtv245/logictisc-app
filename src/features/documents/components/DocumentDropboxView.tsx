@@ -5,6 +5,7 @@ import {
   Card,
   Col,
   Empty,
+  Alert,
   Input,
   Pagination,
   Row,
@@ -25,7 +26,7 @@ import {
   SearchOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
-import { useDelete } from "@refinedev/core";
+import { useApiUrl, useDelete } from "@refinedev/core";
 import { useTable } from "@refinedev/antd";
 import { useTranslation } from "react-i18next";
 import type { Document } from "@/types/document.types";
@@ -35,14 +36,17 @@ import { DocumentDropboxDropzone } from "./DocumentDropboxDropzone";
 import { DocumentDropboxCard } from "./DocumentDropboxCard";
 import { DocumentDropboxTable } from "./DocumentDropboxTable";
 import { DocumentDropboxDrawer } from "./DocumentDropboxDrawer";
+import { fetchDocumentDownload } from "../api/documents.api";
 import {
   DOCUMENT_CATEGORY_OPTIONS,
 } from "./documentUtils";
+import "./DocumentDropboxView.scss";
 
 const { Text, Title } = Typography;
 
 export const DocumentDropboxView: React.FC = () => {
   const { t } = useTranslation();
+  const apiUrl = useApiUrl();
 
   // Chế độ xem: grid (lưới dạng thẻ Dropbox) hoặc list (bảng danh sách)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -62,6 +66,8 @@ export const DocumentDropboxView: React.FC = () => {
   // File chi tiết đang mở trong Drawer
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [downloadingDocumentId, setDownloadingDocumentId] = useState<string | null>(null);
+  const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null);
 
   // Hook Refine useTable đồng bộ URL (?pageSize=10&current=1)
   const {
@@ -78,7 +84,7 @@ export const DocumentDropboxView: React.FC = () => {
   });
 
   // Hook xóa tài liệu
-  const { mutate: deleteDocument } = useDelete();
+  const { mutateAsync: deleteDocument } = useDelete();
 
   // Toàn bộ documents từ kết quả API
   const rawDocuments = useMemo(
@@ -179,23 +185,27 @@ export const DocumentDropboxView: React.FC = () => {
   };
 
   // Hành động tải xuống
-  const handleDownload = (doc: Document) => {
+  const handleDownload = async (doc: Document) => {
+    setDownloadingDocumentId(doc.id);
     message.loading({
       content: `${t("documents.dropbox.downloadStarted")}: ${doc.fileName}`,
       key: "doc-download",
     });
     try {
-      const downloadUrl = doc.blobPath || `/api/documents/${doc.id}/download`;
+      const blob = await fetchDocumentDownload(apiUrl, doc.id);
+      const downloadUrl = URL.createObjectURL(blob);
       const link = window.document.createElement("a");
       link.href = downloadUrl;
-      link.download = doc.fileName;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
+      link.download = doc.fileName.replace(/[\\/:*?"<>|]+/g, "_").trim() || `document-${doc.id}`;
       window.document.body.appendChild(link);
-      link.click();
-      window.document.body.removeChild(link);
+      try {
+        link.click();
+      } finally {
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+      }
       message.success({
-        content: `${t("documents.dropbox.download")}: ${doc.fileName}`,
+        content: `${t("documents.dropbox.downloadReady")}: ${doc.fileName}`,
         key: "doc-download",
       });
     } catch {
@@ -203,32 +213,46 @@ export const DocumentDropboxView: React.FC = () => {
         content: t("documents.dropbox.downloadFailed"),
         key: "doc-download",
       });
+    } finally {
+      setDownloadingDocumentId(null);
     }
   };
 
   // Hành động xóa tài liệu
-  const handleDelete = (doc: Document) => {
-    deleteDocument(
-      {
+  const handleDelete = async (doc: Document): Promise<boolean> => {
+    setDeletingDocumentId(doc.id);
+    try {
+      await deleteDocument({
         resource: "documents",
         id: doc.id,
         mutationMode: "pessimistic",
-      },
-      {
-        onSuccess: () => {
-          message.success(t("documents.dropbox.deleteSuccess"));
-          void tableQueryResult.refetch();
-        },
-        onError: (err) => {
-          const apiErr = err as unknown as { message?: string };
-          message.error(apiErr?.message || "Không thể xóa tài liệu");
-        },
-      },
-    );
+        successNotification: false,
+        errorNotification: false,
+      });
+    } catch (err) {
+      const apiErr = err as { message?: string };
+      message.error(apiErr?.message || t("documents.dropbox.deleteFailed"));
+      setDeletingDocumentId(null);
+      return false;
+    }
+
+    message.success(t("documents.dropbox.deleteSuccess"));
+    if (selectedDoc?.id === doc.id) {
+      setDrawerOpen(false);
+      setSelectedDoc(null);
+    }
+    try {
+      await tableQueryResult.refetch();
+    } catch {
+      message.error(t("queryError.description"));
+    } finally {
+      setDeletingDocumentId(null);
+    }
+    return true;
   };
 
   return (
-    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "16px 20px 40px" }}>
+    <div className="documents-dropbox-view" style={{ maxWidth: 1400, margin: "0 auto", padding: "16px 20px 40px" }}>
       {/* 1. Header & Breadcrumb */}
       <div style={{ marginBottom: 20 }}>
         <Breadcrumb
@@ -314,6 +338,8 @@ export const DocumentDropboxView: React.FC = () => {
             <Button
               icon={<ReloadOutlined spin={isLoading} />}
               onClick={() => void tableQueryResult.refetch()}
+              aria-label={t("actions.refresh")}
+              disabled={isLoading}
               style={{ borderRadius: 8 }}
             />
           </Space>
@@ -329,6 +355,21 @@ export const DocumentDropboxView: React.FC = () => {
         activeCount={stats.activeCount}
         loading={isLoading && rawDocuments.length === 0}
       />
+
+      {tableQueryResult.isError && (
+        <Alert
+          type="error"
+          showIcon
+          message={t("queryError.title")}
+          description={tableQueryResult.error?.message || t("queryError.description")}
+          action={
+            <Button size="small" onClick={() => void tableQueryResult.refetch()} disabled={isLoading}>
+              {t("actions.retry")}
+            </Button>
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
 
       {/* 3. Khu vực Kéo thả tệp tin (Dropbox Dropzone) */}
       <DocumentDropboxDropzone
@@ -388,6 +429,7 @@ export const DocumentDropboxView: React.FC = () => {
             <Input
               prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
               placeholder={t("documents.dropbox.searchPlaceholder")}
+              aria-label={t("documents.dropbox.searchPlaceholder")}
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
               allowClear
@@ -432,8 +474,12 @@ export const DocumentDropboxView: React.FC = () => {
         </Row>
       </Card>
 
+      <Typography.Text type="secondary" style={{ display: "block", marginBottom: 16 }}>
+        {t("documents.dropbox.filterScope")}
+      </Typography.Text>
+
       {/* 6. Nội dung hiển thị tài liệu (Grid hoặc List) */}
-      {isLoading && rawDocuments.length === 0 ? (
+      {tableQueryResult.isError && rawDocuments.length === 0 ? null : isLoading && rawDocuments.length === 0 ? (
         <Row gutter={[16, 16]}>
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <Col xs={24} sm={12} md={8} lg={6} key={i}>
@@ -458,10 +504,14 @@ export const DocumentDropboxView: React.FC = () => {
             description={
               <div>
                 <Title level={5} style={{ color: "#475569", marginBottom: 4 }}>
-                  {t("documents.dropbox.emptyTitle")}
+                  {searchKeyword.trim() || selectedCategory !== "all" || selectedStatus !== "all"
+                    ? t("asyncState.emptyFilteredTitle")
+                    : t("documents.dropbox.emptyTitle")}
                 </Title>
                 <Text type="secondary" style={{ fontSize: 13 }}>
-                  {t("documents.dropbox.emptyDescription")}
+                  {searchKeyword.trim() || selectedCategory !== "all" || selectedStatus !== "all"
+                    ? t("asyncState.emptyFilteredDescription")
+                    : t("documents.dropbox.emptyDescription")}
                 </Text>
               </div>
             }
@@ -473,6 +523,8 @@ export const DocumentDropboxView: React.FC = () => {
             <Col xs={24} sm={12} md={8} lg={6} key={doc.id}>
               <DocumentDropboxCard
                 document={doc}
+                deleting={deletingDocumentId === doc.id}
+                downloading={downloadingDocumentId === doc.id}
                 onPreview={handlePreview}
                 onDownload={handleDownload}
                 onDelete={handleDelete}
@@ -484,6 +536,8 @@ export const DocumentDropboxView: React.FC = () => {
         <DocumentDropboxTable
           documents={filteredDocuments}
           loading={isLoading}
+          deletingDocumentId={deletingDocumentId}
+          downloadingDocumentId={downloadingDocumentId}
           onPreview={handlePreview}
           onDownload={handleDownload}
           onDelete={handleDelete}
@@ -533,6 +587,8 @@ export const DocumentDropboxView: React.FC = () => {
         }}
         onDownload={handleDownload}
         onDelete={handleDelete}
+        deletePending={Boolean(selectedDoc && deletingDocumentId === selectedDoc.id)}
+        downloadPending={Boolean(selectedDoc && downloadingDocumentId === selectedDoc.id)}
       />
     </div>
   );

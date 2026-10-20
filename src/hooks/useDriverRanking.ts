@@ -41,26 +41,19 @@ export function useDriverRanking(filters: DashboardFilters) {
     },
   });
 
-  const state: WidgetAsyncState<DriverRankingReport> = useMemo(() => {
-    const error = rankingQuery.error
-      ? normalizeWidgetError(rankingQuery.error)
-      : null;
-
-    return {
-      data: rankingQuery.data?.data,
-      isLoading: rankingQuery.isLoading,
-      isFetching: rankingQuery.isFetching,
-      error,
-      isForbidden: error?.statusCode === 403,
-      refetch: () => void rankingQuery.refetch(),
-    };
-  }, [
-    rankingQuery,
-    filters.from,
-    filters.to,
-    filters.currency,
-    sortBy,
-  ]);
+  // Refine returns a fresh query result object across renders. Deriving this small
+  // view state directly avoids memoizing against that unstable object identity.
+  const error = rankingQuery.error
+    ? normalizeWidgetError(rankingQuery.error)
+    : null;
+  const state: WidgetAsyncState<DriverRankingReport> = {
+    data: rankingQuery.data?.data,
+    isLoading: rankingQuery.isLoading,
+    isFetching: rankingQuery.isFetching,
+    error,
+    isForbidden: error?.statusCode === 403,
+    refetch: () => void rankingQuery.refetch(),
+  };
 
   return {
     ...state,

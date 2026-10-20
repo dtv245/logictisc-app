@@ -705,7 +705,7 @@ describe("AI Components Integration & Unit Tests", () => {
       expect(await screen.findByTestId("ai-gap-chat-window")).toBeInTheDocument();
 
       // Nhập câu hỏi vào ô chat
-      const input = screen.getByPlaceholderText(/Hỏi AI GAP về chuyến hàng/i);
+      const input = screen.getByPlaceholderText(/Hỏi về Load, dữ liệu còn thiếu hoặc lộ trình/i);
       fireEvent.change(input, {
         target: { value: "Kiểm tra các thông tin thiếu trên đơn hàng" },
       });
@@ -722,6 +722,16 @@ describe("AI Components Integration & Unit Tests", () => {
       expect(await screen.findByText(/Đây là câu trả lời mẫu/i)).toBeInTheDocument();
       expect(screen.getAllByText(/DEMO/i).length).toBeGreaterThan(0);
       expect(screen.queryByText("Kết quả Rà soát Thông tin Chuyến hàng")).not.toBeInTheDocument();
+    });
+
+    it("không hiển thị affordance chat chưa có handler hoặc báo thành công giả", async () => {
+      renderWithProviders(<AiGapChatWidget />);
+      await waitFor(() => expect(screen.getByTestId("ai-gap-chat-button")).not.toBeDisabled());
+      fireEvent.click(screen.getByTestId("ai-gap-chat-button"));
+      expect(await screen.findByTestId("ai-gap-chat-window")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /share|voice input|web search/i })).not.toBeInTheDocument();
+      expect(screen.queryByText(/copied.*share|đã sao chép.*chia sẻ/i)).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Xóa ngữ cảnh chat" })).toBeInTheDocument();
     });
 
     it("cho phép người dùng bấm Bật test AI khi tính năng tắt để trải nghiệm trực tiếp", async () => {

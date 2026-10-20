@@ -1,4 +1,4 @@
-import { Alert, Card, Empty, Space, Spin, Tag, Timeline, Typography } from "antd";
+import { Alert, Button, Card, Empty, Space, Spin, Tag, Timeline, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
 import { formatDateTime } from "@/formatters/dateTime";
@@ -44,7 +44,10 @@ export const TripStopsTimeline = ({ tripId }: TripStopsTimelineProps) => {
     isLoading,
     isError,
     error,
+    refetch,
     isSubmitting,
+    canExecute,
+    permissionLoading,
     executeTransition,
   } = useTripStopActions(tripId);
 
@@ -60,6 +63,11 @@ export const TripStopsTimeline = ({ tripId }: TripStopsTimelineProps) => {
     return (
       <Alert
         type="error"
+        action={
+          <Button size="small" onClick={() => void refetch()}>
+            {t("actions.retry")}
+          </Button>
+        }
         message={t("trips.stops.loadFailed", "Failed to load trip stops")}
         description={error?.message}
         showIcon
@@ -124,6 +132,7 @@ export const TripStopsTimeline = ({ tripId }: TripStopsTimelineProps) => {
               stop={stop}
               onTransition={executeTransition}
               isSubmitting={isSubmitting}
+              canExecute={canExecute}
             />
           </div>
 
@@ -198,6 +207,15 @@ export const TripStopsTimeline = ({ tripId }: TripStopsTimelineProps) => {
 
   return (
     <div data-testid="trip-stops-timeline">
+      {!permissionLoading && !canExecute && (
+        <Alert
+          type="info"
+          showIcon
+          message={t("forbidden.title")}
+          description={t("forbidden.description")}
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <Timeline items={timelineItems} />
     </div>
   );

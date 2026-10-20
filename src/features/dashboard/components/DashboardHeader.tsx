@@ -8,6 +8,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@hooks/useCurrentUser";
 import { useCurrentTenant } from "@hooks/useCurrentTenant";
@@ -28,6 +29,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   className = "",
 }) => {
   const navigate = useNavigate();
+  const { i18n, t } = useTranslation();
   const currentUser = useCurrentUser();
   const { tenant } = useCurrentTenant();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -48,15 +50,20 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   const now = dayjs();
   const hour = now.hour();
-  let greeting = "Chào buổi sáng";
+  let greeting = t("dashboard.opsView.greeting.morning");
   if (hour >= 12 && hour < 18) {
-    greeting = "Chào buổi chiều";
+    greeting = t("dashboard.opsView.greeting.afternoon");
   } else if (hour >= 18) {
-    greeting = "Chào buổi tối";
+    greeting = t("dashboard.opsView.greeting.evening");
   }
 
-  const userName = currentUser.data?.name || "Điều phối viên";
-  const dateFormatted = now.format("dddd, DD/MM/YYYY");
+  const userName = currentUser.data?.name || t("dashboard.opsView.greeting.nameFallback");
+  const dateFormatted = new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language || "vi", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(now.toDate());
 
   const handleSearch = (val: string) => {
     const search = val.trim();
@@ -81,7 +88,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         </h1>
         <p className="ops-dashboard-header__subtitle">
           {tenant?.tenantName ? `${tenant.tenantName} · ` : ""}
-          Theo dõi hành trình, trạng thái xe và các đề xuất điều phối tự động.
+          {t("dashboard.opsView.subtitle")}
         </p>
       </div>
 
@@ -94,20 +101,20 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           tone="ai"
         >
           {monitoringCount !== undefined && approvalsCount !== undefined
-            ? `Giám sát ${monitoringCount} · ${approvalsCount} chờ duyệt`
-            : "Mở AI Dispatch"}
+            ? t("dashboard.opsView.aiMonitoring", { monitoring: monitoringCount, approvals: approvalsCount })
+            : t("dashboard.opsView.aiOpen")}
         </Pill>
 
         <Button
           aria-haspopup="dialog"
           aria-keyshortcuts="Meta+K Control+K"
-          aria-label="Tìm chuyến hàng, tài xế"
+          aria-label={t("dashboard.opsView.searchLabel")}
           className="ops-dashboard-header__search-trigger"
           onClick={() => setSearchOpen(true)}
           type="text"
         >
           <Search size={14} />
-          <span>Tìm chuyến hàng, tài xế...</span>
+          <span>{t("dashboard.opsView.searchLabel")}...</span>
           <kbd>⌘K / Ctrl+K</kbd>
         </Button>
       </div>
@@ -115,29 +122,29 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       {/* 3. Header Actions */}
       <div className="ops-dashboard-header__actions">
         <Space size={8}>
-          <Tooltip title="Tạo đơn hàng vận chuyển mới">
+          <Tooltip title={t("dashboard.opsView.createLoad")}>
             <Button
               className="ops-btn-primary"
               icon={<Plus size={15} style={{ marginRight: 4 }} />}
               onClick={() => navigate(routes.resources.loads.create)}
               type="primary"
             >
-              Tạo đơn hàng
+              {t("dashboard.opsView.createLoad")}
             </Button>
           </Tooltip>
 
-          <Tooltip title="Thông báo hệ thống">
+          <Tooltip title={t("dashboard.opsView.notifications")}>
             <Button
-              aria-label="Thông báo"
+              aria-label={t("dashboard.opsView.notifications")}
               className="ops-icon-btn"
               icon={<Bell size={16} />}
               onClick={() => navigate(routes.resources.notifications.list)}
             />
           </Tooltip>
 
-          <Tooltip title="Trợ giúp & Tài liệu điều phối">
+          <Tooltip title={t("dashboard.opsView.help")}>
             <Button
-              aria-label="Trợ giúp"
+              aria-label={t("dashboard.opsView.help")}
               className="ops-icon-btn"
               icon={<HelpCircle size={16} />}
               onClick={() => navigate(routes.diagnostics)}
@@ -151,21 +158,21 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         footer={null}
         onCancel={() => setSearchOpen(false)}
         open={searchOpen}
-        title="Tìm kiếm nhanh toàn hệ thống"
+        title={t("dashboard.opsView.searchTitle")}
         width={520}
       >
         <Input.Search
           allowClear
           autoFocus
-          enterButton="Tìm"
+          enterButton={t("dashboard.opsView.searchButton")}
           onChange={(e) => setSearchQuery(e.target.value)}
           onSearch={handleSearch}
-          placeholder="Nhập mã đơn hàng, biển số xe, tên tài xế..."
+          placeholder={t("dashboard.opsView.searchPlaceholder")}
           size="large"
           value={searchQuery}
         />
         <div style={{ marginTop: 12, fontSize: 12, color: "#64748b" }}>
-          Gợi ý: Nhập mã đơn (VD: LD-), biển số xe hoặc bấm Enter để chuyển đến danh sách tìm kiếm.
+          {t("dashboard.opsView.searchHelp")}
         </div>
       </Modal>
     </header>

@@ -9,12 +9,14 @@ export interface TripStopActionsProps {
   stop: TripStopExecution;
   onTransition: (action: TripStopAction, stopId: string) => Promise<boolean>;
   isSubmitting?: boolean;
+  canExecute?: boolean;
 }
 
 export const TripStopActions = ({
   stop,
   onTransition,
   isSubmitting = false,
+  canExecute = false,
 }: TripStopActionsProps) => {
   const { t } = useTranslation();
   const normalizedStatus = (stop.status || "PENDING").toUpperCase();
@@ -33,6 +35,8 @@ export const TripStopActions = ({
   }
 
   const { action } = nextConfig;
+
+  if (!canExecute) return null;
 
   const getButtonLabel = (act: TripStopAction): string => {
     switch (act) {

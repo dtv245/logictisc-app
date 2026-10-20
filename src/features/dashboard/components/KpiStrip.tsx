@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "antd";
 import { AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { KpiItemProps } from "../types/primitives.types";
 import { DeltaPill, Pill } from "./primitives";
 import "./KpiStrip.scss";
@@ -15,6 +16,8 @@ export const KpiItem: React.FC<KpiItemProps> = ({
   href,
   state = "ready",
 }) => {
+  const { i18n, t } = useTranslation();
+  const locale = i18n.resolvedLanguage || i18n.language || "vi";
   const content = (
     <div className={`ops-kpi-item ops-kpi-item--${state}`}>
       <div className="ops-kpi-item__header">
@@ -25,15 +28,15 @@ export const KpiItem: React.FC<KpiItemProps> = ({
         {state === "loading" ? (
           <Skeleton.Input active size="small" style={{ width: 70, height: 34 }} />
         ) : state === "error" ? (
-          <span className="ops-kpi-item__error" title="Lỗi tải chỉ số">
+          <span className="ops-kpi-item__error" title={t("dashboard.opsView.kpi.loadError")}>
             <AlertCircle size={16} />
-            <span>Lỗi</span>
+            <span>{t("dashboard.opsView.kpi.error")}</span>
           </span>
         ) : (
           <div className="ops-kpi-item__value-row">
             <span className="ops-kpi-item__value">
               {value !== null && value !== undefined
-                ? value.toLocaleString("en-US")
+                ? value.toLocaleString(locale)
                 : "—"}
             </span>
             {delta && <DeltaPill text={delta.text} tone={delta.tone} />}
@@ -49,7 +52,7 @@ export const KpiItem: React.FC<KpiItemProps> = ({
       {context ? (
         <div className="ops-kpi-item__context">{context}</div>
       ) : state === "unavailable" ? (
-        <div className="ops-kpi-item__context">Chưa có dữ liệu được xác nhận</div>
+        <div className="ops-kpi-item__context">{t("dashboard.opsView.kpi.unavailable")}</div>
       ) : null}
     </div>
   );

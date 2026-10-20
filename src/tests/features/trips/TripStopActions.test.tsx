@@ -19,6 +19,7 @@ describe("TripStopActions", () => {
       <TripStopActions
         stop={createMockStop("PENDING")}
         onTransition={onTransition}
+        canExecute
       />,
     );
     expect(screen.getByRole("button", { name: /Arrive/i })).toBeInTheDocument();
@@ -27,6 +28,7 @@ describe("TripStopActions", () => {
       <TripStopActions
         stop={createMockStop("EN_ROUTE")}
         onTransition={onTransition}
+        canExecute
       />,
     );
     expect(screen.getByRole("button", { name: /Arrive/i })).toBeInTheDocument();
@@ -38,6 +40,7 @@ describe("TripStopActions", () => {
       <TripStopActions
         stop={createMockStop("ARRIVED")}
         onTransition={onTransition}
+        canExecute
       />,
     );
     expect(
@@ -51,6 +54,7 @@ describe("TripStopActions", () => {
       <TripStopActions
         stop={createMockStop("SERVICE_STARTED")}
         onTransition={onTransition}
+        canExecute
       />,
     );
     expect(
@@ -64,6 +68,7 @@ describe("TripStopActions", () => {
       <TripStopActions
         stop={createMockStop("SERVICE_COMPLETED")}
         onTransition={onTransition}
+        canExecute
       />,
     );
     expect(
@@ -77,6 +82,7 @@ describe("TripStopActions", () => {
       <TripStopActions
         stop={createMockStop("DEPARTED")}
         onTransition={onTransition}
+        canExecute
       />,
     );
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
@@ -89,6 +95,7 @@ describe("TripStopActions", () => {
       <TripStopActions
         stop={createMockStop("ARRIVED")}
         onTransition={onTransition}
+        canExecute
       />,
     );
 
@@ -105,6 +112,7 @@ describe("TripStopActions", () => {
       <TripStopActions
         stop={createMockStop("PENDING")}
         onTransition={onTransition}
+        canExecute
         isSubmitting={true}
       />,
     );
@@ -119,9 +127,21 @@ describe("TripStopActions", () => {
       <TripStopActions
         stop={createMockStop("ARRIVED")}
         onTransition={onTransition}
+        canExecute
       />,
     );
 
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+  });
+
+  it("hides transitions when edit permission is unavailable", () => {
+    render(
+      <TripStopActions
+        stop={createMockStop("PENDING")}
+        onTransition={vi.fn().mockResolvedValue(true)}
+      />,
+    );
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 });

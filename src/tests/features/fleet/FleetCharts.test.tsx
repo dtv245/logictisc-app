@@ -52,14 +52,15 @@ describe("FleetCharts", () => {
     expect(screen.getAllByText("29C-88888").length).toBeGreaterThan(0);
   });
 
-  it("renders loaded vs empty miles donut chart when real mileage data exists", () => {
-    // fleetReport fixture has loadedMilesPercent = 70.00 (AVAILABLE)
+  it("shows both independent backend mileage ratios when both are available", () => {
+    // These ratios have separate denominators and must not be presented as donut slices.
     renderCharts(fleetReport);
-    expect(screen.getByText("Dặm có hàng vs dặm rỗng")).toBeInTheDocument();
-    expect(screen.getByText("70.00%")).toBeInTheDocument();
+    expect(screen.getByText("Tỷ lệ dặm có hàng và dặm rỗng")).toBeInTheDocument();
+    expect(screen.getByTestId("fleet-loaded-miles-ratio")).toHaveTextContent(/70[,.]00%/);
+    expect(screen.getByTestId("fleet-empty-miles-ratio")).toHaveTextContent(/25[,.]00%/);
   });
 
-  it("does not render donut chart when mileage data is unavailable", () => {
+  it("does not render mileage ratios when loaded-mile data is unavailable", () => {
     const reportWithoutMileage: FleetReport = {
       ...fleetReport,
       loadedMilesPercent: {
@@ -74,7 +75,26 @@ describe("FleetCharts", () => {
       },
     };
     renderCharts(reportWithoutMileage);
-    expect(screen.queryByText("Dặm có hàng vs dặm rỗng")).not.toBeInTheDocument();
+    expect(screen.queryByText("Tỷ lệ dặm có hàng và dặm rỗng")).not.toBeInTheDocument();
+  });
+
+  it("does not derive empty mileage from loaded mileage when its backend ratio is unavailable", () => {
+    const reportWithoutDeadhead: FleetReport = {
+      ...fleetReport,
+      deadheadPercent: {
+        code: "DEADHEAD_PERCENT",
+        value: null,
+        unit: "PERCENT",
+        numerator: null,
+        denominator: null,
+        availability: "UNAVAILABLE",
+        basis: null,
+        reason: "ACTUAL_MILEAGE_HISTORY_UNAVAILABLE",
+      },
+    };
+
+    renderCharts(reportWithoutDeadhead);
+    expect(screen.queryByText("Tỷ lệ dặm có hàng và dặm rỗng")).not.toBeInTheDocument();
   });
 
   it("renders Gantt notice listing missing API fields and displays status legend", () => {

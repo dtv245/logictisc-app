@@ -17,6 +17,7 @@ export function OptimizationError({ error, outcome, onRetry }: OptimizationError
 
   let message = error.message;
   let isStale = false;
+  let isConflict = false;
   let isScopeTooLarge = false;
   let isServerOrNetwork = false;
 
@@ -33,10 +34,13 @@ export function OptimizationError({ error, outcome, onRetry }: OptimizationError
       });
     } else if (error.statusCode >= 500) {
       isServerOrNetwork = true;
+    } else if (error.statusCode === 409) {
+      message = error.code && i18n.exists(`optimization.errors.${error.code}`)
+        ? t(`optimization.errors.${error.code}`)
+        : t("optimization.errors.CONFLICT_409");
+      isConflict = error.code !== "OPTIMIZATION_INPUT_EVIDENCE_REQUIRED";
     } else if (error.code && i18n.exists(`optimization.errors.${error.code}`)) {
       message = t(`optimization.errors.${error.code}`);
-    } else if (error.statusCode === 409) {
-      message = t("optimization.errors.CONFLICT_409");
     }
   } else {
     isServerOrNetwork = true;
@@ -45,10 +49,12 @@ export function OptimizationError({ error, outcome, onRetry }: OptimizationError
   // Cấu hình action button cho từng loại lỗi
   const action = (
     <Space wrap>
-      {isStale && (
+      {(isStale || isConflict) && outcome && (
         <Link to={routes.optimization} state={{ replayRequest: outcome?.run.requestSnapshot }}>
           <Button type="primary" size="small">
-            {t("optimization.rerunOptimization", { defaultValue: "Chạy tối ưu lại" })}
+            {t(isConflict ? "optimization.rerunAfterConflict" : "optimization.rerunOptimization", {
+              defaultValue: "Run optimization again",
+            })}
           </Button>
         </Link>
       )}
@@ -73,7 +79,7 @@ export function OptimizationError({ error, outcome, onRetry }: OptimizationError
 
   return (
     <Alert
-      type={isStale ? "warning" : "error"}
+      type={isStale || isConflict ? "warning" : "error"}
       showIcon
       message={message}
       description={

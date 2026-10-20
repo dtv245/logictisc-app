@@ -74,10 +74,10 @@ describe("DocumentDropboxView", () => {
     expect(await screen.findByRole("heading", { name: "Document & Voucher Cloud Storage" })).toBeInTheDocument();
     expect(screen.getByText("Logistics Dropbox")).toBeInTheDocument();
 
-    // Check Dropzone
-    expect(
-      screen.getByText("Drag and drop documents here or click to upload"),
-    ).toBeInTheDocument();
+    // Upload stays unavailable until the backend contract is confirmed.
+    expect(screen.getByText("Document upload is unavailable")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /upload document/i })).not.toBeInTheDocument();
+    expect(document.querySelector('input[type="file"]')).not.toBeInTheDocument();
 
     // Check Document cards in Grid view
     expect(await screen.findByText("Bill_of_Lading_1001.pdf")).toBeInTheDocument();

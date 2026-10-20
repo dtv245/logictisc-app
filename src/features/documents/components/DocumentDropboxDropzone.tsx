@@ -22,6 +22,7 @@ export const DocumentDropboxDropzone: React.FC<DocumentDropboxDropzoneProps> = (
   const { t } = useTranslation();
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadAvailable = DOCUMENT_UPLOAD_CONTRACT_CONFIRMED && Boolean(onOpenUploadModal);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -73,6 +74,18 @@ export const DocumentDropboxDropzone: React.FC<DocumentDropboxDropzoneProps> = (
     }
   };
 
+  if (!uploadAvailable) {
+    return (
+      <Alert
+        type="info"
+        showIcon
+        message={t("documents.dropbox.dropzoneUnavailableTitle")}
+        description={t("documents.dropbox.dropzonePendingNote")}
+        style={{ marginBottom: 20 }}
+      />
+    );
+  }
+
   return (
     <div style={{ marginBottom: 20 }}>
       <div
@@ -80,10 +93,8 @@ export const DocumentDropboxDropzone: React.FC<DocumentDropboxDropzoneProps> = (
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => {
-          if (DOCUMENT_UPLOAD_CONTRACT_CONFIRMED && onOpenUploadModal) {
-            onOpenUploadModal();
-          } else {
-            fileInputRef.current?.click();
+          if (uploadAvailable) {
+            onOpenUploadModal?.();
           }
         }}
         role="button"
@@ -161,8 +172,8 @@ export const DocumentDropboxDropzone: React.FC<DocumentDropboxDropzoneProps> = (
               }}
               onClick={(e) => {
                 e.stopPropagation();
-                if (DOCUMENT_UPLOAD_CONTRACT_CONFIRMED && onOpenUploadModal) {
-                  onOpenUploadModal();
+          if (uploadAvailable) {
+                  onOpenUploadModal?.();
                 } else {
                   fileInputRef.current?.click();
                 }

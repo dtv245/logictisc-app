@@ -81,7 +81,7 @@ export const LoadAiDispatchSection = ({
     }
     const element = document.getElementById("ai-gaps-section");
     if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      element.scrollIntoView({ block: "start" });
     }
   };
 

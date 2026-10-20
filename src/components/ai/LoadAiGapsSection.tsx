@@ -104,7 +104,7 @@ export const LoadAiGapsSection = ({
       (mapping.sectionId ? document.getElementById(mapping.sectionId) : null);
 
     if (targetElement) {
-      targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      targetElement.scrollIntoView({ block: "center" });
       if ("focus" in targetElement && typeof (targetElement as HTMLElement).focus === "function") {
         (targetElement as HTMLElement).focus();
       }

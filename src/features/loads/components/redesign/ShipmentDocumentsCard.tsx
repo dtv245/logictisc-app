@@ -1,7 +1,8 @@
 import React from "react";
 import { FilePdfOutlined, CheckCircleFilled, ClockCircleFilled } from "@ant-design/icons";
 import { useList } from "@refinedev/core";
-import { Tag, Typography } from "antd";
+import { Alert, Button, Spin, Tag, Typography } from "antd";
+import { useTranslation } from "react-i18next";
 import type { Load } from "@/types/load.types";
 import type { DocumentDto } from "@/types/document.dto";
 import { formatDateOnly } from "@/formatters/dateTime";
@@ -11,10 +12,11 @@ export interface ShipmentDocumentsCardProps {
 }
 
 export const ShipmentDocumentsCard: React.FC<ShipmentDocumentsCardProps> = ({ load }) => {
+  const { t } = useTranslation();
   const loadId = load?.id ? String(load.id) : "";
 
   // Query real documents for this load
-  const { data: documentsData, isLoading } = useList<DocumentDto>({
+  const { data: documentsData, isLoading, isError, error, refetch, isFetching } = useList<DocumentDto>({
     resource: "documents",
     filters: [{ field: "loadId", operator: "eq", value: loadId }],
     pagination: { pageSize: 5 },
@@ -30,39 +32,49 @@ export const ShipmentDocumentsCard: React.FC<ShipmentDocumentsCardProps> = ({ lo
     <div className="shipment-card" data-testid="shipment-documents-card">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div style={{ fontSize: 16, fontWeight: 800, color: "#0F172A" }}>
-          PO / BOL & Chứng Từ
+          {t("loads.documents.title")}
         </div>
         <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: "#64748B", textTransform: "uppercase" }}>
-          TÀI LIỆU · {docCount}
+          {t("loads.documents.recentCount", { count: docCount })}
         </span>
       </div>
 
       {/* Metadata items */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
-          <span style={{ color: "#64748B", fontWeight: 600 }}>MÃ VẬN ĐƠN (PO / BOL):</span>
+          <span style={{ color: "#64748B", fontWeight: 600 }}>{t("loads.documents.referenceLabel")}</span>
           <span style={{ fontWeight: 800, color: "#0F172A" }}>#{load.number}</span>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
-          <span style={{ color: "#64748B", fontWeight: 600 }}>LẤY HÀNG (PICKUP):</span>
+          <span style={{ color: "#64748B", fontWeight: 600 }}>{t("loads.documents.pickupLabel")}</span>
           <span style={{ fontWeight: 600, color: "#1E293B" }}>
-            {load.originAddressCity || "Kho gửi"}
+            {load.originAddressCity || t("loads.documents.originUnavailable")}
             {load.requestedPickupDate ? ` · ${formatDateOnly(load.requestedPickupDate)}` : ""}
           </span>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
-          <span style={{ color: "#64748B", fontWeight: 600 }}>CHỨNG TỪ GIAO (POD):</span>
+          <span style={{ color: "#64748B", fontWeight: 600 }}>{t("loads.documents.podLabel")}</span>
           <span style={{ fontWeight: 600, color: load.deliveredAt ? "#16A34A" : "#64748B" }}>
-            {load.deliveredAt ? "Đã ký biên bản" : "Chờ giao nhận"}
+            {load.deliveredAt ? t("loads.documents.podSigned") : t("loads.documents.podPending")}
           </span>
         </div>
       </div>
 
       {/* Documents List */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {documents.map((doc) => {
+        {isLoading ? (
+          <div style={{ textAlign: "center", padding: 12 }}><Spin size="small" /></div>
+        ) : isError ? (
+          <Alert
+            type="error"
+            showIcon
+            message={t("loads.documents.loadFailed")}
+            description={error?.message}
+            action={<Button size="small" disabled={isFetching} onClick={() => void refetch()}>{t("actions.retry")}</Button>}
+          />
+        ) : documents.map((doc) => {
           const isSigned = doc.status === "signed" || doc.status === "approved";
           return (
             <div
@@ -90,16 +102,16 @@ export const ShipmentDocumentsCard: React.FC<ShipmentDocumentsCardProps> = ({ lo
                     color="success"
                     icon={<CheckCircleFilled />}
                     style={{ margin: 0, borderRadius: 10, fontSize: 11 }}
-                  >
-                    Đã ký
+                    >
+                    {t("loads.documents.signed")}
                   </Tag>
                 ) : (
                   <Tag
                     color="default"
                     icon={<ClockCircleFilled />}
                     style={{ margin: 0, borderRadius: 10, fontSize: 11 }}
-                  >
-                    Đang xử lý
+                    >
+                    {t("loads.documents.processing")}
                   </Tag>
                 )}
               </div>
@@ -107,9 +119,9 @@ export const ShipmentDocumentsCard: React.FC<ShipmentDocumentsCardProps> = ({ lo
           );
         })}
 
-        {docCount === 0 && !isLoading && (
+        {docCount === 0 && !isLoading && !isError && (
           <div style={{ textAlign: "center", padding: "12px", color: "#94A3B8", fontSize: 12 }}>
-            Chưa có chứng từ đính kèm
+            {t("loads.documents.empty")}
           </div>
         )}
       </div>

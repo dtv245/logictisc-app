@@ -90,18 +90,29 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
   const isProposed = plan.status === "proposed";
   const isApproved = plan.status === "approved";
   const isRejected = plan.status === "rejected";
+  const tripDetailRoute = plan.tripId
+    ? routes.resources.trips.show.replace(":id", encodeURIComponent(plan.tripId))
+    : null;
 
   const handleApprove = async () => {
-    await actions.approvePlan(plan.id, approveNote.trim() || undefined);
-    setApproveModalVisible(false);
-    setApproveNote("");
+    try {
+      await actions.approvePlan(plan.id, approveNote.trim() || undefined);
+      setApproveModalVisible(false);
+      setApproveNote("");
+    } catch {
+      // Keep the confirmation and note available when the command fails.
+    }
   };
 
   const handleReject = async () => {
     if (!rejectReason.trim()) return;
-    await actions.rejectPlan(plan.id, rejectReason.trim());
-    setRejectModalVisible(false);
-    setRejectReason("");
+    try {
+      await actions.rejectPlan(plan.id, rejectReason.trim());
+      setRejectModalVisible(false);
+      setRejectReason("");
+    } catch {
+      // Keep the reason available when the command fails.
+    }
   };
 
   return (
@@ -131,7 +142,7 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
         }
         extra={
           <div className="ai-plan-card__actions">
-            {isProposed && (
+            {isProposed && actions.canApprove && (
               <>
                 <Button
                   danger
@@ -153,12 +164,13 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
                 </Button>
               </>
             )}
-            {isApproved && (
+            {isApproved && tripDetailRoute && (
               <Button
                 type="primary"
                 icon={<RightCircleOutlined />}
-                onClick={() => navigate(routes.resources.trips.list)}
+                onClick={() => navigate(tripDetailRoute)}
                 data-testid="btn-view-trip"
+                aria-label={t("aiDispatch.viewTrip")}
               >
                 {t("aiDispatch.viewTrip")}
               </Button>
@@ -182,6 +194,13 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
               ? `${t("aiDispatch.statusApproved")} lúc ${formatDateTime(plan.approvedAt, { locale: i18n.language })}`
               : undefined
           }
+        />
+      )}
+      {isApproved && !plan.tripId && (
+        <Alert
+          type="info"
+          showIcon
+          message={t("aiDispatch.tripLinkUnavailable")}
         />
       )}
       {isRejected && (
@@ -394,12 +413,18 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
         cancelText={t("actions.cancel")}
         confirmLoading={actions.pending}
         onOk={handleApprove}
-        onCancel={() => setApproveModalVisible(false)}
+        onCancel={() => {
+          if (!actions.pending) setApproveModalVisible(false);
+        }}
+        cancelButtonProps={{ disabled: actions.pending }}
+        closable={!actions.pending}
+        keyboard={!actions.pending}
         width="min(calc(100vw - 32px), 520px)"
         centered
         style={{ maxWidth: "calc(100vw - 32px)" }}
       >
         <Space direction="vertical" style={{ width: "100%" }} size="middle">
+          {actions.error && <Alert type="error" showIcon message={actions.error.message} />}
           <Typography.Paragraph>
             {t("aiDispatch.approveConfirmMessage")}
           </Typography.Paragraph>
@@ -434,12 +459,18 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
         cancelText={t("actions.cancel")}
         confirmLoading={actions.pending}
         onOk={handleReject}
-        onCancel={() => setRejectModalVisible(false)}
+        onCancel={() => {
+          if (!actions.pending) setRejectModalVisible(false);
+        }}
+        cancelButtonProps={{ disabled: actions.pending }}
+        closable={!actions.pending}
+        keyboard={!actions.pending}
         width="min(calc(100vw - 32px), 520px)"
         centered
         style={{ maxWidth: "calc(100vw - 32px)" }}
       >
         <Space direction="vertical" style={{ width: "100%" }} size="middle">
+          {actions.error && <Alert type="error" showIcon message={actions.error.message} />}
           <Form.Item
             label={t("aiDispatch.rejectReason")}
             required

@@ -18,7 +18,6 @@ import {
 import type { MenuProps } from "antd";
 import {
   ArrowUpOutlined,
-  AudioOutlined,
   BulbOutlined,
   CheckOutlined,
   ClearOutlined,
@@ -33,11 +32,8 @@ import {
   LoadingOutlined,
   LockOutlined,
   MinusCircleOutlined,
-  PlusOutlined,
   ReloadOutlined,
   RobotOutlined,
-  SearchOutlined,
-  ShareAltOutlined,
   ThunderboltOutlined,
   UserOutlined,
   VideoCameraOutlined,
@@ -143,7 +139,10 @@ function AiGapChatWidgetContent() {
   const [isThinking, setIsThinking] = useState(false);
   const [customContextPill, setCustomContextPill] = useState<string | null>(null);
   const selectedContextPill =
-    customContextPill ?? (loadId ? `Chuyến hàng #${loadId.slice(0, 8)}` : "Đơn hàng & Quy tắc TMS");
+    customContextPill ??
+    (loadId
+      ? t("aiDispatch.loadContext", { id: loadId.slice(0, 8) })
+      : t("aiDispatch.defaultContext"));
 
   const msgSeqRef = useRef(0);
   const chatBodyRef = useRef<HTMLDivElement>(null);
@@ -170,7 +169,7 @@ function AiGapChatWidgetContent() {
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       model: "DEMO",
       provider: "DEMO",
-      contextTag: loadId ? `Chuyến hàng #${loadId.slice(0, 8)}` : "DEMO",
+      contextTag: loadId ? t("aiDispatch.loadContext", { id: loadId.slice(0, 8) }) : "DEMO",
     },
   ]);
 
@@ -180,7 +179,6 @@ function AiGapChatWidgetContent() {
       if (typeof chatBodyRef.current.scrollTo === "function") {
         chatBodyRef.current.scrollTo({
           top: chatBodyRef.current.scrollHeight,
-          behavior: "smooth",
         });
       } else {
         chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
@@ -289,7 +287,7 @@ function AiGapChatWidgetContent() {
       (mapping?.sectionId ? document.getElementById(mapping.sectionId) : null);
 
     if (targetElement) {
-      targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      targetElement.scrollIntoView({ block: "center" });
       if ("focus" in targetElement && typeof (targetElement as HTMLElement).focus === "function") {
         (targetElement as HTMLElement).focus();
       }
@@ -395,7 +393,7 @@ function AiGapChatWidgetContent() {
     {
       key: "new",
       icon: <EditOutlined />,
-      label: "Đoạn chat mới",
+      label: t("aiDispatch.newChat"),
       onClick: () => {
         msgSeqRef.current += 1;
         setChatMessages([
@@ -444,11 +442,7 @@ function AiGapChatWidgetContent() {
 
   // Gửi tin nhắn
   const handleSendMessage = (customPrompt?: string) => {
-    const domVal =
-      typeof document !== "undefined"
-        ? (document.querySelector('textarea[placeholder*="Hỏi AI GAP"]') as HTMLTextAreaElement)?.value
-        : "";
-    const promptToSend = (customPrompt ?? (inputPrompt.trim() ? inputPrompt : domVal) ?? "").trim();
+    const promptToSend = (customPrompt ?? inputPrompt).trim();
     if (!promptToSend || isThinking) return;
 
     msgSeqRef.current += 1;
@@ -699,7 +693,7 @@ function AiGapChatWidgetContent() {
                 }}
               >
                 <LockOutlined style={{ fontSize: 11, color: "#6b7280" }} />
-                <span>Riêng tư</span>
+                <span>{t("aiDispatch.privateContext")}</span>
               </div>
 
 
@@ -708,7 +702,7 @@ function AiGapChatWidgetContent() {
             {/* Các nút hành động bên phải */}
             <Space size={8} align="center">
               {/* Nút chuyển chế độ xem Gaps / Chat */}
-              <Tooltip title={viewMode === "chat" ? "Xem danh sách thẻ GAP" : "Quay lại khung chat AI"}>
+              <Tooltip title={viewMode === "chat" ? t("aiDispatch.openGapChecklist") : t("aiDispatch.returnToChat")}>
                 <Button
                   size="small"
                   shape="round"
@@ -721,14 +715,14 @@ function AiGapChatWidgetContent() {
                   }}
                 >
                   <WarningOutlined style={{ color: totalBlocking > 0 ? "#ef4444" : undefined }} />
-                  <span>GAP Checklist</span>
+                  <span>{t("aiDispatch.gapChecklist")}</span>
                   {totalBlocking > 0 && (
                     <Badge count={totalBlocking} size="small" style={{ backgroundColor: "#ef4444" }} />
                   )}
                 </Button>
               </Tooltip>
 
-              <Tooltip title="Đoạn chat mới">
+              <Tooltip title={t("aiDispatch.newChat")}>
                 <Button
                   type="text"
                   shape="circle"
@@ -766,22 +760,6 @@ function AiGapChatWidgetContent() {
                   onClick={() => setIsFullscreen(!isFullscreen)}
                 />
               </Tooltip>
-
-              {/* Nút Share phong cách pill */}
-              <Button
-                size="small"
-                shape="round"
-                icon={<ShareAltOutlined style={{ fontSize: 12 }} />}
-                onClick={() => message.success("Đã sao chép liên kết chia sẻ hội thoại AI")}
-                style={{
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: "#111827",
-                  borderColor: "#e5e7eb",
-                }}
-              >
-                Share
-              </Button>
 
               <Dropdown menu={{ items: chatHeaderMenuItems }} trigger={["click"]}>
                 <Button
@@ -1477,9 +1455,13 @@ function AiGapChatWidgetContent() {
                 >
                   <Avatar size={18} icon={<RobotOutlined />} style={{ backgroundColor: "#2563eb" }} />
                   <span>{selectedContextPill}</span>
-                  <CloseOutlined
-                    style={{ fontSize: 10, color: "#9ca3af", cursor: "pointer", marginLeft: 2 }}
-                    onClick={() => setCustomContextPill("Toàn bộ dữ liệu")}
+                  <Button
+                    type="text"
+                    size="small"
+                    aria-label={t("aiDispatch.clearChatContext", { defaultValue: "Clear chat context" })}
+                    icon={<CloseOutlined style={{ fontSize: 10, color: "#9ca3af" }} />}
+                    onClick={() => setCustomContextPill(t("aiDispatch.allDataContext", { defaultValue: "All data" }))}
+                    style={{ width: 20, height: 20, minWidth: 20, padding: 0, marginLeft: 2 }}
                   />
                 </div>
               </div>
@@ -1500,7 +1482,7 @@ function AiGapChatWidgetContent() {
                     handleSendMessage();
                   }
                 }}
-                placeholder="Hỏi AI GAP về chuyến hàng, dữ liệu thiếu, lộ trình... (Ask AI anything)"
+                placeholder={t("aiDispatch.chatPlaceholder")}
                 autoSize={{ minRows: 1, maxRows: 4 }}
                 disabled={isThinking}
                 bordered={false}
@@ -1516,15 +1498,6 @@ function AiGapChatWidgetContent() {
               <Flex justify="space-between" align="center" style={{ paddingTop: 2 }}>
                 {/* Nhóm bên trái: Plus, Model Pill, Search, Magic */}
                 <Space size={8} align="center">
-                  {/* Nút Plus */}
-                  <Button
-                    type="text"
-                    shape="circle"
-                    size="small"
-                    icon={<PlusOutlined style={{ fontSize: 14, color: "#6b7280" }} />}
-                    style={{ backgroundColor: "#f3f4f6", width: 28, height: 28 }}
-                  />
-
                   {/* Model Selector Pill (✦ Gemini 3 Pro Beta style) */}
                   <Dropdown menu={{ items: modelMenuItems }} trigger={["click"]}>
                     <Button
@@ -1562,16 +1535,6 @@ function AiGapChatWidgetContent() {
                     </Button>
                   </Dropdown>
 
-                  {/* Nút tìm kiếm */}
-                  <Tooltip title="Tra cứu web & cơ sở tri thức">
-                    <Button
-                      type="text"
-                      shape="circle"
-                      size="small"
-                      icon={<SearchOutlined style={{ fontSize: 14, color: "#6b7280" }} />}
-                    />
-                  </Tooltip>
-
                   {/* Nút Magic Wand Prompt */}
                   <Tooltip title="Gợi ý câu hỏi tự động">
                     <Button
@@ -1585,25 +1548,10 @@ function AiGapChatWidgetContent() {
                     />
                   </Tooltip>
 
-                  <Button
-                    type="text"
-                    shape="circle"
-                    size="small"
-                    icon={<EllipsisOutlined style={{ fontSize: 15, color: "#9ca3af" }} />}
-                  />
                 </Space>
 
-                {/* Nhóm bên phải: Audio mic & Blue Circle Send Button */}
+                {/* Nhóm bên phải: gửi nội dung demo */}
                 <Space size={10} align="center">
-                  <Tooltip title="Nhập bằng giọng nói (Voice input)">
-                    <Button
-                      type="text"
-                      shape="circle"
-                      size="small"
-                      icon={<AudioOutlined style={{ fontSize: 15, color: "#6b7280" }} />}
-                    />
-                  </Tooltip>
-
                   {/* Nút Gửi tròn xanh mũi tên lên ↑ */}
                   <Button
                     type="primary"

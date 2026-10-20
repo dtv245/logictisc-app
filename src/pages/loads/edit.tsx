@@ -44,7 +44,7 @@ export const LoadEdit = () => {
           document.querySelector(`[name="${focusField}"]`) ||
           document.querySelector(`input[id*="${focusField}"]`);
         if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "center" });
+          target.scrollIntoView({ block: "center" });
           if ("focus" in target && typeof (target as HTMLElement).focus === "function") {
             (target as HTMLElement).focus();
           }

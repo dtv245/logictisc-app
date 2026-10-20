@@ -3,10 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getStoredAiSettings } from "@/features/ai-dispatch/hooks/aiConfigStorage";
 import { AiDispatchPage } from "@/pages/ai-dispatch/AiDispatchPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
+import { useLocation } from "react-router-dom";
 
 import { initialMovementPlan } from "@/tests/fixtures/aiMovementPlan";
 
 const session = vi.hoisted(() => ({ tenantKey: "tenant-finance" }));
+const aiLoadState = vi.hoisted(() => ({ useInitialPlan: true, failPendingRequest: false, includeTripId: false }));
 vi.mock("@/hooks/useCurrentTenant", () => ({
   useCurrentTenant: () => ({
     tenant: session.tenantKey ? { tenantKey: session.tenantKey } : null,
@@ -17,6 +19,27 @@ vi.mock("@/features/ai-dispatch/api/aiDispatch.api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/features/ai-dispatch/api/aiDispatch.api")>();
   return {
     ...actual,
+    fetchAiDispatchPending: vi.fn(async () => {
+      if (aiLoadState.failPendingRequest) throw new Error("Pending endpoint unavailable");
+      return [];
+    }),
+    fetchAiDispatchSessions: vi.fn(async () => ({ content: [], totalElements: 0 })),
+    fetchAiDispatchSessionDetail: vi.fn(async (id: string) => ({
+      id,
+      status: "COMPLETED",
+      summary: "Session loaded from the requested URL.",
+      decisions: [{
+        decisionId: "decision-deep",
+        rank: 1,
+        truckId: "truck-deep",
+        driverId: "driver-deep",
+        score: 95,
+        confidence: "HIGH",
+        reasoning: "Loaded from the selected session.",
+        status: aiLoadState.includeTripId ? "APPROVED" : "PENDING",
+        ...(aiLoadState.includeTripId ? { tripId: "trip-from-session" } : {}),
+      }],
+    })),
     approveAiDispatchDecision: vi.fn(async (decisionId: string) => ({
       decisionId,
       rank: 1,
@@ -52,14 +75,25 @@ vi.mock("@/features/ai-dispatch/hooks/useAiDispatchActions", async (importOrigin
   return {
     ...actual,
     useAiDispatchActions: (options?: Record<string, unknown>) =>
-      actual.useAiDispatchActions({ initialPlans: [initialMovementPlan], ...options }),
+      actual.useAiDispatchActions({
+        initialPlans: aiLoadState.useInitialPlan ? [initialMovementPlan] : [],
+        ...options,
+      }),
   };
 });
 
 beforeEach(() => {
   session.tenantKey = "tenant-finance";
+  aiLoadState.useInitialPlan = true;
+  aiLoadState.failPendingRequest = false;
+  aiLoadState.includeTripId = false;
   localStorage.clear();
 });
+
+function CurrentPathname() {
+  const location = useLocation();
+  return <output data-testid="current-pathname">{location.pathname}</output>;
+}
 
 describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di chuyển", () => {
   it("hiển thị kế hoạch di chuyển do AI đề xuất với đầy đủ thông tin lộ trình, KPI và giải trình", async () => {
@@ -121,8 +155,9 @@ describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di c
       expect(screen.getByText("Approved")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Movement plan approved successfully! Dispatch order is active.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /View Trip/i })).toBeInTheDocument();
+    expect(screen.getByText("Movement plan approval was recorded.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /View Trip/i })).not.toBeInTheDocument();
+    expect(screen.getByText("The approved plan does not include a Trip ID, so its Trip detail cannot be opened.")).toBeInTheDocument();
   });
 
   it("cho phép người dùng từ chối kế hoạch di chuyển (Reject Plan) kèm lý do", async () => {
@@ -158,17 +193,15 @@ describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di c
     // Click tab Tạo kế hoạch mới
     fireEvent.click(screen.getByText("Create New Plan"));
 
-    // Section 1 (Checklist: <= 7 inputs có header)
-    expect(await screen.findByText("1. Optimization Objective & AI Instructions")).toBeInTheDocument();
+    // Chỉ hiển thị những trường thực sự được gửi tới API.
+    expect(await screen.findByText("1. Dispatch request")).toBeInTheDocument();
     expect(screen.getByLabelText("Dispatch Mode")).toBeInTheDocument();
-    expect(screen.getByLabelText("Optimization Objective")).toBeInTheDocument();
-    expect(screen.getByLabelText("AI Dispatch Model")).toBeInTheDocument();
-
-    // Section 2 (Checklist: <= 7 inputs có header)
-    expect(screen.getByText("2. Vehicle Scope & Cargo Assignment")).toBeInTheDocument();
-    expect(screen.getByLabelText("Assigned Truck (UUID)")).toBeInTheDocument();
     expect(screen.getByLabelText("Load to Assign (UUID)")).toBeInTheDocument();
-    expect(screen.getByLabelText("Business Time Zone")).toBeInTheDocument();
+    expect(screen.getByLabelText("AI Directives & Instructions")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Optimization Objective")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("AI Dispatch Model")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Assigned Truck (UUID)")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Business Time Zone")).not.toBeInTheDocument();
 
     // Nút footer
     expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
@@ -210,5 +243,59 @@ describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di c
     session.tenantKey = "";
     await renderFinance(<AiDispatchPage />, vi.fn(), { role: "DISPATCHER" });
     expect(await screen.findByText("Access denied")).toBeInTheDocument();
+  });
+
+  it("hiển thị lỗi tải ban đầu và có thể thử lại mà không giả lập danh sách rỗng", async () => {
+    aiLoadState.useInitialPlan = false;
+    aiLoadState.failPendingRequest = true;
+
+    await renderFinance(<AiDispatchPage />, vi.fn(), { role: "DISPATCHER" });
+
+    expect(await screen.findByText("AI Dispatch data could not be loaded")).toBeInTheDocument();
+    expect(screen.queryByText("No movement plan generated yet. Run AI dispatch in the adjacent tab.")).not.toBeInTheDocument();
+
+    aiLoadState.failPendingRequest = false;
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("AI Dispatch data could not be loaded")).not.toBeInTheDocument();
+    });
+  });
+
+  it("khôi phục session và decision từ query params", async () => {
+    aiLoadState.useInitialPlan = false;
+
+    await renderFinance(<AiDispatchPage />, vi.fn(), {
+      role: "DISPATCHER",
+      initialEntries: ["/ai-dispatch?sessionId=session-deep&decisionId=decision-deep"],
+    });
+
+    expect(await screen.findByText("AI Proposed Movement Plan")).toBeInTheDocument();
+    expect(screen.getByText(/truck-deep/)).toBeInTheDocument();
+  });
+
+  it("opens the exact Trip returned by the approved AI decision", async () => {
+    aiLoadState.useInitialPlan = false;
+    aiLoadState.includeTripId = true;
+
+    await renderFinance(<><AiDispatchPage /><CurrentPathname /></>, vi.fn(), {
+      role: "DISPATCHER",
+      initialEntries: ["/ai-dispatch?sessionId=session-deep&decisionId=decision-deep"],
+    });
+
+    fireEvent.click(await screen.findByRole("button", { name: "View Trip" }));
+    expect(await screen.findByTestId("current-pathname")).toHaveTextContent("/trips/show/trip-from-session");
+  });
+
+  it("does not substitute another decision for an unknown deep-linked decision", async () => {
+    aiLoadState.useInitialPlan = false;
+
+    await renderFinance(<AiDispatchPage />, vi.fn(), {
+      role: "DISPATCHER",
+      initialEntries: ["/ai-dispatch?sessionId=session-deep&decisionId=missing-decision"],
+    });
+
+    expect(await screen.findByText("The requested decision is not part of this dispatch session.")).toBeInTheDocument();
+    expect(screen.queryByText("truck-deep")).not.toBeInTheDocument();
   });
 });

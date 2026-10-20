@@ -8,12 +8,14 @@ import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
 import { useLoadAiDispatch } from "@/hooks/ai/useLoadAiDispatch";
 import { TruckSvg } from "./TruckSvg";
 import { RouteProgressBar } from "./RouteProgressBar";
+import { useTranslation } from "react-i18next";
 
 export interface ShipmentHeroCardProps {
   load: Load;
 }
 
 export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
+  const { t } = useTranslation();
   const loadId = load?.id ? String(load.id) : "";
   const { enabled: isAiEnabled } = useAiFeatures();
   const { suggestions } = useLoadAiDispatch({
@@ -22,12 +24,12 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
   });
 
   const activeSuggestion = suggestions[0];
-  const originCity = load.originAddressCity || load.originAddressLine1 || "Điểm đi";
-  const destCity = load.destinationAddressCity || load.destinationAddressLine1 || "Điểm đến";
+  const originCity = load.originAddressCity || load.originAddressLine1 || t("loads.redesign.originUnavailable");
+  const destCity = load.destinationAddressCity || load.destinationAddressLine1 || t("loads.redesign.destinationUnavailable");
 
-  // Calculate ETA & Delivery Window from real DTO fields
+  // This is the requested delivery appointment, not a live ETA.
   const deliveryDate = load.requestedDeliveryDate;
-  const etaFormatted = deliveryDate ? formatTimeOnly(deliveryDate) : "—";
+  const deliveryTimeFormatted = deliveryDate ? formatTimeOnly(deliveryDate) : "—";
 
   // Real AI dispatch suggestion utilities
   const onTimeScore = activeSuggestion?.utilities?.onTime?.score;
@@ -41,8 +43,8 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
           {isAiEnabled && activeSuggestion && (
             <div className="shipment-hero__event-chip">
               ⚡ {activeSuggestion.status === "executed"
-                ? "LỘ TRÌNH ĐÃ DUYỆT"
-                : "AI ĐỀ XUẤT ĐIỀU PHỐI"}
+                ? t("loads.redesign.aiRouteApproved")
+                : t("loads.redesign.aiDispatchSuggested")}
             </div>
           )}
 
@@ -54,8 +56,8 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
           </div>
 
           <div className="shipment-hero__subtitle">
-            #{load.number} · {load.customerName || load.customerId || "Khách hàng"}
-            {load.distance ? ` · ${load.distance} km` : ""}
+            #{load.number} · {load.customerName || load.customerId || t("loads.redesign.customerUnavailable")}
+            {load.distance ? ` · ${load.distance} mi` : ""}
           </div>
         </div>
 
@@ -63,40 +65,37 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
         <div className="shipment-hero__stats-group">
           {/* WINDOW */}
           <div className="shipment-hero__stat-box">
-            <div className="shipment-hero__stat-label">KHUNG GIỜ GIAO</div>
-            <div className="shipment-hero__stat-value">{etaFormatted}</div>
+            <div className="shipment-hero__stat-label">{t("loads.redesign.deliveryAppointment")}</div>
+            <div className="shipment-hero__stat-value">{deliveryTimeFormatted}</div>
             <div className="shipment-hero__stat-sub" style={{ color: "#64748B" }}>
-              {deliveryDate ? formatDateOnly(deliveryDate) : "Chưa có"}
+              {deliveryDate ? formatDateOnly(deliveryDate) : t("loads.redesign.notScheduled")}
             </div>
           </div>
 
           {/* ETA NOW */}
           <div className="shipment-hero__stat-box">
-            <div className="shipment-hero__stat-label">DỰ KIẾN ĐẾN (ETA)</div>
-            <div className="shipment-hero__stat-value">{etaFormatted}</div>
-            {deliveryDate && (
-              <div className="shipment-hero__stat-sub shipment-hero__stat-sub--green">
-                ● Trong khung giờ
-              </div>
-            )}
+            <div className="shipment-hero__stat-label">{t("loads.redesign.loadStatus")}</div>
+            <div className="shipment-hero__stat-value" style={{ fontSize: 16 }}>
+              {load.status || t("loads.redesign.statusUnavailable")}
+            </div>
           </div>
 
           {/* ON-TIME / SAVED */}
           {hasAiOptimization ? (
             <div className="shipment-hero__stat-box">
-              <div className="shipment-hero__stat-label">ĐỘ ĐÚNG GIỜ</div>
+              <div className="shipment-hero__stat-label">{t("loads.redesign.onTimeScore")}</div>
               <div className="shipment-hero__stat-value" style={{ color: "#7C3AED" }}>
                 {Math.round(onTimeScore || 0)}%
               </div>
               <div className="shipment-hero__stat-sub shipment-hero__stat-sub--purple">
-                dự báo điều phối AI
+                {t("loads.redesign.aiForecast")}
               </div>
             </div>
           ) : (
             <div className="shipment-hero__stat-box">
-              <div className="shipment-hero__stat-label">LOẠI XE</div>
+              <div className="shipment-hero__stat-label">{t("loads.redesign.loadType")}</div>
               <div className="shipment-hero__stat-value" style={{ fontSize: 18 }}>
-                {load.type || "Dry Van"}
+                {load.type || t("loads.redesign.loadTypeUnavailable")}
               </div>
             </div>
           )}
@@ -131,31 +130,28 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
             </div>
             <div>
               <div className="truck-showcase__callout-value">
-                {load.assignedDispatcherName || "Tài xế nhận chuyến"}
+                {load.assignedDispatcherName || t("loads.redesign.dispatcherUnavailable")}
               </div>
               <div className="truck-showcase__callout-label">
-                {load.assignedTruckNumber ? `🚛 ${load.assignedTruckNumber}` : "Chưa gán xe"}
+                {load.assignedTruckNumber ? `🚛 ${load.assignedTruckNumber}` : t("loads.redesign.truckUnavailable")}
               </div>
             </div>
           </div>
 
           {/* Load / Cargo Callout */}
           <div className="truck-showcase__callout truck-showcase__callout--load">
-            <div className="truck-showcase__callout-label">HÀNG HOÁ & CƯỚC</div>
+            <div className="truck-showcase__callout-label">{t("loads.redesign.cargoAndRate")}</div>
             <div className="truck-showcase__callout-value">
               {load.deliveryCostAmount != null && load.deliveryCostCurrency
                 ? `${Number(load.deliveryCostAmount).toLocaleString()} ${load.deliveryCostCurrency}`
-                : load.type || "Tiêu chuẩn"}
+                : load.type || t("loads.redesign.standardType")}
             </div>
           </div>
         </div>
       </div>
 
       {/* Route Progress Bar */}
-      <RouteProgressBar
-        load={load}
-        detourLabel={hasAiOptimization ? "Hành trình tối ưu AI" : undefined}
-      />
+      <RouteProgressBar load={load} />
     </div>
   );
 };

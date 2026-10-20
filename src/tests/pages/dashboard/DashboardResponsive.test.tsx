@@ -1,8 +1,10 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
+import { I18nextProvider } from "react-i18next";
 import { parseTableParams } from "@refinedev/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { initializeAppI18n } from "@/locales";
 
 import { DashboardHeader } from "@features/dashboard/components/DashboardHeader";
 import { KpiStrip } from "@features/dashboard/components/KpiStrip";
@@ -31,12 +33,16 @@ const createTestQueryClient = () =>
     },
   });
 
+let testI18n: Awaited<ReturnType<typeof initializeAppI18n>>;
+
 const renderWithProviders = (ui: React.ReactElement) => {
   const queryClient = createTestQueryClient();
   return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter>{ui}</MemoryRouter>
-    </QueryClientProvider>,
+    <I18nextProvider i18n={testI18n}>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>{ui}</MemoryRouter>
+      </QueryClientProvider>
+    </I18nextProvider>,
   );
 };
 
@@ -58,6 +64,10 @@ vi.mock("@hooks/useCurrentTenant", () => ({
     tenant: { id: "t-1", tenantName: "Logistics Hub Miền Nam" },
   }),
 }));
+
+beforeAll(async () => {
+  testI18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });
+});
 
 vi.mock("@/hooks/useDashboardData", () => ({
   useDashboardData: () => ({
@@ -232,6 +242,21 @@ describe("Dashboard & Operations Responsive Verification", () => {
       expect(screen.queryByText("28")).not.toBeInTheDocument();
       expect(screen.queryByText("46")).not.toBeInTheDocument();
       expect(screen.queryByText("14")).not.toBeInTheDocument();
+    });
+
+    it("localizes dashboard KPI labels and search controls", async () => {
+      await act(async () => {
+        await testI18n.changeLanguage("ja");
+      });
+
+      const { unmount } = renderWithProviders(<OperationsDashboardView />);
+      expect(screen.getByText("輸送中")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "貨物とドライバーを検索" })).toBeInTheDocument();
+      unmount();
+
+      await act(async () => {
+        await testI18n.changeLanguage("vi");
+      });
     });
   });
 

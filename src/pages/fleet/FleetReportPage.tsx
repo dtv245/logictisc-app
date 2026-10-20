@@ -285,7 +285,7 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
         <Form
           form={form}
           layout="vertical"
-          scrollToFirstError={{ behavior: "smooth", block: "center" }}
+          scrollToFirstError={{ block: "center" }}
           onFinish={handleFinish}
           initialValues={{ businessZoneId: "Asia/Ho_Chi_Minh" }}
         >

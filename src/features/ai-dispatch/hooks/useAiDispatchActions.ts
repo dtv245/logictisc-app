@@ -18,10 +18,12 @@ import {
 
 export interface UseAiDispatchActionsOptions {
   initialPlans?: AiMovementPlan[];
+  sessionId?: string;
+  decisionId?: string;
 }
 
 export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) {
-  const { initialPlans = [] } = options;
+  const { initialPlans = [], sessionId, decisionId } = options;
   const { t } = useTranslation();
   const { tenant } = useCurrentTenant();
   const invalidate = useInvalidate();
@@ -34,11 +36,16 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
   const [activePlanId, setActivePlanId] = useState<string | null>(initialPlans[0]?.id ?? null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [initialLoadPending, setInitialLoadPending] = useState(false);
+  const [initialLoadError, setInitialLoadError] = useState<Error | null>(null);
+  const [initialLoadAttempt, setInitialLoadAttempt] = useState(0);
 
-  const activePlan = plans.find((p) => p.id === activePlanId) ?? plans[0] ?? null;
+  const activePlan = decisionId
+    ? plans.find((plan) => plan.id === decisionId) ?? null
+    : plans.find((plan) => plan.id === activePlanId) ?? plans[0] ?? null;
 
-  const canRun = Boolean(tenant?.tenantKey && runAccess.data?.can !== false);
-  const canApprove = Boolean(tenant?.tenantKey && approveAccess.data?.can !== false);
+  const canRun = Boolean(tenant?.tenantKey && runAccess.data?.can === true);
+  const canApprove = Boolean(tenant?.tenantKey && approveAccess.data?.can === true);
 
   // Tự động tải các quyết định chờ duyệt hoặc session gần nhất từ API thật
   useEffect(() => {
@@ -49,7 +56,30 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
 
     async function loadRealData() {
       try {
+        setInitialLoadPending(true);
         setPending(true);
+        setInitialLoadError(null);
+
+        if (sessionId) {
+          setPlans([]);
+          setActivePlanId(null);
+          const detail = await fetchAiDispatchSessionDetail(sessionId);
+          if (!mounted) return;
+          const mapped = (detail.decisions ?? []).map((decision) =>
+            mapSuggestionToPlan(decision, {
+              sessionId: detail.id,
+              summary: detail.summary ?? undefined,
+            }),
+          );
+          setPlans(mapped);
+          setActivePlanId(
+            decisionId
+              ? mapped.find((plan) => plan.id === decisionId)?.id ?? null
+              : mapped[0]?.id ?? null,
+          );
+          return;
+        }
+
         // 1. Kiểm tra các quyết định pending đang chờ duyệt
         const pendingSuggestions = await fetchAiDispatchPending();
         if (!mounted) return;
@@ -79,9 +109,14 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
           }
         }
       } catch (err) {
-        console.warn("[useAiDispatchActions] Could not load AI dispatch sessions from API:", err);
+        if (mounted) {
+          setInitialLoadError(err instanceof Error ? err : new Error(String(err)));
+        }
       } finally {
-        if (mounted) setPending(false);
+        if (mounted) {
+          setInitialLoadPending(false);
+          setPending(false);
+        }
       }
     }
 
@@ -90,9 +125,12 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
     return () => {
       mounted = false;
     };
-  }, [tenant?.tenantKey, initialPlans.length]);
+  }, [tenant?.tenantKey, initialPlans.length, sessionId, decisionId, initialLoadAttempt]);
 
   const runAiDispatch = async (params: CreateAiDispatchParams): Promise<AiMovementPlan> => {
+    if (!canRun) {
+      throw new Error(t("forbidden.description"));
+    }
     setPending(true);
     setError(null);
 
@@ -142,23 +180,32 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
   };
 
   const approvePlan = async (planId: string, note?: string): Promise<AiMovementPlan> => {
+    if (!canApprove) {
+      throw new Error(t("forbidden.description"));
+    }
     setPending(true);
     setError(null);
 
     try {
-      await approveAiDispatchDecision(planId, note);
+      const decision = await approveAiDispatchDecision(planId, note);
+      const targetPlan = plans.find((plan) => plan.id === planId);
+      const responsePlan = mapSuggestionToPlan(decision, targetPlan ? {
+        sessionId: targetPlan.sessionId,
+        loadId: targetPlan.loadId,
+        loadNumber: targetPlan.loadNumber,
+      } : undefined);
+      const updatedPlan = targetPlan
+        ? {
+            ...targetPlan,
+            status: responsePlan.status,
+            tripId: responsePlan.tripId ?? targetPlan.tripId,
+            aiReasoning: decision.reasoning || targetPlan.aiReasoning,
+          }
+        : null;
 
-      const targetPlan = plans.find((p) => p.id === planId) ?? activePlan;
-      const updatedPlan: AiMovementPlan = {
-        ...(targetPlan ?? ({} as AiMovementPlan)),
-        id: planId,
-        status: "approved",
-        approvedAt: new Date().toISOString(),
-        approvedBy: "Dispatcher",
-        aiReasoning: note ? `${targetPlan?.aiReasoning ?? ""}\n[Ghi chú duyệt: ${note}]` : targetPlan?.aiReasoning ?? "",
-      };
-
-      setPlans((prev) => prev.map((p) => (p.id === planId ? updatedPlan : p)));
+      if (updatedPlan) {
+        setPlans((prev) => prev.map((plan) => (plan.id === planId ? updatedPlan : plan)));
+      }
 
       // Invalidate các resource liên quan (trips, loads, trucks)
       await Promise.all([
@@ -170,25 +217,35 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
       open?.({
         type: "success",
         message: t("aiDispatch.approveSuccess"),
-        description: `${t("aiDispatch.truck")}: ${updatedPlan.truckNumber}`,
+        description: targetPlan
+          ? `${t("aiDispatch.truck")}: ${targetPlan.truckNumber}`
+          : undefined,
       });
 
-      return updatedPlan;
+      return updatedPlan ?? responsePlan;
     } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      setError(e);
+      const cause = err instanceof Error ? err : new Error(String(err));
+      const response = err as { statusCode?: unknown; response?: { status?: unknown } };
+      const conflict = response.statusCode === 409 || response.response?.status === 409;
+      const failure = conflict
+        ? new Error(t("aiDispatch.approvalConflict"))
+        : cause;
+      setError(failure);
       open?.({
         type: "error",
-        message: t("common.error"),
-        description: e.message,
+        message: conflict ? t("aiDispatch.approvalConflict") : t("common.error"),
+        description: cause.message,
       });
-      throw e;
+      throw failure;
     } finally {
       setPending(false);
     }
   };
 
   const rejectPlan = async (planId: string, reason: string): Promise<AiMovementPlan> => {
+    if (!canApprove) {
+      throw new Error(t("forbidden.description"));
+    }
     setPending(true);
     setError(null);
 
@@ -230,11 +287,18 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
     setActivePlanId(planId);
   };
 
+  const retryInitialLoad = () => {
+    setInitialLoadAttempt((attempt) => attempt + 1);
+  };
+
   return {
     plans,
     activePlan,
     pending,
     error,
+    initialLoadPending,
+    initialLoadError,
+    retryInitialLoad,
     canRun,
     canApprove,
     runAiDispatch,

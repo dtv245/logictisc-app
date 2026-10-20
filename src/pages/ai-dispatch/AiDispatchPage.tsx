@@ -16,6 +16,7 @@ import { useCan } from "@refinedev/core";
 import { Alert, Button, Space, Spin, Tabs, Tag } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { ForbiddenState } from "@/components/ErrorStates";
 import { PageHeader } from "@/components/PageHeader";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
@@ -23,6 +24,7 @@ import { AiDispatchRunForm } from "@/features/ai-dispatch/components/AiDispatchR
 import { AiMovementPlanCard } from "@/features/ai-dispatch/components/AiMovementPlanCard";
 import { AiDispatchHistoryTable } from "@/features/ai-dispatch/components/AiDispatchHistoryTable";
 import { AiConfigModal } from "@/features/ai-dispatch/components/AiConfigModal";
+import type { AiMovementPlan } from "@/features/ai-dispatch/types/ai-dispatch.types";
 import { useAiSettings } from "@/features/ai-dispatch/hooks/aiConfigStorage";
 import { useAiDispatchActions } from "@/features/ai-dispatch/hooks/useAiDispatchActions";
 import "@/features/ai-dispatch/styles/ai-dispatch.scss";
@@ -31,10 +33,26 @@ export function AiDispatchPage() {
   const { t } = useTranslation();
   const { tenant } = useCurrentTenant();
   const access = useCan({ resource: "ai-dispatch", action: "AI_DISPATCH_VIEW" });
-  const actions = useAiDispatchActions();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const actions = useAiDispatchActions({
+    sessionId: searchParams.get("sessionId") ?? undefined,
+    decisionId: searchParams.get("decisionId") ?? undefined,
+  });
   const { activeProviderConfig, isConfigured } = useAiSettings();
   const [activeTab, setActiveTab] = useState<string>("plan");
   const [configModalOpen, setConfigModalOpen] = useState(false);
+
+  const openPlan = (plan: AiMovementPlan) => {
+    setActiveTab("plan");
+    if (!plan.sessionId) return;
+
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      next.set("sessionId", plan.sessionId);
+      next.set("decisionId", plan.id);
+      return next;
+    }, { replace: true });
+  };
 
   if (access.isLoading) {
     return (
@@ -57,12 +75,33 @@ export function AiDispatchPage() {
           <span>{t("aiDispatch.movementPlanTab")}</span>
         </Space>
       ),
-      children: (
-        <AiMovementPlanCard
-          plan={actions.activePlan}
-          actions={actions}
-          onNavigateToRun={() => setActiveTab("run")}
-        />
+      children: actions.initialLoadPending && !actions.activePlan ? (
+        <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
+          <Spin aria-label={t("asyncState.loading")} />
+        </div>
+      ) : actions.initialLoadError && !actions.activePlan ? null : (
+        searchParams.get("decisionId") && !actions.activePlan ? (
+          <Alert
+            type="warning"
+            showIcon
+            message={t("aiDispatch.decisionNotFound")}
+            action={
+              <Button
+                size="small"
+                onClick={actions.retryInitialLoad}
+                disabled={actions.initialLoadPending}
+              >
+                {t("actions.retry")}
+              </Button>
+            }
+          />
+        ) : (
+          <AiMovementPlanCard
+            plan={actions.activePlan}
+            actions={actions}
+            onNavigateToRun={() => setActiveTab("run")}
+          />
+        )
       ),
     },
     {
@@ -76,8 +115,7 @@ export function AiDispatchPage() {
       children: (
         <AiDispatchRunForm
           actions={actions}
-          onPlanCreated={() => setActiveTab("plan")}
-          onOpenConfig={() => setConfigModalOpen(true)}
+          onPlanCreated={openPlan}
         />
       ),
     },
@@ -93,8 +131,10 @@ export function AiDispatchPage() {
         <AiDispatchHistoryTable
           actions={actions}
           onSelectPlan={(id) => {
+            const selected = actions.plans.find((plan) => plan.id === id);
             actions.selectPlan(id);
             setActiveTab("plan");
+            if (selected) openPlan(selected);
           }}
         />
       ),
@@ -145,6 +185,25 @@ export function AiDispatchPage() {
           closable
           message={t("common.error")}
           description={actions.error.message || String(actions.error)}
+          style={{ width: "100%" }}
+        />
+      )}
+
+      {actions.initialLoadError && (
+        <Alert
+          type="error"
+          showIcon
+          message={t("aiDispatch.initialLoadError")}
+          description={actions.initialLoadError.message || t("queryError.description")}
+          action={
+            <Button
+              size="small"
+              onClick={actions.retryInitialLoad}
+              disabled={actions.initialLoadPending}
+            >
+              {t("actions.retry")}
+            </Button>
+          }
           style={{ width: "100%" }}
         />
       )}

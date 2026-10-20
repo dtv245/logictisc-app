@@ -43,6 +43,7 @@ export interface BackendSuggestion {
   decisionId: string;
   rank: number;
   truckId: string;
+  tripId?: string | null;
   truckNumber?: string | null;
   driverId: string;
   driverName?: string | null;
@@ -205,6 +206,7 @@ export function mapSuggestionToPlan(
   return {
     id: String(suggestion.decisionId),
     sessionId: sessionInfo?.sessionId ?? "",
+    ...(suggestion.tripId ? { tripId: suggestion.tripId } : {}),
     truckId: suggestion.truckId,
     truckNumber: suggestion.truckNumber ?? suggestion.truckId,
     driverId: suggestion.driverId,

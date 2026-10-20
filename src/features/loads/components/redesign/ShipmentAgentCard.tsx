@@ -1,19 +1,25 @@
 import React, { useState } from "react";
-import { Button, Modal, Form, Input, Spin } from "antd";
+import { Alert, Button, Modal, Form, Input, Spin } from "antd";
 import { CheckCircleFilled, ThunderboltFilled } from "@ant-design/icons";
 import { useLoadAiDispatch } from "@/hooks/ai/useLoadAiDispatch";
 import type { AiDispatchCandidate } from "@/api/ai/ai.types";
+import { useTranslation } from "react-i18next";
 
 export interface ShipmentAgentCardProps {
   loadId: string;
 }
 
 export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) => {
+  const { t } = useTranslation();
   const {
     rankingSource,
     suggestions,
     capabilities,
     isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
     approveSuggestion,
     isApproving,
     rejectSuggestion,
@@ -73,7 +79,21 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
   if (isLoading) {
     return (
       <div className="shipment-card shipment-card--agent" style={{ textAlign: "center", padding: 32 }}>
-        <Spin tip="Đang tải dữ liệu Agent AI..." />
+        <Spin tip={t("loads.redesign.agentLoading")} />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="shipment-card shipment-card--agent">
+        <Alert
+          type="error"
+          showIcon
+          message={t("loads.redesign.agentLoadFailed")}
+          description={error instanceof Error ? error.message : undefined}
+          action={<Button size="small" disabled={isFetching} onClick={() => void refetch()}>{t("actions.retry")}</Button>}
+        />
       </div>
     );
   }
@@ -83,22 +103,23 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
       <div className="shipment-card shipment-card--agent" data-testid="shipment-agent-card-empty">
         <div className="agent-card__header">
           <div className="agent-card__badge">
-            <ThunderboltFilled /> LogisticsX AI Agent
+            <ThunderboltFilled /> {t("loads.redesign.agentName")}
           </div>
-          <span className="agent-card__meta">Trạng thái: Sẵn sàng</span>
+          <span className="agent-card__meta">{t("loads.redesign.agentReady")}</span>
         </div>
         <div style={{ color: "#64748B", fontSize: 13, padding: "12px 0" }}>
-          Hệ thống đang theo dõi hành trình. Chưa có đề xuất điều phối mới cho chuyến hàng này.
+          {t("loads.redesign.noAgentSuggestion")}
         </div>
       </div>
     );
   }
 
-  const confidencePercent = activeSuggestion.confidenceScore
+  const confidencePercent = typeof activeSuggestion.confidenceScore === "number"
     ? Math.round(activeSuggestion.confidenceScore * 100)
-    : Math.round((activeSuggestion.score || 0.9) * 100);
+    : null;
 
   const utilities = activeSuggestion.utilities;
+  const hasUtilityMetrics = Boolean(utilities?.onTime || utilities?.margin || utilities?.deadhead);
   const isExecuted =
     activeSuggestion.status === "executed" ||
     activeSuggestion.status === "Executed" ||
@@ -110,16 +131,17 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
       {/* Header */}
       <div className="agent-card__header">
         <div className="agent-card__badge">
-          <ThunderboltFilled /> Điều Phối Tuyến (Route Agent)
+          <ThunderboltFilled /> {t("loads.redesign.routeAgent")}
         </div>
         <span className="agent-card__meta">
-          {confidencePercent}% tin cậy · {rankingSource === "llm" ? "Mô hình LLM" : "Thuật toán"}
+          {confidencePercent != null ? `${confidencePercent}% · ` : ""}
+          {rankingSource === "llm" ? t("loads.redesign.llmSource") : t("loads.redesign.algorithmSource")}
         </span>
       </div>
 
       {/* Title */}
       <div className="agent-card__title">
-        Phương án điều phối: {activeSuggestion.driverName} (Xe {activeSuggestion.truckNumber})
+        {t("loads.redesign.dispatchSuggestion", { driver: activeSuggestion.driverName, truck: activeSuggestion.truckNumber })}
       </div>
 
       {/* Reasoning (Phân tích AI) */}
@@ -131,28 +153,28 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
       )}
 
       {/* Utilities / Metrics Strip */}
-      {utilities && (
+      {hasUtilityMetrics && (
         <div className="agent-card__metrics-strip">
-          <div className="agent-card__metric-item">
+          {utilities?.onTime && <div className="agent-card__metric-item">
             <div className="agent-card__metric-value agent-card__metric-value--green">
-              {utilities.onTime ? `${Math.round(utilities.onTime.score)}%` : "Tối ưu"}
+              {`${Math.round(utilities.onTime.score)}%`}
             </div>
-            <div className="agent-card__metric-desc">Đúng giờ (On-time)</div>
-          </div>
+            <div className="agent-card__metric-desc">{t("loads.redesign.onTimeScore")}</div>
+          </div>}
 
-          <div className="agent-card__metric-item">
+          {utilities?.margin && <div className="agent-card__metric-item">
             <div className="agent-card__metric-value agent-card__metric-value--green">
-              {utilities.margin ? utilities.margin.displayValue || `${Math.round(utilities.margin.score)}%` : "Tốt"}
+              {utilities.margin.displayValue || `${Math.round(utilities.margin.score)}%`}
             </div>
-            <div className="agent-card__metric-desc">Lợi nhuận (Margin)</div>
-          </div>
+            <div className="agent-card__metric-desc">{t("loads.redesign.marginScore")}</div>
+          </div>}
 
-          <div className="agent-card__metric-item">
+          {utilities?.deadhead && <div className="agent-card__metric-item">
             <div className="agent-card__metric-value">
-              {utilities.deadhead ? `${Math.round(utilities.deadhead.score)}%` : "0%"}
+              {`${Math.round(utilities.deadhead.score)}%`}
             </div>
-            <div className="agent-card__metric-desc">Chạy rỗng (Deadhead)</div>
-          </div>
+            <div className="agent-card__metric-desc">{t("loads.redesign.deadheadScore")}</div>
+          </div>}
         </div>
       )}
 
@@ -161,7 +183,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
         <div className="agent-card__footer">
           <CheckCircleFilled style={{ color: "#16A34A", fontSize: 16 }} />
           <span>
-            Đã duyệt đề xuất phương án điều phối này · Đã ghi nhận vào nhật ký hệ thống
+            {t("loads.redesign.suggestionApproved")}
           </span>
         </div>
       ) : (
@@ -181,7 +203,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
               onClick={() => handleOpenApprove(activeSuggestion)}
               data-testid="agent-approve-btn"
             >
-              Phê Duyệt Đề Xuất
+              {t("loads.redesign.approveSuggestion")}
             </Button>
           )}
 
@@ -197,7 +219,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
               onClick={() => handleOpenReject(activeSuggestion)}
               data-testid="agent-reject-btn"
             >
-              Từ Chối
+              {t("loads.redesign.rejectSuggestion")}
             </Button>
           )}
         </div>
@@ -205,36 +227,36 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
 
       {/* Modal Duyệt */}
       <Modal
-        title="Xác nhận phê duyệt đề xuất điều phối"
+        title={t("loads.redesign.approveTitle")}
         open={approveModalOpen}
         onOk={handleConfirmApprove}
         onCancel={() => setApproveModalOpen(false)}
         confirmLoading={isApproving}
-        okText="Xác nhận duyệt"
-        cancelText="Đóng"
+        okText={t("loads.redesign.approveConfirm")}
+        cancelText={t("actions.close")}
       >
         <p>
-          Bạn có chắc chắn muốn áp dụng đề xuất phương án điều phối này cho chuyến hàng?
+          {t("loads.redesign.approveDescription")}
         </p>
       </Modal>
 
       {/* Modal Từ chối */}
       <Modal
-        title="Từ chối đề xuất điều phối"
+        title={t("loads.redesign.rejectTitle")}
         open={rejectModalOpen}
         onOk={handleConfirmReject}
         onCancel={() => setRejectModalOpen(false)}
         confirmLoading={isRejecting}
-        okText="Gửi từ chối"
-        cancelText="Hủy"
+        okText={t("loads.redesign.rejectConfirm")}
+        cancelText={t("actions.cancel")}
       >
         <Form form={rejectForm} layout="vertical">
           <Form.Item
             name="reason"
-            label="Lý do từ chối"
-            rules={[{ required: true, message: "Vui lòng nhập lý do từ chối" }]}
+            label={t("loads.redesign.rejectReason")}
+            rules={[{ required: true, message: t("loads.redesign.rejectReasonRequired") }]}
           >
-            <Input.TextArea rows={3} placeholder="Nhập lý do điều phối viên từ chối phương án này..." />
+            <Input.TextArea rows={3} placeholder={t("loads.redesign.rejectReasonPlaceholder")} />
           </Form.Item>
         </Form>
       </Modal>
