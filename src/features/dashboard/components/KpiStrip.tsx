@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Skeleton } from "antd";
+import { Button, Skeleton } from "antd";
 import { AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { KpiItemProps } from "../types/primitives.types";
@@ -14,6 +14,7 @@ export const KpiItem: React.FC<KpiItemProps> = ({
   tag,
   context,
   href,
+  onRetry,
   state = "ready",
 }) => {
   const { i18n, t } = useTranslation();
@@ -28,10 +29,15 @@ export const KpiItem: React.FC<KpiItemProps> = ({
         {state === "loading" ? (
           <Skeleton.Input active size="small" style={{ width: 70, height: 34 }} />
         ) : state === "error" ? (
-          <span className="ops-kpi-item__error" title={t("dashboard.opsView.kpi.loadError")}>
-            <AlertCircle size={16} />
+          <div className="ops-kpi-item__error" title={t("dashboard.opsView.kpi.loadError")}>
+            <AlertCircle aria-hidden="true" size={16} />
             <span>{t("dashboard.opsView.kpi.error")}</span>
-          </span>
+            {onRetry ? (
+              <Button aria-label={t("actions.retry")} onClick={onRetry} size="small" type="link">
+                {t("actions.retry")}
+              </Button>
+            ) : null}
+          </div>
         ) : (
           <div className="ops-kpi-item__value-row">
             <span className="ops-kpi-item__value">
@@ -69,15 +75,17 @@ export const KpiItem: React.FC<KpiItemProps> = ({
 export interface KpiStripProps {
   items: KpiItemProps[];
   className?: string;
+  onRetry?: () => void;
 }
 
 export const KpiStrip: React.FC<KpiStripProps> = ({
   items,
   className = "",
+  onRetry,
 }) => (
   <div className={`ops-kpi-strip ${className}`}>
     {items.map((item) => (
-      <KpiItem key={item.label} {...item} />
+      <KpiItem key={item.label} {...item} {...(item.state === "error" && onRetry ? { onRetry } : {})} />
     ))}
   </div>
 );

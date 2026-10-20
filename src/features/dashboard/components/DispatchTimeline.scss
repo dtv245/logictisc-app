@@ -46,8 +46,8 @@
   padding: 6px var(--spacing-sm);
   border: 0;
   border-radius: 18px;
-  background: #ede8fc;
-  color: #7442ff;
+  background: var(--color-bg-container);
+  color: var(--color-primary);
   font-family: inherit;
   font-size: var(--font-size-xs);
   font-weight: 600;
@@ -126,7 +126,7 @@
   overflow: hidden;
   border-radius: 50%;
   background: #e0e2db;
-  color: #6e7066;
+  color: var(--color-text-secondary);
 
   img {
     width: 100%;
@@ -231,7 +231,7 @@
   }
 
   &--delayed {
-    background: #ff4254;
+    background: var(--color-error);
     color: var(--color-text-inverse);
   }
 
@@ -249,9 +249,9 @@
   &--overrun {
     justify-content: center;
     padding: 0 5px;
-    border-color: #fa8291;
-    background: #fff0f2;
-    color: #db4053;
+    border-color: var(--color-error-border);
+    background: var(--color-error-bg);
+    color: var(--color-error-text);
     font-size: 10px;
   }
 }

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LoadShow } from "@/pages/loads/show";
 import type { Load } from "@/types/load.types";
+import { ApiHttpError } from "@/utils/httpError";
 
 const mockRefetch = vi.fn();
 const permissions = vi.hoisted(() => ({ can: true }));
@@ -176,6 +177,18 @@ describe("LoadShow Page", () => {
     fireEvent.click(retryBtn);
 
     expect(mockRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows a forbidden load response as an error rather than an empty detail", () => {
+    mockQueryResult.isError = true;
+    mockQueryResult.error = new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Load access denied", requestId: "load-forbidden" });
+    delete mockQueryResult.data;
+
+    render(<LoadShow />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Load access denied");
+    expect(screen.getByRole("button", { name: "Thử lại" })).toBeInTheDocument();
+    expect(screen.queryByText("Không có dữ liệu")).not.toBeInTheDocument();
   });
 
   it("hides the Financial tab and never mounts it without a confirmed capability", () => {

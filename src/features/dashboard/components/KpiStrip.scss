@@ -77,8 +77,15 @@
 .ops-kpi-item__error {
   color: #eb4b61;
   display: flex;
+  align-items: center;
   gap: var(--spacing-xxs);
   font-size: var(--font-size-xs);
+}
+
+.ops-kpi-item__error .ant-btn-link {
+  padding: 0 4px;
+  height: auto;
+  font-size: inherit;
 }
 
 @media (min-width: 1600px) {

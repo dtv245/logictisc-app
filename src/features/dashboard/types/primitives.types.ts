@@ -20,6 +20,7 @@ export interface KpiItemProps {
   href?: string;
   state?: "ready" | "loading" | "error" | "unavailable";
   unit?: string;
+  onRetry?: () => void;
 }
 
 export interface ProposedAction {

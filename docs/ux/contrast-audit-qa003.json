@@ -1,0 +1,3229 @@
+{
+  "scope": [
+    "src/styles",
+    "src/components",
+    "src/features/dashboard",
+    "src/features/loads/components/redesign"
+  ],
+  "generatedAt": "2026-10-20T09:08:05.874Z",
+  "counts": {
+    "files": 99,
+    "stylesheets": 19,
+    "tsx": 80,
+    "declarations": {
+      "foreground": 252,
+      "nonText": 21,
+      "background": 167,
+      "inlineTsxForeground": 101
+    },
+    "paired": 70,
+    "failures": 0,
+    "unresolved": 304
+  },
+  "pairs": [
+    {
+      "file": "src/styles/_components.scss",
+      "line": 396,
+      "selector": "&__badge",
+      "kind": "text",
+      "foreground": "#475569",
+      "background": "#f1f5f9",
+      "ratio": 6.92,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 453,
+      "selector": "&__kbd",
+      "kind": "text",
+      "foreground": "#64748b",
+      "background": "#f8fafc",
+      "ratio": 4.55,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 491,
+      "selector": "&:hover",
+      "kind": "text",
+      "foreground": "#2563eb",
+      "background": "#eff6ff",
+      "ratio": 4.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 571,
+      "selector": "&__chip",
+      "kind": "text",
+      "foreground": "#172033",
+      "background": "#f8fafc",
+      "ratio": 15.55,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 687,
+      "selector": ".table-overdue-tag",
+      "kind": "text",
+      "foreground": "#b91c1c",
+      "background": "#fef2f2",
+      "ratio": 5.91,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 792,
+      "selector": "&--success",
+      "kind": "text",
+      "foreground": "#15803d",
+      "background": "#f0fdf4",
+      "ratio": 4.79,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 798,
+      "selector": "&--warning",
+      "kind": "text",
+      "foreground": "#b45309",
+      "background": "#fffbeb",
+      "ratio": 4.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 804,
+      "selector": "&--error",
+      "kind": "text",
+      "foreground": "#b91c1c",
+      "background": "#fef2f2",
+      "ratio": 5.91,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 810,
+      "selector": "&--info",
+      "kind": "text",
+      "foreground": "#0369a1",
+      "background": "#f0f9ff",
+      "ratio": 5.57,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 817,
+      "selector": "&--neutral",
+      "kind": "text",
+      "foreground": "#475569",
+      "background": "#f8fafc",
+      "ratio": 7.24,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/global.scss",
+      "line": 3,
+      "selector": ":root",
+      "kind": "text",
+      "foreground": "#172033",
+      "background": "#d6d1cd",
+      "ratio": 10.74,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/styles/global.scss",
+      "line": 111,
+      "selector": "body",
+      "kind": "text",
+      "foreground": "#172033",
+      "background": "#d6d1cd",
+      "ratio": 10.74,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 177,
+      "selector": ".app-sider__zone--active > .ant-menu-submenu-title",
+      "kind": "text",
+      "foreground": "#111111",
+      "background": "#ffffff",
+      "ratio": 18.88,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 241,
+      "selector": ".app-sider__ai-agent-btn",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#18181b",
+      "ratio": 17.72,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 285,
+      "selector": ".app-sider__account .ant-avatar",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#111111",
+      "ratio": 18.88,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 354,
+      "selector": ".ant-menu-item-selected",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#172033",
+      "ratio": 16.27,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 6,
+      "selector": "&__message",
+      "kind": "text",
+      "foreground": "#475569",
+      "background": "#f8fafc",
+      "ratio": 7.24,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 7,
+      "selector": "&__tile-error",
+      "kind": "text",
+      "foreground": "#7d591c",
+      "background": "#fff9ed",
+      "ratio": 6.04,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 9,
+      "selector": "button",
+      "kind": "text",
+      "foreground": "#172033",
+      "background": "#ffffff",
+      "ratio": 16.27,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 21,
+      "selector": "&__controls button",
+      "kind": "text",
+      "foreground": "#475569",
+      "background": "#ffffff",
+      "ratio": 7.58,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 24,
+      "selector": "&__vehicle",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#2b2f2a",
+      "ratio": 13.61,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 25,
+      "selector": "&__vehicle--delayed",
+      "kind": "text",
+      "foreground": "#b91c1c",
+      "background": "#ffffff",
+      "ratio": 6.47,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 26,
+      "selector": "&__vehicle--idle",
+      "kind": "text",
+      "foreground": "#b45309",
+      "background": "#ffffff",
+      "ratio": 5.02,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 35,
+      "selector": "&__agent-mark",
+      "kind": "text",
+      "foreground": "#b599ff",
+      "background": "#28252f",
+      "ratio": 6.42,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 38,
+      "selector": "&__status",
+      "kind": "text",
+      "foreground": "#545c50",
+      "background": "#e9ece7",
+      "ratio": 5.83,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 40,
+      "selector": "&__status--warning",
+      "kind": "text",
+      "foreground": "#b45309",
+      "background": "#fff3df",
+      "ratio": 4.58,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 41,
+      "selector": "&__status--danger",
+      "kind": "text",
+      "foreground": "#c23943",
+      "background": "#fff0ef",
+      "ratio": 4.79,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 42,
+      "selector": "&__status--success",
+      "kind": "text",
+      "foreground": "#35744e",
+      "background": "#e4efe8",
+      "ratio": 4.74,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 66,
+      "selector": "&__avatar",
+      "kind": "text",
+      "foreground": "#475569",
+      "background": "#e9e8e1",
+      "ratio": 6.17,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 86,
+      "selector": "&__current",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#262828",
+      "ratio": 14.82,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 104,
+      "selector": "&__pager button, &__retry",
+      "kind": "text",
+      "foreground": "#444a40",
+      "background": "#ffffff",
+      "ratio": 9.13,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DashboardHeader.scss",
+      "line": 47,
+      "selector": "&__pill",
+      "kind": "text",
+      "foreground": "#493099",
+      "background": "#f0edff",
+      "ratio": 8.43,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DashboardHeader.scss",
+      "line": 77,
+      "selector": "kbd",
+      "kind": "text",
+      "foreground": "#64748b",
+      "background": "#ffffff",
+      "ratio": 4.76,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DashboardHeader.scss",
+      "line": 62,
+      "selector": "&__search-trigger",
+      "kind": "text",
+      "foreground": "#475569",
+      "background": "#f6f6f5",
+      "ratio": 7.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DashboardHeader.scss",
+      "line": 105,
+      "selector": ".ops-icon-btn",
+      "kind": "text",
+      "foreground": "#172033",
+      "background": "#ffffff",
+      "ratio": 16.27,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 13,
+      "selector": ".ops-timeline-card",
+      "kind": "text",
+      "foreground": "#353336",
+      "background": "#f8fafc",
+      "ratio": 11.96,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 47,
+      "selector": ".ops-timeline-open",
+      "kind": "text",
+      "foreground": "#2563eb",
+      "background": "#ffffff",
+      "ratio": 5.17,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 126,
+      "selector": ".ops-timeline-avatar",
+      "kind": "text",
+      "foreground": "#475569",
+      "background": "#e0e2db",
+      "ratio": 5.8,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 227,
+      "selector": "&--active",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#7540ff",
+      "ratio": 5.34,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 232,
+      "selector": "&--delayed",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#dc2626",
+      "ratio": 4.83,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 237,
+      "selector": "&--scheduled",
+      "kind": "text",
+      "foreground": "#6a6870",
+      "background": "#eaeae7",
+      "ratio": 4.55,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 243,
+      "selector": "&--ai-suggested",
+      "kind": "text",
+      "foreground": "#7540ff",
+      "background": "#f3efff",
+      "ratio": 4.73,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 251,
+      "selector": "&--overrun",
+      "kind": "text",
+      "foreground": "#b91c1c",
+      "background": "#fef2f2",
+      "ratio": 5.91,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 281,
+      "selector": "&__badge",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#7540ff",
+      "ratio": 5.34,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 12,
+      "selector": ".ops-brief-card",
+      "kind": "text",
+      "foreground": "#322f3b",
+      "background": "#f3efff",
+      "ratio": 11.59,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 43,
+      "selector": ".ops-brief-agent",
+      "kind": "text",
+      "foreground": "#baa1ff",
+      "background": "#26222d",
+      "ratio": 7.14,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 164,
+      "selector": ".ops-action-item",
+      "kind": "text",
+      "foreground": "#64748b",
+      "background": "#ffffff",
+      "ratio": 4.76,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 234,
+      "selector": ".ops-brief-review",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#7541ff",
+      "ratio": 5.31,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 60,
+      "selector": ".ops-priority-agent-banner",
+      "kind": "text",
+      "foreground": "#6f40f7",
+      "background": "#f2eafe",
+      "ratio": 4.79,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 9,
+      "selector": ".ops-card",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#64748b",
+      "ratio": 4.76,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 67,
+      "selector": "&--neutral",
+      "kind": "text",
+      "foreground": "#475569",
+      "background": "#f1f5f9",
+      "ratio": 6.92,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 72,
+      "selector": "&--positive",
+      "kind": "text",
+      "foreground": "#15803d",
+      "background": "#f0fdf4",
+      "ratio": 4.79,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 77,
+      "selector": "&--negative",
+      "kind": "text",
+      "foreground": "#b91c1c",
+      "background": "#fef2f2",
+      "ratio": 5.91,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 82,
+      "selector": "&--warning",
+      "kind": "text",
+      "foreground": "#b45309",
+      "background": "#fffbeb",
+      "ratio": 4.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 87,
+      "selector": "&--ai",
+      "kind": "text",
+      "foreground": "#7e22ce",
+      "background": "#f3e8ff",
+      "ratio": 5.92,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 93,
+      "selector": "&--info",
+      "kind": "text",
+      "foreground": "#2563eb",
+      "background": "#eff6ff",
+      "ratio": 4.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 106,
+      "selector": "&--positive",
+      "kind": "text",
+      "foreground": "#15803d",
+      "background": "#f0fdf4",
+      "ratio": 4.79,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 111,
+      "selector": "&--negative",
+      "kind": "text",
+      "foreground": "#b91c1c",
+      "background": "#fef2f2",
+      "ratio": 5.91,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 116,
+      "selector": "&--warning",
+      "kind": "text",
+      "foreground": "#b45309",
+      "background": "#fffbeb",
+      "ratio": 4.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 121,
+      "selector": "&--neutral",
+      "kind": "text",
+      "foreground": "#475569",
+      "background": "#f1f5f9",
+      "ratio": 6.92,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 126,
+      "selector": "&--ai",
+      "kind": "text",
+      "foreground": "#7e22ce",
+      "background": "#f3e8ff",
+      "ratio": 5.92,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 131,
+      "selector": "&--info",
+      "kind": "text",
+      "foreground": "#2563eb",
+      "background": "#eff6ff",
+      "ratio": 4.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 37,
+      "selector": "&__back-btn",
+      "kind": "text",
+      "foreground": "#172033",
+      "background": "#ffffff",
+      "ratio": 16.27,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 105,
+      "selector": "&--success",
+      "kind": "text",
+      "foreground": "#166534",
+      "background": "#f0fdf4",
+      "ratio": 6.81,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 94,
+      "selector": "&__pill-btn",
+      "kind": "text",
+      "foreground": "#172033",
+      "background": "#ffffff",
+      "ratio": 16.27,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 173,
+      "selector": "&__event-chip",
+      "kind": "text",
+      "foreground": "#7c3aed",
+      "background": "#f5f3ff",
+      "ratio": 5.2,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 406,
+      "selector": "&__detour-badge",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#0f172a",
+      "ratio": 17.85,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 450,
+      "selector": "&--current",
+      "kind": "text",
+      "foreground": "#ffffff",
+      "background": "#0f172a",
+      "ratio": 17.85,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 497,
+      "selector": "&__badge",
+      "kind": "text",
+      "foreground": "#6d28d9",
+      "background": "#f5f3ff",
+      "ratio": 6.48,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 582,
+      "selector": "&__footer",
+      "kind": "text",
+      "foreground": "#5b21b6",
+      "background": "#f5f3ff",
+      "ratio": 8.19,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ],
+  "unresolved": [
+    {
+      "file": "src/styles/_components.scss",
+      "line": 5,
+      "selector": ".app-brand",
+      "property": "color",
+      "value": "v.$color-primary !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 34,
+      "selector": ".page-header-title",
+      "property": "color",
+      "value": "v.$color-text !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 38,
+      "selector": ".page-header-subtitle",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 133,
+      "selector": "&:hover",
+      "property": "border-color",
+      "value": "v.$color-primary-border",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 169,
+      "selector": ".tenant-item-icon",
+      "property": "color",
+      "value": "v.$color-primary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 184,
+      "selector": ".tenant-item-name",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 192,
+      "selector": ".tenant-item-key",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 245,
+      "selector": "&__title",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 278,
+      "selector": "&__label",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 286,
+      "selector": "&__value",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 293,
+      "selector": "&__delta",
+      "property": "color",
+      "value": "v.$color-text-tertiary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 301,
+      "selector": "&__icon",
+      "property": "color",
+      "value": "v.$color-primary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 389,
+      "selector": "&__title",
+      "property": "color",
+      "value": "v.$color-text !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 441,
+      "selector": "&__search-icon",
+      "property": "color",
+      "value": "v.$color-text-tertiary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 492,
+      "selector": "&:hover",
+      "property": "border-color",
+      "value": "v.$color-primary-border",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 487,
+      "selector": "&__refresh-btn",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 554,
+      "selector": "&__chips-label",
+      "property": "color",
+      "value": "v.$color-text-tertiary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 583,
+      "selector": "&:hover",
+      "property": "color",
+      "value": "v.$color-error",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 579,
+      "selector": ".ant-tag-close-icon",
+      "property": "color",
+      "value": "v.$color-text-tertiary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 589,
+      "selector": "&__chip-key",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 594,
+      "selector": "&__chip-value",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 603,
+      "selector": "&:hover",
+      "property": "color",
+      "value": "v.$color-error-text !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 600,
+      "selector": "&__clear-all",
+      "property": "color",
+      "value": "v.$color-error !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 652,
+      "selector": ".table-mono-cell",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 664,
+      "selector": "&:hover",
+      "property": "color",
+      "value": "v.$color-primary-hover",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 657,
+      "selector": ".table-number-link",
+      "property": "color",
+      "value": "v.$color-primary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 712,
+      "selector": "&:focus-visible",
+      "property": "color",
+      "value": "v.$color-error !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 713,
+      "selector": "&:focus-visible",
+      "property": "border-color",
+      "value": "v.$color-error !important",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 719,
+      "selector": ".table-cell-empty",
+      "property": "color",
+      "value": "v.$color-text-tertiary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 742,
+      "selector": "&__title",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 748,
+      "selector": "&__description",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 910,
+      "selector": "&:hover",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 906,
+      "selector": ".ant-modal-close",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 935,
+      "selector": "&__title",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 943,
+      "selector": "&__subtitle",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 973,
+      "selector": ".ant-form-item-label > label",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 1066,
+      "selector": ".ant-descriptions-item-label",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 1074,
+      "selector": ".ant-descriptions-item-content",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 1147,
+      "selector": ".ant-descriptions-item-label",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 1222,
+      "selector": ".ant-result-subtitle",
+      "property": "color",
+      "value": "v.$color-text-secondary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_components.scss",
+      "line": 1381,
+      "selector": ".optimization-map-legend",
+      "property": "color",
+      "value": "#1e293b",
+      "reason": "paired background is translucent; underlying surface must be resolved"
+    },
+    {
+      "file": "src/styles/_mixins.scss",
+      "line": 143,
+      "selector": "@mixin font-heading($size: v.$font-size-xl, $weight: v.$font-weight-semibold)",
+      "property": "color",
+      "value": "v.$color-text",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_utilities.scss",
+      "line": 294,
+      "selector": ".text-primary",
+      "property": "color",
+      "value": "v.$color-primary !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_utilities.scss",
+      "line": 296,
+      "selector": ".text-success",
+      "property": "color",
+      "value": "v.$color-success !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_utilities.scss",
+      "line": 297,
+      "selector": ".text-warning",
+      "property": "color",
+      "value": "v.$color-warning !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_utilities.scss",
+      "line": 298,
+      "selector": ".text-danger",
+      "property": "color",
+      "value": "v.$color-error !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_utilities.scss",
+      "line": 300,
+      "selector": ".text-info",
+      "property": "color",
+      "value": "v.$color-info !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_utilities.scss",
+      "line": 301,
+      "selector": ".text-neutral",
+      "property": "color",
+      "value": "v.$color-neutral !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_utilities.scss",
+      "line": 302,
+      "selector": ".text-secondary",
+      "property": "color",
+      "value": "v.$color-text-secondary !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/_utilities.scss",
+      "line": 304,
+      "selector": ".text-tertiary",
+      "property": "color",
+      "value": "v.$color-text-tertiary !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/global.scss",
+      "line": 138,
+      "selector": "&:hover",
+      "property": "color",
+      "value": "v.$color-primary-hover",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/styles/global.scss",
+      "line": 133,
+      "selector": "a",
+      "property": "color",
+      "value": "v.$color-primary",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 84,
+      "selector": ".app-brand",
+      "property": "color",
+      "value": "var(--color-text-inverse) !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 93,
+      "selector": ".app-brand__mark",
+      "property": "color",
+      "value": "var(--color-text-inverse) !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 146,
+      "selector": "&:hover",
+      "property": "color",
+      "value": "var(--sider-ink, #111111) !important",
+      "reason": "paired background is translucent; underlying surface must be resolved"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 140,
+      "selector": ".ant-menu-submenu-title",
+      "property": "color",
+      "value": "var(--sider-icon, #6b6b76)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 152,
+      "selector": ".ant-menu-submenu-open > .ant-menu-submenu-title",
+      "property": "color",
+      "value": "var(--sider-ink, #111111) !important",
+      "reason": "paired background is translucent; underlying surface must be resolved"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 184,
+      "selector": ".ant-menu-item-icon",
+      "property": "color",
+      "value": "var(--sider-ink, #111111) !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 121,
+      "selector": ".app-sider__menu.ant-menu",
+      "property": "color",
+      "value": "var(--sider-icon, #6b6b76)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 218,
+      "selector": "&:hover",
+      "property": "color",
+      "value": "var(--sider-ink, #111111)",
+      "reason": "paired background is translucent; underlying surface must be resolved"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 210,
+      "selector": ".app-sider__notification-btn.ant-btn",
+      "property": "color",
+      "value": "var(--sider-icon, #6b6b76)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 349,
+      "selector": "&:hover",
+      "property": "color",
+      "value": "#111111",
+      "reason": "paired background is translucent; underlying surface must be resolved"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 340,
+      "selector": ".ant-menu-item",
+      "property": "color",
+      "value": "#374151",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/AppSider.scss",
+      "line": 363,
+      "selector": ".ant-menu-item-group-title",
+      "property": "color",
+      "value": "#9ca3af",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 18,
+      "selector": ".leaflet-control-zoom a",
+      "property": "color",
+      "value": "var(--color-text-secondary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 18,
+      "selector": ".leaflet-control-zoom a",
+      "property": "border-color",
+      "value": "#ededeb",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 22,
+      "selector": "&__controls button[aria-pressed=\"true\"]",
+      "property": "color",
+      "value": "#7442ff",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 25,
+      "selector": "&__vehicle--delayed",
+      "property": "border-color",
+      "value": "var(--color-error-text)",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 26,
+      "selector": "&__vehicle--idle",
+      "property": "border-color",
+      "value": "var(--color-warning-text)",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 30,
+      "selector": "&__vehicle-label strong",
+      "property": "color",
+      "value": "#43483d",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/NetworkRouteMap.scss",
+      "line": 31,
+      "selector": "&__vehicle-label small",
+      "property": "color",
+      "value": "#ef5b68",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 39,
+      "selector": "&__status svg",
+      "property": "stroke",
+      "value": "#fff1d9",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 43,
+      "selector": "&__meta",
+      "property": "color",
+      "value": "#787b7c",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 46,
+      "selector": "&__metric dt",
+      "property": "color",
+      "value": "#777a80",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 56,
+      "selector": "&__connectors path",
+      "property": "stroke",
+      "value": "#dedfdd",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 57,
+      "selector": "&__connectors .priority-shipment__connector-speed",
+      "property": "stroke",
+      "value": "#9a7be5",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 65,
+      "selector": "&__driver small",
+      "property": "color",
+      "value": "#808281",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 69,
+      "selector": "&__callout-label",
+      "property": "color",
+      "value": "#777a80",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 75,
+      "selector": "&__callout--unavailable strong",
+      "property": "color",
+      "value": "#969a94",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 82,
+      "selector": "&__detour-path path",
+      "property": "stroke",
+      "value": "#b6a2ed",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 94,
+      "selector": "&__stops .is-complete &__stop-dot",
+      "property": "border-color",
+      "value": "#282b29",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 96,
+      "selector": "&__stop-time",
+      "property": "color",
+      "value": "#818580",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 97,
+      "selector": "&__stops .is-estimated &__stop-time",
+      "property": "color",
+      "value": "#a37427",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 100,
+      "selector": "&__no-route, &__empty",
+      "property": "color",
+      "value": "#767d72",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 102,
+      "selector": "&__pager",
+      "property": "color",
+      "value": "#767d72",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 105,
+      "selector": "&__pager button:hover, &__retry:hover",
+      "property": "border-color",
+      "value": "#b9a4ef",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/dashboard/PriorityShipmentCard.scss",
+      "line": 108,
+      "selector": "&__state",
+      "property": "color",
+      "value": "#737b6c",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DashboardHeader.scss",
+      "line": 15,
+      "selector": "&__date",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DashboardHeader.scss",
+      "line": 27,
+      "selector": "&__title",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DashboardHeader.scss",
+      "line": 32,
+      "selector": "&__subtitle",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 27,
+      "selector": "h2",
+      "property": "color",
+      "value": "#2b2732",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 32,
+      "selector": "p",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 109,
+      "selector": "&--header",
+      "property": "color",
+      "value": "#82808a",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 141,
+      "selector": "strong",
+      "property": "color",
+      "value": "#2b2732",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 152,
+      "selector": "> span",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 159,
+      "selector": "> .ops-timeline-driver-status--positive",
+      "property": "color",
+      "value": "#258956",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 161,
+      "selector": "> .ops-timeline-driver-status--negative",
+      "property": "color",
+      "value": "#d44555",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 162,
+      "selector": "> .ops-timeline-driver-status--warning",
+      "property": "color",
+      "value": "#ad751a",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 163,
+      "selector": "> .ops-timeline-driver-status--ai",
+      "property": "color",
+      "value": "#7442ff",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 178,
+      "selector": ".ops-time-marker",
+      "property": "color",
+      "value": "#86848c",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 249,
+      "selector": "&--overrun",
+      "property": "border-color",
+      "value": "var(--color-error-border)",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 315,
+      "selector": "button",
+      "property": "color",
+      "value": "#7442ff",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/DispatchTimeline.scss",
+      "line": 306,
+      "selector": ".ops-timeline-state",
+      "property": "color",
+      "value": "#7f7d86",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/KpiStrip.scss",
+      "line": 33,
+      "selector": ".ops-kpi-item__label",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/KpiStrip.scss",
+      "line": 54,
+      "selector": ".ops-kpi-item__value",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/KpiStrip.scss",
+      "line": 59,
+      "selector": ".ops-kpi-item__context",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/KpiStrip.scss",
+      "line": 75,
+      "selector": ".ops-kpi-item__error",
+      "property": "color",
+      "value": "#eb4b61",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/NetworkMiniMap.scss",
+      "line": 39,
+      "selector": "strong",
+      "property": "color",
+      "value": "#2b2e28",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/NetworkMiniMap.scss",
+      "line": 47,
+      "selector": "> span:last-child:not(.ops-mini-map-live-dot)",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/NetworkMiniMap.scss",
+      "line": 95,
+      "selector": "&__empty",
+      "property": "color",
+      "value": "#727b6d",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/NetworkMiniMap.scss",
+      "line": 113,
+      "selector": "&__overlay",
+      "property": "color",
+      "value": "#444a40",
+      "reason": "paired background is translucent; underlying surface must be resolved"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 18,
+      "selector": "h3",
+      "property": "color",
+      "value": "#7d778a",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 52,
+      "selector": "h2",
+      "property": "color",
+      "value": "#2b2732",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 61,
+      "selector": "> span",
+      "property": "color",
+      "value": "#7644ff",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 80,
+      "selector": ".ops-brief-more",
+      "property": "color",
+      "value": "#928b9e",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 96,
+      "selector": "&--empty",
+      "property": "color",
+      "value": "#797187",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 88,
+      "selector": ".ops-brief-summary",
+      "property": "color",
+      "value": "#342e3a",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 124,
+      "selector": "&__count",
+      "property": "color",
+      "value": "#7442ff",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 133,
+      "selector": "&__label",
+      "property": "color",
+      "value": "#3a3443",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 176,
+      "selector": "&__icon",
+      "property": "color",
+      "value": "#7541ff",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 188,
+      "selector": "strong",
+      "property": "color",
+      "value": "#2b2732",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 197,
+      "selector": "small",
+      "property": "color",
+      "value": "#827b8e",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 243,
+      "selector": ".ops-brief-activity",
+      "property": "color",
+      "value": "#5d556c",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 252,
+      "selector": ".ops-brief-state",
+      "property": "color",
+      "value": "#766d84",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsBrief.scss",
+      "line": 265,
+      "selector": "button",
+      "property": "color",
+      "value": "#703eff",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/OperationsDashboardView.scss",
+      "line": 57,
+      "selector": ".ant-btn-primary",
+      "property": "border-color",
+      "value": "#703eff",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 19,
+      "selector": "strong",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 15,
+      "selector": ".ops-priority-empty-state",
+      "property": "color",
+      "value": "var(--color-text-secondary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 51,
+      "selector": ".ops-priority-section-label",
+      "property": "color",
+      "value": "#8c8998",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 69,
+      "selector": "span",
+      "property": "color",
+      "value": "#a294c9",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 86,
+      "selector": ".ops-priority-header__title",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 93,
+      "selector": ".ops-priority-risk",
+      "property": "color",
+      "value": "#b1791a",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 100,
+      "selector": ".ops-priority-header__meta",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 113,
+      "selector": ".ops-priority-header__switcher-text",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 133,
+      "selector": "span",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 149,
+      "selector": "small",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 153,
+      "selector": ".is-late + small",
+      "property": "color",
+      "value": "#f04457",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 158,
+      "selector": ".is-ai + small",
+      "property": "color",
+      "value": "#7040f9",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 216,
+      "selector": "&__label",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 225,
+      "selector": "&__value",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 239,
+      "selector": ".ops-priority-truck-stage__freshness",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 253,
+      "selector": ".ops-route-label",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 310,
+      "selector": "&__name",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/PriorityShipmentCard.scss",
+      "line": 316,
+      "selector": "&__time",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 27,
+      "selector": "&__title",
+      "property": "color",
+      "value": "var(--color-text-inverse)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 43,
+      "selector": ".ops-section-label",
+      "property": "color",
+      "value": "#e2e8f0",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 143,
+      "selector": "&__label",
+      "property": "color",
+      "value": "#e2e8f0",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 154,
+      "selector": "&--positive",
+      "property": "color",
+      "value": "#34d399",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 156,
+      "selector": "&--negative",
+      "property": "color",
+      "value": "#f87171",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 157,
+      "selector": "&--warning",
+      "property": "color",
+      "value": "#fbbf24",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 158,
+      "selector": "&--ai",
+      "property": "color",
+      "value": "#c084fc",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 159,
+      "selector": "&--info",
+      "property": "color",
+      "value": "#60a5fa",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 160,
+      "selector": "&--neutral",
+      "property": "color",
+      "value": "var(--color-text-inverse)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 150,
+      "selector": "&__value",
+      "property": "color",
+      "value": "var(--color-text-inverse)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 170,
+      "selector": "&--positive",
+      "property": "color",
+      "value": "#34d399",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 172,
+      "selector": "&--negative",
+      "property": "color",
+      "value": "#f87171",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 173,
+      "selector": "&--warning",
+      "property": "color",
+      "value": "#fbbf24",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 174,
+      "selector": "&--ai",
+      "property": "color",
+      "value": "#c084fc",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 175,
+      "selector": "&--info",
+      "property": "color",
+      "value": "#60a5fa",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 176,
+      "selector": "&--neutral",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 213,
+      "selector": "&__label",
+      "property": "color",
+      "value": "#e2e8f0",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 218,
+      "selector": "&__value",
+      "property": "color",
+      "value": "var(--color-text-inverse)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 251,
+      "selector": "&--positive",
+      "property": "color",
+      "value": "#34d399",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 253,
+      "selector": "&--negative",
+      "property": "color",
+      "value": "#f87171",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 254,
+      "selector": "&--warning",
+      "property": "color",
+      "value": "#fbbf24",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 255,
+      "selector": "&--ai",
+      "property": "color",
+      "value": "#c084fc",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 256,
+      "selector": "&--info",
+      "property": "color",
+      "value": "#60a5fa",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 257,
+      "selector": "&--neutral",
+      "property": "color",
+      "value": "#e2e8f0",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 263,
+      "selector": "&--stale",
+      "property": "color",
+      "value": "#fbbf24",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 260,
+      "selector": ".ops-relative-time",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 289,
+      "selector": "&__title",
+      "property": "color",
+      "value": "var(--color-text-inverse)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/primitives.scss",
+      "line": 282,
+      "selector": ".ops-unavailable-state",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 43,
+      "selector": "&:hover",
+      "property": "border-color",
+      "value": "var(--color-border-dark)",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 53,
+      "selector": "&__breadcrumb",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 67,
+      "selector": "&__title",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 99,
+      "selector": "&:hover",
+      "property": "border-color",
+      "value": "var(--color-border-dark)",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 104,
+      "selector": "&--success",
+      "property": "border-color",
+      "value": "var(--color-success-border)",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 183,
+      "selector": "&__route-title",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 197,
+      "selector": "&__subtitle",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 226,
+      "selector": "&__stat-label",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 233,
+      "selector": "&__stat-value",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 243,
+      "selector": "&--green",
+      "property": "color",
+      "value": "var(--color-success-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 247,
+      "selector": "&--red",
+      "property": "color",
+      "value": "var(--color-error-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 251,
+      "selector": "&--purple",
+      "property": "color",
+      "value": "#7c3aed",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 344,
+      "selector": "&__callout-label",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 350,
+      "selector": "&__callout-value",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 432,
+      "selector": "&--active",
+      "property": "border-color",
+      "value": "#0f172a",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 437,
+      "selector": "&--completed",
+      "property": "border-color",
+      "value": "#0f172a",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 460,
+      "selector": "&__stop-name",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 466,
+      "selector": "&__stop-time",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 506,
+      "selector": "&__meta",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 513,
+      "selector": "&__title",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 536,
+      "selector": "&__label",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 540,
+      "selector": "&__content",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 568,
+      "selector": "&--green",
+      "property": "color",
+      "value": "var(--color-success-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 565,
+      "selector": "&__metric-value",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 574,
+      "selector": "&__metric-desc",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 608,
+      "selector": "&__title",
+      "property": "color",
+      "value": "var(--color-text)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 617,
+      "selector": "&__timezone",
+      "property": "color",
+      "value": "var(--color-text-tertiary)",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 645,
+      "selector": ".ant-tabs-tab-btn",
+      "property": "color",
+      "value": "var(--color-text-tertiary) !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 652,
+      "selector": "&:hover",
+      "property": "border-color",
+      "value": "var(--color-border-dark) !important",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 660,
+      "selector": ".ant-tabs-tab-btn",
+      "property": "color",
+      "value": "var(--color-text-inverse) !important",
+      "reason": "background is inherited or supplied by another selector; pair not inferred"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentDetail.scss",
+      "line": 657,
+      "selector": "&.ant-tabs-tab-active",
+      "property": "border-color",
+      "value": "#0f172a !important",
+      "reason": "non-text boundary must be compared with the surrounding surface, not its own element background"
+    },
+    {
+      "file": "src/components/ResourceListPage.tsx",
+      "line": 259,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "rgba(0, 0, 0, 0.45)",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/StatusTag.tsx",
+      "line": 36,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#15803d",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/StatusTag.tsx",
+      "line": 42,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#0369a1",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/StatusTag.tsx",
+      "line": 48,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#b45309",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/StatusTag.tsx",
+      "line": 54,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#b91c1c",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/StatusTag.tsx",
+      "line": 60,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#475569",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/accidents/columns.test.tsx",
+      "line": 141,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#854d0e",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/accidents/columns.tsx",
+      "line": 19,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#854d0e",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 383,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#1677ff",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 519,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#8c8c8c",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 533,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#8c8c8c",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 548,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#475569",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 670,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#111827",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 677,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#9ca3af",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 688,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#4b5563",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 695,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 730,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#4b5563",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 755,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#4b5563",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 757,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#4b5563",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 769,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 778,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 804,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#d48806",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 805,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#873800",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 852,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 881,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#7c3aed",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 897,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#111827",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 946,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 953,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#9ca3af",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 955,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#9ca3af",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 969,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#4b5563",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 986,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 990,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#9ca3af",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1003,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#374151",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1007,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#2563eb",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1018,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#111827",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1031,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#374151",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1050,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#374151",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1054,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#9ca3af",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1065,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1077,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1096,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#111827",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1112,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#374151",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1116,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1150,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#2563eb",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1152,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#ef4444",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1154,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1156,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#1f2937",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1207,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1208,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#2563eb",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1222,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#111827",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1262,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#2563eb",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1305,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#4b5563",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1322,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#166534",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1406,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#4b5563",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1452,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#374151",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1462,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#9ca3af",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1492,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#111827",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1516,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#111827",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1530,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#4b5563",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1544,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#6b7280",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/AiGapChatWidget.tsx",
+      "line": 1582,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#9ca3af",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiDispatchSection.tsx",
+      "line": 165,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#ff4d4f",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiDispatchSection.tsx",
+      "line": 166,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#cf1322",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiDispatchSection.tsx",
+      "line": 262,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#ff4d4f",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiDispatchSection.tsx",
+      "line": 550,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#333",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiDispatchSection.tsx",
+      "line": 605,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#52c41a",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiDispatchSection.tsx",
+      "line": 646,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#ff4d4f",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiGapsSection.tsx",
+      "line": 237,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#ff4d4f",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiGapsSection.tsx",
+      "line": 238,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#cf1322",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiGapsSection.tsx",
+      "line": 287,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#262626",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiGapsSection.tsx",
+      "line": 295,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#8c8c8c",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiGapsSection.tsx",
+      "line": 339,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#faad14",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiGapsSection.tsx",
+      "line": 340,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#d48806",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiGapsSection.tsx",
+      "line": 389,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#262626",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiGapsSection.tsx",
+      "line": 397,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#8c8c8c",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiGapsSection.tsx",
+      "line": 448,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#faad14",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiOverviewBadge.tsx",
+      "line": 17,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#bfbfbf",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiOverviewBadge.tsx",
+      "line": 73,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#8c8c8c",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiOverviewCell.tsx",
+      "line": 36,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#bfbfbf",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiPanel.tsx",
+      "line": 46,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#722ed1",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/ai/LoadAiPanel.tsx",
+      "line": 48,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#531dab",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/resources/ResourceFormFields.tsx",
+      "line": 176,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "rgba(0, 0, 0, 0.45)",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/components/resources/ResourceFormFields.tsx",
+      "line": 531,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "rgba(0, 0, 0, 0.45)",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/dashboard/components/DashboardHeader.tsx",
+      "line": 188,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#64748b",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/DashboardStates.tsx",
+      "line": 46,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#94a3b8",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/DashboardStates.tsx",
+      "line": 71,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#ef4444",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/dashboard/components/primitives/DashboardStates.tsx",
+      "line": 105,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#94a3b8",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentGapsCard.tsx",
+      "line": 55,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#166534",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentGapsCard.tsx",
+      "line": 75,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#991B1B",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentGapsCard.tsx",
+      "line": 79,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#7F1D1D",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentGapsCard.tsx",
+      "line": 95,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#7f1d1d",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentGapsCard.tsx",
+      "line": 113,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#D97706",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentGapsCard.tsx",
+      "line": 114,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#92400E",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentGapsCard.tsx",
+      "line": 118,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#78350F",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentGapsCard.tsx",
+      "line": 136,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#92400E",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentGapsCard.tsx",
+      "line": 143,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#78350f",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentHeroCard.tsx",
+      "line": 87,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#7C3AED",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentHeroCard.tsx",
+      "line": 121,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#FFFFFF",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentLoadPlanCard.tsx",
+      "line": 68,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#475569",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentTimelineCard.tsx",
+      "line": 74,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#7C3AED",
+      "reason": "inline style has no paired background on same line"
+    },
+    {
+      "file": "src/features/loads/components/redesign/ShipmentTimelineCard.tsx",
+      "line": 77,
+      "selector": "inline style object",
+      "property": "color",
+      "value": "#7C3AED",
+      "reason": "inline style has no paired background on same line"
+    }
+  ]
+}

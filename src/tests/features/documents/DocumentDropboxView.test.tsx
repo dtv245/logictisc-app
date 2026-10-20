@@ -4,6 +4,7 @@ import type { BaseRecord, DataProvider } from "@refinedev/core";
 import { DocumentDropboxView } from "@/features/documents/components/DocumentDropboxView";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import type { Document } from "@/types/document.types";
+import { ApiHttpError } from "@/utils/httpError";
 
 const mockDocuments: Document[] = [
   {
@@ -156,5 +157,23 @@ describe("DocumentDropboxView", () => {
     expect(screen.getByText("Business Links")).toBeInTheDocument();
     expect(screen.getByText("Dispatcher John")).toBeInTheDocument();
     expect(screen.getByText("Signed BOL for pickup")).toBeInTheDocument();
+  });
+
+  it("keeps a forbidden documents response distinct from an empty collection", async () => {
+    const forbiddenList: DataProvider["getList"] = async () => {
+      throw new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Not allowed", requestId: "documents-forbidden" });
+    };
+    await renderFinance(<DocumentDropboxView />, vi.fn(), { role: "ADMIN", listRequest: forbiddenList });
+
+    expect(await screen.findByText("Not allowed")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(screen.queryByText("No documents found in this folder")).not.toBeInTheDocument();
+  });
+
+  it("shows the documents empty state after a successful empty response", async () => {
+    await renderFinance(<DocumentDropboxView />, vi.fn(), { role: "ADMIN", listRequest: createListProvider([]) });
+
+    expect(await screen.findByText("No documents found in this folder")).toBeInTheDocument();
+    expect(screen.queryByText("Unable to load content")).not.toBeInTheDocument();
   });
 });

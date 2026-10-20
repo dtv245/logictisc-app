@@ -177,3 +177,40 @@ Full Vitest và full lint đã từng trả lỗi nên các kết quả tổng t
 - Bằng chứng: `npx playwright test e2e/sider-role.spec.ts e2e/dashboard-keyboard.spec.ts e2e/dashboard-panels.spec.ts e2e/reduced-motion.spec.ts --workers=1 --reporter=line` — exit 0, 10/10 test. Ảnh dashboard-panels là `BROWSER-FIXTURE`.
 - Chưa kiểm chứng: tiêu chí “theo video” do không có video tham chiếu (BASE-004); live data, role/tenant và responsive UAT thật `NEEDS-LIVE`.
 - File chính: Operations/dashboard panels, `e2e/dashboard-keyboard.spec.ts`, screenshots `docs/design/dashboard-panels/`, `plan.md`. Rollback: hoàn nguyên thay đổi UI/test/ảnh gói 2 và dòng trạng thái này.
+
+### QA-002 — 20/10/2026
+
+- Trạng thái: `IN_REVIEW → IN_REVIEW`. Acceptance §3.8: “Tab/Enter/Space/Escape được hỗ trợ theo component, modal restore focus; không chỉ dựa màu.” Operations search/brief, map, mode và timeline đã có browser keyboard test; sidebar rail có role test và ArrowDown.
+- Bằng chứng: `npx playwright test e2e/sider-role.spec.ts e2e/dashboard-keyboard.spec.ts e2e/dashboard-panels.spec.ts e2e/reduced-motion.spec.ts --workers=1 --reporter=line` — exit 0, 10/10 trong run gói 2. Component tests cho Load, AI, Optimization, Documents và Notifications có thao tác pointer/source handlers.
+- Chưa đạt: chưa có keyboard sequence + focus restoration browser test cho Load list/detail, AI run/approve, Optimization confirm/drawer, Documents drawer, Notification popover; liệt kê tại `docs/ux/keyboard-focus-audit.md`. Live auth/tenant `NEEDS-LIVE`.
+- File đã sửa: `docs/ux/keyboard-focus-audit.md`, `plan.md`, progress. Rollback: revert audit doc và dòng `QA-002`/count nếu trạng thái được đổi.
+
+### QA-003 — 20/10/2026
+
+- Trạng thái: `IN_REVIEW → IN_REVIEW`. Acceptance §3.8: cặp chữ thường đạt ≥4.5:1, non-text ≥3:1; không có caption khó đọc. `node scripts/audit-ux-contrast-scope.mjs` — exit 0; quét 99 file trong `src/styles`, `src/components`, `src/features/dashboard`, `src/features/loads/components/redesign`; 70 cặp foreground/background cùng rule đạt ngưỡng, 0 fail.
+- Đã sửa bằng semantic token có sẵn các cặp trực tiếp gồm map marker, Priority warning/avatar, timeline text/error badge, Operations Brief, dashboard search và trạng thái positive/neutral. Không sửa token hay màu primary. `node scripts/audit-ux-contrast.mjs --after` — exit 0, 15/15 cặp sample đạt và `noWorse=true`.
+- Test: `npx vitest run src/tests/accessibility/contrastAudit.test.ts src/tests/features/documents/DocumentDropboxView.test.tsx src/tests/features/notifications/NotificationHeaderIcon.integration.test.tsx src/tests/pages/optimization/OptimizationRunShow.test.tsx src/tests/pages/loads/LoadShow.test.tsx --maxWorkers=1 --minWorkers=1 --reporter=dot` — exit 0, 5 files/26 tests.
+- Chưa đạt: audit ghi 304 khai báo màu chưa có cặp nền xác định (inherited/inline/non-text boundary); report `docs/ux/contrast-audit-qa003.json` giữ nguyên danh sách này. Vì vậy QA-003 và phụ thuộc DS-003 không thể lên DONE.
+- File đã sửa: `scripts/audit-ux-contrast-scope.mjs`, `src/tests/accessibility/contrastAudit.test.ts`, các SCSS Operations/dashboard/load, `docs/ux/contrast-audit-qa003.json`, `plan.md`. Rollback: revert các thay đổi màu trong các SCSS đã nêu cùng script/test/report và dòng QA-003; không rollback token primary vì token đó không bị đổi.
+
+### QA-004 — 20/10/2026
+
+- Trạng thái: `IN_REVIEW → IN_REVIEW`. Acceptance §3.8: mỗi route ưu tiên có loading/empty/error/permission/disabled matrix và lỗi API có recover; 403 không được hiển thị như empty. Ma trận có đủ Operations, Loads list/show, AI Dispatch, Optimization, Documents, Notifications và Fleet tại `docs/ux/route-state-matrix.md`.
+- Đã thêm API 403-vs-empty assertion cho Operations, Loads list/detail, AI Dispatch, Optimization, Documents và Notifications; Fleet suite đã có test tương ứng. Operations KPI lỗi có Retry và test xác nhận gọi `refetchAll`. Route detail Load ghi rõ empty collection là N/A vì cần một bản ghi; hiện còn thiếu direct pending/404 page assertions. Loads list/browser route và một số disabled state vẫn cần test cấp route.
+- Bằng chứng: `npx vitest run src/tests/components/ResourceListPage.test.tsx src/tests/pages/loads/LoadShow.test.tsx src/tests/pages/dashboard/DashboardResponsive.test.tsx src/tests/pages/ai-dispatch/AiDispatchPage.test.tsx src/tests/features/documents/DocumentDropboxView.test.tsx src/tests/features/notifications/NotificationHeaderIcon.integration.test.tsx src/tests/pages/optimization/OptimizationRunShow.test.tsx src/tests/accessibility/contrastAudit.test.ts --maxWorkers=1 --minWorkers=1 --reporter=dot` — exit 0, 8 files/61 tests. Sau bổ sung Retry Operations: `npx vitest run src/tests/pages/dashboard/DashboardResponsive.test.tsx src/tests/accessibility/contrastAudit.test.ts --maxWorkers=1 --minWorkers=1 --reporter=dot` — exit 0, 2 files/14 tests. `npm run typecheck` và `npm run lint` exit 0; lint 0 errors, 4 existing warnings.
+- File đã sửa: `src/features/dashboard/components/KpiStrip.tsx`, `KpiStrip.scss`, `OperationsDashboardView.tsx`, `src/features/dashboard/types/primitives.types.ts`, `src/tests/pages/dashboard/DashboardResponsive.test.tsx`, `docs/ux/route-state-matrix.md`, `plan.md`. Rollback: revert retry control/test/matrix changes và QA-004 row; giữ nguyên 403/error guards đã có trước đó.
+- Còn thiếu: direct pending/404 assertion tại Loads detail, browser route test cho Loads list và một số permission/disabled state assertions. Không có authenticated backend session; role/tenant thật `NEEDS-LIVE`.
+
+### QA-005 — 20/10/2026
+
+- Trạng thái: `IN_REVIEW → DONE`. Acceptance §3.8: source hỗ trợ `prefers-reduced-motion`, không thêm motion library/zoom/rotate; audit ghi 69 match trên 28 file (gồm CSS, inline styles, test/type matches) và universal media rule áp dụng cả cho inline style.
+- Bằng chứng: `npx playwright test e2e/reduced-motion.spec.ts --workers=1 --reporter=line` — exit 0, 2/2; test emulate `reduce`, kiểm tra dashboard interactions và sider rail. `npm run typecheck` và `npm run lint` exit 0; lint 0 errors/4 warnings. Audit `docs/ux/reduced-motion-audit.md`.
+- File đã sửa: `e2e/reduced-motion.spec.ts`, `docs/ux/reduced-motion-audit.md`, `plan.md`, progress. Rollback: revert reduced-motion Playwright test and audit/status documentation; no runtime motion change was required.
+
+### QA-006 — 20/10/2026
+
+- Trạng thái: `IN_REVIEW → UI_SAFE_DONE` (trước đó đã hạ từ `UI_SAFE_DONE` trong gói A khi cần chạy lại regression với harness strict). Acceptance §3.8: regression auth/session/tenant, CRUD, AI approval, financial/payroll guard được chạy trong full suite; không có app regressions trong test evidence.
+- Bằng chứng cuối: `npm run build` exit 0; `npm run lint` exit 0 (0 errors, 4 existing hook-dependency warnings); `npm run typecheck` exit 0; `npx vitest run` exit 0, 206 files/1352 tests; `npx playwright test --workers=1 --reporter=line` 25/26 pass. Failure duy nhất là `e2e/bootstrap.spec.ts:46`, known-failing do thiếu OIDC thật theo yêu cầu, không sửa. Sau khi shared i18n fixture được sửa, priority screenshot specs pass 2/2. Sider/Fleet route screenshot specs chạy riêng serial pass 3/3.
+- Ảnh `BROWSER-FIXTURE` được ghi lại sau strict i18n; các screenshot specs có assertion raw-key guard trước khi chụp. Writer cho `docs/design/**`: `dashboard-panels.spec.ts`, `loads-show-screenshot.spec.ts`, `priority-shipment-card.spec.ts`, `sider-role.spec.ts`, `sider-screenshot.spec.ts`; writer cho `docs/ux/baseline/**`: `capture-demo-baseline.spec.ts`. Có **35 PNG tracked** được refresh có chủ đích ở `docs/design/**` và `docs/ux/baseline/**`; đây không phải live snapshots.
+- File đã sửa/thêm trong task: `e2e/fixtures/priority-shipment-card.tsx`, `plan.md`, progress và ảnh do các Playwright screenshot writers nêu trên tạo. Rollback: revert strict i18n wrapper/fix và QA-006 plan/progress rows; khôi phục ảnh nếu muốn bỏ baseline refresh.
+- Giới hạn: thiếu OIDC thật, nên bootstrap case và live auth/tenant UAT chưa xác minh. Theo ngoại lệ đã định, QA-006 là `UI_SAFE_DONE`; toàn bộ ảnh/test là fixture.

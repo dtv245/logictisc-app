@@ -61,6 +61,14 @@ describe("OptimizationRunShow", () => {
     const request = vi.fn<(x: CustomParams) => Promise<unknown>>().mockRejectedValueOnce(new ApiHttpError({ statusCode: 500, code: "SERVER_ERROR", message: "Run unavailable", requestId: "read-run" })).mockResolvedValueOnce(optimization);
     await renderFinance(page, request, options); expect(await screen.findByText(/Run unavailable.*read-run/)).toBeInTheDocument(); fireEvent.click(screen.getByRole("button", { name: "Try again" })); await screen.findByRole("button", { name: `Accept candidate ${candidateId}` });
   });
+  it("renders a 403 as an error with recovery, never as an empty run", async () => {
+    const request = vi.fn(async () => { throw new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Run access denied", requestId: "run-forbidden" }); });
+    await renderFinance(page, request, options);
+
+    expect(await screen.findByText(/Run access denied/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(screen.queryByText("No data", { selector: "strong" })).not.toBeInTheDocument();
+  });
   it("does not refetch a nonexistent acceptance endpoint when cached real acceptance is available", async () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } }); client.setQueryData(optimizationKeys.accepted(tenantKey, optimizationRunId), optimizationAccepted);
     const request = vi.fn(async () => optimization); await renderFinance(page, request, { ...options, client }); await screen.findByText("Candidate accepted."); expect(screen.queryByRole("button", { name: `Accept candidate ${candidateId}` })).not.toBeInTheDocument(); expect(request).toHaveBeenCalledTimes(1);

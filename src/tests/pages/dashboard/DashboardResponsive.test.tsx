@@ -16,6 +16,14 @@ import { OperationsDashboardView } from "@features/dashboard/components/Operatio
 import { VehicleTrackingMap } from "@features/operations/components/VehicleTrackingMap";
 import { OperationsChart } from "@features/operations/components/OperationsChart";
 import type { KpiItemProps } from "@features/dashboard/types/primitives.types";
+import { ApiHttpError } from "@/utils/httpError";
+
+const dashboardDataState = vi.hoisted(() => ({
+  otd: { data: { otdPercentage: 94 } as unknown, isLoading: false, error: null as unknown },
+  delays: { data: { totalLateLoads: 3 } as unknown, isLoading: false, error: null as unknown },
+  exceptions: { data: { totalExceptions: 2 } as unknown, isLoading: false, error: null as unknown },
+  refetchAll: vi.fn(),
+}));
 
 // Helper to set viewport
 const setViewport = (width: number, height = 800) => {
@@ -70,12 +78,7 @@ beforeAll(async () => {
 });
 
 vi.mock("@/hooks/useDashboardData", () => ({
-  useDashboardData: () => ({
-    otd: { data: { otdPercentage: 94 }, isLoading: false, error: null },
-    delays: { data: { totalLateLoads: 3 }, isLoading: false, error: null },
-    exceptions: { data: { totalExceptions: 2 }, isLoading: false, isError: false },
-    refetchAll: vi.fn(),
-  }),
+  useDashboardData: () => dashboardDataState,
 }));
 
 vi.mock("react-map-gl/maplibre", () => ({
@@ -88,6 +91,9 @@ vi.mock("react-map-gl/maplibre", () => ({
 describe("Dashboard & Operations Responsive Verification", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    dashboardDataState.otd = { data: { otdPercentage: 94 }, isLoading: false, error: null };
+    dashboardDataState.delays = { data: { totalLateLoads: 3 }, isLoading: false, error: null };
+    dashboardDataState.exceptions = { data: { totalExceptions: 2 }, isLoading: false, error: null };
   });
 
   describe("1. DashboardHeader responsive controls", () => {
@@ -244,6 +250,23 @@ describe("Dashboard & Operations Responsive Verification", () => {
       expect(screen.queryByText("28")).not.toBeInTheDocument();
       expect(screen.queryByText("46")).not.toBeInTheDocument();
       expect(screen.queryByText("14")).not.toBeInTheDocument();
+    });
+
+    it("keeps an Operations API 403 in error state and exposes recovery instead of zero/unavailable", () => {
+      dashboardDataState.delays = {
+        data: undefined,
+        isLoading: false,
+        error: new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Forbidden", requestId: "ops-forbidden" }),
+      };
+      renderWithProviders(<OperationsDashboardView />);
+
+      const atRisk = document.querySelector(".ops-kpi-item--error");
+      expect(atRisk).not.toBeNull();
+      expect(atRisk).toHaveTextContent("Lỗi");
+      expect(atRisk).not.toHaveTextContent("Dữ liệu nguồn chưa sẵn sàng");
+      expect(atRisk).not.toHaveTextContent("—");
+      fireEvent.click(screen.getByRole("button", { name: "Thử lại" }));
+      expect(dashboardDataState.refetchAll).toHaveBeenCalledTimes(1);
     });
 
     it("localizes dashboard KPI labels and search controls", async () => {

@@ -16,6 +16,7 @@
 import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
 import { ResourceListPage } from "@components/ResourceListPage";
 import { initializeAppI18n } from "@locales";
+import { ApiHttpError } from "@/utils/httpError";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
@@ -134,6 +135,21 @@ describe("ResourceListPage — lỗi tải bảng", () => {
     expect(tableHeader()).not.toBeInTheDocument();
   });
 
+  it("hiển thị 403 trong trạng thái lỗi của danh sách Loads thay vì rỗng", async () => {
+    state.tableQueryResult = {
+      error: new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Load list forbidden", requestId: "loads-list-403" }),
+      isFetching: false,
+      refetch: state.refetchTable,
+    };
+
+    await renderList();
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Bạn không có quyền thực hiện thao tác này");
+    expect(screen.getByRole("button", { name: "Thử lại" })).toBeInTheDocument();
+    expect(tableHeader()).not.toBeInTheDocument();
+    expect(screen.queryByText("Không có dữ liệu")).not.toBeInTheDocument();
+  });
+
   it("gọi refetch của bảng khi bấm thử lại", async () => {
     state.tableQueryResult = {
       error: new Error("boom"),
@@ -152,6 +168,13 @@ describe("ResourceListPage — lỗi tải bảng", () => {
 
     expect(tableHeader()).toBeInTheDocument();
     expect(screen.queryByText("Không thể tải nội dung")).not.toBeInTheDocument();
+  });
+
+  it("hiển thị empty state khi danh sách Loads trả về thành công nhưng không có dòng", async () => {
+    await renderList();
+
+    expect(screen.getByText("Chưa có dữ liệu")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });
 

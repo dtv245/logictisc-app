@@ -39,4 +39,16 @@ describe("notification header integration", () => {
     let fail = true; const list: DataProvider["getList"] = async <TData extends BaseRecord>() => { if (fail) throw new ApiHttpError({ statusCode: 500, code: "SERVER_ERROR", message: "Notice unavailable", requestId: "notice-request" }); return { data: [item] as unknown as TData[], total: 1 }; };
     await renderFinance(<NotificationHeaderIcon />, async () => 0, { role: "OWNER", listRequest: list }); fireEvent.click(await screen.findByRole("button", { name: "Notifications" })); expect(await screen.findByText("Notice unavailable")).toBeInTheDocument(); fail = false; fireEvent.click(screen.getByRole("button", { name: "Try again" })); expect(await screen.findByRole("button", { name: "Recent shipment (Unread)" })).toBeInTheDocument();
   });
+
+  it("does not render a forbidden notification response as an empty list", async () => {
+    const forbidden: DataProvider["getList"] = async () => {
+      throw new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Notification access denied", requestId: "notification-forbidden" });
+    };
+    await renderFinance(<NotificationHeaderIcon />, async () => 0, { role: "OWNER", listRequest: forbidden });
+    fireEvent.click(await screen.findByRole("button", { name: "Notifications" }));
+
+    expect(await screen.findByText("Notification access denied")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(screen.queryByText("No notifications")).not.toBeInTheDocument();
+  });
 });

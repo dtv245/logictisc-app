@@ -106,12 +106,12 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
     <div className={`ops-dashboard-layout ${className}`}>
       {/* 1. Header (Full Width) */}
       <div className="ops-grid-area-header">
-        <DashboardHeader onRefresh={dashboardData.refetchAll} />
+        <DashboardHeader />
       </div>
 
       {/* 2. KPI Strip (Full Width) */}
       <div className="ops-grid-area-kpi">
-        <KpiStrip items={kpiItems} />
+        <KpiStrip items={kpiItems} onRetry={dashboardData.refetchAll} />
       </div>
 
       {/* 3. Priority Shipment Card (8 cols) & Operations Brief (4 cols) */}

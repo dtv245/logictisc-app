@@ -1,7 +1,7 @@
 # LOGISTICSX — MASTER UI/UX IMPROVEMENT PLAN
 
-> **Phiên bản:** `v1.0 / COMPLETE PLANNING BASELINE`  
-> **Ngày lập:** 19/10/2026  
+> **Phiên bản:** `v1.1 / IMPLEMENTATION TRACKER`
+> **Ngày lập/cập nhật:** 20/10/2026
 > **Trạng thái:** Đã bắt đầu triển khai; trạng thái từng task và bằng chứng nghiệm thu được ghi tại §16 và `docs/UI_UX_IMPLEMENTATION_PROGRESS.md`.
 > **Nguồn chính:** `docs/CURRENT_UI_UX_FLOW_ANALYSIS.md` (bản hiện có); đối chiếu source runtime và `docs/ux/sprint0-triage.md`. File `CURRENT_UI_UX_FLOW_ANALYSIS(1).md` và hai video tham khảo không có trong working tree phiên này.
 > **Nguồn tham chiếu:** Hai video UI/UX logistics đã phân tích trong cuộc trao đổi  
@@ -368,7 +368,8 @@ Bảng này nối **nguyên trạng ID từ báo cáo** sang mã task trong kế
 | Version | Date | Notes |
 |---|---|---|
 | `v0.1` | 19/10/2026 | Khởi tạo master plan từ báo cáo hiện trạng đầu tiên và hai video tham chiếu. |
-| `v1.0` | 19/10/2026 | Tích hợp đủ §14–17 báo cáo hoàn chỉnh; traceability 8 UX và 13 missing features; bổ sung 14 ticket, dependency, rollout, handoff, regression; **chưa chỉnh source code**. |
+| `v1.0` | 19/10/2026 | Hoàn tất planning baseline từ §14–17; traceability 8 UX và 13 missing features; bổ sung 14 ticket, dependency, rollout, handoff, regression. |
+| `v1.1` | 20/10/2026 | Triển khai UI/UX và test theo milestone; 9 ticket có trạng thái cuối khác baseline bàn giao; thêm shared strict i18n harness, role/capability/state/contrast/reduced-motion evidence. Full Vitest 206/1352 pass; Playwright 25/26 với một known failure cần OIDC thật. UAT live chưa thực hiện. |
 
 ## 12. Hướng dẫn triển khai theo milestone (handoff cho developer / Claude Code)
 
@@ -470,17 +471,18 @@ Bảng này nối **nguyên trạng ID từ báo cáo** sang mã task trong kế
 - [x] Đọc và tích hợp §14 (8 UX problems), §15 (13 missing features), §16 (5 Mermaid flow), §17 (summary).
 - [x] Ánh xạ các phát hiện vào Backlog S0–S7 và thêm ticket còn thiếu; phân biệt `GATED`, `UNROUTED`, `MOCK/STATIC`, `SOURCE`.
 - [x] Lập thứ tự milestone, phụ thuộc, tiêu chí nghiệm thu, handoff cho người triển khai.
-- [ ] Xác minh source tại HEAD thực tế và session backend-live (chưa có repo/session cung cấp trong lần lập plan).
+- [x] Xác minh source tại HEAD thực tế trong repo hiện tại.
+- [ ] Xác minh authenticated backend-live session / UAT (chưa có session thật).
 - [ ] Chốt brand color, scope redesign, owner và contract API.
-- [ ] Thực hiện sửa source UI/UX.
-- [ ] Chạy Vitest/Playwright/live UAT trên ứng dụng đã sửa.
-- [ ] Nghiệm thu và đánh dấu task `DONE` theo Definition of Done.
+- [x] Thực hiện sửa source UI/UX theo các ticket đã triển khai; ticket còn review/blocker giữ trạng thái riêng ở §16.
+- [x] Chạy build, lint, typecheck, full Vitest và Playwright fixture; Playwright còn 1 known failure tại bootstrap cần OIDC thật.
+- [ ] Chạy live UAT và nghiệm thu toàn bộ ticket theo Definition of Done.
 
 ---
 
-## 16. Trạng thái triển khai thực tế — 19/10/2026
+## 16. Trạng thái triển khai thực tế — 20/10/2026
 
-Plan có **76 ticket triển khai**; 8 mã `UX-01..UX-08` là nhãn traceability, không tính thành ticket riêng. Các nhóm UI độc lập được ưu tiên đã triển khai và tự rà soát; task cần thêm UAT, contract hoặc hoàn tất scope còn ở `IN_REVIEW`/`BLOCKED`. Kiểm thử tổng thể đã chạy một lượt; các thay đổi sau đó chỉ được xác minh mục tiêu, vì vậy không phải toàn bộ kết quả kiểm thử tổng thể đang xanh. Chi tiết nằm trong [`docs/UI_UX_IMPLEMENTATION_PROGRESS.md`](docs/UI_UX_IMPLEMENTATION_PROGRESS.md).
+Plan có **76 ticket triển khai**; 8 mã `UX-01..UX-08` là nhãn traceability, không tính thành ticket riêng. Lượt kiểm chứng cuối: build/lint/typecheck và full Vitest 206/1352 pass; Playwright 25/26 pass, lỗi duy nhất là `bootstrap.spec.ts:46` cần OIDC thật và được ghi known-failing. Fleet/sidebar screenshot chạy serial riêng 3/3 pass. Task cần thêm test, contrast evidence, video, contract hoặc live UAT còn ở `IN_REVIEW`/`BLOCKED`; chi tiết nằm trong [`docs/UI_UX_IMPLEMENTATION_PROGRESS.md`](docs/UI_UX_IMPLEMENTATION_PROGRESS.md).
 
 | Milestone | Task ID | Trạng thái | Bằng chứng / blocker |
 |---|---|---|---|
@@ -519,10 +521,12 @@ Plan có **76 ticket triển khai**; 8 mã `UX-01..UX-08` là nhãn traceability
 | M5 | `FIN-001` | `UI_SAFE_DONE` | Profitability fail-closed theo quyền; Rating/Invoice UI vẫn gated. Không bật billing flag; regression test đã chạy trong full Vitest. |
 | M5 | `SET-001`, `PAY-001..002`, `PSL-001` | `UI_SAFE_DONE` | Xác nhận UI/source và tests hiện hữu; UUID/idempotency/immutable snapshot giữ nguyên. Chỉ evidence test/fixture, không xác nhận API live. |
 | M6 | `QA-001` | `UI_SAFE_DONE` | Khôi phục sau rerun fixture: dashboard Playwright 3/3 pass, gồm scrollWidth/layout viewport 320/390/768/1024/1440; Load screenshot 1/1 pass tại 320–1440. Ảnh BROWSER-FIXTURE, không phải live. |
-| M6 | `QA-006` | `IN_REVIEW` | Dashboard Playwright 3/3 và Load detail screenshot 1/1 đã pass; còn rerun regression auth/tenant, CRUD, AI approval, financial/payroll guard với harness strict. `bootstrap.spec.ts:46` known-failing do thiếu OIDC thật, không sửa. |
-| M6 | `QA-002`, `QA-004..005` | `IN_REVIEW` | Focus-visible/reduced-motion và recovery states được bổ sung; keyboard/focus management toàn flow chưa audit bằng trình duyệt. |
-| M6 | `QA-003` | `IN_REVIEW` | Sửa token tertiary có contrast thấp; audit màu trực tiếp và trạng thái trên toàn app còn thiếu. |
+| M6 | `QA-006` | `UI_SAFE_DONE` | Full checks cuối: `npm run build`, `npm run lint`, `npm run typecheck`, `npx vitest run` pass (206 files/1352 tests); `npx playwright test --workers=1 --reporter=line` 25/26 pass; chỉ `bootstrap.spec.ts:46` known-failing do thiếu OIDC thật, không sửa. Fleet/sidebar serial rerun 3/3 pass. Auth/tenant, CRUD, AI approval, financial/payroll regression có test evidence; không phải live UAT. |
+| M6 | `QA-002` | `IN_REVIEW` | `e2e/dashboard-keyboard.spec.ts` + `e2e/sider-role.spec.ts` đã kiểm tra Operations và rail bằng trình duyệt; audit `docs/ux/keyboard-focus-audit.md` liệt kê Load/AI/Optimization/Documents/Notifications còn thiếu keyboard sequence và restore focus. |
+| M6 | `QA-004` | `IN_REVIEW` | `docs/ux/route-state-matrix.md`; các suite Dashboard, Loads list/detail, AI, Optimization, Documents, Notifications và Fleet đã có state/error/403/empty evidence; Operations 403 có nút Retry gọi `refetchAll`. Còn thiếu page-level pending/404 cho Load detail và một số browser route/disabled assertions; xem matrix. |
+| M6 | `QA-005` | `DONE` | Quét `rg -n 'transition|animation|@keyframes|scroll-behavior' src --glob '*.{css,scss,tsx,ts}'` — 69 matches/28 files; global `prefers-reduced-motion` phủ CSS và inline styles; [`reduced-motion-audit.md`](docs/ux/reduced-motion-audit.md). `npx playwright test e2e/reduced-motion.spec.ts --workers=1 --reporter=line` exit 0, 2/2; `npm run typecheck` và `npm run lint` exit 0 (0 lỗi, 4 warning có sẵn). |
+| M6 | `QA-003` | `IN_REVIEW` | `node scripts/audit-ux-contrast-scope.mjs` quét 99 file: 70 cặp trực tiếp, 0 fail, 304 màu chưa ghép được nền (inline/inherited); report `docs/ux/contrast-audit-qa003.json`. DS-003 sample `node scripts/audit-ux-contrast.mjs --after` đạt 15/15/noWorse. Giữ review tới khi resolve các nền còn thiếu; primary không đổi. |
 | M6 | `QA-007` | `UI_SAFE_DONE` | Progress report phân loại SOURCE, MOCK/STATIC, BROWSER-FIXTURE và NEEDS-LIVE; screenshots Playwright fixture được tách khỏi live evidence. |
 | M6 | `QA-008` | `UI_SAFE_DONE` | Đã chạy Vite dev server với backend target offline và quan sát health/me/GET/POST/PUT fallback; report tại `docs/ux/data-provenance-runtime.md`. Mutation trả success là `MOCK/STATIC`, không phải business evidence; backend thật `NEEDS-LIVE`. |
 
-**Trạng thái sau triển khai và kiểm chứng hiện có:** `DONE` 10; `UI_SAFE_DONE` 49; `IN_REVIEW` 6; `BLOCKED` 11; `BACKLOG` 0; `INTEGRATION_DONE` 0. Tổng: 76. QA-001 và LOAD-004 đã được khôi phục sau rerun xanh; QA-006 vẫn IN_REVIEW tới khi các regression flow còn lại được chạy; BASE-006 và QA-008 hoàn tất phần source/local fixture, điều kiện live ghi `NEEDS-LIVE`.
+**Trạng thái sau triển khai và kiểm chứng hiện có:** `DONE` 11; `UI_SAFE_DONE` 50; `IN_REVIEW` 4; `BLOCKED` 11; `BACKLOG` 0; `INTEGRATION_DONE` 0. Tổng: 76. QA-001 và LOAD-004 được khôi phục sau rerun xanh; QA-006 được khôi phục lên UI_SAFE_DONE theo ngoại lệ known OIDC failure; BASE-006 và QA-008 hoàn tất phần source/local fixture, điều kiện live ghi `NEEDS-LIVE`.

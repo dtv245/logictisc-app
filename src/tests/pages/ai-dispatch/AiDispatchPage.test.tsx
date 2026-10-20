@@ -4,11 +4,12 @@ import { getStoredAiSettings } from "@/features/ai-dispatch/hooks/aiConfigStorag
 import { AiDispatchPage } from "@/pages/ai-dispatch/AiDispatchPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { useLocation } from "react-router-dom";
+import { ApiHttpError } from "@/utils/httpError";
 
 import { initialMovementPlan } from "@/tests/fixtures/aiMovementPlan";
 
 const session = vi.hoisted(() => ({ tenantKey: "tenant-finance" }));
-const aiLoadState = vi.hoisted(() => ({ useInitialPlan: true, failPendingRequest: false, includeTripId: false }));
+const aiLoadState = vi.hoisted(() => ({ useInitialPlan: true, failPendingRequest: false, includeTripId: false, pendingFailure: null as Error | null }));
 vi.mock("@/hooks/useCurrentTenant", () => ({
   useCurrentTenant: () => ({
     tenant: session.tenantKey ? { tenantKey: session.tenantKey } : null,
@@ -20,7 +21,7 @@ vi.mock("@/features/ai-dispatch/api/aiDispatch.api", async (importOriginal) => {
   return {
     ...actual,
     fetchAiDispatchPending: vi.fn(async () => {
-      if (aiLoadState.failPendingRequest) throw new Error("Pending endpoint unavailable");
+      if (aiLoadState.failPendingRequest) throw aiLoadState.pendingFailure ?? new Error("Pending endpoint unavailable");
       return [];
     }),
     fetchAiDispatchSessions: vi.fn(async () => ({ content: [], totalElements: 0 })),
@@ -87,6 +88,7 @@ beforeEach(() => {
   aiLoadState.useInitialPlan = true;
   aiLoadState.failPendingRequest = false;
   aiLoadState.includeTripId = false;
+  aiLoadState.pendingFailure = null;
   localStorage.clear();
 });
 
@@ -260,6 +262,18 @@ describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di c
     await waitFor(() => {
       expect(screen.queryByText("AI Dispatch data could not be loaded")).not.toBeInTheDocument();
     });
+  });
+
+  it("hiển thị lỗi 403 AI Dispatch riêng với empty state và giữ nút retry", async () => {
+    aiLoadState.useInitialPlan = false;
+    aiLoadState.failPendingRequest = true;
+    aiLoadState.pendingFailure = new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "AI dispatch forbidden", requestId: "ai-dispatch-403" });
+
+    await renderFinance(<AiDispatchPage />, vi.fn(), { role: "DISPATCHER" });
+
+    expect(await screen.findByText("AI Dispatch data could not be loaded")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(screen.queryByText("No movement plan generated yet. Run AI dispatch in the adjacent tab.")).not.toBeInTheDocument();
   });
 
   it("khôi phục session và decision từ query params", async () => {

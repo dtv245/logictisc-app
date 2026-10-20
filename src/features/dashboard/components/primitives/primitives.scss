@@ -71,8 +71,8 @@
   }
 
   &--positive {
-    background: #ecfdf5;
-    color: #059669;
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
   }
 
   &--negative {
@@ -106,8 +106,8 @@
   border-radius: var(--radius-sm);
 
   &--positive {
-    color: #059669;
-    background: #ecfdf5;
+    color: var(--color-success-text);
+    background: var(--color-success-bg);
   }
 
   &--negative {
@@ -121,7 +121,7 @@
   }
 
   &--neutral {
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
     background: var(--color-bg-hover);
   }
 

@@ -23,8 +23,8 @@
   &__controls button[aria-pressed="true"] { color: #7442ff; }
   &__marker { border: 0; background: transparent; }
   &__vehicle { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 20px; height: 20px; overflow: hidden; border: 2px solid var(--color-bg-container); border-radius: 50%; background: #2b2f2a; color: var(--color-text-inverse); font-family: sans-serif; font-size: 10px; box-shadow: 0 1px 4px #292e2633; }
-  &__vehicle--delayed { background: var(--color-bg-container); border-color: #ff5666; color: #ff5666; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #ff9aa3; }
-  &__vehicle--idle { background: var(--color-bg-container); border-color: #f9b53b; color: #f9b53b; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #fbdc9f; }
+  &__vehicle--delayed { background: var(--color-bg-container); border-color: var(--color-error-text); color: var(--color-error-text); box-shadow: 0 0 0 2px #fff, 0 0 0 3px #ff9aa3; }
+  &__vehicle--idle { background: var(--color-bg-container); border-color: var(--color-warning-text); color: var(--color-warning-text); box-shadow: 0 0 0 2px #fff, 0 0 0 3px #fbdc9f; }
   &__vehicle img { width: 100%; height: 100%; object-fit: cover; }
   &__tooltip { border: 0; border-radius: 10px; box-shadow: 0 2px 10px #292e2614; }
   &__vehicle-label { display: flex; flex-direction: column; gap: 2px; font-family: Inter, sans-serif; }
