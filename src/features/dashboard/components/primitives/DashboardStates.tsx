@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Skeleton } from "antd";
+import { useTranslation } from "react-i18next";
 import {
   AlertCircle,
   Database,
@@ -34,17 +35,18 @@ export interface EmptyStateProps {
 }
 
 export const OpsEmptyState: React.FC<EmptyStateProps> = ({
-  message = "Không có dữ liệu",
+  message,
   description,
   icon,
   className = "",
 }) => {
+  const { t } = useTranslation();
   return (
     <div className={`ops-empty-state ${className}`}>
       <div style={{ marginBottom: 8, color: "#94a3b8" }}>
         {icon || <Inbox size={32} />}
       </div>
-      <div className="ops-empty-state__title">{message}</div>
+      <div className="ops-empty-state__title">{message ?? t("dashboard.opsView.panels.state.empty")}</div>
       {description && <div style={{ fontSize: 12 }}>{description}</div>}
     </div>
   );
@@ -58,18 +60,19 @@ export interface ErrorStateProps {
 }
 
 export const OpsErrorState: React.FC<ErrorStateProps> = ({
-  message = "Dữ liệu tạm thời không khả dụng",
-  description = "Vui lòng thử lại sau.",
+  message,
+  description,
   onRetry,
   className = "",
 }) => {
+  const { t } = useTranslation();
   return (
     <div className={`ops-error-state ${className}`}>
       <div style={{ marginBottom: 8, color: "#ef4444" }}>
         <AlertCircle size={32} />
       </div>
-      <div className="ops-error-state__title">{message}</div>
-      {description && <div style={{ fontSize: 12, marginBottom: 8 }}>{description}</div>}
+      <div className="ops-error-state__title">{message ?? t("dashboard.opsView.panels.state.error")}</div>
+      {description !== null && <div style={{ fontSize: 12, marginBottom: 8 }}>{description ?? t("dashboard.opsView.panels.state.errorDescription")}</div>}
       {onRetry && (
         <div className="ops-error-state__action">
           <Button
@@ -77,7 +80,7 @@ export const OpsErrorState: React.FC<ErrorStateProps> = ({
             onClick={onRetry}
             size="small"
           >
-            Thử lại
+            {t("dashboard.opsView.panels.state.retry")}
           </Button>
         </div>
       )}
@@ -92,17 +95,18 @@ export interface UnavailableStateProps {
 }
 
 export const OpsUnavailableState: React.FC<UnavailableStateProps> = ({
-  message = "Chưa có dữ liệu nguồn",
-  description = "Chức năng này sẽ tự động hiển thị khi có dữ liệu từ hệ thống.",
+  message,
+  description,
   className = "",
 }) => {
+  const { t } = useTranslation();
   return (
     <div className={`ops-unavailable-state ${className}`}>
       <div style={{ marginBottom: 8, color: "#94a3b8" }}>
         <Database size={32} />
       </div>
-      <div className="ops-unavailable-state__title">{message}</div>
-      {description && <div style={{ fontSize: 12 }}>{description}</div>}
+      <div className="ops-unavailable-state__title">{message ?? t("dashboard.opsView.panels.state.unavailable")}</div>
+      {description !== null && <div style={{ fontSize: 12 }}>{description ?? t("dashboard.opsView.panels.state.unavailableDescription")}</div>}
     </div>
   );
 };

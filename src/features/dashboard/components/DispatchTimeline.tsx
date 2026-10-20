@@ -1,10 +1,14 @@
 import type { CSSProperties, ReactElement } from "react";
 import { UserRound } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useTimelineClock } from "@/hooks/dashboard/useTimelineClock";
+import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
 import type { DispatchTimelineProps } from "@/types/dashboard/operations-panels.types";
 import "@/features/dashboard/components/DispatchTimeline.scss";
 
 export type { DispatchTimelineProps, DriverTimelineRow } from "@/types/dashboard/operations-panels.types";
+
+const timelineLabelKeys = ["label", "title", "aiSuggestions", "drivers", "loading", "invalidRange", "noDrivers", "retry", "driver", "schedule", "currentTime"] as const;
 
 function minutes(value: string): number | undefined {
   const match = /^(\d{2}):(\d{2})$/.exec(value);
@@ -13,9 +17,12 @@ function minutes(value: string): number | undefined {
   return hour <= 23 && minute <= 59 ? hour * 60 + minute : hour === 24 && minute === 0 ? 1440 : undefined;
 }
 
-export function DispatchTimeline({ totalDriversCount, shownDriversCount, drivers = [], startHour = 6, endHour = 18, now, isLoading = false, error, onRetry, locale = "vi", className = "" }: DispatchTimelineProps): ReactElement {
+export function DispatchTimeline({ totalDriversCount, shownDriversCount, drivers = [], startHour = 6, endHour = 18, now, isLoading = false, error, onRetry, locale, className = "" }: DispatchTimelineProps): ReactElement {
+  const { i18n } = useTranslation();
+  const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
+  const fixedT = i18n.getFixedT(activeLocale);
+  const text = createLocaleLabels(fixedT, "dashboard.opsView.panels.timeline", timelineLabelKeys);
   const clock = useTimelineClock(now);
-  const english = locale === "en";
   const validRange = Number.isFinite(startHour) && Number.isFinite(endHour) && startHour >= 0 && endHour <= 24 && endHour > startHour;
   const start = startHour * 60, end = endHour * 60;
   const total = end - start;
@@ -28,22 +35,22 @@ export function DispatchTimeline({ totalDriversCount, shownDriversCount, drivers
   }
   const count = shownDriversCount ?? drivers.length;
   const countLabel = totalDriversCount != null
-    ? english ? `${count} of ${totalDriversCount} drivers` : `${count} / ${totalDriversCount} tài xế`
-    : english ? `${count} drivers` : `${count} tài xế`;
-  const stateMessage = isLoading ? english ? "Loading dispatch schedule…" : "Đang tải lịch điều phối…"
-    : error || (!validRange ? english ? "Invalid timeline time range." : "Khung giờ timeline không hợp lệ."
-    : drivers.length === 0 ? english ? "No driver schedules available." : "Chưa có lịch điều phối tài xế." : undefined);
+    ? fixedT("dashboard.opsView.panels.timeline.driversCount", { shown: count, total: totalDriversCount })
+    : fixedT("dashboard.opsView.panels.timeline.drivers", { count });
+  const stateMessage = isLoading ? text.loading
+    : error || (!validRange ? text.invalidRange
+    : drivers.length === 0 ? text.noDrivers : undefined);
 
   return (
-    <section className={`ops-timeline-card ${className}`} aria-label={english ? "Dispatch timeline" : "Biểu đồ điều phối tài xế"} aria-busy={isLoading}>
+    <section className={`ops-timeline-card ${className}`} aria-label={text.label} aria-busy={isLoading}>
       <header className="ops-timeline-header">
-        <div><h2>Dispatch timeline</h2><p>{countLabel} · {english ? "AI suggestions are dashed" : "Đề xuất AI có viền nét đứt"}</p></div>
+        <div><h2>{text.title}</h2><p>{countLabel} · {text.aiSuggestions}</p></div>
       </header>
-      {stateMessage ? <div className="ops-timeline-state" role={error || !validRange ? "alert" : "status"}><p>{stateMessage}</p>{error && onRetry && <button type="button" onClick={onRetry}>{english ? "Retry" : "Thử lại"}</button>}</div> : (
-        <div className="ops-timeline-scrollable" tabIndex={0} role="region" aria-label={english ? "Driver schedule" : "Lịch chạy theo tài xế"}>
+      {stateMessage ? <div className="ops-timeline-state" role={error || !validRange ? "alert" : "status"}><p>{stateMessage}</p>{error && onRetry && <button type="button" onClick={onRetry}>{text.retry}</button>}</div> : (
+        <div className="ops-timeline-scrollable" tabIndex={0} role="region" aria-label={text.schedule}>
           <div className="ops-timeline-grid" style={{ "--timeline-rows": drivers.length } as CSSProperties}>
             <div className="ops-timeline-axis-row">
-              <span className="ops-timeline-driver-cell ops-timeline-driver-cell--header">{english ? "Driver" : "Tài xế"}</span>
+              <span className="ops-timeline-driver-cell ops-timeline-driver-cell--header">{text.driver}</span>
               <div className="ops-timeline-track ops-timeline-track--axis">{hours.map((hour) => <span className="ops-time-marker" key={hour} style={{ left: `${(hour * 60 - start) / total * 100}%` }}>{String(Math.floor(hour)).padStart(2, "0")}:{String(Math.round((hour % 1) * 60)).padStart(2, "0")}</span>)}</div>
             </div>
             {drivers.map((driver) => <div className="ops-timeline-driver-row" key={driver.driverId}>
@@ -60,7 +67,7 @@ export function DispatchTimeline({ totalDriversCount, shownDriversCount, drivers
                 })}
               </div>
             </div>)}
-            {nowPosition != null && <div className="ops-timeline-now-layer" aria-label={`${english ? "Current time" : "Giờ hiện tại"}: ${clock}`}><div className="ops-now-marker" style={{ left: `${nowPosition}%` }}><span className="ops-now-marker__badge">{clock}</span><span className="ops-now-marker__line" /></div></div>}
+            {nowPosition != null && <div className="ops-timeline-now-layer" aria-label={`${text.currentTime}: ${clock}`}><div className="ops-now-marker" style={{ left: `${nowPosition}%` }}><span className="ops-now-marker__badge">{clock}</span><span className="ops-now-marker__line" /></div></div>}
           </div>
         </div>
       )}

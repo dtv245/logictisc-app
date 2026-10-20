@@ -180,7 +180,7 @@ function AiConfigModalContent({
               required={providerId !== "custom"}
               help={
                 providerId === "custom"
-                  ? "Tùy chọn đối với Local LLM / Ollama không yêu cầu xác thực."
+                  ? t("aiDispatch.customProviderApiKeyHelp")
                   : undefined
               }
             >
@@ -194,7 +194,7 @@ function AiConfigModalContent({
                     ? "sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                     : providerId === "deepseek"
                     ? "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                    : "api-key (optional)"
+                    : t("aiDispatch.apiKeyOptionalPlaceholder")
                 }
                 value={config.apiKey}
                 onChange={(e) =>

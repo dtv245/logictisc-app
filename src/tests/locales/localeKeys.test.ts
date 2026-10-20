@@ -10,7 +10,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-import { enMessages, viMessages } from "@locales";
+import { enMessages, jaMessages, viMessages } from "@locales";
 import { describe, expect, it } from "vitest";
 
 type Messages = Record<string, unknown>;
@@ -79,5 +79,21 @@ describe("hợp đồng khoá locale", () => {
       .sort();
 
     expect(missing).toEqual([]);
+  });
+
+  it("các key Operations panels và copy Load/AI mới có parity ở cả ba locale", () => {
+    const panelPaths = [enMessages, viMessages, jaMessages].map((messages) => flatten(messages.dashboard.opsView.panels).sort());
+    const loadKeys = ["aiAnalysisLabel", "gapsTitle", "gapCount", "accurate", "loadInformationComplete", "required", "fillOnForm", "supplement", "dismiss", "dismissReason", "loadEditingUnavailable", "sourceLabel", "customerFallback", "back", "breadcrumb", "loadLabel", "callDriver", "truckAlt", "riskCount"];
+    const loadValues = [enMessages, viMessages, jaMessages].map((messages) => loadKeys.map((key) => (messages.loads.redesign as Record<string, unknown>)[key]));
+    const aiHelp = [enMessages, viMessages, jaMessages].map((messages) => messages.aiDispatch.customProviderApiKeyHelp);
+    const aiPlaceholder = [enMessages, viMessages, jaMessages].map((messages) => messages.aiDispatch.apiKeyOptionalPlaceholder);
+    const timelineFallback = [enMessages, viMessages, jaMessages].map((messages) => messages.loads.timeline.localTimezone);
+
+    expect(panelPaths[1]).toEqual(panelPaths[0]);
+    expect(panelPaths[2]).toEqual(panelPaths[0]);
+    expect(loadValues.every((values) => values.every((value) => typeof value === "string" && value.length > 0))).toBe(true);
+    expect(aiHelp.every((value) => typeof value === "string" && value.length > 0)).toBe(true);
+    expect(aiPlaceholder.every((value) => typeof value === "string" && value.length > 0)).toBe(true);
+    expect(timelineFallback.every((value) => typeof value === "string" && value.length > 0)).toBe(true);
   });
 });

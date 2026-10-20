@@ -56,3 +56,14 @@ export const initializeAppI18n = async ({
   return i18n;
 };
 export type SupportedLocale = "vi" | "en" | "ja";
+
+export const resolveSupportedLocale = (locale: string | undefined): SupportedLocale =>
+  locale?.startsWith("ja") ? "ja" : locale?.startsWith("en") ? "en" : "vi";
+
+export const createLocaleLabels = <T extends readonly string[]>(
+  translate: (key: string) => string,
+  prefix: string,
+  keys: T,
+): Record<T[number], string> => Object.fromEntries(
+  keys.map((key) => [key, translate(`${prefix}.${key}`)]),
+) as Record<T[number], string>;

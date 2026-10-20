@@ -1,6 +1,6 @@
 import { useCan, useList } from "@refinedev/core";
 import { useTranslation } from "react-i18next";
-import { translateOptional } from "@/locales";
+import { resolveSupportedLocale, translateOptional } from "@/locales";
 import type { ApiError } from "@/types/api.types";
 import type { Load } from "@/types/load.types";
 import type { PriorityShipment, ShipmentCardLocale } from "@/types/dashboard/priority-shipment.types";
@@ -16,7 +16,8 @@ export function usePriorityShipments(): {
   retry: () => void;
 } {
   const { t, i18n } = useTranslation();
-  const locale: ShipmentCardLocale = i18n.resolvedLanguage?.startsWith("en") ? "en" : "vi";
+  const locale: ShipmentCardLocale = resolveSupportedLocale(i18n.resolvedLanguage);
+  const fixedT = i18n.getFixedT(locale);
   const access = useCan({ resource: "loads", action: "list" });
   const canRead = access.data?.can === true;
   const query = useList<Load, ApiError>({
@@ -28,16 +29,16 @@ export function usePriorityShipments(): {
   const shipments: PriorityShipment[] = canRead && !query.isError
     ? (query.data?.data ?? []).map((load) => adaptLiveLoadToPriorityShipment(
       load,
-      locale,
       (status) => translateOptional(i18n, (key) => t(key), `forms.options.${status.toLowerCase()}`, status),
+      { origin: fixedT("loads.redesign.originUnavailable"), destination: fixedT("loads.redesign.destinationUnavailable") },
     ))
     : [];
 
   let error: string | undefined;
   if (access.isError || (!access.isLoading && !canRead)) {
-    error = locale === "vi" ? "Bạn chưa có quyền xem chuyến vận chuyển." : "You do not have permission to view shipments.";
+    error = fixedT("dashboard.opsView.panels.priority.permissionError");
   } else if (query.isError) {
-    error = locale === "vi" ? "Không tải được chuyến vận chuyển. Vui lòng thử lại." : "Unable to load shipments. Please try again.";
+    error = fixedT("dashboard.opsView.panels.priority.loadError");
   }
 
   return {

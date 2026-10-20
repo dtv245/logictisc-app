@@ -23,7 +23,7 @@ const load: Load = {
 
 describe("Priority Shipment presentation adapters", () => {
   it("maps live Load fields and leaves unsupported ETA/telemetry absent", () => {
-    const viewModel = adaptLiveLoadToPriorityShipment(load, "vi", (status) => status);
+    const viewModel = adaptLiveLoadToPriorityShipment(load, (status) => status, { origin: "Origin unavailable", destination: "Destination unavailable" });
 
     expect(viewModel).toMatchObject({
       id: "load-live-42",

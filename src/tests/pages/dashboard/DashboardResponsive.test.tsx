@@ -198,8 +198,8 @@ describe("Dashboard & Operations Responsive Verification", () => {
     it("renders AI brief summary, causes and proposed actions", () => {
       renderWithProviders(<OperationsBrief />);
 
-      expect(screen.getByRole("region", { name: "Operations brief" })).toBeInTheDocument();
-      expect(screen.getByText(/NGUYÊN NHÂN ĐÓNG GÓP/)).toBeInTheDocument();
+      expect(screen.getByRole("region", { name: "Bản tin điều phối" })).toBeInTheDocument();
+      expect(screen.getByText("NGUYÊN NHÂN · YẾU TỐ ĐÓNG GÓP")).toBeInTheDocument();
       expect(screen.getByText(/CẦN BẠN PHÊ DUYỆT/)).toBeInTheDocument();
     });
   });
@@ -210,7 +210,7 @@ describe("Dashboard & Operations Responsive Verification", () => {
         id: "truck-test", plate: "TEST-001", latitude: 10.7769, longitude: 106.7009, status: "moving",
       }]} />);
 
-      expect(screen.getByText(/Mạng lưới xe thời gian thực/)).toBeInTheDocument();
+      expect(screen.getByText("Mạng lưới xe trực tiếp")).toBeInTheDocument();
       expect(screen.getByText(/Trực tuyến/)).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Chi tiết bản đồ" })).not.toBeInTheDocument();
     });
@@ -235,9 +235,9 @@ describe("Dashboard & Operations Responsive Verification", () => {
 
       expect(screen.getByText("Mở AI Dispatch")).toBeInTheDocument();
       expect(screen.getByText(/Chuyến vận chuyển ưu tiên/)).toBeInTheDocument();
-      expect(screen.getByText("Chưa có dữ liệu chuyến ưu tiên từ nguồn được xác nhận.")).toBeInTheDocument();
+      expect(screen.getByText("Nguồn dữ liệu hiện tại chưa cung cấp thông tin chuyến để hiển thị.")).toBeInTheDocument();
       expect(screen.queryByText("LD-84920")).not.toBeInTheDocument();
-      expect(screen.getByRole("region", { name: "Operations brief" })).toBeInTheDocument();
+      expect(screen.getByRole("region", { name: "Bản tin điều phối" })).toBeInTheDocument();
       expect(screen.getByText("94")).toBeInTheDocument();
       expect(screen.getByText("3")).toBeInTheDocument();
       expect(screen.getByText("2")).toBeInTheDocument();

@@ -31,7 +31,7 @@ export const ShipmentTimelineCard: React.FC<ShipmentTimelineCardProps> = ({ load
 
   // Determine user timezone string
   const timeZoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const timeZoneShort = timeZoneName.split("/").pop()?.replace(/_/g, " ") || "LOCAL";
+  const timeZoneShort = timeZoneName.split("/").pop()?.replace(/_/g, " ") || t("loads.timeline.localTimezone");
 
   return (
     <div className="shipment-card" data-testid="shipment-timeline-card">
@@ -86,7 +86,7 @@ export const ShipmentTimelineCard: React.FC<ShipmentTimelineCardProps> = ({ load
                 ? `${event.eventType}: ${event.previousStatus} → ${event.newStatus}`
                 : event.eventType;
 
-            const description = event.note || (event.source ? `Nguồn: ${event.source}` : undefined);
+            const description = event.note || (event.source ? `${t("loads.redesign.sourceLabel")} ${event.source}` : undefined);
 
             return (
               <div

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { ExclamationCircleFilled, CheckCircleFilled, EditOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { Button, Tag } from "antd";
 import { CORE_VERSIONED_WRITES_RUNTIME_VERIFIED } from "@/components/resources/resourceCapabilities";
@@ -11,6 +12,7 @@ export interface ShipmentGapsCardProps {
 }
 
 export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) => {
+  const { t } = useTranslation();
   const { blockingGaps, warningGaps, dismissGap } = useLoadAiGaps({ loadId });
 
   const totalGaps = blockingGaps.length + warningGaps.length;
@@ -26,7 +28,7 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
 
   const handleDismiss = async (gap: AiGap) => {
     try {
-      await dismissGap({ gapId: gap.id, reason: "Người dùng bỏ qua từ giao diện chi tiết" });
+      await dismissGap({ gapId: gap.id, reason: t("loads.redesign.dismissReason") });
     } catch {
       // Handled in hook
     }
@@ -36,15 +38,15 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
     <div className="shipment-card" data-testid="shipment-gaps-card">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div style={{ fontSize: "var(--font-size-md)", fontWeight: 800, color: "var(--color-text)" }}>
-          Rà Soát Dữ Liệu Chuyến Hàng
+          {t("loads.redesign.gapsTitle")}
         </div>
         {totalGaps > 0 ? (
           <Tag color="error" style={{ borderRadius: 10, fontWeight: 700 }}>
-            {totalGaps} vấn đề
+            {t("loads.redesign.gapCount", { count: totalGaps })}
           </Tag>
         ) : (
           <Tag color="success" icon={<CheckCircleFilled />} style={{ borderRadius: 10, fontWeight: 700 }}>
-            Chuẩn xác
+            {t("loads.redesign.accurate")}
           </Tag>
         )}
       </div>
@@ -53,7 +55,7 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", color: "#166534" }}>
           <CheckCircleFilled style={{ fontSize: "var(--font-size-lg)", color: "var(--color-success-text)" }} />
           <span style={{ fontSize: "var(--font-size-sm)", fontWeight: 600 }}>
-            Thông tin chuyến hàng đầy đủ và sẵn sàng vận hành.
+            {t("loads.redesign.loadInformationComplete")}
           </span>
         </div>
       ) : (
@@ -71,7 +73,7 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: "var(--spacing-xxs)" }}>
                 <ExclamationCircleFilled style={{ color: "var(--color-error-text)", fontSize: "var(--font-size-base)" }} />
                 <span style={{ fontSize: "var(--font-size-xs)", fontWeight: 800, color: "#991B1B" }}>
-                  {gap.fieldLabel || gap.fieldName} (Bắt buộc)
+                  {gap.fieldLabel || gap.fieldName} ({t("loads.redesign.required")})
                 </span>
               </div>
               <div style={{ fontSize: "var(--font-size-xs)", color: "#7F1D1D", marginBottom: "var(--spacing-xs)", lineHeight: 1.4 }}>
@@ -81,17 +83,17 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
                 size="small"
                 type="primary"
                 danger
-                aria-label="Điền trên form"
+                aria-label={t("loads.redesign.fillOnForm")}
                 icon={<EditOutlined />}
                 style={{ borderRadius: 14, fontSize: 11, fontWeight: 600 }}
                 disabled={!CORE_VERSIONED_WRITES_RUNTIME_VERIFIED}
                 onClick={() => handleNavigateEdit(gap)}
               >
-                Điền trên form
+                {t("loads.redesign.fillOnForm")}
               </Button>
               {!CORE_VERSIONED_WRITES_RUNTIME_VERIFIED && (
                 <span role="note" style={{ display: "block", marginTop: 6, color: "#7f1d1d", fontSize: 11 }}>
-                  Chỉnh sửa Load chưa khả dụng trong phiên bản này.
+                  {t("loads.redesign.loadEditingUnavailable")}
                 </span>
               )}
             </div>
@@ -119,13 +121,13 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
               <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
                 <Button
                   size="small"
-                  aria-label="Bổ sung"
+                  aria-label={t("loads.redesign.supplement")}
                   icon={<EditOutlined />}
                   style={{ borderRadius: 14, fontSize: 11, fontWeight: 600 }}
                   disabled={!CORE_VERSIONED_WRITES_RUNTIME_VERIFIED}
                   onClick={() => handleNavigateEdit(gap)}
                 >
-                  Bổ sung
+                  {t("loads.redesign.supplement")}
                 </Button>
                 <Button
                   size="small"
@@ -134,12 +136,12 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
                   style={{ borderRadius: 14, fontSize: 11, color: "#92400E" }}
                   onClick={() => handleDismiss(gap)}
                 >
-                  Bỏ qua
+                  {t("loads.redesign.dismiss")}
                 </Button>
               </div>
               {!CORE_VERSIONED_WRITES_RUNTIME_VERIFIED && (
                 <span role="note" style={{ display: "block", marginTop: 6, color: "#78350f", fontSize: 11 }}>
-                  Chỉnh sửa Load chưa khả dụng trong phiên bản này.
+                  {t("loads.redesign.loadEditingUnavailable")}
                 </span>
               )}
             </div>

@@ -8,11 +8,6 @@ import { createLogisticsDataProvider } from "@/providers/dataProvider";
 import { foundationApiResources } from "@/pages/resourceRegistry";
 import { usePriorityShipments } from "@/hooks/dashboard/usePriorityShipments";
 
-vi.mock("react-i18next", async (importOriginal) => ({
-  ...await importOriginal<typeof import("react-i18next")>(),
-  useTranslation: () => ({ i18n: { resolvedLanguage: "vi", exists: () => false }, t: (_key: string, options: { defaultValue: string }) => options.defaultValue }),
-}));
-
 describe("priority shipments through the real Refine data provider", () => {
   it("reaches the load endpoint with supported filters and default sorting", async () => {
     const requests = vi.fn();

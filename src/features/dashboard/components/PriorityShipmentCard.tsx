@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import truckReference from "@/assets/dashboard/priority-truck.png";
 import { Button, Space } from "antd";
 import {
@@ -17,6 +18,7 @@ import {
 } from "./primitives";
 import "./PriorityShipmentCard.scss";
 import type { PriorityShipmentViewModel } from "@/types/dashboard/priority-shipment.types";
+import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
 
 export interface PriorityShipmentCardProps {
   shipments?: readonly PriorityShipmentViewModel[];
@@ -24,11 +26,17 @@ export interface PriorityShipmentCardProps {
   className?: string;
 }
 
+const priorityLabelKeys = ["title", "unavailableHint", "window", "eta", "detour", "noDetour", "route", "driver", "speed", "reefer", "fuel", "load", "pallets", "set", "previous", "next", "truckAlt", "riskCount", "late", "ahead", "onTime", "etaPrefix"] as const;
+
 export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
   shipments = [],
   onSelectShipment,
   className = "",
 }) => {
+  const { i18n } = useTranslation();
+  const locale = resolveSupportedLocale(i18n.resolvedLanguage);
+  const fixedT = i18n.getFixedT(locale);
+  const text = createLocaleLabels(fixedT, "dashboard.opsView.panels.priority", priorityLabelKeys);
   const list = shipments;
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -38,8 +46,8 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
     return (
       <OpsCard className={`ops-priority-shipment-card ${className}`}>
         <div className="ops-priority-empty-state" role="status">
-          <strong>Chuyến vận chuyển ưu tiên</strong>
-          <span>Chưa có dữ liệu chuyến ưu tiên từ nguồn được xác nhận.</span>
+          <strong>{text.title}</strong>
+          <span>{text.unavailableHint}</span>
         </div>
       </OpsCard>
     );
@@ -63,7 +71,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
       <div className="ops-priority-header">
         <div className="ops-priority-header__left">
           <div className="ops-priority-section-row">
-            <span className="ops-priority-section-label">Chuyến vận chuyển ưu tiên</span>
+            <span className="ops-priority-section-label">{text.title}</span>
             {currentShipment.agent?.label && (
               <div className="ops-priority-agent-banner">
                 <Sparkles size={13} /> {currentShipment.agent.label}
@@ -87,18 +95,16 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
         {/* Shipment Switcher */}
         {list.length > 1 && (
           <div className="ops-priority-header__switcher">
-            <span className="ops-priority-header__switcher-text">
-              {currentIndex + 1} / {list.length} chuyến rủi ro
-            </span>
+            <span className="ops-priority-header__switcher-text">{fixedT("dashboard.opsView.panels.priority.riskCount", { shown: currentIndex + 1, total: list.length })}</span>
             <Space size={4}>
               <Button
-                aria-label="Chuyến trước"
+                aria-label={text.previous}
                 icon={<ChevronLeft size={16} />}
                 onClick={handlePrev}
                 size="small"
               />
               <Button
-                aria-label="Chuyến tiếp theo"
+                aria-label={text.next}
                 icon={<ChevronRight size={16} />}
                 onClick={handleNext}
                 size="small"
@@ -109,15 +115,15 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
       </div>
 
       <div className="ops-priority-time-stats">
-        <div><span>Khung giờ giao</span><strong>{currentShipment.deliveryWindow || currentShipment.scheduledDelivery || "—"}</strong></div>
-        <div><span>Dự kiến hiện tại (ETA)</span><strong className={currentShipment.delayMinutes && currentShipment.delayMinutes > 0 ? "is-late" : ""}>{currentShipment.eta || "—"}</strong>{currentShipment.delayMinutes !== undefined && <small>{currentShipment.delayMinutes > 0 ? "+" : ""}{currentShipment.delayMinutes} phút so với kế hoạch</small>}</div>
-        <div><span>ETA tuyến thay thế</span><strong className="is-ai">{currentShipment.detour?.eta || "—"}</strong><small>{currentShipment.detour?.label || "Chưa có đề xuất tuyến"}</small></div>
+        <div><span>{text.window}</span><strong>{currentShipment.deliveryWindow || currentShipment.scheduledDelivery || "—"}</strong></div>
+        <div><span>{text.eta}</span><strong className={currentShipment.delayMinutes && currentShipment.delayMinutes > 0 ? "is-late" : ""}>{currentShipment.eta || "—"}</strong>{currentShipment.delayMinutes !== undefined && <small>{currentShipment.delayMinutes > 0 ? "+" : ""}{currentShipment.delayMinutes} {currentShipment.delayMinutes > 0 ? text.late : currentShipment.delayMinutes < 0 ? text.ahead : text.onTime}</small>}</div>
+        <div><span>{text.detour}</span><strong className="is-ai">{currentShipment.detour?.eta || "—"}</strong><small>{currentShipment.detour?.label || text.noDetour}</small></div>
       </div>
 
       {/* 3. Truck Stage (Telemetry Callouts Grid) */}
       <div className="ops-priority-truck-stage">
         <div className="ops-priority-truck-stage__visual">
-          <img className="ops-priority-truck-image" src={truckReference} alt="Xe tải vận chuyển" />
+            <img className="ops-priority-truck-image" src={truckReference} alt={text.truckAlt} />
           
         </div>
 
@@ -126,7 +132,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
           {currentShipment.driver?.name && (
             <div className="ops-telemetry-callout">
               <span className="ops-telemetry-callout__label">
-                <User size={13} /> Tài xế
+                <User size={13} /> {text.driver}
               </span>
               <span className="ops-telemetry-callout__value">
                 {currentShipment.driver.name}
@@ -138,7 +144,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
           {currentShipment.speed !== undefined && (
             <div className="ops-telemetry-callout">
               <span className="ops-telemetry-callout__label">
-                <Gauge size={13} /> Vận tốc
+                <Gauge size={13} /> {text.speed}
               </span>
               <span className="ops-telemetry-callout__value">
                 {currentShipment.speed.value} {currentShipment.speed.unit}
@@ -150,7 +156,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
           {currentShipment.reefer !== undefined && (
             <div className="ops-telemetry-callout">
               <span className="ops-telemetry-callout__label">
-                <Thermometer size={13} /> Nhiệt độ lạnh
+                <Thermometer size={13} /> {text.reefer}
               </span>
               <span className="ops-telemetry-callout__value">
                 {currentShipment.reefer.temperature}°{currentShipment.reefer.unit}
@@ -162,7 +168,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
           {currentShipment.fuel?.percent !== undefined && (
             <div className="ops-telemetry-callout">
               <span className="ops-telemetry-callout__label">
-                <Zap size={13} /> Nhiên liệu
+                <Zap size={13} /> {text.fuel}
               </span>
               <span className="ops-telemetry-callout__value">
                 {currentShipment.fuel.percent}%
@@ -174,7 +180,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
           {currentShipment.cargo?.weight !== undefined && currentShipment.cargo.weightUnit && (
             <div className="ops-telemetry-callout">
               <span className="ops-telemetry-callout__label">
-                <Navigation size={13} /> Tải trọng
+                <Navigation size={13} /> {text.load}
               </span>
               <span className="ops-telemetry-callout__value">
                 {currentShipment.cargo.weight} {currentShipment.cargo.weightUnit}
@@ -188,7 +194,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
 
       {/* 4. Route Progress (Visual Stepper) */}
       <div className="ops-priority-route-progress">
-        <div className="ops-route-label">Tiến độ hành trình</div>
+        <div className="ops-route-label">{text.route}</div>
         <div className="ops-route-timeline">
           {(currentShipment.stops || []).map((stop, idx) => (
             <div
@@ -203,7 +209,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
               </div>
               <div className="ops-route-timeline__content">
                 <div className="ops-route-timeline__name">{stop.name}</div>
-                <div className="ops-route-timeline__time">{stop.time || "—"}</div>
+                <div className="ops-route-timeline__time">{stop.time ? `${text.etaPrefix}${stop.time}` : "—"}</div>
               </div>
             </div>
           ))}

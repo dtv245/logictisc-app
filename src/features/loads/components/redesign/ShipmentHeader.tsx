@@ -3,6 +3,7 @@ import { ArrowLeftOutlined, PhoneOutlined } from "@ant-design/icons";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import type { Load } from "@/types/load.types";
+import { useTranslation } from "react-i18next";
 
 export interface ShipmentHeaderProps {
   load: Load;
@@ -10,6 +11,7 @@ export interface ShipmentHeaderProps {
 }
 
 export const ShipmentHeader: React.FC<ShipmentHeaderProps> = ({ load, driverPhone }) => {
+  const { t } = useTranslation();
   const handleBack = () => {
     if (typeof window !== "undefined" && window.history && window.history.length > 1) {
       window.history.back();
@@ -18,7 +20,7 @@ export const ShipmentHeader: React.FC<ShipmentHeaderProps> = ({ load, driverPhon
     }
   };
 
-  const customerName = load.customerName || load.customerId || "KHÁCH HÀNG";
+  const customerName = load.customerName || load.customerId || t("loads.redesign.customerFallback");
 
   return (
     <div className="shipment-header" data-testid="shipment-header">
@@ -28,7 +30,7 @@ export const ShipmentHeader: React.FC<ShipmentHeaderProps> = ({ load, driverPhon
           type="button"
           className="shipment-header__back-btn"
           onClick={handleBack}
-          aria-label="Quay lại"
+          aria-label={t("loads.redesign.back")}
           data-testid="shipment-back-btn"
         >
           <ArrowLeftOutlined />
@@ -36,11 +38,11 @@ export const ShipmentHeader: React.FC<ShipmentHeaderProps> = ({ load, driverPhon
 
         <div>
           <div className="shipment-header__breadcrumb">
-            CHUYẾN HÀNG / {customerName} / #{load.number}
+            {t("loads.redesign.breadcrumb")} / {customerName} / #{load.number}
           </div>
           <div className="shipment-header__title-row">
             <h1 className="shipment-header__title">
-              {load.name ? `${load.name} #${load.number}` : `Chuyến hàng #${load.number}`}
+              {load.name ? `${load.name} #${load.number}` : `${t("loads.redesign.loadLabel")} #${load.number}`}
             </h1>
             <StatusTag label={load.status} tone={statusTone(load.status)} />
           </div>
@@ -55,7 +57,7 @@ export const ShipmentHeader: React.FC<ShipmentHeaderProps> = ({ load, driverPhon
             className="shipment-header__pill-btn"
             style={{ textDecoration: "none" }}
           >
-            <PhoneOutlined /> Gọi tài xế
+            <PhoneOutlined /> {t("loads.redesign.callDriver")}
           </a>
         )}
 

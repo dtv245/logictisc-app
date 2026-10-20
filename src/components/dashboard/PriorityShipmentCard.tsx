@@ -1,34 +1,13 @@
 import { useId, useState } from "react";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, ChevronLeft, ChevronRight, RefreshCw, Sparkles, Truck, UserRound } from "lucide-react";
 import truckImage from "@/assets/dashboard/priority-truck.png";
+import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
 import type { PriorityShipment, PriorityShipmentCardProps, ShipmentCardLocale } from "@/types/dashboard/priority-shipment.types";
 import "@/components/dashboard/PriorityShipmentCard.scss";
 
-const labels = {
-  vi: {
-    title: "Chuyến vận chuyển ưu tiên", empty: "Chưa có chuyến đang vận chuyển",
-    emptyHint: "Chuyến đang trên đường sẽ xuất hiện tại đây.", unavailable: "Chưa có dữ liệu chuyến từ API",
-    unavailableHint: "Nguồn dữ liệu hiện tại chưa cung cấp thông tin chuyến để hiển thị.", window: "Khung giờ giao",
-    scheduled: "Giờ giao đã hẹn", eta: "ETA hiện tại", detour: "Với tuyến tránh",
-    inside: "trong khung giờ", ahead: "phút sớm hơn kế hoạch", late: "phút so với kế hoạch",
-    onTime: "đúng kế hoạch", speed: "Vận tốc", fuel: "Nhiên liệu · tầm chạy", reefer: "Thùng lạnh",
-    load: "Hàng hóa", pallets: "pallet", set: "đặt", driver: "Chưa có dữ liệu tài xế",
-    noTelemetry: "Chưa có dữ liệu", route: "Tiến độ hành trình", noRoute: "Chưa có mốc hành trình",
-    speedChange: "tốc độ", loading: "Đang tải chuyến vận chuyển", retry: "Thử lại",
-    previous: "Chuyến trước", next: "Chuyến tiếp theo", current: "Vị trí xe hiện tại",
-  },
-  en: {
-    title: "Priority shipment", empty: "No shipments in transit", emptyHint: "Active shipments will appear here.",
-    unavailable: "Live shipment data unavailable", unavailableHint: "The current data source did not provide shipment records.",
-    window: "Window", scheduled: "Scheduled delivery", eta: "ETA now", detour: "With detour", inside: "inside window",
-    ahead: "min ahead of plan", late: "min vs plan", onTime: "on schedule", speed: "Speed",
-    fuel: "Fuel · range", reefer: "Reefer", load: "Load", pallets: "pallets", set: "set",
-    driver: "Driver data unavailable", noTelemetry: "No data available", route: "Route progress",
-    noRoute: "No route milestones available", speedChange: "speed", loading: "Loading shipment",
-    retry: "Retry", previous: "Previous shipment", next: "Next shipment", current: "Current truck position",
-  },
-} as const;
+const priorityLabelKeys = ["title", "empty", "emptyHint", "unavailable", "unavailableHint", "window", "scheduled", "eta", "detour", "noDetour", "inside", "ahead", "late", "onTime", "speed", "fuel", "reefer", "load", "pallets", "set", "driver", "noTelemetry", "route", "noRoute", "speedChange", "loading", "retry", "previous", "next", "current", "roadConnector", "etaPrefix"] as const;
 
 const clampPercent = (value: number): number => Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : 0;
 
@@ -54,7 +33,8 @@ function Callout({ kind, label, children, unavailable }: { kind: string; label: 
 }
 
 function ShipmentRoute({ shipment, locale }: { shipment: PriorityShipment; locale: ShipmentCardLocale }): ReactElement {
-  const text = labels[locale];
+  const { i18n } = useTranslation();
+  const text = createLocaleLabels(i18n.getFixedT(locale), "dashboard.opsView.panels.priority", priorityLabelKeys);
   const stops = shipment.stops ?? [];
   const progress = shipment.progressPercent == null ? undefined : clampPercent(shipment.progressPercent);
   const congestion = shipment.congestion;
@@ -88,7 +68,7 @@ function ShipmentRoute({ shipment, locale }: { shipment: PriorityShipment; local
                 style={{ "--stop-position": `${clampPercent(stop.positionPercent ?? (stops.length > 1 ? stopIndex / (stops.length - 1) * 100 : 0))}%` } as CSSProperties}>
                 <span className="priority-shipment__stop-dot" aria-hidden="true" />
                 <span className="priority-shipment__stop-name">{stop.name}</span>
-                {stop.time && <span className="priority-shipment__stop-time">{stop.estimated ? "ETA " : ""}{stop.time}</span>}
+                {stop.time && <span className="priority-shipment__stop-time">{stop.estimated ? text.etaPrefix : ""}{stop.time}</span>}
               </li>
             ))}
           </ol>
@@ -102,13 +82,15 @@ function ShipmentRoute({ shipment, locale }: { shipment: PriorityShipment; local
 }
 
 /** Screenshot-inspired card. Business values are supplied by its caller, never sample fallbacks. */
-export function PriorityShipmentCard({ shipments = [], isLoading = false, isUnavailable = false, error, onRetry, onSelectShipment, locale = "vi", className = "" }: PriorityShipmentCardProps): ReactElement {
-  const text = labels[locale];
+export function PriorityShipmentCard({ shipments = [], isLoading = false, isUnavailable = false, error, onRetry, onSelectShipment, locale, className = "" }: PriorityShipmentCardProps): ReactElement {
+  const { i18n } = useTranslation();
+  const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
+  const text = createLocaleLabels(i18n.getFixedT(activeLocale), "dashboard.opsView.panels.priority", priorityLabelKeys);
   const headingId = useId();
   const [selectedId, setSelectedId] = useState<string>();
   const index = Math.max(0, shipments.findIndex((shipment) => shipment.id === selectedId));
   const shipment = shipments[index];
-  const number = new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "en-US", { maximumFractionDigits: 1 });
+  const number = new Intl.NumberFormat(activeLocale === "vi" ? "vi-VN" : activeLocale === "ja" ? "ja-JP" : "en-US", { maximumFractionDigits: 1 });
   const unavailable = <span title={text.noTelemetry}>—</span>;
 
   const select = (offset: number): void => {
@@ -182,7 +164,7 @@ export function PriorityShipmentCard({ shipments = [], isLoading = false, isUnav
         <Callout kind="speed" label={text.speed} unavailable={!shipment?.speed}>
           {shipment?.speed ? <>{number.format(shipment.speed.value)} {shipment.speed.unit}
             {shipment.speed.changePercent != null && <> · {shipment.speed.changePercent < 0 ? "↓" : "↑"}{Math.abs(shipment.speed.changePercent)}%</>}
-            {shipment.speed.road && <> {locale === "en" ? "on" : "trên"} {shipment.speed.road}</>}
+            {shipment.speed.road && <> {text.roadConnector} {shipment.speed.road}</>}
           </> : unavailable}
         </Callout>
         <Callout kind="fuel" label={text.fuel} unavailable={fuelParts.length === 0}>{fuelParts.length ? fuelParts.join(" · ") : unavailable}</Callout>
@@ -192,7 +174,7 @@ export function PriorityShipmentCard({ shipments = [], isLoading = false, isUnav
         <Callout kind="load" label={text.load} unavailable={cargoParts.length === 0}>{cargoParts.length ? cargoParts.join(" · ") : unavailable}</Callout>
       </div>
 
-      {shipment ? <ShipmentRoute shipment={shipment} locale={locale} /> : <p className="priority-shipment__empty" role="status">{isUnavailable ? text.unavailable : text.noTelemetry}</p>}
+      {shipment ? <ShipmentRoute shipment={shipment} locale={activeLocale} /> : <p className="priority-shipment__empty" role="status">{isUnavailable ? text.unavailable : text.noTelemetry}</p>}
       {shipments.length > 1 && <nav className="priority-shipment__pager" aria-label={text.title}>
         <span aria-live="polite">{index + 1} / {shipments.length}</span>
         <button type="button" aria-label={text.previous} onClick={() => select(-1)}><ChevronLeft size={16} /></button>

@@ -5,8 +5,11 @@
 import { AppSider } from "@components/AppSider";
 import { NAV_ZONES } from "@components/appNavigation";
 import { canJwtRolesAccess } from "@/providers/permissions/roleMatrix";
+import { JWT_ROLES, type JwtRole } from "@/types/roles.types";
+import { foundationResourcePageRoutes } from "@/pages/resourceRegistry";
+import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
+import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import { routes } from "@/constants/routes";
-import type { JwtRole } from "@/types/roles.types";
 import { initializeAppI18n } from "@locales";
 import { ThemedLayoutContextProvider } from "@refinedev/antd";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -124,6 +127,28 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     expect(routesInNavigation).not.toContain(routes.resources.dvir.list);
     expect(routesInNavigation).not.toContain(routes.resources.products.list);
     expect(routesInNavigation).not.toContain(routes.resources.expenses.list);
+  });
+
+  it("mọi mục điều hướng hiện tại đều có route được AppRouter mount", () => {
+    const mountedRoutes = new Set([
+      ...foundationResourcePageRoutes.map(({ path }) => path),
+      routes.operations,
+      ...(EXECUTIVE_CONTRACT_CONFIRMED ? [routes.dashboard] : []),
+      routes.aiDispatch,
+      routes.optimization,
+      routes.fleetReport,
+      routes.profitability,
+      routes.resources.settlements.list,
+      routes.resources.settlements.policies,
+      routes.payroll,
+      routes.myPayslips,
+      ...(PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED ? [routes.payrollReconciliation] : []),
+    ]);
+    const navRoutes = NAV_ZONES.flatMap((entry) =>
+      "items" in entry ? entry.items.map((item) => item.route) : [entry.route],
+    );
+
+    expect(navRoutes.filter((route) => !mountedRoutes.has(route)).sort()).toEqual([]);
   });
 
   it("highlight route hiện tại mà sidebar vẫn thu gọn", async () => {
@@ -248,16 +273,25 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     expect(screen.queryByLabelText("Hồ sơ & tài liệu")).toBeNull();
   });
 
-  it.each(["ADMIN", "DISPATCHER", "ACCOUNTANT", "SUPERADMIN"] as const)("applies real standalone-item permissions for %s", async (role: JwtRole) => {
+  it.each(JWT_ROLES)("applies role-matrix visibility to every rail zone for %s", async (role: JwtRole) => {
     mockCanFn.mockImplementation(async (permission?: { resource?: string; action?: string }) => ({ can: canJwtRolesAccess([role], permission?.resource, permission?.action || "list") }));
-    renderSider();
+    const { container } = renderSider();
     await screen.findByLabelText("Trung tâm điều hành");
     await waitFor(() => {
-      expect(Boolean(screen.queryByLabelText("Khách hàng"))).toBe(role !== "SUPERADMIN");
-      expect(Boolean(screen.queryByLabelText("Hồ sơ & tài liệu"))).toBe(role !== "SUPERADMIN");
-      expect(Boolean(screen.queryByLabelText("Nhân viên"))).toBe(role === "ADMIN" || role === "DISPATCHER");
+      for (const zone of NAV_ZONES) {
+        const items = "items" in zone ? zone.items : [zone];
+        const expectedVisible = items.some((item) => {
+          if (item.permission) {
+            return canJwtRolesAccess([role], item.permission.resource, item.permission.action);
+          }
+          return item.resource
+            ? canJwtRolesAccess([role], item.resource, "list")
+            : true;
+        });
+        const node = container.querySelector(`[data-menu-id$="${zone.key}"]`);
+        expect(Boolean(node), `${role}: ${zone.key}`).toBe(expectedVisible);
+      }
     });
-    expect(screen.queryByLabelText("Hàng hóa")).not.toBeInTheDocument();
   });
 
   it("keeps other permitted entries when one permission lookup rejects", async () => {

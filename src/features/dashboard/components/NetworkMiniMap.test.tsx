@@ -31,7 +31,7 @@ describe("NetworkMiniMap", () => {
   it("opens the full map through the supplied handler", () => {
     const open = vi.fn();
     render(<MemoryRouter><NetworkMiniMap onOpenFullMap={open} /></MemoryRouter>);
-    fireEvent.click(screen.getByRole("button", { name: "Chi tiết bản đồ" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mở bản đồ đầy đủ" }));
     expect(open).toHaveBeenCalledOnce();
   });
 });

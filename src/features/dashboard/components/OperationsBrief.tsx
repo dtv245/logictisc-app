@@ -3,20 +3,21 @@ import type { ReactElement } from "react";
 import { Alert, Button, Dropdown, Modal } from "antd";
 import { Check, ChevronRight, MoreHorizontal, Route, Send, Sparkles, UsersRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { routes } from "@/constants/routes";
+import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
 import type { ProposedAction } from "@/features/dashboard/types/primitives.types";
 import type { OperationsBriefProps } from "@/types/dashboard/operations-panels.types";
 import "@/features/dashboard/components/OperationsBrief.scss";
 
 export type { CauseItem, OperationsBriefProps } from "@/types/dashboard/operations-panels.types";
 
-const copy = {
-  vi: { title: "Operations brief", causes: "VÌ SAO · NGUYÊN NHÂN ĐÓNG GÓP", proposed: "ĐỀ XUẤT · CẦN BẠN PHÊ DUYỆT", review: "Xem đề xuất", activity: "Hoạt động AI", empty: "Chưa có bản tin điều phối.", noCauses: "Chưa có phân tích nguyên nhân.", noActions: "Chưa có đề xuất mới.", pending: "Đang phân tích hoạt động…", retry: "Thử lại", confidence: "độ tin cậy", noAnalysis: "Chưa có kết quả phân tích", more: "Tùy chọn bản tin", modal: "Xem xét đề xuất điều phối", approve: "Phê duyệt", reject: "Từ chối", failed: "Không xử lý được đề xuất. Vui lòng thử lại.", noHandler: "Mở trang điều phối để thực hiện đề xuất này." },
-  en: { title: "Operations brief", causes: "WHY · CONTRIBUTING CAUSES", proposed: "PROPOSED · NEEDS YOUR APPROVAL", review: "Review recommendations", activity: "View AI activity", empty: "No operations brief available.", noCauses: "No contributing causes available.", noActions: "No new recommendations.", pending: "Analyzing operations…", retry: "Retry", confidence: "confidence", noAnalysis: "No analysis available", more: "Brief options", modal: "Review dispatch recommendation", approve: "Approve", reject: "Reject", failed: "Unable to process this recommendation. Please try again.", noHandler: "Open dispatch to act on this recommendation." },
-};
+const briefLabelKeys = ["title", "causes", "proposed", "review", "activity", "empty", "noCauses", "noActions", "pending", "retry", "confidence", "noAnalysis", "more", "modal", "approve", "reject", "failed", "noHandler"] as const;
 
-export function OperationsBrief({ summary, causes = [], actions = [], confidenceScore, agentCount, updatedAtLabel, canViewRuns = true, onApproveAction, onRejectAction, isLoading = false, error, onRetry, locale = "vi", className = "" }: OperationsBriefProps): ReactElement {
-  const text = copy[locale];
+export function OperationsBrief({ summary, causes = [], actions = [], confidenceScore, agentCount, updatedAtLabel, canViewRuns = true, onApproveAction, onRejectAction, isLoading = false, error, onRetry, locale, className = "" }: OperationsBriefProps): ReactElement {
+  const { i18n } = useTranslation();
+  const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
+  const text = createLocaleLabels(i18n.getFixedT(activeLocale), "dashboard.opsView.panels.brief", briefLabelKeys);
   const navigate = useNavigate();
   const [selectedAction, setSelectedAction] = useState<ProposedAction | null>(null);
   const [submitting, setSubmitting] = useState(false);

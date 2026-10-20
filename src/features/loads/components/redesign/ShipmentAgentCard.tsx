@@ -147,7 +147,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
       {/* Reasoning (Phân tích AI) */}
       {activeSuggestion.reasoning && (
         <div className="agent-card__section">
-          <div className="agent-card__label">PHÂN TÍCH AI</div>
+          <div className="agent-card__label">{t("loads.redesign.aiAnalysisLabel")}</div>
           <div className="agent-card__content">{activeSuggestion.reasoning}</div>
         </div>
       )}

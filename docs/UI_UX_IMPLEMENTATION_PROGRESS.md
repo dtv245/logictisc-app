@@ -152,3 +152,28 @@ Full Vitest và full lint đã từng trả lỗi nên các kết quả tổng t
 - `git diff -- plan.md` was inspected after status changes; intended rows are BASE-006, QA-008, DS-003..005, LOAD-004, QA-001/006 and the §16 count. The preexisting Package A plan updates are retained.
 - Count command parsed each ticket/range from §16: `DONE 8; UI_SAFE_DONE 47; IN_REVIEW 10; BLOCKED 11; BACKLOG 0; INTEGRATION_DONE 0`, total 76.
 - `docs/design/**` screenshot writers: `e2e/dashboard-panels.spec.ts`, `e2e/loads-show-screenshot.spec.ts`, `e2e/priority-shipment-card.spec.ts`, `e2e/sider-screenshot.spec.ts`; `e2e/capture-demo-baseline.spec.ts` writes `docs/ux/baseline/**`. All five were intentionally rerun after strict i18n and DS token changes; each checks for visible raw translation keys before capture. Refreshed tracked screenshots are intentional, including the 21 Phase 0 images that could contain raw keys.
+
+### DS-006 — 20/10/2026
+
+- Trạng thái: `IN_REVIEW → DONE`. Acceptance: copy giao diện trong Operations Brief/map/timeline/Priority Shipment và các vùng Load/AI được chuyển sang key i18next; kiểm kê các literal UI copy còn 0. Chuỗi `event.note`, status enum, tên/địa danh/số liệu sample là dữ liệu; URL/UUID là placeholder kỹ thuật. Attribution bản đồ và lý do dismiss outbound cũng nằm trong locale catalog.
+- Bằng chứng: `npx vitest run ...` — exit 0, 8 file/49 test; `npm run build` exit 0; `npm run lint` exit 0 (0 lỗi/4 warning có sẵn). Audit: `docs/ux/i18n-operations-load-ai-audit.md`.
+- File chính: `src/locales/{en,vi,ja}.ts`, dashboard panels, Load redesign, AI Dispatch components, audit/test locale. Rollback: hoàn nguyên task locale/components/test/audit; không đổi API contract, route hay flag.
+
+### I18N-001 — 20/10/2026
+
+- Trạng thái: `IN_REVIEW → DONE`. Acceptance: locale key parity en/vi/ja được kiểm tra cho key mới; chuyển locale ở Operations panels, Load header và AI Dispatch run form hiển thị copy tương ứng và không còn nhãn của hai locale kia.
+- Bằng chứng: `npx vitest run ...` — exit 0, 8 file/49 test; các test `operationsPanelLocales`, `loadLocaleSwitching`, `aiDispatchLocaleSwitching`, `localeKeys` đều nằm trong run. `npm run build` và `npm run lint` exit 0.
+- File chính: ba locale catalogs, `localeKeys.test.ts`, ba test đổi locale. Rollback: hoàn nguyên test/copy locale thuộc task; không ảnh hưởng dữ liệu API.
+
+### SHELL-001 — 20/10/2026
+
+- Trạng thái: `IN_REVIEW → UI_SAFE_DONE`. Acceptance: các menu item chỉ hiện khi role matrix cho phép; route nav được đối chiếu với AppRouter/resource registry; focus/active labels đã có source assertion; rail điều hướng bàn phím bằng ArrowDown.
+- Bằng chứng: `npx vitest run ...` exit 0, 8 file/49 test, trong đó AppSider 21 test kiểm tra đủ 9 JWT role; `npx playwright test e2e/sider-role.spec.ts ...` exit 0, 10/10 test trong gói dashboard/rail/reduced-motion. Ảnh BROWSER-FIXTURE: `docs/design/shell-001/admin-1440.png`, `driver-1440.png`.
+- Giới hạn: role token thật và tenant membership `NEEDS-LIVE`. Rollback: hoàn nguyên unit/e2e role tests, fixture mới, ảnh SHELL-001 và dòng trạng thái này.
+
+### OPS-007 — 20/10/2026
+
+- Trạng thái: `IN_REVIEW → UI_SAFE_DONE`. Acceptance: keyboard trigger search qua click/Enter/Space/shortcut; KPI focus semantics; CTA map/timeline; Operations Brief; đổi mode Mẫu/Thật — Playwright đã kiểm tra. Responsive không tràn ngang ở 320/390/768/1024/1440.
+- Bằng chứng: `npx playwright test e2e/sider-role.spec.ts e2e/dashboard-keyboard.spec.ts e2e/dashboard-panels.spec.ts e2e/reduced-motion.spec.ts --workers=1 --reporter=line` — exit 0, 10/10 test. Ảnh dashboard-panels là `BROWSER-FIXTURE`.
+- Chưa kiểm chứng: tiêu chí “theo video” do không có video tham chiếu (BASE-004); live data, role/tenant và responsive UAT thật `NEEDS-LIVE`.
+- File chính: Operations/dashboard panels, `e2e/dashboard-keyboard.spec.ts`, screenshots `docs/design/dashboard-panels/`, `plan.md`. Rollback: hoàn nguyên thay đổi UI/test/ảnh gói 2 và dòng trạng thái này.

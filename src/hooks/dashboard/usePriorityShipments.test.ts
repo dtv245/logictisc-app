@@ -5,7 +5,6 @@ import type { Load } from "@/types/load.types";
 
 const mocks = vi.hoisted(() => ({ access: vi.fn(), list: vi.fn(), refetch: vi.fn(), accessRefetch: vi.fn() }));
 vi.mock("@refinedev/core", () => ({ useCan: mocks.access, useList: mocks.list }));
-vi.mock("react-i18next", () => ({ useTranslation: () => ({ i18n: { resolvedLanguage: "vi", exists: () => false }, t: (_key: string, options: { defaultValue: string }) => options.defaultValue }) }));
 
 const load: Load = {
   id: "load-1", number: 1001, name: "Chuyến kiểm thử", status: "in_transit", type: "reefer",

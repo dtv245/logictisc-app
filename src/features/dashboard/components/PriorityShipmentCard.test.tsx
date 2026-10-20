@@ -6,7 +6,7 @@ describe("PriorityShipmentCard data truth", () => {
   it("does not render the preview fixture shipment when live data is unavailable", () => {
     render(<PriorityShipmentCard />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("Chưa có dữ liệu chuyến ưu tiên");
+    expect(screen.getByRole("status")).toHaveTextContent("Nguồn dữ liệu hiện tại chưa cung cấp thông tin chuyến để hiển thị.");
     expect(screen.queryByText("LD-84920")).not.toBeInTheDocument();
     expect(screen.queryByText("Cảng Cát Lái")).not.toBeInTheDocument();
     expect(screen.queryByText(/AI PHÁT HIỆN CHUYẾN CÓ RỦI RO/)).not.toBeInTheDocument();

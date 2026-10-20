@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 import type { LatLngBounds, LayerGroup, Map as LeafletMap, TileLayer } from "leaflet";
 import { Layers2, LocateFixed } from "lucide-react";
 import "leaflet/dist/leaflet.css";
+import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
 import type { NetworkRouteMapProps } from "@/types/dashboard/network-map.types";
 import "@/components/dashboard/NetworkRouteMap.scss";
 
@@ -14,7 +16,12 @@ interface MapEngine {
 }
 
 /** Small SVG/raster map: no WebGL context, including on browsers without GPU support. */
-export function NetworkRouteMap({ vehicles, routes, locale = "vi" }: NetworkRouteMapProps): ReactElement {
+const mapLabelKeys = ["canvas", "loading", "initError", "retry", "tilesError", "reloadTiles", "fitVehicles", "showProposed", "attribution"] as const;
+
+export function NetworkRouteMap({ vehicles, routes, locale }: NetworkRouteMapProps): ReactElement {
+  const { i18n } = useTranslation();
+  const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
+  const text = createLocaleLabels(i18n.getFixedT(activeLocale), "dashboard.opsView.panels.map", mapLabelKeys);
   const containerRef = useRef<HTMLDivElement>(null);
   const [engine, setEngine] = useState<MapEngine>();
   const [error, setError] = useState(false);
@@ -22,7 +29,6 @@ export function NetworkRouteMap({ vehicles, routes, locale = "vi" }: NetworkRout
   const [attempt, setAttempt] = useState(0);
   const [showProposed, setShowProposed] = useState(true);
   const boundsRef = useRef<LatLngBounds>();
-  const english = locale === "en";
 
   useEffect(() => {
     let disposed = false;
@@ -42,7 +48,7 @@ export function NetworkRouteMap({ vehicles, routes, locale = "vi" }: NetworkRout
       });
       map.zoomControl.setPosition("topright");
       const tiles = leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        attribution: `&copy; <a href="https://www.openstreetmap.org/copyright">${text.attribution}</a>`,
         maxZoom: 19,
         className: "dashboard-network-map__tile",
       });
@@ -70,7 +76,7 @@ export function NetworkRouteMap({ vehicles, routes, locale = "vi" }: NetworkRout
       observer?.disconnect();
       map?.remove();
     };
-  }, [attempt]);
+  }, [attempt, text.attribution]);
 
   useEffect(() => {
     if (!engine || error) return;
@@ -122,18 +128,18 @@ export function NetworkRouteMap({ vehicles, routes, locale = "vi" }: NetworkRout
 
   return (
     <div className="dashboard-network-map" data-map-engine="leaflet-svg">
-      <div className="dashboard-network-map__canvas" ref={containerRef} role="region" aria-label="Bản đồ vị trí xe và tuyến vận hành" />
-      {!engine && !error && <div className="dashboard-network-map__message" role="status">{english ? "Loading map…" : "Đang tải bản đồ…"}</div>}
+      <div className="dashboard-network-map__canvas" ref={containerRef} role="region" aria-label={text.canvas} />
+      {!engine && !error && <div className="dashboard-network-map__message" role="status">{text.loading}</div>}
       {error && <div className="dashboard-network-map__message" role="alert">
-        <span>Không khởi tạo được bản đồ.</span><button type="button" onClick={retry}>Thử lại</button>
+        <span>{text.initError}</span><button type="button" onClick={retry}>{text.retry}</button>
       </div>}
       {!error && tileError && <div className="dashboard-network-map__tile-error" role="status">
-        <span>Không tải được nền bản đồ. Vị trí và tuyến vẫn được hiển thị.</span>
-        <button type="button" onClick={() => engine?.tiles.redraw()}>Tải lại nền</button>
+        <span>{text.tilesError}</span>
+        <button type="button" onClick={() => engine?.tiles.redraw()}>{text.reloadTiles}</button>
       </div>}
       {engine && !error && <div className="dashboard-network-map__controls">
-        <button type="button" aria-label={english ? "Fit vehicles and routes" : "Định vị xe và tuyến"} onClick={() => { if (boundsRef.current?.isValid()) engine.map.fitBounds(boundsRef.current, { padding: [28, 28], maxZoom: 13, animate: false }); }}><LocateFixed size={14} /></button>
-        {routes.some((route) => route.isProposed) && <button type="button" aria-label={english ? "Show proposed routes" : "Hiển thị tuyến đề xuất"} aria-pressed={showProposed} onClick={() => setShowProposed((value) => !value)}><Layers2 size={14} /></button>}
+        <button type="button" aria-label={text.fitVehicles} onClick={() => { if (boundsRef.current?.isValid()) engine.map.fitBounds(boundsRef.current, { padding: [28, 28], maxZoom: 13, animate: false }); }}><LocateFixed size={14} /></button>
+        {routes.some((route) => route.isProposed) && <button type="button" aria-label={text.showProposed} aria-pressed={showProposed} onClick={() => setShowProposed((value) => !value)}><Layers2 size={14} /></button>}
       </div>}
     </div>
   );

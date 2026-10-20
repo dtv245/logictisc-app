@@ -1,4 +1,4 @@
-export type ShipmentCardLocale = "vi" | "en";
+export type ShipmentCardLocale = "vi" | "en" | "ja";
 
 export interface ShipmentRouteStop {
   id: string;

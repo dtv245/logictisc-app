@@ -1,3 +1,5 @@
+import type { ShipmentCardLocale } from "@/types/dashboard/priority-shipment.types";
+
 export interface NetworkVehiclePoint {
   id: string;
   plate: string;
@@ -20,5 +22,5 @@ export interface NetworkRouteLine {
 export interface NetworkRouteMapProps {
   vehicles: readonly NetworkVehiclePoint[];
   routes: readonly NetworkRouteLine[];
-  locale?: "vi" | "en";
+  locale?: ShipmentCardLocale;
 }
