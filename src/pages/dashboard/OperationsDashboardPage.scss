@@ -24,6 +24,10 @@
   .ant-alert-action {
     flex-shrink: 0;
   }
+
+  .ant-switch:not(.ant-switch-checked) .ant-switch-inner-unchecked {
+    color: var(--color-text);
+  }
 }
 
 .ops-tabs-header {

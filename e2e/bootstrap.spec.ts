@@ -46,6 +46,7 @@ async function mockRuntimeConfig(page: Page): Promise<void> {
 test("healthy API continues to public diagnostics", async ({
   page,
 }) => {
+  test.skip(!process.env.E2E_REAL_OIDC, "cần OIDC thật");
   const observedHeaders: Array<Record<string, string>> = [];
   await mockRuntimeConfig(page);
   await page.route("**/api/health", async (route) => {

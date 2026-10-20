@@ -18,7 +18,7 @@ import {
   Space,
   Typography,
 } from "antd";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -32,6 +32,8 @@ export const NotificationHeaderIcon = ({ placement = "bottomRight" }: Pick<Popov
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popoverContentRef = useRef<HTMLDivElement>(null);
   const { tenant } = useCurrentTenant();
   const access = useCan({ resource: "notifications", action: "list" });
 
@@ -82,10 +84,34 @@ export const NotificationHeaderIcon = ({ placement = "bottomRight" }: Pick<Popov
     setOpen(false);
     navigate(routes.resources.notifications.list);
   };
+  const handlePopoverKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Escape") return;
+    event.preventDefault();
+    event.stopPropagation();
+    setOpen(false);
+    window.setTimeout(() => triggerRef.current?.focus(), 0);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const timer = window.setTimeout(() => {
+      popoverContentRef.current?.querySelector<HTMLElement>(
+        'button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])',
+      )?.focus();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [open]);
+
   if (access.data?.can !== true) return null;
 
   const popoverContent = (
-    <div style={{ width: 320, maxWidth: "calc(100vw - 32px)" }}>
+    <div
+      ref={popoverContentRef}
+      role="dialog"
+      aria-label={t("notifications.recent")}
+      onKeyDownCapture={handlePopoverKeyDown}
+      style={{ width: 320, maxWidth: "calc(100vw - 32px)" }}
+    >
       <Flex align="center" justify="space-between" style={{ paddingBottom: 8 }}>
         <Typography.Text strong>
           {t("notifications.recent")}
@@ -178,7 +204,10 @@ export const NotificationHeaderIcon = ({ placement = "bottomRight" }: Pick<Popov
         title={t("notifications.recentUnread")}
       >
         <Button
+          ref={triggerRef}
           aria-label={t("resources.notifications")}
+          aria-expanded={open}
+          aria-haspopup="dialog"
           className="app-sider__notification-btn"
           icon={<NotificationNavIcon size={20} strokeWidth={1.5} />}
           type="text"

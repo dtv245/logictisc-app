@@ -25,7 +25,7 @@ describe("notification header integration", () => {
   it("refetches the header after persisted mark-read and retains the server result", async () => {
     let read = false; const request = vi.fn(async () => { read = true; return 1; }); const observe = vi.fn();
     await renderFinance(<NotificationHeaderIcon />, request, { role: "OWNER", listRequest: listProvider(() => [{ ...item, isRead: read }], observe) });
-    fireEvent.click(await screen.findByRole("button", { name: "Notifications" })); fireEvent.click(await screen.findByRole("button", { name: "Mark all as read" })); const dialog = await screen.findByRole("dialog");
+    fireEvent.click(await screen.findByRole("button", { name: "Notifications" })); fireEvent.click(await screen.findByRole("button", { name: "Mark all as read" })); const modalTitle = await screen.findByText("Mark all as read", { selector: ".ant-modal-title" }); const dialog = modalTitle.closest(".ant-modal") as HTMLElement;
     fireEvent.click(within(dialog).getByRole("button", { name: "Confirm" })); expect(await screen.findByRole("button", { name: "Recent shipment (Read)" })).toBeInTheDocument(); expect(request).toHaveBeenCalledTimes(1); expect(observe).toHaveBeenCalledTimes(2);
   });
   it("fails closed before list fetching when the authority is unknown", async () => {

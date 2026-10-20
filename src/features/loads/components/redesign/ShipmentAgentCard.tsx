@@ -134,7 +134,7 @@ export const ShipmentAgentCard: React.FC<ShipmentAgentCardProps> = ({ loadId }) 
           <ThunderboltFilled /> {t("loads.redesign.routeAgent")}
         </div>
         <span className="agent-card__meta">
-          {confidencePercent != null ? `${confidencePercent}% · ` : ""}
+          {confidencePercent != null ? `${t("loads.redesign.confidenceLabel")} ${confidencePercent}% · ` : ""}
           {rankingSource === "llm" ? t("loads.redesign.llmSource") : t("loads.redesign.algorithmSource")}
         </span>
       </div>

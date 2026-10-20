@@ -1,15 +1,16 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getStoredAiSettings } from "@/features/ai-dispatch/hooks/aiConfigStorage";
 import { AiDispatchPage } from "@/pages/ai-dispatch/AiDispatchPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { useLocation } from "react-router-dom";
 import { ApiHttpError } from "@/utils/httpError";
+import { approveAiDispatchDecision } from "@/features/ai-dispatch/api/aiDispatch.api";
 
 import { initialMovementPlan } from "@/tests/fixtures/aiMovementPlan";
 
 const session = vi.hoisted(() => ({ tenantKey: "tenant-finance" }));
-const aiLoadState = vi.hoisted(() => ({ useInitialPlan: true, failPendingRequest: false, includeTripId: false, pendingFailure: null as Error | null }));
+const aiLoadState = vi.hoisted(() => ({ useInitialPlan: true, failPendingRequest: false, holdPendingRequest: false, includeTripId: false, pendingFailure: null as Error | null }));
 vi.mock("@/hooks/useCurrentTenant", () => ({
   useCurrentTenant: () => ({
     tenant: session.tenantKey ? { tenantKey: session.tenantKey } : null,
@@ -21,6 +22,7 @@ vi.mock("@/features/ai-dispatch/api/aiDispatch.api", async (importOriginal) => {
   return {
     ...actual,
     fetchAiDispatchPending: vi.fn(async () => {
+      if (aiLoadState.holdPendingRequest) return new Promise<never>(() => undefined);
       if (aiLoadState.failPendingRequest) throw aiLoadState.pendingFailure ?? new Error("Pending endpoint unavailable");
       return [];
     }),
@@ -87,6 +89,7 @@ beforeEach(() => {
   session.tenantKey = "tenant-finance";
   aiLoadState.useInitialPlan = true;
   aiLoadState.failPendingRequest = false;
+  aiLoadState.holdPendingRequest = false;
   aiLoadState.includeTripId = false;
   aiLoadState.pendingFailure = null;
   localStorage.clear();
@@ -98,6 +101,16 @@ function CurrentPathname() {
 }
 
 describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di chuyển", () => {
+  it("keeps the plan route pending while the initial request is unresolved", async () => {
+    aiLoadState.useInitialPlan = false;
+    aiLoadState.holdPendingRequest = true;
+    await renderFinance(<AiDispatchPage />, vi.fn(), { role: "DISPATCHER" });
+
+    await waitFor(() => expect(document.querySelector(".ant-spin-spinning")).not.toBeNull());
+    expect(screen.queryByText("No movement plan generated yet. Run AI dispatch in the adjacent tab.")).not.toBeInTheDocument();
+    expect(document.querySelector(".ant-alert-error")).toBeNull();
+  });
+
   it("hiển thị kế hoạch di chuyển do AI đề xuất với đầy đủ thông tin lộ trình, KPI và giải trình", async () => {
     await renderFinance(<AiDispatchPage />, vi.fn(), { role: "DISPATCHER" });
 
@@ -160,6 +173,26 @@ describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di c
     expect(screen.getByText("Movement plan approval was recorded.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /View Trip/i })).not.toBeInTheDocument();
     expect(screen.getByText("The approved plan does not include a Trip ID, so its Trip detail cannot be opened.")).toBeInTheDocument();
+  });
+
+  it("disables AI approval controls while the approval request is pending", async () => {
+    const approveRequest = vi.mocked(approveAiDispatchDecision);
+    const originalImplementation = approveRequest.getMockImplementation();
+    approveRequest.mockImplementation(() => new Promise(() => undefined));
+    const rendered = await renderFinance(<AiDispatchPage />, vi.fn(), { role: "DISPATCHER" });
+
+    try {
+      fireEvent.click(await screen.findByRole("button", { name: /Approve Movement Plan/i }));
+      const dialog = await screen.findByRole("dialog");
+      fireEvent.click(within(dialog).getByRole("button", { name: /Approve Movement Plan/i }));
+
+      await waitFor(() => expect(within(dialog).getByRole("button", { name: "Cancel" })).toBeDisabled());
+      expect(within(dialog).getByRole("button", { name: /Approve Movement Plan/i })).toBeDisabled();
+      expect(screen.getByRole("button", { name: /Reject Plan/i })).toBeDisabled();
+    } finally {
+      rendered.unmount();
+      if (originalImplementation) approveRequest.mockImplementation(originalImplementation);
+    }
   });
 
   it("cho phép người dùng từ chối kế hoạch di chuyển (Reject Plan) kèm lý do", async () => {
@@ -262,6 +295,15 @@ describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di c
     await waitFor(() => {
       expect(screen.queryByText("AI Dispatch data could not be loaded")).not.toBeInTheDocument();
     });
+  });
+
+  it("renders the empty plan state after successful empty pending and history responses", async () => {
+    aiLoadState.useInitialPlan = false;
+
+    await renderFinance(<AiDispatchPage />, vi.fn(), { role: "DISPATCHER" });
+
+    expect(await screen.findByText("No movement plan generated yet. Run AI dispatch in the adjacent tab.")).toBeInTheDocument();
+    expect(document.querySelector(".ant-alert-error")).toBeNull();
   });
 
   it("hiển thị lỗi 403 AI Dispatch riêng với empty state và giữ nút retry", async () => {

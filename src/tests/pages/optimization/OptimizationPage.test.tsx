@@ -16,6 +16,17 @@ async function fill() {
   fireEvent.click(screen.getByRole("button", { name: "Run Optimization" })); return screen.findByRole("dialog");
 }
 describe("OptimizationPage", () => {
+  it("keeps the only target row from being removed and enables removal after adding a second", async () => {
+    const request = vi.fn(async () => optimization);
+    await renderFinance(page, request, options);
+    const remove = await screen.findByRole("button", { name: "Remove" });
+    expect(remove).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Add Target" }));
+    expect(screen.getAllByRole("button", { name: "Remove" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "Remove" }).every((button) => !(button as HTMLButtonElement).disabled)).toBe(true);
+  });
+
   it("opens only a valid run ID without startup or cross-screen queries", async () => {
     const request = vi.fn(async () => optimization); await renderFinance(page, request, options); await screen.findByRole("heading", { name: "Optimization" });
     fireEvent.change(screen.getByLabelText("Run ID"), { target: { value: "invalid" } }); fireEvent.click(screen.getByRole("button", { name: "View" })); expect(await screen.findByText("Enter a valid UUID.")).toBeInTheDocument();

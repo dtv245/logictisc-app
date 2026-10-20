@@ -47,6 +47,8 @@
   --color-text-tertiary: #{v.$color-text-tertiary};
   --color-text-disabled: #{v.$color-text-disabled};
   --color-text-inverse: #{v.$color-text-inverse};
+  --color-control-boundary: #{v.$color-control-boundary};
+  --color-focus-indicator: #{v.$color-focus-indicator};
 
   --radius-xs: #{v.$radius-xs};
   --radius-sm: #{v.$radius-sm};
@@ -142,9 +144,68 @@ a {
   }
 }
 
+.ant-typography.ant-typography-secondary,
+.ant-form-item-explain,
+.ant-select-selection-placeholder,
+.ant-input::placeholder,
+.ant-picker-input > input::placeholder {
+  color: var(--color-text-secondary) !important;
+  opacity: 1;
+}
+
+.ant-input:not([disabled]),
+.ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled),
+.ant-select:not(.ant-select-disabled) .ant-select-selector,
+.ant-picker:not(.ant-picker-disabled) {
+  border-color: var(--color-control-boundary);
+}
+
+.ant-tag-green {
+  color: var(--color-success-text) !important;
+}
+
+.ant-tag-success {
+  color: var(--color-success-text) !important;
+}
+
+.ant-tag-orange,
+.ant-tag-warning {
+  color: var(--color-warning-text) !important;
+}
+
+.ant-btn-default:not(:disabled),
+.ant-input:not([disabled]),
+.ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled),
+.ant-select:not(.ant-select-disabled) .ant-select-selector,
+.ant-picker:not(.ant-picker-disabled) {
+  border-color: var(--color-control-boundary) !important;
+}
+
+.ant-picker:not(.ant-picker-disabled) {
+  border-top-color: var(--color-control-boundary) !important;
+  border-right-color: var(--color-control-boundary) !important;
+  border-bottom-color: var(--color-control-boundary) !important;
+  border-left-color: var(--color-control-boundary) !important;
+}
+
+.ant-picker .ant-picker-suffix,
+.ant-picker .anticon {
+  color: var(--color-text-secondary) !important;
+}
+
+.ant-btn-dangerous:not(:disabled) {
+  border-color: var(--color-error-text) !important;
+}
+
+.ant-breadcrumb,
+.ant-breadcrumb .ant-breadcrumb-link,
+.ant-breadcrumb a {
+  color: var(--color-text) !important;
+}
+
 :where(a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])):focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: 2px solid var(--color-focus-indicator) !important;
+  outline-offset: 2px !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

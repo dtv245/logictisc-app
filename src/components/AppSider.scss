@@ -145,7 +145,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--sider-icon, #6b6b76);
+      color: var(--color-text-secondary);
       transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 
       &:hover {
@@ -266,7 +266,9 @@
     }
 
     &:focus-visible {
-      box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #8b5cf6;
+      outline: 2px solid var(--color-focus-indicator) !important;
+      outline-offset: 2px;
+      box-shadow: none;
     }
   }
 
@@ -300,7 +302,7 @@
   .ant-btn:focus-visible,
   .ant-menu-item:focus-visible,
   .ant-menu-submenu-title:focus-visible {
-      outline: 2px solid var(--color-primary);
+      outline: 2px solid var(--color-focus-indicator) !important;
     outline-offset: -2px;
   }
 }
@@ -372,13 +374,23 @@
   }
 }
 
+.app-sider__navigation .ant-menu:focus-visible,
+.app-sider__navigation .ant-menu-item:focus-visible,
+.app-sider__navigation .ant-menu-submenu-title:focus-visible {
+  outline: 2px solid var(--color-focus-indicator) !important;
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .app-sider.ant-layout-sider,
   .app-sider__content .ant-menu,
   .app-sider__content .ant-menu-submenu-title,
   .app-sider__content .ant-btn,
   .app-sider__ai-agent-btn {
-    transition: none;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

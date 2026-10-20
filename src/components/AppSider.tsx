@@ -22,7 +22,7 @@ import type { RefineThemedLayoutV2SiderProps } from "@refinedev/antd";
 import { useCanWithoutCache } from "@refinedev/core";
 import { Avatar, Button, Dropdown, Layout, Menu, Tooltip, type MenuProps } from "antd";
 import type { TFunction } from "i18next";
-import { useEffect, useMemo, useState, type FC, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FC, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -366,6 +366,7 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
 
   // Quản lý trạng thái mở submenu để tự động ẩn tooltip khi menu nổi đang hiển thị
   const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const submenuTriggerRef = useRef<HTMLElement | null>(null);
 
   // Gom mọi chức năng (trong khu vực và mục lẻ) để kiểm tra quyền một lượt
   const allNavItems = useMemo(
@@ -526,7 +527,15 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
           items={menuItems}
           mode="inline"
           openKeys={openKeys}
-          onOpenChange={(keys) => setOpenKeys(keys as string[])}
+          onOpenChange={(nextKeys) => {
+            const nextOpenKeys = nextKeys as string[];
+            if (nextOpenKeys.length > openKeys.length && document.activeElement instanceof HTMLElement) {
+              submenuTriggerRef.current = document.activeElement;
+            } else if (nextOpenKeys.length < openKeys.length && submenuTriggerRef.current) {
+              window.setTimeout(() => submenuTriggerRef.current?.focus(), 0);
+            }
+            setOpenKeys(nextOpenKeys);
+          }}
           selectedKeys={activeMatch ? [activeMatch.item.key] : []}
           theme="light"
           triggerSubMenuAction="click"

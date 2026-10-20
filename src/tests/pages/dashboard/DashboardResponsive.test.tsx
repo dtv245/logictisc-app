@@ -269,6 +269,18 @@ describe("Dashboard & Operations Responsive Verification", () => {
       expect(dashboardDataState.refetchAll).toHaveBeenCalledTimes(1);
     });
 
+    it("keeps Operations KPI values in loading while the requests are pending", () => {
+      dashboardDataState.otd = { data: undefined, isLoading: true, error: null };
+      dashboardDataState.delays = { data: undefined, isLoading: true, error: null };
+      dashboardDataState.exceptions = { data: undefined, isLoading: true, error: null };
+
+      renderWithProviders(<OperationsDashboardView />);
+
+      expect(document.querySelectorAll(".ops-kpi-item--loading")).toHaveLength(3);
+      expect(document.querySelectorAll(".ops-kpi-item--error")).toHaveLength(0);
+      expect(document.querySelectorAll(".ops-kpi-item--unavailable")).toHaveLength(3);
+    });
+
     it("localizes dashboard KPI labels and search controls", async () => {
       await act(async () => {
         await testI18n.changeLanguage("ja");

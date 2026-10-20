@@ -1,6 +1,6 @@
 import { CreateButton, List, useTable } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
-import { useShow } from "@refinedev/core";
+import { useCan, useShow } from "@refinedev/core";
 import { Button, Space, type TableProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -44,6 +44,12 @@ export const ResourceListPage = <TData extends BaseRecord>({
   const localizedColumns = useLocalizedColumns(columns);
 
   const capabilities = getResourceCapabilities(resource);
+  const { data: createPermission } = useCan({
+    action: "create",
+    resource,
+    queryOptions: { enabled: capabilities.create },
+  });
+  const canCreate = capabilities.create && createPermission?.can === true;
 
   const {
     filters,
@@ -126,7 +132,7 @@ export const ResourceListPage = <TData extends BaseRecord>({
     isLoading: showQueryResult?.isFetching ?? false,
   });
 
-  const defaultCreateButton = capabilities.create ? (
+  const defaultCreateButton = canCreate ? (
     <ResourceCreateModal
       resource={resource}
       trigger={(show) => (

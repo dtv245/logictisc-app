@@ -961,6 +961,7 @@ export const jaMessages = {
       agentReady: "準備完了",
       noAgentSuggestion: "このLoadに利用できる配車提案はありません。",
       routeAgent: "ルートエージェント",
+      confidenceLabel: "信頼度",
       llmSource: "LLMモデル",
       algorithmSource: "アルゴリズム",
       dispatchSuggestion: "配車案: {{driver}}（Truck {{truck}}）",

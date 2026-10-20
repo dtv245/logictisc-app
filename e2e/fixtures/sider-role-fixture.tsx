@@ -18,6 +18,13 @@ import { OperationsDashboardPage } from "../../src/pages/dashboard/OperationsDas
 import type { Load } from "../../src/types/load.types";
 import { canJwtRolesAccess } from "../../src/providers/permissions/roleMatrix";
 import { JWT_ROLES, type JwtRole } from "../../src/types/roles.types";
+import { NAV_ZONES } from "../../src/components/AppSider";
+
+declare global {
+  interface Window {
+    __roleMenuExpectation?: Array<{ key: string; visible: boolean }>;
+  }
+}
 
 // Setup I18n
 const i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });
@@ -209,6 +216,18 @@ const mockAccessControl = {
     can: canJwtRolesAccess([fixtureRole], resource, action ?? "list"),
   }),
 };
+
+window.__roleMenuExpectation = NAV_ZONES.map((zone) => {
+  const items = "items" in zone ? zone.items : [zone];
+  return {
+    key: zone.key,
+    visible: items.some((item) => item.permission
+      ? canJwtRolesAccess([fixtureRole], item.permission.resource, item.permission.action)
+      : item.resource
+        ? canJwtRolesAccess([fixtureRole], item.resource, "list")
+        : true),
+  };
+});
 
 // This fixture demonstrates role-matrix visibility only; it is never live auth or tenant UAT.
 const initialRoute = searchParams.get("route") || "/operations";

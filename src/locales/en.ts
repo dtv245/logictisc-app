@@ -2031,6 +2031,7 @@ export const enMessages = {
       agentReady: "Ready",
       noAgentSuggestion: "No dispatch suggestion is available for this Load.",
       routeAgent: "Route Agent",
+      confidenceLabel: "Confidence",
       llmSource: "LLM model",
       algorithmSource: "Algorithm",
       dispatchSuggestion: "Dispatch proposal: {{driver}} (Truck {{truck}})",

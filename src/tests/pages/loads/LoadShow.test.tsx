@@ -45,12 +45,14 @@ vi.mock("@refinedev/core", () => ({
 }));
 
 vi.mock("@refinedev/antd", () => ({
-  Show: ({ children, title }: { children: ReactNode; title?: ReactNode }) => (
-    <div>
-      <div data-testid="show-header">{title}</div>
-      {children}
-    </div>
-  ),
+  Show: ({ children, title }: { children: ReactNode; title?: ReactNode }) => mockQueryResult.isLoading
+    ? <div role="status">Loading load details</div>
+    : (
+      <div>
+        <div data-testid="show-header">{title}</div>
+        {children}
+      </div>
+    ),
   TextField: ({ value }: { value: unknown }) => <span>{String(value)}</span>,
 }));
 
@@ -177,6 +179,28 @@ describe("LoadShow Page", () => {
     fireEvent.click(retryBtn);
 
     expect(mockRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the detail page pending while the Load request is unresolved", () => {
+    mockQueryResult.isLoading = true;
+    delete mockQueryResult.data;
+
+    render(<LoadShow />);
+
+    expect(screen.getByRole("status")).toHaveTextContent("Loading load details");
+    expect(screen.queryByText("Không có dữ liệu")).not.toBeInTheDocument();
+  });
+
+  it("renders direct 404 as a recoverable Load detail error, not empty", () => {
+    mockQueryResult.isError = true;
+    mockQueryResult.error = new ApiHttpError({ statusCode: 404, code: "LOAD_NOT_FOUND", message: "Load not found", requestId: "load-not-found" });
+    delete mockQueryResult.data;
+
+    render(<LoadShow />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Load not found");
+    expect(screen.getByRole("button", { name: "Thử lại" })).toBeInTheDocument();
+    expect(screen.queryByText("Không có dữ liệu")).not.toBeInTheDocument();
   });
 
   it("shows a forbidden load response as an error rather than an empty detail", () => {

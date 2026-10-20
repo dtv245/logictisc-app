@@ -17,7 +17,7 @@
   h2, h3, p, ul { margin: 0; }
   ul { padding: 0; list-style: none; }
   h3 {
-    color: #7d778a;
+    color: var(--color-text-secondary);
     font-size: 11px;
     font-weight: 700;
     line-height: 1.4;
@@ -80,7 +80,7 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: #928b9e;
+  color: var(--color-text-secondary);
 
   &:hover {
     background: #e8e0fc;
@@ -96,7 +96,7 @@
   overflow-wrap: anywhere;
 
   &--empty {
-    color: #797187;
+    color: var(--color-text-secondary);
     font-size: var(--font-size-base);
   }
 }
@@ -164,7 +164,7 @@
   border: 0;
   border-radius: 24px;
   background: var(--color-bg-container);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   text-align: left;
   transition: all 0.15s ease;
 
@@ -197,7 +197,7 @@
 
     small {
       overflow: hidden;
-      color: #827b8e;
+      color: var(--color-text-secondary);
       font-size: 11px;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -253,7 +253,7 @@
 .ops-brief-empty,
 .ops-brief-state {
   padding: 10px 0;
-  color: #766d84;
+  color: var(--color-text-secondary);
   font-size: var(--font-size-xs);
   line-height: 1.5;
 }

@@ -15,6 +15,7 @@ import { LoadShow } from "../../src/pages/loads/show";
 import { LoadList } from "../../src/pages/loads/list";
 import { TripList } from "../../src/pages/trips/list";
 import { OperationsDashboardPage } from "../../src/pages/dashboard/OperationsDashboardPage";
+import { ApiHttpError } from "../../src/utils/httpError";
 import type { Load } from "../../src/types/load.types";
 
 // Setup I18n
@@ -99,6 +100,10 @@ const sampleTripsList = [
   },
 ];
 
+const searchParams = new URLSearchParams(window.location.search);
+const fixtureState = searchParams.get("state");
+const initialRoute = searchParams.get("route") || "/operations";
+
 // Mock axios calls for AI, dashboard, timeline
 axios.interceptors.request.use(async (config) => {
   const url = config.url || "";
@@ -171,14 +176,27 @@ axios.interceptors.request.use(async (config) => {
 
 // Custom Refine data provider
 const mockDataProvider = {
-  getOne: async ({ resource }: { resource: string }) => {
+  getOne: async ({ resource, id }: { resource: string; id?: string | number }) => {
     if (resource === "loads") {
+      if (fixtureState === "loading") return await new Promise(() => undefined);
+      const requestedId = String(id ?? initialRoute.split("/").at(-1));
+      if (requestedId === "missing") {
+        throw new ApiHttpError({ statusCode: 404, code: "NOT_FOUND", message: "Load not found", requestId: "fixture-load-404" });
+      }
       return { data: sampleLoad as any };
     }
     return { data: {} as any };
   },
   getList: async ({ resource }: { resource: string }) => {
     if (resource === "loads") {
+      if (fixtureState === "loading") return await new Promise(() => undefined);
+      if (fixtureState === "empty") return { data: [], total: 0 };
+      if (fixtureState === "error") {
+        throw new Error("Load list request failed");
+      }
+      if (fixtureState === "forbidden") {
+        throw new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Load list forbidden", requestId: "fixture-loads-403" });
+      }
       return { data: sampleLoadsList as any[], total: sampleLoadsList.length };
     }
     if (resource === "trips") {
@@ -202,9 +220,6 @@ const mockAccessControl = {
 };
 
 // Đọc path từ search param `?route=/loads` hoặc mặc định `/operations`
-const searchParams = new URLSearchParams(window.location.search);
-const initialRoute = searchParams.get("route") || "/operations";
-
 const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <React.StrictMode>

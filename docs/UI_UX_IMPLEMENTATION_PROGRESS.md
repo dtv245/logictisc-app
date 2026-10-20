@@ -214,3 +214,68 @@ Full Vitest và full lint đã từng trả lỗi nên các kết quả tổng t
 - Ảnh `BROWSER-FIXTURE` được ghi lại sau strict i18n; các screenshot specs có assertion raw-key guard trước khi chụp. Writer cho `docs/design/**`: `dashboard-panels.spec.ts`, `loads-show-screenshot.spec.ts`, `priority-shipment-card.spec.ts`, `sider-role.spec.ts`, `sider-screenshot.spec.ts`; writer cho `docs/ux/baseline/**`: `capture-demo-baseline.spec.ts`. Có **35 PNG tracked** được refresh có chủ đích ở `docs/design/**` và `docs/ux/baseline/**`; đây không phải live snapshots.
 - File đã sửa/thêm trong task: `e2e/fixtures/priority-shipment-card.tsx`, `plan.md`, progress và ảnh do các Playwright screenshot writers nêu trên tạo. Rollback: revert strict i18n wrapper/fix và QA-006 plan/progress rows; khôi phục ảnh nếu muốn bỏ baseline refresh.
 - Giới hạn: thiếu OIDC thật, nên bootstrap case và live auth/tenant UAT chưa xác minh. Theo ngoại lệ đã định, QA-006 là `UI_SAFE_DONE`; toàn bộ ảnh/test là fixture.
+
+### DS-003 — 20/10/2026 (runtime contrast closeout)
+
+- Trạng thái: `IN_REVIEW → DONE`.
+- Acceptance §3.2: “Heading/body/metadata consistent”; “không làm giảm contrast hoặc làm vỡ layout.” Typography/token rollout đã có; runtime contrast được đo trước/sau bằng cùng scanner. Trên Operations và Load detail (các màn DS-003 đã sửa), không có cặp fail. Trong 405 nhóm selector chung với `da5c600`, 0 nhóm tệ hơn. `--color-primary` không đổi. Các 5 cặp primary-blue fail còn lại nằm ở Loads list, AI Dispatch, Optimization và Fleet, và được chuyển sang đề xuất cho QA-003.
+- Bằng chứng: `RUNTIME_CONTRAST_REPORT=/tmp/contrast-head-final.json npx playwright test e2e/contrast-runtime.spec.ts --workers=1 --reporter=line` — exit 0, 1/1, 495 cặp đo; baseline worktree `da5c600` exit 0, 1/1, worktree đã gỡ. Screenshot rerun — exit 0, 9/9; `npm run build`, `npm run lint` (0 lỗi/4 warning), `npm run typecheck` exit 0. Report: `docs/ux/contrast-runtime-report.md`.
+- File chính: `src/styles/_variables.scss`, `src/styles/global.scss`, `src/components/AppSider.scss`, dashboard/load SCSS trong phạm vi; `e2e/contrast-runtime.spec.ts`, `e2e/fixtures/contrast-runtime.*`, `docs/ux/contrast-runtime-report.md`. Ảnh `BROWSER-FIXTURE`: `docs/design/ds003-after/` ở 1440/768/390 (cả dashboard và Load detail); `docs/ux/baseline/operations-demo-{1440,768,390}.png` được refresh có chủ đích. Không ảnh nào là live.
+- Giới hạn: QA-003 vẫn `IN_REVIEW` vì năm cặp primary-blue fail; DS-003 không đổi primary. Các trường hợp indeterminate được liệt kê selector và lý do trong report.
+- Rollback: revert thay đổi token/SCSS thuộc DS-003, scanner/report, ảnh trong `docs/design/ds003-after/` và ảnh Operations baseline vừa refresh; giữ các assertion keyboard/state thuộc QA tasks riêng.
+
+### QA-002 — 20/10/2026 (keyboard/focus closeout)
+
+- Trạng thái: `IN_REVIEW → DONE`.
+- Acceptance §3.8: “Tab/Enter/Space/Escape được hỗ trợ theo component, modal restore focus; không chỉ dựa màu.” Load Create modal, AI approve modal, Optimization confirmation/drawer, Documents drawer và finance submenu mở bằng keyboard, giữ focus trong modal/drawer khi Tab/Shift+Tab, đóng bằng Escape và khôi phục đúng trigger. AI run form submit bằng Enter; Load detail tab chạy bằng Enter. Notification popover mở bằng Space, đưa focus vào trong; Tab được phép đi ra ngoài vì popover không modal (`aria-modal` không có), Escape đóng và khôi phục focus. Load detail và AI run inline được ghi N/A cho modal trap/restore vì không render overlay.
+- Bằng chứng: `npx playwright test e2e/keyboard-focus-overlays.spec.ts --workers=1 --reporter=line` — exit 0, 9/9; gộp keyboard, route-state, role và reduced-motion — exit 0, 19/19. `npx vitest run src/tests/features/notifications/NotificationHeaderIcon.integration.test.tsx --maxWorkers=1 --minWorkers=1 --reporter=dot` — exit 0, 5/5. `npm run build`, `npm run lint` (0 lỗi/4 warning), `npm run typecheck` exit 0.
+- File chính: `e2e/keyboard-focus-overlays.spec.ts`, `e2e/fixtures/keyboard-focus.*`, `src/features/notifications/components/NotificationHeaderIcon.tsx`, `src/components/AppSider.tsx`/`.scss`, `src/tests/features/notifications/NotificationHeaderIcon.integration.test.tsx`, `docs/ux/keyboard-focus-audit.md`.
+- Giới hạn: test dùng `BROWSER-FIXTURE`; quyền theo user/tenant thật và live backend `NEEDS-LIVE`, nhưng không thuộc acceptance về keyboard.
+- Rollback: revert keyboard spec/fixture, handler focus cho Notification/AppSider, assertion unit test và audit/status QA-002; không rollback các role/state tests thuộc QA-004/SHELL.
+
+### QA-003 — 20/10/2026 (runtime contrast audit)
+
+- Trạng thái: `IN_REVIEW → IN_REVIEW`.
+- Acceptance §3.8: “Text regular nhắm ≥4.5:1, non-text ≥3:1; không có caption khó đọc.” Spec đo runtime text, control boundary/icon và focus indicator trên Operations, Loads list, Load detail, AI Dispatch, Optimization, Documents, Fleet và sidebar. Trong 495 cặp đo được còn 5 text pairs dưới ngưỡng, đều do primary blue chưa được phép đổi: Loads Create 4.104:1, page number 4.104:1, AI selected tab 3.641:1, Optimization Run 4.104:1, Fleet All vehicles 4.104:1. Không thay `$color-primary`.
+- Contrast chưa xấu đi: so `da5c600` có 405 selector groups chung, 0 nhóm có min ratio giảm; 27 selector mới và 5 selector cũ không còn. Có 12 indeterminate được ghi cụ thể: 4 gradient trên Load detail (các endpoint đạt 7.243–18.048:1 nhưng vẫn giữ indeterminate), 8 control/text disabled được miễn trừ theo semantics. Không còn nền unknown/ảnh/alpha chưa phân loại khác.
+- Đã sửa các lỗi không phụ thuộc primary: token focus indicator không còn Ant blue nhạt; Fleet DatePicker boundary/icon và text/breadcrumb token đạt ngưỡng. Báo cáo `docs/ux/contrast-runtime-report.md` liệt kê toàn bộ selector fail và indeterminate.
+- Bằng chứng: `RUNTIME_CONTRAST_REPORT=/tmp/contrast-head-final.json npx playwright test e2e/contrast-runtime.spec.ts --workers=1 --reporter=line` — exit 0, 1/1. HEAD 507 entries/495 measured/5 fail/12 indeterminate; baseline `da5c600` 505/463/161/42; 405 matched selector groups, 0 worse. `npm run build`, `npm run lint` (0 lỗi/4 warning), `npm run typecheck` exit 0.
+- File chính: `e2e/contrast-runtime.spec.ts`, fixture contrast; `src/styles/_variables.scss`, `src/styles/global.scss`, `src/components/AppSider.scss`; `docs/ux/contrast-runtime-report.md`, plan/progress.
+- Còn thiếu: duyệt/đổi màu brand primary hoặc lựa chọn accessible text token/role riêng cho năm cặp trên. Vì yêu cầu phiên cấm đổi primary, QA-003 giữ `IN_REVIEW`; không giả nhận nghiệm thu đầy đủ.
+- Rollback: revert các token/style contrast bổ sung, scanner và report; giữ lại quyết định brand color cho Product Owner. Không rollback các route state/keyboard tests.
+
+### QA-004 — 20/10/2026 (route-state closeout)
+
+- Trạng thái: `IN_REVIEW → DONE`.
+- Acceptance §3.8: mỗi route ưu tiên có state matrix loading/empty/error/permission/disabled; lỗi có đường recover; 403/API error không bị hiển thị như empty. `docs/ux/route-state-matrix.md` ghi đủ Operations, Loads list/detail, AI Dispatch, Optimization, Documents, Notifications và Fleet; mọi ô đều có test hoặc N/A kèm lý do.
+- Đã thêm pending assertion cho 3 KPI Operations và AI initial load; Documents có pending skeleton + refresh disabled, lỗi API 500 có Retry rồi hiển thị dữ liệu; Loads browser fixture có list pending/empty/error/403/retry, Create bị ẩn với DRIVER, detail pending/404. Permission/disabled/error/empty của các route còn lại được chỉ rõ ở matrix và suite tương ứng.
+- Bằng chứng: targeted Vitest 9 files/99 tests pass; full `npx vitest run --reporter=dot` exit 0, 206 files/1361 tests; `npx playwright test e2e/loads-route-states.spec.ts --workers=1 --reporter=line` exit 0, 5/5; `npm run build` exit 0; `npm run lint` exit 0 (0 errors/4 existing warnings); `npm run typecheck` exit 0.
+- File chính: `docs/ux/route-state-matrix.md`, `e2e/loads-route-states.spec.ts`, `src/tests/pages/dashboard/DashboardResponsive.test.tsx`, `src/tests/pages/ai-dispatch/AiDispatchPage.test.tsx`, `src/tests/features/documents/DocumentDropboxView.test.tsx`, `src/tests/pages/loads/LoadShow.test.tsx`, `src/tests/components/ResourceListPage.test.tsx`, `src/components/ResourceListPage.tsx`, `src/features/ai-dispatch/components/AiMovementPlanCard.tsx`, `plan.md`.
+- Giới hạn: browser/component evidence dùng fixture/mock; role/tenant thật và backend UAT là `NEEDS-LIVE`. Fleet 403 là permission state, cần cấp lại role/tenant thay vì mù quáng retry.
+- Rollback: revert QA-004 route/test and permission/disabled fixes plus this matrix/status entry; do not change backend contracts or route definitions.
+
+### QA-005 — 20/10/2026 (reduced-motion revalidation)
+
+- Trạng thái: `DONE → DONE`.
+- Acceptance: `prefers-reduced-motion` được tôn trọng; không có animation/transition end-event dependency; Modal, Drawer, Popover, Dropdown, Select, Tooltip mở và ẩn trong giới hạn 1 giây; spinner/skeleton tiếp tục thể hiện trạng thái tải.
+- Bằng chứng: `npx playwright test e2e/reduced-motion.spec.ts --workers=1 --reporter=line` — exit 0, 3/3. `rg -n 'animationend|transitionend' src --glob '*.{css,scss,tsx,ts}'` — 0 match. Full Playwright — exit 0, 41 pass/1 OIDC skip. Rule sử dụng duration 0.01ms, một iteration và `scroll-behavior:auto`; không có `animation:none`/`transition:none`.
+- File chính: `src/styles/global.scss`, `src/components/AppSider.scss`, `src/table/BaseTable.scss`, `src/features/operations/styles/operations.scss`, `e2e/reduced-motion.spec.ts`, `e2e/fixtures/reduced-motion-overlays.*`, `docs/ux/reduced-motion-audit.md`.
+- Giới hạn: browser evidence là `BROWSER-FIXTURE`; chưa xác nhận thiết bị/browser production cụ thể.
+- Rollback: revert QA-005 reduced-motion CSS/test/audit only; no library or motion dependency was introduced.
+
+### SHELL-001 — 20/10/2026 (role evidence refresh)
+
+- Trạng thái: `UI_SAFE_DONE → UI_SAFE_DONE`.
+- Acceptance: role matrix covers all `JWT_ROLES`; browser fixture loops each role and compares every menu item to `window.__roleMenuExpectation`. Screenshot is written once per distinct menu signature; 9 role variants are captured at `docs/design/shell-001/*-1440.png`.
+- Bằng chứng: full `npx playwright test --workers=1 --reporter=line` — exit 0, suite includes role capture and ArrowDown rail test; `AppSider.test.tsx` runs role visibility/mounted-route checks for 9 roles. Each screenshot is guarded by `expectNoRawTranslationKeys` and labeled `BROWSER-FIXTURE`.
+- Giới hạn: real identity/tenant authorization remains `NEEDS-LIVE`.
+- Rollback: revert the role fixture/spec and the nine shell screenshots; retain underlying role matrix.
+
+### QA-006 — 20/10/2026 (full serial closeout)
+
+- Trạng thái: `UI_SAFE_DONE → UI_SAFE_DONE`.
+- Acceptance: `npm run build` exit 0; `npm run lint` exit 0 (0 errors/4 existing warnings); `npm run typecheck` exit 0; `npx vitest run --reporter=dot` exit 0, 206 files/1361 tests; `npx playwright test --workers=1 --reporter=line` exit 0, 41 pass/1 skipped.
+- Skip detail: only `e2e/bootstrap.spec.ts:46` is skipped when `E2E_REAL_OIDC` is absent; assertion body remains unchanged. With a real OIDC environment, rerun using `E2E_REAL_OIDC=1 npx playwright test e2e/bootstrap.spec.ts --workers=1`.
+- Flaky note: Fleet/sidebar timeout was previously observed only under parallel workers; the full serial suite passes, including Fleet/sidebar role fixtures.
+- Giới hạn: all UI screenshots and route/auth regressions are fixture/mock evidence. Real backend session, tenant isolation UAT and live auth remain `NEEDS-LIVE`.
+- Rollback: revert only the conditional skip and this test-result documentation; do not weaken the bootstrap assertions.

@@ -61,6 +61,15 @@ function createListProvider(
 }
 
 describe("DocumentDropboxView", () => {
+  it("keeps the documents route loading until its list request resolves", async () => {
+    const pendingList: DataProvider["getList"] = () => new Promise(() => undefined);
+    await renderFinance(<DocumentDropboxView />, vi.fn(), { role: "ADMIN", listRequest: pendingList });
+
+    expect(document.querySelectorAll(".ant-skeleton").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeDisabled();
+    expect(screen.queryByText("No documents found in this folder")).not.toBeInTheDocument();
+  });
+
   it("renders Dropbox cloud header, metrics stats, and dropzone", async () => {
     const listRequest = createListProvider();
     const custom = vi.fn(async () => undefined);
@@ -168,6 +177,23 @@ describe("DocumentDropboxView", () => {
     expect(await screen.findByText("Not allowed")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
     expect(screen.queryByText("No documents found in this folder")).not.toBeInTheDocument();
+  });
+
+  it("recovers from a transient documents API error without showing the empty state", async () => {
+    let fail = true;
+    const listRequest: DataProvider["getList"] = async <TData extends BaseRecord>() => {
+      if (fail) throw new ApiHttpError({ statusCode: 500, code: "SERVER_ERROR", message: "Document service unavailable", requestId: "documents-500" });
+      return { data: mockDocuments as unknown as TData[], total: mockDocuments.length };
+    };
+    await renderFinance(<DocumentDropboxView />, vi.fn(), { role: "ADMIN", listRequest });
+
+    expect(await screen.findByText("Document service unavailable")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(screen.queryByText("No documents found in this folder")).not.toBeInTheDocument();
+    fail = false;
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByText("Bill_of_Lading_1001.pdf")).toBeInTheDocument();
+    expect(screen.queryByText("Document service unavailable")).not.toBeInTheDocument();
   });
 
   it("shows the documents empty state after a successful empty response", async () => {

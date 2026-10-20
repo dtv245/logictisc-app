@@ -128,7 +128,9 @@ describe("ShipmentDetail Redesign Components", () => {
     render(<ShipmentAgentCard loadId="load-101" />);
 
     expect(screen.getByTestId("shipment-agent-card")).toBeInTheDocument();
-    expect(screen.getByText(/92% · Mô hình LLM/i)).toBeInTheDocument();
+    expect(screen.getByText("Độ tin cậy 92% · Mô hình LLM")).toBeInTheDocument();
+    expect(screen.getByText("Độ tin cậy 92% · Mô hình LLM")).toHaveTextContent("Độ tin cậy");
+    expect(screen.getByText("Độ tin cậy 92% · Mô hình LLM")).toHaveTextContent("Mô hình LLM");
     expect(screen.getByText(/95%/i)).toBeInTheDocument();
     expect(screen.getByText(/Marcus Johnson/i)).toBeInTheDocument();
   });

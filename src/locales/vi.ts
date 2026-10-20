@@ -2031,6 +2031,7 @@ export const viMessages = {
       agentReady: "Sẵn sàng",
       noAgentSuggestion: "Chưa có đề xuất điều phối cho Load này.",
       routeAgent: "Trợ lý lộ trình",
+      confidenceLabel: "Độ tin cậy",
       llmSource: "Mô hình LLM",
       algorithmSource: "Thuật toán",
       dispatchSuggestion: "Đề xuất điều phối: {{driver}} (Xe {{truck}})",

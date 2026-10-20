@@ -158,6 +158,7 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
                   icon={<CheckCircleOutlined />}
                   onClick={() => setApproveModalVisible(true)}
                   loading={actions.pending}
+                  disabled={actions.pending}
                   data-testid="btn-approve-movement-plan"
                 >
                   {t("aiDispatch.approvePlan")}
@@ -412,6 +413,7 @@ export function AiMovementPlanCard({ plan, actions, onNavigateToRun }: Props) {
         okText={t("aiDispatch.approvePlan")}
         cancelText={t("actions.cancel")}
         confirmLoading={actions.pending}
+        okButtonProps={{ disabled: actions.pending }}
         onOk={handleApprove}
         onCancel={() => {
           if (!actions.pending) setApproveModalVisible(false);
