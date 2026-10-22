@@ -157,11 +157,16 @@ const LandingRedirect = () => {
     resource: "fleet-reports",
     action: "FLEET_REPORT_VIEW",
   });
+  const loadsAccess = useCan({ resource: "loads", action: "list" });
 
-  if (reportsAccess.isLoading) return <FullPageLoader />;
+  if (reportsAccess.isLoading || loadsAccess.isLoading) {
+    return <FullPageLoader />;
+  }
+  const useTmsLanding =
+    reportsAccess.data?.can !== true && loadsAccess.data?.can === true;
   return (
     <Navigate
-      to={reportsAccess.data?.can ? routes.operations : routes.tmsFlow.root}
+      to={useTmsLanding ? routes.tmsFlow.root : routes.operations}
       replace
     />
   );
