@@ -18,6 +18,8 @@ export interface DocumentStatsBarProps {
   fleetCount: number;
   activeCount: number;
   loading?: boolean;
+  /** Clarifies which figures are page-local when the server has no aggregate. */
+  scopeNote?: string;
 }
 
 export const DocumentStatsBar: React.FC<DocumentStatsBarProps> = ({
@@ -27,6 +29,7 @@ export const DocumentStatsBar: React.FC<DocumentStatsBarProps> = ({
   fleetCount,
   activeCount,
   loading = false,
+  scopeNote,
 }) => {
   const { t } = useTranslation();
 
@@ -38,6 +41,12 @@ export const DocumentStatsBar: React.FC<DocumentStatsBarProps> = ({
   );
 
   return (
+    <>
+    {scopeNote ? (
+      <Text type="secondary" style={{ display: "block", fontSize: 12, marginBottom: 8 }}>
+        {scopeNote}
+      </Text>
+    ) : null}
     <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
       {/* Thẻ 1: Tổng số tệp tin */}
       <Col xs={24} sm={12} lg={6}>
@@ -228,5 +237,6 @@ export const DocumentStatsBar: React.FC<DocumentStatsBarProps> = ({
         </Card>
       </Col>
     </Row>
+    </>
   );
 };

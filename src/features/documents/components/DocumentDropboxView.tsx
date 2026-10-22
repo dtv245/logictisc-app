@@ -354,6 +354,7 @@ export const DocumentDropboxView: React.FC = () => {
         fleetCount={stats.fleetCount}
         activeCount={stats.activeCount}
         loading={isLoading && rawDocuments.length === 0}
+        scopeNote={t("documents.dropbox.statsScope")}
       />
 
       {tableQueryResult.isError && (
