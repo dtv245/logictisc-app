@@ -24,6 +24,7 @@ import { FormGrid } from "@/forms/FormGrid";
 import { formatDateTime } from "@/formatters/dateTime";
 import { isUuid } from "@/utils/uuid";
 import type { ApiHttpError } from "@/utils/httpError";
+import type { PagedResponse } from "@/types/api.types";
 import type { FleetReport, FleetReportQuery } from "@/types/fleetReport.dto";
 import type { Truck } from "@/types/truck.types";
 import { fleetReportApi, fleetReportKey } from "@/features/fleet/api/fleetReport.api";
@@ -100,7 +101,7 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
     },
   });
 
-  const trucksQuery = useCustom<Truck[]>({
+  const trucksQuery = useCustom<Truck[] | PagedResponse<Truck>>({
     url: "/api/trucks",
     method: "get",
     queryOptions: {
@@ -128,7 +129,8 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
 
   const truckOptions = useMemo(() => {
     const raw = propTrucks ?? trucksQuery.data?.data;
-    const list = Array.isArray(raw) ? raw : [];
+    // GET /api/trucks trả PagedResponse; giữ nhánh array cho prop/test cũ.
+    const list = Array.isArray(raw) ? raw : Array.isArray(raw?.items) ? raw.items : [];
     const options = list.map((truck) => ({
       value: truck.id,
       label: `${truck.licensePlate || truck.number} (${truck.type || "N/A"})`,

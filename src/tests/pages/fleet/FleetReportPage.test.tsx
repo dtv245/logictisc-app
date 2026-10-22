@@ -330,6 +330,33 @@ describe("FleetReportPage", () => {
     expect(await screen.findByText("Selected: 2 / 200 trucks")).toBeInTheDocument();
   });
 
+  it("maps paged GET /api/trucks items into vehicle options", async () => {
+    const request = vi.fn(async (options: CustomParams) => {
+      if (options.url === "/api/trucks") {
+        return {
+          items: mockTrucks,
+          totalItems: mockTrucks.length,
+          totalPages: 1,
+          currentPage: 0,
+          pageSize: 20,
+        };
+      }
+      if (options.url === "/api/fleet/policies") {
+        return mockPolicies;
+      }
+      throw new Error(`Unexpected request ${options.url}`);
+    });
+
+    const { container } = await renderFinance(<FleetReportPage />, request);
+
+    await screen.findByRole("button", { name: "Load Report" });
+    fireEvent.mouseDown(container.querySelector("#truckIds")!);
+
+    expect(await screen.findByText("29C-12345 (SEMI_TRAILER)")).toBeInTheDocument();
+    expect(screen.getByText("51D-67890 (FLATBED)")).toBeInTheDocument();
+    expect(request).toHaveBeenCalledWith(expect.objectContaining({ url: "/api/trucks" }));
+  });
+
   it.each(["ADMIN", "ACCOUNTANT", "PAYROLL", "PAYROLL_MANAGER"])(
     "allows actual report role %s with no startup request",
     async (role) => {
