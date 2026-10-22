@@ -74,16 +74,22 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
   const query = searchParams.get("q") ?? "";
   const shipmentParam = searchParams.get("shipment");
   const decisionParam = searchParams.get("decision");
+  const loadParam = searchParams.get("load");
 
-  const { approvals, approvalIds, collection, shipments, trucks } = workspace;
+  const { approvals, approvalIds, approvalsError, collection, pending, shipments, statuses, trucks, trucksError } = workspace;
   const counts = selectTmsCounts(shipments, approvals.length);
   const queue = selectTmsQueue(shipments, filter, query, approvalIds);
   const selected = queue.find((shipment) => shipment.id === shipmentParam) ?? queue[0];
 
-  const selectedApproval =
-    (decisionParam
-      ? approvals.find((item) => item.suggestion.decisionId === decisionParam)
-      : undefined) ?? approvals[0];
+  // Explicit decision/load params never fall back to another pending decision:
+  // doing so silently reviews the wrong load. Only the bare route picks the first.
+  const selectedApproval = decisionParam
+    ? approvals.find(
+        (item) => item.suggestion.decisionId === decisionParam,
+      )
+    : loadParam
+    ? approvals.find((item) => item.load?.id === loadParam)
+    : approvals[0];
   const selectedDecision = approvalsOnly ? selectedApproval : undefined;
   const selectedLoad = approvalsOnly ? selectedDecision?.load : selected;
   const focusApprovals = selected
@@ -94,6 +100,30 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
   );
 
   const timeline = useTmsTimeline(selectedLoad?.id);
+  const renderTimeline = (limit: number) =>
+    timeline.error ? (
+      <Alert
+        action={
+          <Button
+            icon={<RefreshCw size={14} aria-hidden="true" />}
+            onClick={() => void timeline.refetch()}
+            size="small"
+          >
+            Retry
+          </Button>
+        }
+        description={describeTmsError(timeline.error)}
+        message="Execution timeline could not load"
+        showIcon
+        type="warning"
+      />
+    ) : (
+      <TmsTimeline
+        emptyLabel="No timeline events for this load."
+        events={timeline.data?.events ?? []}
+        limit={limit}
+      />
+    );
   const truckItems = trucks.data?.items ?? [];
   const locatedTrucks = truckItems
     .filter(
@@ -180,6 +210,43 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
           )}
         </div>
       </div>
+
+      {approvalsError ? (
+        <Alert
+          action={
+            <Button
+              icon={<RefreshCw size={14} aria-hidden="true" />}
+              onClick={() => {
+                void pending.refetch();
+                void statuses.refetch();
+              }}
+            >
+              Retry
+            </Button>
+          }
+          message="AI decisions could not load"
+          description={`${describeTmsError(approvalsError)} The load queue is still available; pending approvals and AI status are not shown.`}
+          showIcon
+          type="warning"
+        />
+      ) : null}
+
+      {trucksError ? (
+        <Alert
+          action={
+            <Button
+              icon={<RefreshCw size={14} aria-hidden="true" />}
+              onClick={() => void trucks.refetch()}
+            >
+              Retry
+            </Button>
+          }
+          message="Truck positions could not load"
+          description={`${describeTmsError(trucksError)} The lane map shows no vehicles until truck data is available.`}
+          showIcon
+          type="warning"
+        />
+      ) : null}
 
       {!approvalsOnly && collection?.truncated ? (
         <Alert
@@ -370,7 +437,11 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
                   </div>
                 </div>
               ) : (
-                <p className="tms-empty">Select a pending decision.</p>
+                <p className="tms-empty">
+                  {decisionParam || loadParam
+                    ? "The requested decision is not in the pending queue."
+                    : "Select a pending decision."}
+                </p>
               )}
             </FlowPanel>
           ) : (
@@ -464,11 +535,7 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
         <div className="tms-stack tms-dispatch__agent">
           {approvalsOnly ? (
             <FlowPanel title="Execution timeline">
-              <TmsTimeline
-                emptyLabel="No timeline events for this load."
-                events={timeline.data?.events ?? []}
-                limit={8}
-              />
+              {renderTimeline(8)}
             </FlowPanel>
           ) : (
             <FlowPanel
@@ -530,11 +597,7 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
 
           {!approvalsOnly ? (
             <FlowPanel title="Execution timeline">
-              <TmsTimeline
-                emptyLabel="No timeline events for this load."
-                events={timeline.data?.events ?? []}
-                limit={5}
-              />
+              {renderTimeline(5)}
             </FlowPanel>
           ) : null}
 

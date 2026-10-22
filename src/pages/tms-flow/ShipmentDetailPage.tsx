@@ -241,10 +241,28 @@ export function ShipmentDetailPage() {
           />
 
           <FlowPanel title="Execution timeline">
-            <TmsTimeline
-              emptyLabel="No execution events recorded for this load."
-              events={timeline.data?.events ?? []}
-            />
+            {timeline.error ? (
+              <Alert
+                action={
+                  <Button
+                    icon={<RefreshCw size={14} aria-hidden="true" />}
+                    onClick={() => void timeline.refetch()}
+                    size="small"
+                  >
+                    Retry
+                  </Button>
+                }
+                description={describeTmsError(timeline.error)}
+                message="Execution timeline could not load"
+                showIcon
+                type="warning"
+              />
+            ) : (
+              <TmsTimeline
+                emptyLabel="No execution events recorded for this load."
+                events={timeline.data?.events ?? []}
+              />
+            )}
           </FlowPanel>
         </div>
 

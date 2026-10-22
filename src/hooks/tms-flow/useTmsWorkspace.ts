@@ -54,5 +54,6 @@ export function useTmsWorkspace() {
     // the load queue that the user can still act on.
     error: loads.error,
     approvalsError: pending.error ?? statuses.error,
+    trucksError: trucks.error,
   };
 }

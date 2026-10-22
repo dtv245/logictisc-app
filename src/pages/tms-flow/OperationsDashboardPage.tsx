@@ -31,11 +31,15 @@ export function OperationsDashboardPage() {
     trucks,
     approvalIds,
     approvals,
+    approvalsError,
     collection,
     generatedAt,
     shipments,
     isLoading,
     error,
+    pending,
+    statuses,
+    trucksError,
   } = useTmsWorkspace();
   const [selectedApproval, setSelectedApproval] = useState<TmsApproval | null>(null);
 
@@ -55,6 +59,9 @@ export function OperationsDashboardPage() {
     ...toTruckMarkers(locatedTrucks),
   ];
   const atRiskLoadIds = approvalIds;
+  const primaryApproval = primary
+    ? approvals.find((approval) => approval.load?.id === primary.id)
+    : undefined;
 
   if (isLoading) {
     return (
@@ -108,6 +115,43 @@ export function OperationsDashboardPage() {
           </Button>
         </div>
       </div>
+
+      {approvalsError ? (
+        <Alert
+          action={
+            <Button
+              icon={<RefreshCw size={14} aria-hidden="true" />}
+              onClick={() => {
+                void pending.refetch();
+                void statuses.refetch();
+              }}
+            >
+              Retry
+            </Button>
+          }
+          message="AI decisions could not load"
+          description={`${describeTmsError(approvalsError)} The load queue is still available; pending approvals and AI status are not shown.`}
+          showIcon
+          type="warning"
+        />
+      ) : null}
+
+      {trucksError ? (
+        <Alert
+          action={
+            <Button
+              icon={<RefreshCw size={14} aria-hidden="true" />}
+              onClick={() => void trucks.refetch()}
+            >
+              Retry
+            </Button>
+          }
+          message="Truck positions could not load"
+          description={`${describeTmsError(trucksError)} The network map shows no vehicles until truck data is available.`}
+          showIcon
+          type="warning"
+        />
+      ) : null}
 
       {collection?.truncated ? (
         <Alert
@@ -203,9 +247,13 @@ export function OperationsDashboardPage() {
                   <Button onClick={() => navigate(`${routes.tmsFlow.dispatch}?shipment=${primary.id}`)}>
                     Open in dispatch
                   </Button>
-                  {atRiskLoadIds.has(primary.id) ? (
+                  {atRiskLoadIds.has(primary.id) && primaryApproval ? (
                     <Button
-                      onClick={() => navigate(`${routes.tmsFlow.approvals}?load=${primary.id}`)}
+                      onClick={() =>
+                        navigate(
+                          `${routes.tmsFlow.approvals}?decision=${encodeURIComponent(primaryApproval.suggestion.decisionId)}`,
+                        )
+                      }
                       type="primary"
                     >
                       Review AI decision
@@ -313,11 +361,29 @@ export function OperationsDashboardPage() {
             subtitle={primary ? `Load #${primary.number}` : undefined}
             title="Latest execution events"
           >
-            <TmsTimeline
-              emptyLabel="No timeline events for the at-risk load."
-              events={timeline.data?.events ?? []}
-              limit={5}
-            />
+            {timeline.error ? (
+              <Alert
+                action={
+                  <Button
+                    icon={<RefreshCw size={14} aria-hidden="true" />}
+                    onClick={() => void timeline.refetch()}
+                    size="small"
+                  >
+                    Retry
+                  </Button>
+                }
+                description={describeTmsError(timeline.error)}
+                message="Execution timeline could not load"
+                showIcon
+                type="warning"
+              />
+            ) : (
+              <TmsTimeline
+                emptyLabel="No timeline events for the at-risk load."
+                events={timeline.data?.events ?? []}
+                limit={5}
+              />
+            )}
           </FlowPanel>
         </div>
       </div>
