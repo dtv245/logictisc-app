@@ -12,7 +12,7 @@ import { useTenantList } from "@hooks/useTenantList";
 
 export const SelectTenantPage = () => {
   const { t } = useTranslation();
-  const { tenants, isLoading } = useTenantList();
+  const { tenants, isLoading, error, refetch } = useTenantList();
   const tenantSwitch = useSwitchTenant();
   const { showApiError } = useApiError();
 
@@ -26,7 +26,21 @@ export const SelectTenantPage = () => {
               {t("tenant.description")}
             </Typography.Text>
           </div>
-          {tenants.length === 0 && !isLoading ? (
+          {error ? (
+            <Alert
+              action={
+                <Button onClick={() => void refetch()} size="small">
+                  {t("tenant.retry")}
+                </Button>
+              }
+              description={
+                error instanceof Error ? error.message : t("tenant.loadErrorDescription")
+              }
+              message={t("tenant.loadError")}
+              showIcon
+              type="error"
+            />
+          ) : tenants.length === 0 && !isLoading ? (
             <Alert
               message={t("tenant.none")}
               type="warning"
