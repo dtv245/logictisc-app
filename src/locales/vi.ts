@@ -1179,6 +1179,7 @@ export const viMessages = {
     },
     items: {
       operations: "Trung tâm điều hành",
+      "tms-flow": "Luồng TMS (demo)",
       dashboard: "Dashboard quản lý",
       "ai-dispatch": "AI điều phối",
       optimization: "Tối ưu điều phối",

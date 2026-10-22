@@ -34,6 +34,16 @@ export const routes = {
   payslipShow: "/payslips/:id",
   aiDispatch: "/ai-dispatch",
   aiDispatchShow: "/ai-dispatch/:id",
+  // Demo TMS operations flow (S01–S11). Fixture backed; see docs/tms-flow.
+  tmsFlow: {
+    root: "/tms",
+    newShipment: "/tms/shipments/new",
+    dispatch: "/tms/dispatch",
+    route: "/tms/routes/:routeId",
+    inbox: "/tms/inbox",
+    shipment: "/tms/shipments/:shipmentId",
+    tracking: "/tms/tracking/:token",
+  },
   selectTenant: "/select-tenant",
   resources: {
     accidents: createCrudRoutes("accidents"),

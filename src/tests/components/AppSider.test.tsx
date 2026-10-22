@@ -133,6 +133,7 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     const mountedRoutes = new Set([
       ...foundationResourcePageRoutes.map(({ path }) => path),
       routes.operations,
+      routes.tmsFlow.root,
       ...(EXECUTIVE_CONTRACT_CONFIRMED ? [routes.dashboard] : []),
       routes.aiDispatch,
       routes.optimization,

@@ -41,6 +41,7 @@ import {
   UserCog,
   Users,
   Wallet,
+  Workflow,
   Wrench,
   type LucideProps,
 } from "lucide-react";
@@ -79,6 +80,7 @@ export const SwitchTenantNavIcon = createIcon(Building2);
 // Khu vực Điều hành (Operations)
 export const OperationsMonitorIcon = createIcon(Monitor);
 export const OperationsDashboardIcon = createIcon(BarChart3);
+export const TmsFlowNavIcon = createIcon(Workflow);
 export const AiDispatchNavIcon = createIcon(Bot);
 export const OptimizationNavIcon = createIcon(Rocket);
 

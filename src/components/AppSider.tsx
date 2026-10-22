@@ -60,6 +60,7 @@ import {
   SettlementsNavIcon,
   SwitchTenantNavIcon,
   TerminalsNavIcon,
+  TmsFlowNavIcon,
   TripsNavIcon,
   TrucksNavIcon,
 } from "./navIcons";
@@ -100,6 +101,13 @@ export const NAV_ZONES: readonly NavZone[] = [
         key: "app:operations",
         labelKey: "navigation.items.operations",
         route: routes.operations,
+        sectionKey: "monitor",
+      },
+      {
+        icon: <TmsFlowNavIcon />,
+        key: "app:tms-flow",
+        labelKey: "navigation.items.tms-flow",
+        route: routes.tmsFlow.root,
         sectionKey: "monitor",
       },
       ...(EXECUTIVE_CONTRACT_CONFIRMED
