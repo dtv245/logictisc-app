@@ -16,6 +16,7 @@ import { ArrowLeftOutlined, PlusOutlined, HistoryOutlined } from "@ant-design/ic
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import { ForbiddenState, QueryErrorState } from "@/components/ErrorStates";
 import {
   useDriverPayPolicies,
   useDriverPayPolicy,
@@ -36,8 +37,13 @@ export const DriverPayPolicyShow: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const { policy, isLoading: isPolicyLoading, refetch: refetchPolicy } =
-    useDriverPayPolicy(id);
+  const {
+    policy,
+    isLoading: isPolicyLoading,
+    isError: isPolicyError,
+    error: policyError,
+    refetch: refetchPolicy,
+  } = useDriverPayPolicy(id);
   const { policies, refetch: refetchList } = useDriverPayPolicies();
   const { createNewVersion, isSubmitting } = useDriverPayPolicyMutations();
 
@@ -71,6 +77,27 @@ export const DriverPayPolicyShow: React.FC = () => {
         <Spin size="large" />
       </div>
     );
+  }
+
+  if (isPolicyError) {
+    if (policyError?.statusCode === 403) {
+      return (
+        <div style={{ padding: 24 }}>
+          <ForbiddenState />
+        </div>
+      );
+    }
+    if (policyError?.statusCode !== 404) {
+      return (
+        <div style={{ padding: 24 }}>
+          <QueryErrorState
+            description={policyError?.message}
+            onRetry={() => void refetchPolicy()}
+            retrying={isPolicyLoading}
+          />
+        </div>
+      );
+    }
   }
 
   if (!policy) {

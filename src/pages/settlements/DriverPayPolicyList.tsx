@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FilterBar } from "@components";
 import { EmptyState } from "@/components/EmptyState";
+import { ForbiddenState, QueryErrorState } from "@/components/ErrorStates";
 
 import {
   useDriverPayPolicies,
@@ -44,7 +45,7 @@ const { Title, Text } = Typography;
 export const DriverPayPolicyList: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { policies, isLoading, refetch } = useDriverPayPolicies();
+  const { policies, isLoading, isError, error, refetch } = useDriverPayPolicies();
   const { createPolicy, createNewVersion, isSubmitting } =
     useDriverPayPolicyMutations();
 
@@ -316,16 +317,28 @@ export const DriverPayPolicyList: React.FC = () => {
         </FilterBar>
 
         <div className="settlement-table-wrapper">
-          <Table<DriverPayPolicyView>
-            rowKey="id"
-            columns={columns}
-            dataSource={filteredData}
-            loading={isLoading}
-            pagination={{ pageSize: 15 }}
-            scroll={{ x: 1240 }}
-            size="middle"
-            locale={{ emptyText: <EmptyState description={t("settlements.noPoliciesFound", "No pay policies found")} /> }}
-          />
+          {isError ? (
+            error?.statusCode === 403 ? (
+              <ForbiddenState />
+            ) : (
+              <QueryErrorState
+                description={error?.message}
+                onRetry={() => void refetch()}
+                retrying={isLoading}
+              />
+            )
+          ) : (
+            <Table<DriverPayPolicyView>
+              rowKey="id"
+              columns={columns}
+              dataSource={filteredData}
+              loading={isLoading}
+              pagination={{ pageSize: 15 }}
+              scroll={{ x: 1240 }}
+              size="middle"
+              locale={{ emptyText: <EmptyState description={t("settlements.noPoliciesFound", "No pay policies found")} /> }}
+            />
+          )}
         </div>
       </Card>
 
