@@ -81,6 +81,17 @@ vi.mock("@/hooks/useDashboardData", () => ({
   useDashboardData: () => dashboardDataState,
 }));
 
+vi.mock("@/hooks/dashboard/usePriorityShipments", () => ({
+  usePriorityShipments: () => ({
+    shipments: [],
+    locale: "vi",
+    isLoading: false,
+    isUnavailable: true,
+    error: undefined,
+    retry: vi.fn(),
+  }),
+}));
+
 vi.mock("react-map-gl/maplibre", () => ({
   default: ({ children }: { children?: React.ReactNode }) => <div data-testid="maplibre-map">{children}</div>,
   NavigationControl: () => <div data-testid="navigation-control" />,

@@ -443,19 +443,25 @@ export function useDashboardData(
     };
   };
 
-  // Refetch all queries
+  // Refetch only queries this caller enabled: financial endpoint groups stay
+  // untouched when the screen was mounted with enableFinancials=false.
   const refetchAll = () => {
-    monthlyTrendQueries.forEach((q) => void q.refetch());
-    void expensesQuery.refetch();
-    void operatingCpmQuery.refetch();
-    void fuelQuery.refetch();
-    void maintenanceQuery.refetch();
+    if (enableFinancials) {
+      monthlyTrendQueries.forEach((q) => void q.refetch());
+      void expensesQuery.refetch();
+      void prevExpensesQuery.refetch();
+      void operatingCpmQuery.refetch();
+      void prevOperatingCpmQuery.refetch();
+      void fuelQuery.refetch();
+      void maintenanceQuery.refetch();
+      void laneProfitabilityQuery.refetch();
+      void truckProfitabilityQuery.refetch();
+    }
     void otdQuery.refetch();
+    void prevOtdQuery.refetch();
     void delaysQuery.refetch();
     void transitTimeQuery.refetch();
     void exceptionsQuery.refetch();
-    void laneProfitabilityQuery.refetch();
-    void truckProfitabilityQuery.refetch();
     void loadsCountQuery.refetch();
     void tripsCountQuery.refetch();
     void trucksCountQuery.refetch();

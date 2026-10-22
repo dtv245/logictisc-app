@@ -1,13 +1,15 @@
 import React, { useMemo } from "react";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { PriorityShipmentCard } from "@/components/dashboard/PriorityShipmentCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { usePriorityShipments } from "@/hooks/dashboard/usePriorityShipments";
 import { DEFAULT_CURRENCY, INITIAL_DASHBOARD_FILTERS } from "../config/rankingWeights";
 import type { DashboardFilters } from "../types";
 import type { KpiItemProps } from "../types/primitives.types";
 import { DashboardHeader } from "./DashboardHeader";
 import { KpiStrip } from "./KpiStrip";
-import { PriorityShipmentCard } from "./PriorityShipmentCard";
 import { OperationsBrief } from "./OperationsBrief";
 import { NetworkMiniMap } from "./NetworkMiniMap";
 import { DispatchTimeline } from "./DispatchTimeline";
@@ -33,6 +35,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
   className = "",
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const filters: DashboardFilters = useMemo(
     () => {
       const today = dayjs();
@@ -49,6 +52,8 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
   // Fetch real queries using existing useDashboardData
   const dashboardData = useDashboardData(filters, { enableFinancials: false });
+  // Priority panel has a real load source; the other panels stay unavailable.
+  const priorityShipments = usePriorityShipments();
 
   // KPI chỉ dùng field có trong response hiện tại; thiếu field không được thay bằng số mẫu.
   const kpiItems: KpiItemProps[] = useMemo(() => {
@@ -116,7 +121,15 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
       {/* 3. Priority Shipment Card (8 cols) & Operations Brief (4 cols) */}
       <div className="ops-grid-area-priority">
-        <PriorityShipmentCard />
+        <PriorityShipmentCard
+          error={priorityShipments.error}
+          isLoading={priorityShipments.isLoading}
+          isUnavailable={priorityShipments.isUnavailable}
+          locale={priorityShipments.locale}
+          onRetry={priorityShipments.retry}
+          onSelectShipment={(shipmentId) => navigate(`/tms/shipments/${shipmentId}`)}
+          shipments={priorityShipments.shipments}
+        />
       </div>
 
       <div className="ops-grid-area-brief">
