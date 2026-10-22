@@ -13,9 +13,11 @@ export interface ShipmentGapsCardProps {
 
 export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) => {
   const { t } = useTranslation();
-  const { blockingGaps, warningGaps, dismissGap } = useLoadAiGaps({ loadId });
+  const { blockingGaps, warningGaps, dismissGap, isLoading, isError, aiState, refetch } = useLoadAiGaps({ loadId });
 
   const totalGaps = blockingGaps.length + warningGaps.length;
+  const isAnalyzing = aiState === "debouncing" || aiState === "running";
+  const isPending = Boolean(isLoading) || isAnalyzing;
 
   const handleNavigateEdit = (gap: AiGap) => {
     if (CORE_VERSIONED_WRITES_RUNTIME_VERIFIED && typeof window !== "undefined") {
@@ -40,7 +42,15 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
         <div style={{ fontSize: "var(--font-size-md)", fontWeight: 800, color: "var(--color-text)" }}>
           {t("loads.redesign.gapsTitle")}
         </div>
-        {totalGaps > 0 ? (
+        {isError ? (
+          <Tag color="error" style={{ borderRadius: 10, fontWeight: 700 }}>
+            {t("loads.redesign.gapsError")}
+          </Tag>
+        ) : isPending ? (
+          <Tag color="processing" style={{ borderRadius: 10, fontWeight: 700 }}>
+            {t("loads.redesign.gapsChecking")}
+          </Tag>
+        ) : totalGaps > 0 ? (
           <Tag color="error" style={{ borderRadius: 10, fontWeight: 700 }}>
             {t("loads.redesign.gapCount", { count: totalGaps })}
           </Tag>
@@ -51,7 +61,23 @@ export const ShipmentGapsCard: React.FC<ShipmentGapsCardProps> = ({ loadId }) =>
         )}
       </div>
 
-      {totalGaps === 0 ? (
+      {isError && totalGaps === 0 ? (
+        <div role="alert" style={{ display: "flex", flexDirection: "column", gap: 8, padding: "8px 0", color: "#991B1B" }}>
+          <span style={{ fontSize: "var(--font-size-sm)", fontWeight: 600 }}>
+            {t("loads.redesign.gapsErrorDescription")}
+          </span>
+          <Button onClick={() => void refetch()} size="small">
+            {t("loads.redesign.gapsRetry")}
+          </Button>
+        </div>
+      ) : isPending && totalGaps === 0 ? (
+        <div role="status" style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", color: "var(--color-text-secondary)" }}>
+          <ExclamationCircleFilled style={{ fontSize: "var(--font-size-lg)" }} />
+          <span style={{ fontSize: "var(--font-size-sm)", fontWeight: 600 }}>
+            {t("loads.redesign.gapsChecking")}
+          </span>
+        </div>
+      ) : totalGaps === 0 ? (
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", color: "#166534" }}>
           <CheckCircleFilled style={{ fontSize: "var(--font-size-lg)", color: "var(--color-success-text)" }} />
           <span style={{ fontSize: "var(--font-size-sm)", fontWeight: 600 }}>
