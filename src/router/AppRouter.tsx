@@ -7,7 +7,7 @@ import type { PayslipDownloader } from "@/features/payslips/api/payslip.api";
  */
 
 import { createElement, lazy, Suspense, type ReactNode } from "react";
-import { Authenticated, CanAccess } from "@refinedev/core";
+import { Authenticated, CanAccess, useCan } from "@refinedev/core";
 import {
   Navigate,
   Outlet,
@@ -148,6 +148,25 @@ export const ResourceAccessBoundary = ({
   </CanAccess>
 );
 
+/**
+ * /operations reads /api/reports/**, which the backend keeps inside the payroll
+ * report group. Dispatchers land on the TMS workspace instead of hitting a 403.
+ */
+const LandingRedirect = () => {
+  const reportsAccess = useCan({
+    resource: "fleet-reports",
+    action: "FLEET_REPORT_VIEW",
+  });
+
+  if (reportsAccess.isLoading) return <FullPageLoader />;
+  return (
+    <Navigate
+      to={reportsAccess.data?.can ? routes.operations : routes.tmsFlow.root}
+      replace
+    />
+  );
+};
+
 export const AppRouter = ({
   download,
   diagnosticsState,
@@ -174,7 +193,11 @@ export const AppRouter = ({
             fallback={<Outlet />}
             loading={<FullPageLoader />}
           >
-            <Navigate to={EXECUTIVE_CONTRACT_CONFIRMED ? routes.dashboard : routes.operations} replace />
+            {EXECUTIVE_CONTRACT_CONFIRMED ? (
+              <Navigate to={routes.dashboard} replace />
+            ) : (
+              <LandingRedirect />
+            )}
           </Authenticated>
         }
       >
@@ -194,7 +217,7 @@ export const AppRouter = ({
           <Route element={<MainLayout />}>
             {/* Existing auth return targets may still use /dashboard. Redirect
                 without mounting its queries while BE-031 remains unresolved. */}
-            <Route path={routes.dashboard} element={EXECUTIVE_CONTRACT_CONFIRMED ? <DashboardPage /> : <Navigate to={routes.operations} replace />} />
+            <Route path={routes.dashboard} element={EXECUTIVE_CONTRACT_CONFIRMED ? <DashboardPage /> : <LandingRedirect />} />
             <Route
               path={routes.operations}
               element={<OperationsDashboardPage />}
