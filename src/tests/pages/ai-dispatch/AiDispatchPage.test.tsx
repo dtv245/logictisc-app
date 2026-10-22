@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getStoredAiSettings } from "@/features/ai-dispatch/hooks/aiConfigStorage";
 import { AiDispatchPage } from "@/pages/ai-dispatch/AiDispatchPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
-import { useLocation } from "react-router-dom";
+import { useLocation, Route, Routes } from "react-router-dom";
 import { ApiHttpError } from "@/utils/httpError";
 import { approveAiDispatchDecision } from "@/features/ai-dispatch/api/aiDispatch.api";
 
@@ -241,6 +241,34 @@ describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di c
     // Nút footer
     expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Request AI Dispatch Plan" })).toBeInTheDocument();
+
+    // Chế độ tự động bị backend khoá
+    expect(
+      screen.getByText("Fully automatic mode is locked by the dispatch policy. Use assisted mode."),
+    ).toBeInTheDocument();
+    fireEvent.mouseDown(screen.getByLabelText("Dispatch Mode"));
+    const automaticOption = await screen.findByText("Fully Automatic");
+    expect(automaticOption.closest(".ant-select-item-option")).toHaveClass(
+      "ant-select-item-option-disabled",
+    );
+  });
+
+  it("khôi phục session từ alias path /ai-dispatch/:id", async () => {
+    aiLoadState.useInitialPlan = false;
+
+    await renderFinance(
+      <Routes>
+        <Route path="/ai-dispatch/:id" element={<AiDispatchPage />} />
+      </Routes>,
+      vi.fn(),
+      {
+        role: "DISPATCHER",
+        initialEntries: ["/ai-dispatch/session-deep"],
+      },
+    );
+
+    expect(await screen.findByText("AI Proposed Movement Plan")).toBeInTheDocument();
+    expect(screen.getByText(/truck-deep/)).toBeInTheDocument();
   });
 
   it("cho phép người dùng mở popup Cài đặt AI từ PageHeader và lưu cấu hình API Key", async () => {

@@ -80,11 +80,16 @@ export function AiDispatchRunForm({
                     name="mode"
                     label={t("aiDispatch.mode")}
                     rules={[{ required: true }]}
+                    extra={t("aiDispatch.modeAutomaticUnavailable")}
                   >
                     <Select
                       options={[
                         { value: "assisted", label: t("aiDispatch.modeAssisted") },
-                        { value: "automatic", label: t("aiDispatch.modeAutomatic") },
+                        {
+                          value: "automatic",
+                          label: t("aiDispatch.modeAutomatic"),
+                          disabled: true,
+                        },
                       ]}
                     />
                   </Form.Item>

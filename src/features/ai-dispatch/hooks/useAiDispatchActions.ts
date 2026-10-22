@@ -135,7 +135,11 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
     setError(null);
 
     try {
-      const mode = params.mode === "automatic" ? "Autonomous" : "HumanInTheLoop";
+      // Backend khoá AUTONOMOUS_MODE_LOCKED; không gửi mode mà server chắc chắn từ chối.
+      if (params.mode === "automatic") {
+        throw new Error(t("aiDispatch.modeAutomaticUnavailable"));
+      }
+      const mode = "HumanInTheLoop";
       const result = await executeAiDispatchRun({
         loadId: params.loadId,
         mode,

@@ -123,13 +123,20 @@ export async function fetchAiDispatchSessions(
     headers: getAuthHeaders(),
   });
   const envelope = res.data?.data ?? res.data;
+  // Backend trả PagedResponse { items, totalItems }; giữ fallback content/array
+  // cho các adapter hoặc fixture cũ.
+  const items: AiDispatchSession[] = Array.isArray(envelope?.items)
+    ? envelope.items
+    : Array.isArray(envelope?.content)
+    ? envelope.content
+    : Array.isArray(envelope)
+    ? envelope
+    : [];
   return {
-    content: Array.isArray(envelope?.content)
-      ? envelope.content
-      : Array.isArray(envelope)
-      ? envelope
-      : [],
-    totalElements: Number(envelope?.totalElements ?? envelope?.content?.length ?? 0),
+    content: items,
+    totalElements: Number(
+      envelope?.totalItems ?? envelope?.totalElements ?? items.length,
+    ),
   };
 }
 

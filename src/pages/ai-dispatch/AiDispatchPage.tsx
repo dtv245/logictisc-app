@@ -16,7 +16,7 @@ import { useCan } from "@refinedev/core";
 import { Alert, Button, Space, Spin, Tabs, Tag } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { ForbiddenState } from "@/components/ErrorStates";
 import { PageHeader } from "@/components/PageHeader";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
@@ -34,8 +34,12 @@ export function AiDispatchPage() {
   const { tenant } = useCurrentTenant();
   const access = useCan({ resource: "ai-dispatch", action: "AI_DISPATCH_VIEW" });
   const [searchParams, setSearchParams] = useSearchParams();
+  // Alias /ai-dispatch/:id và /ai-dispatch/show/:id dùng :id làm session ID.
+  // Query sessionId vẫn là canonical và được ưu tiên khi có cả hai.
+  const { id: pathSessionId } = useParams<{ id?: string }>();
+  const sessionId = searchParams.get("sessionId") ?? pathSessionId;
   const actions = useAiDispatchActions({
-    sessionId: searchParams.get("sessionId") ?? undefined,
+    sessionId: sessionId ?? undefined,
     decisionId: searchParams.get("decisionId") ?? undefined,
   });
   const { activeProviderConfig, isConfigured } = useAiSettings();
