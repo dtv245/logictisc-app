@@ -1,37 +1,107 @@
-import { Button } from "antd";
-import { ArrowLeft, MapPin, Phone, Share2 } from "lucide-react";
+import { Alert, Button, Spin } from "antd";
+import {
+  ArrowLeft,
+  ExternalLink,
+  RefreshCw,
+  Sparkles,
+  Truck as TruckIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { ApproveRouteModal } from "@/components/tms-flow/ApproveRouteModal";
-import { AuditTrail } from "@/components/tms-flow/AuditTrail";
+import { ApproveSuggestionModal } from "@/components/tms-flow/ApproveSuggestionModal";
 import { FlowPanel } from "@/components/tms-flow/FlowPanel";
-import { ShareTrackingModal, type ShareTrackingPayload } from "@/components/tms-flow/ShareTrackingModal";
 import { StatusTag } from "@/components/StatusTag";
-import { useTmsFlow } from "@/hooks/tms-flow/useTmsFlow";
-import { useTmsFlowActions } from "@/hooks/tms-flow/useTmsFlowActions";
-import { formatMiles, formatTime, formatWindow } from "@/utils/tms-flow/format";
-import { approvalStateMeta, isApprovalOpen, shipmentStatusMeta } from "@/utils/tms-flow/presentation";
-import { selectShipmentDetail } from "@/utils/tms-flow/selectors";
+import { TmsFlowMap } from "@/components/tms-flow/TmsFlowMap";
+import { TmsTimeline } from "@/components/tms-flow/TmsTimeline";
+import { routes } from "@/constants/routes";
+import { useTmsLoad, useTmsTimeline } from "@/hooks/tms-flow/useTmsQueries";
+import { useTmsWorkspace } from "@/hooks/tms-flow/useTmsWorkspace";
+import { findApprovalForLoad } from "@/utils/tms-flow/approvals";
+import {
+  toNetworkVehicles,
+  toShipmentMarkers,
+  toTruckMarker,
+} from "@/utils/tms-flow/map";
+import {
+  describeTmsError,
+  formatTmsDateTime,
+  formatTmsDistance,
+  formatTmsMoney,
+  operationalStatusMeta,
+  riskMeta,
+} from "@/utils/tms-flow/presentation";
 
 export function ShipmentDetailPage() {
-  const { state } = useTmsFlow();
-  const actions = useTmsFlowActions();
   const navigate = useNavigate();
   const { shipmentId } = useParams<{ shipmentId: string }>();
-  const [shareOpen, setShareOpen] = useState(false);
-  const [approvalOpen, setApprovalOpen] = useState(false);
+  const loadQuery = useTmsLoad(shipmentId);
+  const workspace = useTmsWorkspace();
+  const timeline = useTmsTimeline(shipmentId);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
-  if (state.status !== "ready") return null;
-  const { snapshot } = state;
-  const detail = selectShipmentDetail(snapshot, shipmentId);
+  const load = loadQuery.data;
+  const truckItems = workspace.trucks.data?.items ?? [];
+  const assignedTruck = truckItems.find(
+    (truck) => truck.id === load?.assignedTruckId,
+  );
+  const approval = findApprovalForLoad(workspace.approvals, load?.id);
+  const assignedMarker = toTruckMarker(assignedTruck);
+  const markers = [
+    ...toShipmentMarkers(load),
+    ...(assignedMarker ? [assignedMarker] : []),
+  ];
 
-  if (!detail) {
+  if (loadQuery.isLoading) {
+    return (
+      <div className="tms-page tms-flow--centered" aria-busy="true">
+        <Spin size="large" />
+        <p className="tms-muted">Loading load…</p>
+      </div>
+    );
+  }
+
+  if (loadQuery.error) {
     return (
       <div className="tms-page">
-        <FlowPanel title="Shipment not found">
-          <p className="tms-muted">No fixture shipment matches “{shipmentId}”.</p>
-          <Button icon={<ArrowLeft size={14} aria-hidden="true" />} onClick={() => navigate("/tms/dispatch")}>
+        <Alert
+          action={
+            <Button
+              icon={<RefreshCw size={14} aria-hidden="true" />}
+              onClick={() => void loadQuery.refetch()}
+            >
+              Retry
+            </Button>
+          }
+          description={describeTmsError(loadQuery.error)}
+          message="Load could not load"
+          showIcon
+          type="error"
+        />
+        <div className="tms-row">
+          <Button
+            icon={<ArrowLeft size={14} aria-hidden="true" />}
+            onClick={() => navigate(routes.tmsFlow.dispatch)}
+          >
+            Back to dispatch
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!load) {
+    return (
+      <div className="tms-page">
+        <FlowPanel title="Load not found">
+          <p className="tms-muted">
+            No load matches “{shipmentId}”. It may belong to another tenant or
+            have been removed.
+          </p>
+          <Button
+            icon={<ArrowLeft size={14} aria-hidden="true" />}
+            onClick={() => navigate(routes.tmsFlow.dispatch)}
+          >
             Back to dispatch
           </Button>
         </FlowPanel>
@@ -39,79 +109,47 @@ export function ShipmentDetailPage() {
     );
   }
 
-  const { shipment, driver, vehicle, route, approval, audits } = detail;
-  const existingLink = snapshot.trackingLinks.find((link) => link.shipmentId === shipment.id);
-  const openApproval = approval && isApprovalOpen(approval.state) ? approval : undefined;
-  const progressPercent =
-    shipment.status === "delivered"
-      ? 100
-      : shipment.id === "SF-48291"
-        ? Math.round((50 / 81) * 100)
-        : shipment.status === "in_transit"
-          ? 40
-          : 0;
-
-  const handleShare = async (payload: ShareTrackingPayload) => {
-    try {
-      await actions.createTrackingLink({
-        shipmentId: shipment.id,
-        recipients: payload.recipients,
-        preferences: payload.preferences,
-      });
-      setShareOpen(false);
-    } catch {
-      // actions.error keeps the dialog open with the message.
-    }
-  };
-
-  const handleDecision = async (decision: "approve" | "reject", reason?: string) => {
-    if (!approval) return;
-    try {
-      await actions.decideRoute(approval.id, decision, reason);
-      setApprovalOpen(false);
-    } catch {
-      // actions.error keeps the dialog open with the message.
-    }
-  };
+  const status = operationalStatusMeta[load.status];
+  const risk = riskMeta[load.risk];
 
   return (
     <div className="tms-page">
       <div className="tms-row">
-        <Button icon={<ArrowLeft size={14} aria-hidden="true" />} onClick={() => navigate("/tms/dispatch")} type="text">
+        <Button
+          icon={<ArrowLeft size={14} aria-hidden="true" />}
+          onClick={() => navigate(routes.tmsFlow.dispatch)}
+          type="text"
+        >
           Dispatch
         </Button>
         <div className="tms-hero__actions">
+          {assignedTruck ? (
+            <Button
+              icon={<TruckIcon size={14} aria-hidden="true" />}
+              onClick={() => navigate(`/trucks/show/${assignedTruck.id}`)}
+            >
+              View truck
+            </Button>
+          ) : null}
           <Button
-            disabled={!driver}
-            href={driver ? `tel:${driver.phone}` : undefined}
-            icon={<Phone size={14} aria-hidden="true" />}
+            icon={<ExternalLink size={14} aria-hidden="true" />}
+            onClick={() =>
+              navigate(routes.resources.loads.show.replace(":id", load.id))
+            }
           >
-            Call driver
+            Open in Loads
           </Button>
-          <Button
-            data-testid="shipment-share-tracking"
-            disabled={!driver}
-            icon={<Share2 size={14} aria-hidden="true" />}
-            onClick={() => setShareOpen(true)}
-          >
-            Share tracking
-          </Button>
-          <Button
-            data-testid="shipment-remote-approval"
-            disabled={!openApproval || actions.pending !== null}
-            onClick={() => setApprovalOpen(true)}
-            type="primary"
-          >
-            {openApproval ? "Remote approval" : approval ? approvalStateMeta[approval.state].label : "No approval"}
-          </Button>
+          {approval ? (
+            <Button
+              icon={<Sparkles size={14} aria-hidden="true" />}
+              onClick={() => setReviewOpen(true)}
+              type="primary"
+            >
+              Review AI decision
+            </Button>
+          ) : null}
         </div>
       </div>
-
-      {actions.error && !shareOpen && !approvalOpen ? (
-        <p className="tms-approval__error" role="alert">
-          {actions.error}
-        </p>
-      ) : null}
 
       <div className="tms-detail">
         <div className="tms-stack">
@@ -120,173 +158,210 @@ export function ShipmentDetailPage() {
               <div className="tms-hero__head">
                 <div>
                   <h2 className="tms-hero__id" data-testid="shipment-detail-id">
-                    {shipment.id}
+                    #{load.number}
                   </h2>
                   <p className="tms-hero__sub">
-                    {shipment.customer} · PO {shipment.po} · {shipment.contactName}
+                    {load.name} · {load.customerName}
                   </p>
                 </div>
-                <StatusTag label={shipmentStatusMeta[shipment.status].label} tone={shipmentStatusMeta[shipment.status].tone} />
+                <div className="tms-row">
+                  <StatusTag label={status.label} tone={status.tone} />
+                  {load.risk !== "none" ? (
+                    <StatusTag label={risk.label} tone={risk.tone} />
+                  ) : null}
+                  {load.isHazmat ? (
+                    <StatusTag
+                      label={load.hazmatClass ? `Hazmat ${load.hazmatClass}` : "Hazmat"}
+                      tone="error"
+                    />
+                  ) : null}
+                </div>
               </div>
 
-              <div className="tms-hero__progress">
-                <div className="tms-hero__progress-bar" role="img" aria-label={`${progressPercent}% of the route complete`}>
-                  <span style={{ width: `${progressPercent}%` }} />
+              <div className="tms-hero__metrics">
+                <div className="tms-hero__metric">
+                  <dt>Requested pickup</dt>
+                  <dd>{formatTmsDateTime(load.requestedPickupDate)}</dd>
                 </div>
-                <div className="tms-hero__progress-labels">
-                  <span>{shipment.origin}</span>
-                  <span>{progressPercent}% complete</span>
-                  <span>{shipment.destination}</span>
+                <div className="tms-hero__metric">
+                  <dt>Requested delivery</dt>
+                  <dd data-testid="shipment-detail-delivery">
+                    {formatTmsDateTime(load.requestedDeliveryDate)}
+                  </dd>
+                </div>
+                <div className="tms-hero__metric">
+                  <dt>Distance</dt>
+                  <dd>{formatTmsDistance(load.distance)}</dd>
+                </div>
+                <div className="tms-hero__metric">
+                  <dt>Delivery cost</dt>
+                  <dd>
+                    {formatTmsMoney(
+                      load.deliveryCostAmount,
+                      load.deliveryCostCurrency,
+                    )}
+                  </dd>
                 </div>
               </div>
-
-              <dl className="tms-hero__metrics">
-                <div className="tms-hero__metric">
-                  <dt>ETA</dt>
-                  <dd data-testid="shipment-detail-eta">{formatTime(shipment.currentEta)}</dd>
-                </div>
-                <div className="tms-hero__metric">
-                  <dt>Window</dt>
-                  <dd>{formatWindow(shipment.delivery)}</dd>
-                </div>
-                <div className="tms-hero__metric">
-                  <dt>Pallets</dt>
-                  <dd>{shipment.pallets} / 26</dd>
-                </div>
-                <div className="tms-hero__metric">
-                  <dt>Weight</dt>
-                  <dd>{shipment.weightLb.toLocaleString("en-US")} lb</dd>
-                </div>
-              </dl>
             </div>
           </FlowPanel>
 
-          <FlowPanel title="Load plan">
+          <FlowPanel title="Route and addresses">
             <dl className="tms-detail-list">
               <div>
-                <dt>Equipment</dt>
-                <dd>{shipment.equipment}</dd>
-              </div>
-              <div>
-                <dt>Driver</dt>
-                <dd>{driver?.name ?? "Unassigned"}</dd>
-              </div>
-              <div>
-                <dt>Vehicle</dt>
-                <dd>{vehicle ? `${vehicle.id} · ${vehicle.truck}` : "Unassigned"}</dd>
-              </div>
-              <div>
-                <dt>BOL (demo)</dt>
-                <dd>BOL-{shipment.po.split("-")[0] ?? "77341"}</dd>
-              </div>
-              <div>
                 <dt>Pickup</dt>
-                <dd>
-                  {formatWindow(shipment.pickup)} · {shipment.origin}
-                </dd>
+                <dd>{load.originAddress || load.originCity}</dd>
               </div>
               <div>
                 <dt>Delivery</dt>
-                <dd>
-                  {formatWindow(shipment.delivery)} · {shipment.destination}
-                </dd>
+                <dd>{load.destinationAddress || load.destinationCity}</dd>
+              </div>
+              <div>
+                <dt>Backend status</dt>
+                <dd>{load.rawStatus}</dd>
+              </div>
+              <div>
+                <dt>Operation</dt>
+                <dd>{status.label}</dd>
               </div>
             </dl>
-            {shipment.notes ? <p className="tms-muted">{shipment.notes}</p> : null}
+            {load.notes ? <p className="tms-muted">{load.notes}</p> : null}
           </FlowPanel>
 
-          {route ? (
-            <FlowPanel
-              action={
-                <span className="tms-muted">
-                  {route.mode === "optimized" ? "Optimized order" : "Current order"} · {formatMiles(route.current.miles)}
-                </span>
-              }
-              subtitle={`${route.name} · ${route.stops.length} stops`}
-              title="Route and stops"
-            >
-              <ol className="tms-stop-list">
-                {route.stops.slice(0, 6).map((stop, index) => (
-                  <li className="tms-stop" key={stop.id}>
-                    <span className="tms-stop__index">{index + 1}</span>
-                    <span>
-                      {stop.name}
-                      <span className="tms-stop__meta">
-                        {stop.city} · {formatWindow(stop.window)}
-                      </span>
-                    </span>
-                    <span className="tms-stop__eta">{stop.completed ? "Completed" : "ETA pending"}</span>
-                  </li>
-                ))}
-              </ol>
-              {route.stops.length > 6 ? (
-                <p className="tms-muted">+ {route.stops.length - 6} more stops in the route plan.</p>
-              ) : null}
-            </FlowPanel>
-          ) : null}
+          <TmsFlowMap
+            markers={markers}
+            subtitle={
+              load.originCity !== "—"
+                ? `${load.originCity} → ${load.destinationCity}`
+                : undefined
+            }
+            testId="shipment-map"
+            title="Load points"
+            vehicles={toNetworkVehicles(assignedTruck ? [assignedTruck] : [])}
+          />
+
+          <FlowPanel title="Execution timeline">
+            <TmsTimeline
+              emptyLabel="No execution events recorded for this load."
+              events={timeline.data?.events ?? []}
+            />
+          </FlowPanel>
         </div>
 
         <div className="tms-stack">
-          <FlowPanel title="Route Agent">
-            {approval ? (
-              <div className="tms-agent-card">
-                <span className="tms-agent-card__kicker">
-                  <MapPin size={14} aria-hidden="true" /> {approvalStateMeta[approval.state].label}
-                </span>
-                <h3 className="tms-agent-card__title">
-                  {approval.proposedRoute} · {formatTime(approval.proposedEta)}
-                </h3>
-                <p className="tms-agent-card__body">
-                  {approval.reason} Saves {approval.savedMinutes} min for +{formatMiles(approval.proposedMiles - approval.currentMiles)}.
-                </p>
-                {openApproval ? (
-                  <div className="tms-agent-card__actions">
-                    <Button onClick={() => setApprovalOpen(true)} type="primary">
-                      Approve route
-                    </Button>
+          <FlowPanel
+            action={
+              assignedTruck ? (
+                <Button
+                  onClick={() => navigate(`/trucks/show/${assignedTruck.id}`)}
+                  size="small"
+                >
+                  Truck
+                </Button>
+              ) : null
+            }
+            title="Assignment"
+          >
+            <dl className="tms-detail-list">
+              <div>
+                <dt>Truck</dt>
+                <dd>{load.assignedTruckNumber ?? assignedTruck?.number ?? "Unassigned"}</dd>
+              </div>
+              <div>
+                <dt>Driver</dt>
+                <dd>{assignedTruck?.mainDriverName ?? "Unassigned"}</dd>
+              </div>
+              {assignedTruck ? (
+                <div>
+                  <dt>Type</dt>
+                  <dd>{assignedTruck.type.replace("_", " ")}</dd>
+                </div>
+              ) : null}
+              {assignedTruck ? (
+                <div>
+                  <dt>Status</dt>
+                  <dd>{assignedTruck.status.replace("_", " ")}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </FlowPanel>
+
+          <FlowPanel title="Milestones">
+            {load.dispatchedAt ||
+            load.pickedUpAt ||
+            load.deliveredAt ||
+            load.cancelledAt ? (
+              <dl className="tms-detail-list">
+                {load.dispatchedAt ? (
+                  <div>
+                    <dt>Dispatched</dt>
+                    <dd>{formatTmsDateTime(load.dispatchedAt)}</dd>
                   </div>
                 ) : null}
-              </div>
+                {load.pickedUpAt ? (
+                  <div>
+                    <dt>Picked up</dt>
+                    <dd>{formatTmsDateTime(load.pickedUpAt)}</dd>
+                  </div>
+                ) : null}
+                {load.deliveredAt ? (
+                  <div>
+                    <dt>Delivered</dt>
+                    <dd>{formatTmsDateTime(load.deliveredAt)}</dd>
+                  </div>
+                ) : null}
+                {load.cancelledAt ? (
+                  <div>
+                    <dt>Cancelled</dt>
+                    <dd>{formatTmsDateTime(load.cancelledAt)}</dd>
+                  </div>
+                ) : null}
+              </dl>
             ) : (
-              <p className="tms-muted">No route change has been proposed for this shipment.</p>
+              <p className="tms-empty">No milestone recorded yet.</p>
             )}
           </FlowPanel>
 
-          <FlowPanel title="Shipment audit" subtitle="Approval decisions update every screen">
-            <AuditTrail emptyLabel="No decisions yet for this shipment." events={audits} />
+          <FlowPanel
+            subtitle={
+              approval
+                ? `Decision ${approval.suggestion.decisionId.slice(0, 8)}`
+                : undefined
+            }
+            title="AI dispatch"
+          >
+            {approval ? (
+              <div className="tms-stack">
+                <div className="tms-row">
+                  <StatusTag
+                    label={approval.suggestion.confidence}
+                    tone="neutral"
+                  />
+                  <span className="tms-muted">
+                    Rank #{approval.suggestion.rank} · score{" "}
+                    {Number(approval.suggestion.score).toFixed(1)}
+                  </span>
+                </div>
+                <p className="tms-muted">{approval.suggestion.reasoning}</p>
+                <Button onClick={() => setReviewOpen(true)} type="primary">
+                  Review and decide
+                </Button>
+              </div>
+            ) : (
+              <p className="tms-empty">
+                No AI dispatch decision is waiting for this load.
+              </p>
+            )}
           </FlowPanel>
         </div>
       </div>
 
-      {shareOpen ? (
-        <ShareTrackingModal
-          error={actions.error}
-          existingLink={existingLink}
-          onClose={() => {
-            setShareOpen(false);
-            actions.clearError();
-          }}
-          onSubmit={handleShare}
-          open
-          pending={actions.pending === "create-tracking-link" || actions.pending === "update-tracking-link"}
-          shipment={shipment}
-        />
-      ) : null}
-
-      {approvalOpen && approval ? (
-        <ApproveRouteModal
+      {approval && reviewOpen ? (
+        <ApproveSuggestionModal
           approval={approval}
-          driver={driver}
-          error={actions.error}
-          onApprove={(reason) => handleDecision("approve", reason)}
-          onClose={() => {
-            setApprovalOpen(false);
-            actions.clearError();
-          }}
-          onReject={(reason) => handleDecision("reject", reason)}
+          key={approval.suggestion.decisionId}
+          onClose={() => setReviewOpen(false)}
           open
-          pending={actions.pending === "route-approve" || actions.pending === "route-reject"}
-          shipment={shipment}
         />
       ) : null}
     </div>

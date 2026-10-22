@@ -104,11 +104,32 @@ export const NAV_ZONES: readonly NavZone[] = [
         sectionKey: "monitor",
       },
       {
-        icon: <TmsFlowNavIcon />,
-        key: "app:tms-flow",
+        key: "zone:tms",
         labelKey: "navigation.items.tms-flow",
-        route: routes.tmsFlow.root,
-        sectionKey: "monitor",
+        icon: <TmsFlowNavIcon />,
+        items: [
+          {
+            icon: <OperationsDashboardIcon />,
+            key: "app:tms-dashboard",
+            labelKey: "navigation.items.tms-dashboard",
+            route: routes.tmsFlow.root,
+            permission: { resource: "loads", action: "list" },
+          },
+          {
+            icon: <LoadsNavIcon />,
+            key: "app:tms-dispatch",
+            labelKey: "navigation.items.tms-dispatch",
+            route: routes.tmsFlow.dispatch,
+            permission: { resource: "loads", action: "list" },
+          },
+          {
+            icon: <AiDispatchNavIcon />,
+            key: "app:tms-approvals",
+            labelKey: "navigation.items.tms-approvals",
+            route: routes.tmsFlow.approvals,
+            permission: { resource: "ai-dispatch", action: "AI_DISPATCH_VIEW" },
+          },
+        ],
       },
       ...(EXECUTIVE_CONTRACT_CONFIRMED
         ? ([

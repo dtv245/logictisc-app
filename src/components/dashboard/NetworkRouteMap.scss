@@ -31,3 +31,11 @@
   &__vehicle-label strong { color: #43483d; font-size: 8px; font-weight: 500; }
   &__vehicle-label small { color: #ef5b68; font-size: 7px; }
 }
+
+.dashboard-network-map {
+  &__point { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border: 2px solid var(--color-bg-container); border-radius: 50%; font-family: Inter, sans-serif; font-size: 10px; font-weight: 700; color: var(--color-text-inverse); box-shadow: 0 1px 5px #292e2633; }
+  &__point--origin { background: #1f7a4d; }
+  &__point--destination { background: #7442ff; }
+  &__point--truck { background: #2b2f2a; }
+  &__point-label { font-family: Inter, sans-serif; font-size: 9px; color: #43483d; }
+}

@@ -79,11 +79,6 @@ const TmsOperationsDashboardPage = lazy(() =>
     default: module.OperationsDashboardPage,
   })),
 );
-const TmsNewShipmentPage = lazy(() =>
-  import("@pages/tms-flow/NewShipmentPage").then((module) => ({
-    default: module.NewShipmentPage,
-  })),
-);
 const TmsDispatchPage = lazy(() =>
   import("@pages/tms-flow/DispatchPage").then((module) => ({
     default: module.DispatchPage,
@@ -92,11 +87,6 @@ const TmsDispatchPage = lazy(() =>
 const TmsShipmentDetailPage = lazy(() =>
   import("@pages/tms-flow/ShipmentDetailPage").then((module) => ({
     default: module.ShipmentDetailPage,
-  })),
-);
-const TmsLiveTrackingPage = lazy(() =>
-  import("@pages/tms-flow/LiveTrackingPage").then((module) => ({
-    default: module.LiveTrackingPage,
   })),
 );
 const SettlementListPage = lazy(() =>
@@ -215,12 +205,21 @@ export const AppRouter = ({
             <Route path={routes.aiDispatch} element={<ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch"><AiDispatchPage /></ResourceAccessBoundary>} />
             <Route path={routes.aiDispatchShow} element={<ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch"><AiDispatchPage /></ResourceAccessBoundary>} />
             <Route path={routes.resources.aiDispatch.show} element={<ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch"><AiDispatchPage /></ResourceAccessBoundary>} />
-            {/* TMS demo flow: one provider lives across S01–S09; S11 is a
-                full-screen sibling below so it has no AppSider. */}
-            <Route path={routes.tmsFlow.root} element={<TmsFlowRoot />}>
+            {/* Real TMS operations flow: loads, trucks and AI decisions. */}
+            <Route
+              path={routes.tmsFlow.root}
+              element={
+                <ResourceAccessBoundary action="list" resource="loads">
+                  <TmsFlowRoot />
+                </ResourceAccessBoundary>
+              }
+            >
               <Route index element={<TmsOperationsDashboardPage />} />
-              <Route path="shipments/new" element={<TmsNewShipmentPage />} />
               <Route path="dispatch" element={<TmsDispatchPage />} />
+              <Route
+                path="approvals"
+                element={<TmsDispatchPage approvalsOnly />}
+              />
               <Route path="shipments/:shipmentId" element={<TmsShipmentDetailPage />} />
             </Route>
             <Route path={routes.profitability} element={
@@ -276,7 +275,6 @@ export const AppRouter = ({
               />
             ))}
           </Route>
-          <Route path={routes.tmsFlow.tracking} element={<TmsLiveTrackingPage />} />
         </Route>
       </Route>
 

@@ -1176,7 +1176,10 @@ export const enMessages = {
     },
     items: {
       operations: "Control center",
-      "tms-flow": "TMS operations (demo)",
+      "tms-flow": "TMS operations",
+      "tms-dashboard": "TMS dashboard",
+      "tms-dispatch": "TMS dispatch",
+      "tms-approvals": "TMS AI approvals",
       dashboard: "Executive dashboard",
       "ai-dispatch": "AI dispatch",
       optimization: "Dispatch optimization",

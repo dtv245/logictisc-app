@@ -1,184 +1,335 @@
-import { Button } from "antd";
-import { ArrowRight, Map, Sparkles } from "lucide-react";
+import { Alert, Button, Spin } from "antd";
+import { ArrowRight, RefreshCw, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { AuditTrail } from "@/components/tms-flow/AuditTrail";
+import { ApproveSuggestionModal } from "@/components/tms-flow/ApproveSuggestionModal";
 import { FlowPanel } from "@/components/tms-flow/FlowPanel";
 import { KpiTile } from "@/components/tms-flow/KpiTile";
 import { ShipmentCard } from "@/components/tms-flow/ShipmentCard";
 import { TmsFlowMap } from "@/components/tms-flow/TmsFlowMap";
-import { useTmsFlow } from "@/hooks/tms-flow/useTmsFlow";
+import { TmsTimeline } from "@/components/tms-flow/TmsTimeline";
+import { routes } from "@/constants/routes";
+import { useTmsTimeline } from "@/hooks/tms-flow/useTmsQueries";
+import { useTmsWorkspace } from "@/hooks/tms-flow/useTmsWorkspace";
+import type { TmsApproval } from "@/types/tms-flow/tmsFlow.types";
+import { toNetworkVehicles, toShipmentMarkers, toTruckMarkers } from "@/utils/tms-flow/map";
 import {
-  selectDashboard,
-  selectPrimaryAtRiskShipment,
-  toNetworkRoutes,
-  toNetworkVehicles,
-} from "@/utils/tms-flow/selectors";
-import { formatTime, formatWindow } from "@/utils/tms-flow/format";
+  describeTmsError,
+  formatTmsDateTime,
+  formatTmsDistance,
+} from "@/utils/tms-flow/presentation";
+import {
+  selectPrimaryRiskShipment,
+  summarizeTmsLoads,
+} from "@/utils/tms-flow/status";
 
 export function OperationsDashboardPage() {
-  const { state } = useTmsFlow();
   const navigate = useNavigate();
+  const {
+    loads,
+    trucks,
+    approvalIds,
+    approvals,
+    collection,
+    generatedAt,
+    shipments,
+    isLoading,
+    error,
+  } = useTmsWorkspace();
+  const [selectedApproval, setSelectedApproval] = useState<TmsApproval | null>(null);
 
-  if (state.status !== "ready") return null;
-  const { snapshot } = state;
-  const dashboard = selectDashboard(snapshot);
-  const atRisk = selectPrimaryAtRiskShipment(snapshot);
-  const driver = atRisk?.driverId ? snapshot.drivers.find((item) => item.id === atRisk.driverId) : undefined;
-  const token =
-    snapshot.trackingLinks.find((link) => link.shipmentId === atRisk?.id)?.token ?? "demo-SF-48291-live";
+  const primary = selectPrimaryRiskShipment(shipments);
+  const summary = summarizeTmsLoads(shipments);
+  const timeline = useTmsTimeline(primary?.id);
+  const truckItems = trucks.data?.items ?? [];
+  const locatedTrucks = truckItems
+    .filter(
+      (truck) =>
+        truck.currentLocationLatitude != null &&
+        truck.currentLocationLongitude != null,
+    )
+    .slice(0, 120);
+  const markers = [
+    ...toShipmentMarkers(primary),
+    ...toTruckMarkers(locatedTrucks),
+  ];
+  const atRiskLoadIds = approvalIds;
 
-  const proposedDelta =
-    atRisk?.proposedEta
-      ? Math.round((new Date(atRisk.currentEta).getTime() - new Date(atRisk.proposedEta).getTime()) / 60_000)
-      : undefined;
+  if (isLoading) {
+    return (
+      <div className="tms-page tms-flow--centered" aria-busy="true">
+        <Spin size="large" />
+        <p className="tms-muted">Loading operations data…</p>
+      </div>
+    );
+  }
 
-  const timeline = snapshot.shipments
-    .filter((shipment) => shipment.driverId && shipment.status !== "delivered")
-    .sort((left, right) => new Date(left.currentEta).getTime() - new Date(right.currentEta).getTime())
-    .slice(0, 4)
-    .map((shipment) => ({
-      shipment,
-      driverName: snapshot.drivers.find((item) => item.id === shipment.driverId)?.name ?? "Unassigned",
-    }));
+  if (error) {
+    return (
+      <div className="tms-page">
+        <Alert
+          action={
+            <Button
+              icon={<RefreshCw size={14} aria-hidden="true" />}
+              onClick={() => void loads.refetch()}
+            >
+              Retry
+            </Button>
+          }
+          message="Operations data could not load"
+          description={describeTmsError(error)}
+          showIcon
+          type="error"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="tms-page">
       <div className="tms-page__lead">
         <div>
           <h2 className="tms-page__title">Operations dashboard</h2>
-          <p className="tms-page__subtitle">Monday peak coverage · fixture snapshot, demo clock frozen at 3:20 PM</p>
+          <p className="tms-page__subtitle">
+            Live loads and AI dispatch decisions
+            {generatedAt
+              ? ` · refreshed ${formatTmsDateTime(new Date(generatedAt).toISOString())}`
+              : ""}
+          </p>
         </div>
-        <Button icon={<Map size={15} aria-hidden="true" />} onClick={() => navigate(`/tms/tracking/${token}`)}>
-          Open live map
-        </Button>
+        <div className="tms-row">
+          <Button onClick={() => navigate(routes.tmsFlow.dispatch)}>Open dispatch</Button>
+          <Button
+            icon={<Sparkles size={15} aria-hidden="true" />}
+            onClick={() => navigate(routes.tmsFlow.approvals)}
+          >
+            AI approvals ({approvals.length})
+          </Button>
+        </div>
       </div>
 
+      {collection?.truncated ? (
+        <Alert
+          message={`Showing the first ${collection.items.length.toLocaleString("en-US")} of ${collection.totalItems.toLocaleString("en-US")} loads`}
+          description="Summary counts cover the loaded rows only. A backend operations summary is still pending."
+          showIcon
+          type="warning"
+        />
+      ) : null}
+
       <div className="tms-kpi-grid">
-        <KpiTile label="Active" onClick={() => navigate("/tms/dispatch")} testId="dashboard-kpi-active" value={dashboard.kpis.active.toLocaleString("en-US")} />
-        <KpiTile label="In transit" onClick={() => navigate("/tms/dispatch")} testId="dashboard-kpi-in-transit" value={dashboard.kpis.inTransit.toLocaleString("en-US")} />
-        <KpiTile label="Delivered today" onClick={() => navigate("/tms/dispatch")} testId="dashboard-kpi-delivered" tone="positive" value={dashboard.kpis.deliveredToday.toLocaleString("en-US")} />
-        <KpiTile label="Delayed" onClick={() => navigate("/tms/dispatch?filter=at-risk")} testId="dashboard-kpi-delayed" tone="warning" value={dashboard.kpis.delayed} />
-        <KpiTile label="At risk" onClick={() => navigate("/tms/dispatch?filter=at-risk")} testId="dashboard-kpi-at-risk" tone="danger" value={dashboard.kpis.atRisk} />
-        <KpiTile label="Exceptions" onClick={() => navigate("/tms/dispatch?filter=priority")} testId="dashboard-kpi-exceptions" value={dashboard.kpis.exceptions} />
+        <KpiTile
+          label="Active"
+          onClick={() => navigate(routes.tmsFlow.dispatch)}
+          testId="dashboard-kpi-active"
+          value={summary.active.toLocaleString("en-US")}
+        />
+        <KpiTile
+          label="In transit"
+          testId="dashboard-kpi-in-transit"
+          value={summary.inTransit.toLocaleString("en-US")}
+        />
+        <KpiTile
+          label="Delivered today"
+          testId="dashboard-kpi-delivered"
+          tone="positive"
+          value={summary.deliveredToday.toLocaleString("en-US")}
+        />
+        <KpiTile
+          label="Delayed"
+          onClick={() => navigate(`${routes.tmsFlow.dispatch}?filter=at-risk`)}
+          testId="dashboard-kpi-delayed"
+          tone="danger"
+          value={summary.delayed.toLocaleString("en-US")}
+        />
+        <KpiTile
+          label="At risk"
+          onClick={() => navigate(`${routes.tmsFlow.dispatch}?filter=at-risk`)}
+          testId="dashboard-kpi-at-risk"
+          tone="warning"
+          value={summary.atRisk.toLocaleString("en-US")}
+        />
+        <KpiTile
+          label="Unassigned"
+          onClick={() => navigate(`${routes.tmsFlow.dispatch}?filter=unassigned`)}
+          testId="dashboard-kpi-unassigned"
+          value={summary.unassigned.toLocaleString("en-US")}
+        />
       </div>
 
       <div className="tms-dashboard-grid">
         <div className="tms-stack">
           <FlowPanel
             action={
-              atRisk ? (
+              primary ? (
                 <Button
                   icon={<ArrowRight size={14} aria-hidden="true" />}
-                  onClick={() => navigate(`/tms/dispatch?shipment=${atRisk.id}`)}
+                  onClick={() => navigate(`/tms/shipments/${primary.id}`)}
                   type="primary"
                 >
-                  Review
+                  Open load
                 </Button>
               ) : null
             }
-            subtitle={atRisk ? `Delivery window ${formatWindow(atRisk.delivery)} · ${atRisk.customer}` : undefined}
+            subtitle={
+              primary
+                ? `${formatTmsDateTime(primary.requestedDeliveryDate)} · ${primary.customerName}`
+                : undefined
+            }
             title="Shipment at risk"
           >
-            {atRisk ? (
+            {primary ? (
               <div className="tms-at-risk">
                 <div className="tms-at-risk__times">
                   <div className="tms-at-risk__time">
-                    <span>Current ETA</span>
-                    <strong>{formatTime(atRisk.currentEta)}</strong>
-                  </div>
-                  <div className="tms-at-risk__time tms-at-risk__time--proposed">
-                    <span>Proposed ETA</span>
-                    <strong>{atRisk.proposedEta ? formatTime(atRisk.proposedEta) : "—"}</strong>
+                    <span>Requested delivery</span>
+                    <strong>{formatTmsDateTime(primary.requestedDeliveryDate)}</strong>
                   </div>
                   <div className="tms-at-risk__time">
-                    <span>Window closes</span>
-                    <strong>{formatTime(atRisk.delivery.end)}</strong>
+                    <span>Operational status</span>
+                    <strong>{primary.status.replace("_", " ")}</strong>
+                  </div>
+                  <div className="tms-at-risk__time">
+                    <span>Truck</span>
+                    <strong>{primary.assignedTruckNumber ?? "Unassigned"}</strong>
                   </div>
                 </div>
-                <p className="tms-muted">
-                  {proposedDelta !== undefined
-                    ? `The Route Agent proposes an I-680 reroute that saves ${proposedDelta} minutes and gets inside the receiver window.`
-                    : "This shipment is inside its delivery window."}
-                </p>
                 <ShipmentCard
-                  driverName={driver?.name}
-                  onSelect={() => navigate(`/tms/shipments/${atRisk.id}`)}
-                  shipment={atRisk}
+                  onSelect={() => navigate(`/tms/shipments/${primary.id}`)}
+                  shipment={primary}
                 />
                 <div className="tms-at-risk__actions">
-                  <Button onClick={() => navigate(`/tms/dispatch?shipment=${atRisk.id}`)}>Open in dispatch</Button>
-                  <Button onClick={() => navigate(`/tms/shipments/${atRisk.id}`)} type="primary">
-                    Open shipment
+                  <Button onClick={() => navigate(`${routes.tmsFlow.dispatch}?shipment=${primary.id}`)}>
+                    Open in dispatch
                   </Button>
+                  {atRiskLoadIds.has(primary.id) ? (
+                    <Button
+                      onClick={() => navigate(`${routes.tmsFlow.approvals}?load=${primary.id}`)}
+                      type="primary"
+                    >
+                      Review AI decision
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             ) : (
-              <p className="tms-empty">No shipment is at risk right now.</p>
+              <p className="tms-empty">No active load is delayed or inside the risk window.</p>
             )}
           </FlowPanel>
 
           <TmsFlowMap
-            routes={toNetworkRoutes(snapshot.mapRoutes)}
-            subtitle="Fixture telemetry · no backend call"
+            markers={markers}
+            subtitle={`${locatedTrucks.length} trucks reporting a position`}
             testId="dashboard-map"
             title="Network"
-            vehicles={toNetworkVehicles(snapshot.mapVehicles)}
+            vehicles={toNetworkVehicles(locatedTrucks)}
           />
         </div>
 
         <div className="tms-stack">
-          <FlowPanel title="Operations brief" subtitle="Three causes, three suggested actions">
+          <FlowPanel
+            action={
+              approvals.length > 0 ? (
+                <Button onClick={() => navigate(routes.tmsFlow.approvals)} size="small">
+                  View all
+                </Button>
+              ) : null
+            }
+            subtitle="Pending AI dispatch decisions"
+            title="Needs attention"
+          >
+            {approvals.length === 0 ? (
+              <p className="tms-empty">No AI dispatch decision is waiting for approval.</p>
+            ) : (
+              <ul className="tms-brief__list">
+                {approvals.slice(0, 5).map((approval) => (
+                  <li key={approval.suggestion.decisionId}>
+                    <button
+                      className="tms-brief__action"
+                      onClick={() => setSelectedApproval(approval)}
+                      type="button"
+                    >
+                      <span>
+                        <strong>
+                          {approval.load
+                            ? `#${approval.load.number} · ${approval.load.originCity} → ${approval.load.destinationCity}`
+                            : `Decision ${approval.suggestion.decisionId.slice(0, 8)}`}
+                        </strong>
+                        <small className="tms-muted">
+                          {approval.suggestion.truckNumber ?? approval.suggestion.truckId}
+                          {approval.suggestion.driverName
+                            ? ` · ${approval.suggestion.driverName}`
+                            : ""}
+                          {approval.load
+                            ? ` · ${formatTmsDistance(approval.load.distance)}`
+                            : ""}
+                        </small>
+                      </span>
+                      <ArrowRight size={14} aria-hidden="true" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </FlowPanel>
+
+          <FlowPanel title="Operations brief">
             <ul className="tms-brief__list">
-              <li>3 reefer loads are bunched on I-80; rerouting 5 drivers protects the 4 PM window.</li>
-              <li>12 loads still need a driver; 11 can be auto-assigned, 1 needs a dock slot.</li>
-              <li>4 customers have not received an ETA update since the last scan.</li>
+              <li>{summary.delayed} loads are past their requested delivery time.</li>
+              <li>{summary.atRisk} loads are due within the next 4 hours.</li>
+              <li>{summary.unassigned} active loads have no truck assigned.</li>
+              <li>{approvals.length} AI dispatch decisions are pending approval.</li>
             </ul>
             <div className="tms-brief__actions">
-              <button className="tms-brief__action" onClick={() => navigate("/tms/dispatch?filter=approvals")} type="button">
-                <span><Sparkles size={14} aria-hidden="true" /> Review 5 reroute options</span>
+              <button
+                className="tms-brief__action"
+                onClick={() => navigate(`${routes.tmsFlow.dispatch}?filter=at-risk`)}
+                type="button"
+              >
+                <span><Sparkles size={14} aria-hidden="true" /> Review at-risk queue</span>
                 <ArrowRight size={14} aria-hidden="true" />
               </button>
-              <button className="tms-brief__action" onClick={() => navigate("/tms/dispatch?filter=priority")} type="button">
-                <span>Reassign 3 priority loads</span>
+              <button
+                className="tms-brief__action"
+                onClick={() => navigate(`${routes.tmsFlow.dispatch}?filter=unassigned`)}
+                type="button"
+              >
+                <span>Assign unassigned loads</span>
                 <ArrowRight size={14} aria-hidden="true" />
               </button>
-              <button className="tms-brief__action" onClick={() => navigate(`/tms/tracking/${token}`)} type="button">
-                <span>Open live map for customer updates</span>
+              <button
+                className="tms-brief__action"
+                onClick={() => navigate(routes.tmsFlow.approvals)}
+                type="button"
+              >
+                <span>Open AI approvals</span>
                 <ArrowRight size={14} aria-hidden="true" />
               </button>
             </div>
           </FlowPanel>
 
           <FlowPanel
-            action={
-              <Button onClick={() => navigate("/tms/dispatch")} size="small">
-                Open dispatch
-              </Button>
-            }
-            title="Dispatch timeline"
+            subtitle={primary ? `Load #${primary.number}` : undefined}
+            title="Latest execution events"
           >
-            <ul className="tms-timeline">
-              {timeline.map(({ shipment, driverName }) => (
-                <li className="tms-timeline__item" key={shipment.id}>
-                  <time>{formatTime(shipment.currentEta)}</time>
-                  <span>
-                    {shipment.id} · {shipment.customer}
-                    <small>{driverName}</small>
-                  </span>
-                  <span className={`tms-map__status tms-map__status--${shipment.status === "at_risk" ? "delayed" : "moving"}`}>
-                    {shipment.status.replace("_", " ")}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </FlowPanel>
-
-          <FlowPanel title="Audit trail" subtitle="Demo events only">
-            <AuditTrail events={snapshot.audits} limit={5} />
+            <TmsTimeline
+              emptyLabel="No timeline events for the at-risk load."
+              events={timeline.data?.events ?? []}
+              limit={5}
+            />
           </FlowPanel>
         </div>
       </div>
+
+      {selectedApproval ? (
+        <ApproveSuggestionModal
+          approval={selectedApproval}
+          key={selectedApproval.suggestion.decisionId}
+          onClose={() => setSelectedApproval(null)}
+          open
+        />
+      ) : null}
     </div>
   );
 }

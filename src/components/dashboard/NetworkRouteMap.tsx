@@ -5,7 +5,10 @@ import type { LatLngBounds, LayerGroup, Map as LeafletMap, TileLayer } from "lea
 import { Layers2, LocateFixed } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
-import type { NetworkRouteMapProps } from "@/types/dashboard/network-map.types";
+import type {
+  NetworkMapMarker,
+  NetworkRouteMapProps,
+} from "@/types/dashboard/network-map.types";
 import "@/components/dashboard/NetworkRouteMap.scss";
 
 interface MapEngine {
@@ -17,8 +20,9 @@ interface MapEngine {
 
 /** Small SVG/raster map: no WebGL context, including on browsers without GPU support. */
 const mapLabelKeys = ["canvas", "loading", "initError", "retry", "tilesError", "reloadTiles", "fitVehicles", "showProposed", "attribution"] as const;
+const emptyMarkers: readonly NetworkMapMarker[] = [];
 
-export function NetworkRouteMap({ vehicles, routes, locale }: NetworkRouteMapProps): ReactElement {
+export function NetworkRouteMap({ vehicles, routes, markers = emptyMarkers, locale }: NetworkRouteMapProps): ReactElement {
   const { i18n } = useTranslation();
   const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
   const text = createLocaleLabels(i18n.getFixedT(activeLocale), "dashboard.opsView.panels.map", mapLabelKeys);
@@ -117,9 +121,33 @@ export function NetworkRouteMap({ vehicles, routes, locale }: NetworkRouteMapPro
       marker.bindTooltip(label, { permanent: vehicle.delayMinutes != null, direction: "right", offset: [10, 0], className: "dashboard-network-map__tooltip" });
       bounds.extend(position);
     });
+    markers.forEach((point) => {
+      const position: [number, number] = [point.latitude, point.longitude];
+      const icon = document.createElement("span");
+      icon.className = `dashboard-network-map__point dashboard-network-map__point--${point.kind}`;
+      icon.textContent = point.kind === "origin" ? "A" : point.kind === "destination" ? "B" : "T";
+      const marker = leaflet.marker(position, {
+        icon: leaflet.divIcon({
+          html: icon,
+          className: "dashboard-network-map__marker",
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
+        }),
+        title: point.label,
+      }).addTo(overlays);
+      const label = document.createElement("span");
+      label.className = "dashboard-network-map__point-label";
+      label.textContent = point.label;
+      marker.bindTooltip(label, {
+        direction: "right",
+        offset: [10, 0],
+        className: "dashboard-network-map__tooltip",
+      });
+      bounds.extend(position);
+    });
     boundsRef.current = bounds;
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [28, 28], maxZoom: 13, animate: false });
-  }, [engine, error, vehicles, routes, showProposed]);
+  }, [engine, error, vehicles, routes, markers, showProposed]);
 
   const retry = (): void => {
     setEngine(undefined);

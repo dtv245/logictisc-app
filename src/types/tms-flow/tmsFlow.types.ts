@@ -1,285 +1,167 @@
 /**
- * TMS operations flow — pure domain types for the fixture-backed `/tms` demo.
+ * TMS operations flow — pure domain types backed by the real logistics API.
  *
  * No resource configuration, endpoints or constants belong here.
  */
 
-export type IsoDateTime = string;
+import type { EmployeeResponse } from "@/types/employee.dto";
+import type { LoadResponse } from "@/types/load.dto";
+import type { TruckResponse } from "@/types/truck.dto";
 
-export interface TimeWindow {
-  start: IsoDateTime;
-  end: IsoDateTime;
-}
-
-export type ShipmentStatus =
-  | "booked"
+export type TmsOperationalStatus =
+  | "open"
   | "assigned"
+  | "dispatched"
   | "in_transit"
-  | "at_risk"
-  | "delayed"
-  | "delivered";
+  | "delivered"
+  | "cancelled";
 
-export type ShipmentPriority = "standard" | "priority" | "critical";
+export type TmsRiskLevel = "none" | "at_risk" | "delayed";
 
-export interface Shipment {
-  id: string;
-  customer: string;
-  contactName: string;
-  po: string;
-  origin: string;
-  destination: string;
-  pickup: TimeWindow;
-  delivery: TimeWindow;
-  status: ShipmentStatus;
-  priority: ShipmentPriority;
-  pallets: number;
-  weightLb: number;
-  equipment: string;
-  driverId?: string;
-  vehicleId?: string;
-  routeId?: string;
-  currentEta: IsoDateTime;
-  proposedEta?: IsoDateTime;
-  receivingCloses?: IsoDateTime;
-  notes?: string;
-}
+export type TmsQueueFilter = "all" | "at-risk" | "unassigned" | "approvals";
 
-export interface Driver {
-  id: string;
-  name: string;
-  phone: string;
-  homeTerminal: string;
-}
-
-export interface Vehicle {
-  id: string;
-  plate: string;
-  driverId: string;
-  truck: string;
-}
-
-export interface RouteStop {
-  id: string;
-  name: string;
-  city: string;
-  kind: "pickup" | "delivery";
-  window: TimeWindow;
-  completed?: boolean;
-  note?: string;
-}
-
-export interface RouteMetrics {
-  miles: number;
-  driveMinutes: number;
-  costUsd: number;
-  windowsMet: number;
-  windowsTotal: number;
-  co2Kg: number;
-}
-
-export interface RoutePlan {
-  id: string;
-  name: string;
-  driverId: string;
-  stops: RouteStop[];
-  current: RouteMetrics;
-  optimized: RouteMetrics;
-  mode: "current" | "optimized";
-  coordinates: [number, number][];
-}
-
-export type ApprovalState =
-  | "pending_approval"
-  | "under_review"
-  | "approved"
-  | "applied"
-  | "rejected";
-
-export interface RouteApproval {
-  id: string;
-  shipmentId: string;
-  state: ApprovalState;
-  currentRoute: string;
-  proposedRoute: string;
-  currentEta: IsoDateTime;
-  proposedEta: IsoDateTime;
-  currentMiles: number;
-  proposedMiles: number;
-  savedMinutes: number;
-  fuelDeltaUsd: number;
-  hosRemainingMinutes: number;
-  requestedBy: string;
-  reason: string;
-}
-
-export interface AuditEvent {
-  id: string;
-  at: IsoDateTime;
-  actor: string;
-  action: string;
-  detail: string;
-}
-
-export type MessageChannel = "email" | "sms" | "internal";
-
-export interface Message {
-  id: string;
-  threadId: string;
-  from: string;
-  to: string;
-  channel: MessageChannel;
-  subject?: string;
-  body: string;
-  at: IsoDateTime;
-}
-
-export interface MessageThread {
-  id: string;
-  contactName: string;
-  customer: string;
-  shipmentId?: string;
-  channel: MessageChannel;
-  unread: boolean;
-  lastMessageAt: IsoDateTime;
-  messages: Message[];
-  suggestedReplies: string[];
-}
-
-export interface MessageDraft {
-  threadId?: string;
-  to: string;
-  channel: MessageChannel;
-  subject: string;
-  body: string;
-  shipmentId?: string;
-}
-
-export interface TrackingPreferences {
-  liveMap: boolean;
-  eta: boolean;
-  reefer: boolean;
-  driverName: boolean;
-  driverPhone: boolean;
-}
-
-export interface TrackingRecipient {
-  id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-}
-
-export interface TrackingLink {
-  token: string;
-  shipmentId: string;
-  recipients: TrackingRecipient[];
-  preferences: TrackingPreferences;
-  createdAt: IsoDateTime;
-  expiresAt: IsoDateTime;
-}
-
-export interface LiveTrackingView {
-  token: string;
-  shipment: Shipment;
-  driver?: Driver;
-  vehicle?: Vehicle;
-  speedMph?: number;
-  speedChangePercent?: number;
-  reeferTempF?: number;
-  reeferSetF?: number;
-  fuelPercent?: number;
-  rangeMiles?: number;
-  hosRemainingMinutes?: number;
-  progressMiles: number;
-  totalMiles: number;
-  eta: IsoDateTime;
-  updatedSecondsAgo: number;
-  stale: boolean;
-  preferences: TrackingPreferences;
-}
-
-export interface AutoAssignCandidate {
-  loadId: string;
-  driverId: string;
-  driverName: string;
-  matchPercent: number;
-  ready: boolean;
-  reason?: string;
-}
-
-export interface AutoAssignResult {
-  candidates: AutoAssignCandidate[];
-  assignedCount: number;
-  skippedCount: number;
-}
-
-export type DispatchFilter = "all" | "at-risk" | "priority" | "approvals";
-
-export interface MapVehicle {
-  id: string;
-  label: string;
-  latitude: number;
-  longitude: number;
-  status: "moving" | "idle" | "delayed";
-}
-
-export interface MapRoute {
-  id: string;
-  coordinates: [number, number][];
-  proposed?: boolean;
-  status?: "normal" | "delayed";
-}
-
-export interface DashboardKpis {
+export interface TmsOperationsSummary {
   active: number;
   inTransit: number;
   deliveredToday: number;
   delayed: number;
   atRisk: number;
-  exceptions: number;
+  unassigned: number;
 }
 
-export interface TmsFlowSnapshot {
-  operatorName: string;
-  kpis: DashboardKpis;
-  shipments: Shipment[];
-  drivers: Driver[];
-  vehicles: Vehicle[];
-  routes: RoutePlan[];
-  approvals: RouteApproval[];
-  threads: MessageThread[];
-  audits: AuditEvent[];
-  trackingLinks: TrackingLink[];
-  mapVehicles: MapVehicle[];
-  mapRoutes: MapRoute[];
+export interface TmsLoadCollection {
+  items: LoadResponse[];
+  /** True when the client stopped paginating before reaching `totalItems`. */
+  truncated: boolean;
+  totalItems: number;
 }
 
-export interface TmsFlowPermissions {
-  readOnly: boolean;
-  canApprove: boolean;
-  canMessage: boolean;
-  canShareTracking: boolean;
+/** Read model used by every TMS screen; derived from `LoadResponse`, never invented. */
+export interface TmsShipmentView {
+  id: string;
+  number: number;
+  name: string;
+  customerName: string;
+  rawStatus: string;
+  status: TmsOperationalStatus;
+  risk: TmsRiskLevel;
+  originCity: string;
+  destinationCity: string;
+  originAddress: string;
+  destinationAddress: string;
+  requestedPickupDate?: string;
+  requestedDeliveryDate?: string;
+  dispatchedAt?: string;
+  pickedUpAt?: string;
+  deliveredAt?: string;
+  cancelledAt?: string;
+  assignedTruckId?: string;
+  assignedTruckNumber?: string;
+  distance: number;
+  deliveryCostAmount?: number;
+  deliveryCostCurrency?: string;
+  isHazmat: boolean;
+  hazmatClass?: string;
+  notes?: string;
+  originLatitude?: number;
+  originLongitude?: number;
+  destinationLatitude?: number;
+  destinationLongitude?: number;
+  raw: LoadResponse;
 }
 
-export type TmsScenario =
-  | "normal"
-  | "stale-approval"
-  | "network-error"
-  | "stale-assignment"
-  | "expired-link"
-  | "read-only";
+export interface TmsAiSuggestionMetric {
+  deadheadMiles?: number | null;
+  expectedMarginRatio?: number | null;
+  hosRemainingHours?: number | null;
+  onTimeProbability?: number | null;
+  totalDistanceMiles?: number | null;
+}
 
-export interface NewShipmentInput {
-  customer: string;
-  contactName: string;
-  po: string;
-  origin: string;
-  destination: string;
-  pickup: TimeWindow;
-  delivery: TimeWindow;
-  pallets: number;
-  weightLb: number;
-  equipment: string;
-  assignSuggestedDriver: boolean;
-  notifyCustomer: boolean;
+/** Pending AI dispatch decision as returned by `/api/ai/dispatch/pending`. */
+export interface TmsAiSuggestion {
+  decisionId: string;
+  rank: number;
+  truckId: string;
+  tripId?: string | null;
+  truckNumber?: string | null;
+  driverId: string;
+  driverName?: string | null;
+  score: number | string;
+  confidence: string;
+  reasoning: string;
+  metrics?: TmsAiSuggestionMetric;
+  status: string;
+}
+
+/** Per-load AI state from `POST /api/ai/loads/overview`. */
+export interface TmsAiLoadStatus {
+  loadId: string;
+  gapStatus: string;
+  blockingGapsCount: number;
+  warningGapsCount: number;
+  dispatchStatus: string;
+  latestSessionId?: string | null;
+  latestDecisionId?: string | null;
+  suggestedTruckId?: string | null;
+  suggestedTruckNumber?: string | null;
+  capabilities?: {
+    canApprove?: boolean;
+    canReject?: boolean;
+    canRerun?: boolean;
+    canViewRuns?: boolean;
+  };
+}
+
+/** A pending suggestion joined with its load (when the overview can resolve it). */
+export interface TmsApproval {
+  suggestion: TmsAiSuggestion;
+  load?: TmsShipmentView;
+  truck?: TruckResponse;
+  driver?: EmployeeResponse;
+}
+
+export interface TmsTimelineEvent {
+  id: string;
+  loadId: string;
+  tripId?: string | null;
+  tripStopId?: string | null;
+  eventType: string;
+  previousStatus?: string | null;
+  newStatus?: string | null;
+  occurredAt: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  source?: string | null;
+  actorId?: string | null;
+  documentId?: string | null;
+  note?: string | null;
+}
+
+export interface TmsLoadTimeline {
+  loadId: string;
+  loadNumber: string;
+  currentStatus: string;
+  events: TmsTimelineEvent[];
+}
+
+export interface TmsMapMarker {
+  id: string;
+  latitude: number;
+  longitude: number;
+  label: string;
+  kind: "origin" | "destination" | "truck";
+}
+
+export interface TmsTruckCollection {
+  items: TruckResponse[];
+  truncated: boolean;
+  totalItems: number;
+}
+
+export interface TmsQueueCounts {
+  all: number;
+  atRisk: number;
+  unassigned: number;
+  approvals: number;
 }

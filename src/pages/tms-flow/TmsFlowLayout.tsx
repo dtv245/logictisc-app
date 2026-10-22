@@ -1,59 +1,45 @@
-import { Button, Spin } from "antd";
-import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
-import { RefreshCw } from "lucide-react";
+import { Button } from "antd";
+import { Plus } from "lucide-react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
-import { FlowDemoBanner } from "@/components/tms-flow/FlowDemoBanner";
-import { TmsFlowTopbar } from "@/components/tms-flow/TmsFlowTopbar";
-import { useTmsFlow } from "@/hooks/tms-flow/useTmsFlow";
+import { routes } from "@/constants/routes";
 import "@/styles/tms-flow.scss";
 
+const LINKS = [
+  { to: routes.tmsFlow.root, label: "Dashboard", end: true },
+  { to: routes.tmsFlow.dispatch, label: "Dispatch", end: false },
+  { to: routes.tmsFlow.approvals, label: "AI approvals", end: false },
+] as const;
+
+/** Real `/tms` shell: no demo provider, no fixture chrome. */
 export function TmsFlowLayout() {
-  const { state, reload, resetDemo } = useTmsFlow();
-  const [resetting, setResetting] = useState(false);
-
-  const handleReset = () => {
-    setResetting(true);
-    void resetDemo().finally(() => setResetting(false));
-  };
-
-  if (state.status === "loading") {
-    return (
-      <div className="tms-flow tms-flow--centered" aria-busy="true">
-        <Spin size="large" />
-        <p className="tms-muted">Loading the TMS demo fixture…</p>
-      </div>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <div className="tms-flow tms-flow--centered">
-        <div className="tms-panel" role="alert">
-          <h1 className="tms-page__title">The demo could not load</h1>
-          <p className="tms-muted">{state.error}</p>
-          <Button icon={<RefreshCw size={15} aria-hidden="true" />} onClick={() => void reload()} type="primary">
-            Retry
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  const { snapshot } = state;
+  const navigate = useNavigate();
 
   return (
     <div className="tms-flow">
-      <FlowDemoBanner onReset={handleReset} resetting={resetting} />
-      <TmsFlowTopbar snapshot={snapshot} />
-      <nav aria-label="TMS flow sections" className="tms-subnav">
-        <NavLink className={({ isActive }) => `tms-subnav__link${isActive ? " is-active" : ""}`} end to="/tms">
-          Dashboard
-        </NavLink>
-        <NavLink className={({ isActive }) => `tms-subnav__link${isActive ? " is-active" : ""}`} to="/tms/dispatch">
-          Dispatch
-        </NavLink>
-      </nav>
+      <div className="tms-row">
+        <nav aria-label="TMS sections" className="tms-subnav">
+          {LINKS.map((link) => (
+            <NavLink
+              className={({ isActive }) =>
+                `tms-subnav__link${isActive ? " is-active" : ""}`
+              }
+              end={link.end}
+              key={link.to}
+              to={link.to}
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+        <Button
+          icon={<Plus size={15} aria-hidden="true" />}
+          onClick={() => navigate(routes.resources.loads.create)}
+          type="primary"
+        >
+          New shipment
+        </Button>
+      </div>
       <Outlet />
     </div>
   );

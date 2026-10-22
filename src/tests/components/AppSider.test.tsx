@@ -134,6 +134,8 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
       ...foundationResourcePageRoutes.map(({ path }) => path),
       routes.operations,
       routes.tmsFlow.root,
+      routes.tmsFlow.dispatch,
+      routes.tmsFlow.approvals,
       ...(EXECUTIVE_CONTRACT_CONFIRMED ? [routes.dashboard] : []),
       routes.aiDispatch,
       routes.optimization,
