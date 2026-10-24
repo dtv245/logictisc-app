@@ -42,6 +42,7 @@ import { createBrowserOidcGateway } from "./providers/auth/oidcGateway";
 import { createLarkGateway } from "./providers/auth/larkGateway";
 import { queryRetryDelay } from "@/utils/retryPolicy";
 import { isClientError } from "@/utils/isClientError";
+import { setLogisticsApiClient } from "@/lib/apiClient";
 import { AuthSessionManager } from "./providers/auth/sessionManager";
 
 export interface AppProps
@@ -120,6 +121,7 @@ export function RuntimeApplication({
       },
       tokenProvider,
     });
+    setLogisticsApiClient(apiClient);
     const loadIdentity = createCurrentUserLoader({
       apiClient,
       clearSession: async () => {

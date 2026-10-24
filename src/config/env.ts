@@ -26,6 +26,10 @@ const envSchema = z.object({
     .trim()
     .min(1)
     .default("X-Tenant-Key"),
+  VITE_AI_DISPATCH_MOCK: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
 });
 
 const parsedEnv = envSchema.safeParse(import.meta.env);
@@ -55,4 +59,5 @@ export const env = {
   authLogoutPath: parsedEnv.data.VITE_AUTH_LOGOUT_PATH,
   tenantSwitchPath: parsedEnv.data.VITE_TENANT_SWITCH_PATH,
   tenantHeaderName: parsedEnv.data.VITE_TENANT_HEADER_NAME,
+  aiDispatchMock: parsedEnv.data.VITE_AI_DISPATCH_MOCK,
 } as const;
