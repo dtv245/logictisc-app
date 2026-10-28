@@ -1,4 +1,4 @@
-/** Resize thực sự thay sức chứa; cuộn và refetch không gửi trùng thay đổi pageSize. */
+/** Đo vùng còn lại trong app-shell để giữ footer phân trang, không tự đổi pageSize khi resize. */
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { I18nextProvider } from "react-i18next";
@@ -28,43 +28,35 @@ function mockGeometry() {
   return geometry;
 }
 
-const renderFitTable = (onChange: (size: number) => void, pagination: false | { current: number; pageSize: number; total: number } = { current: 3, pageSize: 20, total: 120 }) => render(
+const renderFitTable = (
+  pagination: false | { current: number; pageSize: number; total: number; onChange?: (page: number, pageSize: number) => void } = { current: 3, pageSize: 20, total: 120 },
+) => render(
   <I18nextProvider i18n={i18n}>
     <div className="app-shell"><div className="ant-layout-content"><main className="app-content" style={{ paddingBottom: 24 }}>
-      <BaseTable fitToShell columns={columns} queryResult={{}} onAdaptivePageSizeChange={onChange} tableProps={{ dataSource, pagination }} />
+      <BaseTable fitToShell columns={columns} queryResult={{}} tableProps={{ dataSource, pagination }} />
     </main></div></div>
   </I18nextProvider>,
 );
 
 describe("BaseTable vừa app-shell", () => {
-  it("giảm số dòng khi vùng shell thấp hơn, giữ footer và không thay số dòng vì cuộn", async () => {
+  it("cập nhật chiều cao khung bảng khi vùng shell thay đổi kích thước nhưng giữ nguyên pageSize phân trang", async () => {
     const geometry = mockGeometry();
-    const onChange = vi.fn();
-    const { container } = renderFitTable(onChange);
-    await waitFor(() => expect(onChange).toHaveBeenCalledTimes(1));
-    const firstSize = onChange.mock.calls[0][0] as number;
-    expect(firstSize).toBeGreaterThan(1);
-    expect(container.querySelector(".base-table-wrapper--fit-shell")).toHaveStyle({ height: "556px", minHeight: "0" });
+    const onPaginationChange = vi.fn();
+    const { container } = renderFitTable({ current: 3, pageSize: 20, total: 120, onChange: onPaginationChange });
+    await waitFor(() => expect(container.querySelector(".base-table-wrapper--fit-shell")).toHaveStyle({ height: "556px", minHeight: "0" }));
     expect(container.querySelector(".ant-table-body")).not.toBeNull();
-    expect(screen.getByText(/of 120/)).toBeInTheDocument();
+    expect(screen.getByText(/41–60 \/ 120|of 120/)).toBeInTheDocument();
 
     geometry.height = 450;
     act(() => window.dispatchEvent(new Event("resize")));
-    await waitFor(() => expect(onChange).toHaveBeenCalledTimes(2));
-    expect(onChange.mock.calls[1][0]).toBeLessThan(firstSize);
-    const scroller = container.querySelector(".ant-layout-content")!;
-    scroller.scrollTop = 100;
-    act(() => window.dispatchEvent(new Event("resize")));
-    await new Promise((resolve) => setTimeout(resolve, 180));
-    expect(onChange).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(container.querySelector(".base-table-wrapper--fit-shell")).toHaveStyle({ height: "306px", minHeight: "0" }));
+    expect(onPaginationChange).not.toHaveBeenCalled();
   });
 
   it("không tự bật phân trang cho bảng pagination=false", async () => {
     mockGeometry();
-    const onChange = vi.fn();
-    const { container } = renderFitTable(onChange, false);
+    const { container } = renderFitTable(false);
     await waitFor(() => expect(container.querySelector(".base-table-wrapper--fit-shell")).not.toBeNull());
-    expect(onChange).not.toHaveBeenCalled();
     expect(container.querySelector(".ant-pagination")).toBeNull();
   });
 });

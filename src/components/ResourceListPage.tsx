@@ -80,13 +80,6 @@ export const ResourceListPage = <TData extends BaseRecord>({
     [setCurrent],
   );
 
-  // Đổi pageSize ở owner để số trang, URL và request server cùng dùng sức chứa mới.
-  const handleAdaptivePageSizeChange = useCallback((nextPageSize: number) => {
-    if (nextPageSize === safePageSize) return;
-    setPageSize(nextPageSize);
-    safeSetCurrent(1);
-  }, [safePageSize, setPageSize, safeSetCurrent]);
-
   // Refine synchronizes these values with the browser URL. Repair malformed URL
   // state so navigation, Table render and API requests all use the same numbers.
   useEffect(() => {
@@ -205,7 +198,6 @@ export const ResourceListPage = <TData extends BaseRecord>({
           <TableDataContext.Provider value={(safeTableProps.dataSource as unknown as BaseRecord[]) ?? []}>
             <BaseTable<TData>
               fitToShell
-              onAdaptivePageSizeChange={handleAdaptivePageSizeChange}
               columns={localizedColumns}
               queryResult={{
                 error: tableQueryResult.error,

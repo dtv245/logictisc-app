@@ -15,12 +15,15 @@ import type { BaseRecord } from "@refinedev/core";
 import { ConfigProvider, Grid, Table, Tooltip } from "antd";
 import type { TableProps } from "antd";
 import type { ColumnsType, ColumnType } from "antd/es/table";
-import { memo, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { memo, useMemo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { EmptyState } from "@components/EmptyState";
 import { QueryErrorState } from "@components/ErrorStates";
-import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
+import {
+  normalizePage,
+  normalizePageSize,
+} from "@/utils/querySerializer";
 import { ApiHttpError } from "@/utils/httpError";
 import { resolveApiErrorMessage } from "@/utils/errorMessages";
 import "./BaseTable.scss";
@@ -61,8 +64,6 @@ export interface BaseTableProps<TData extends BaseRecord> {
   className?: string;
   /** Dùng vùng còn lại trong shell cho bảng danh sách cấp trang. */
   fitToShell?: boolean;
-  /** Owner đồng bộ pageSize vào Refine/API khi sức chứa của bảng thay đổi. */
-  onAdaptivePageSizeChange?: (pageSize: number) => void;
 }
 
 const TABLE_THEME = {
@@ -101,21 +102,12 @@ const BaseTableComponent = <TData extends BaseRecord>({
   tableProps,
   className,
   fitToShell = false,
-  onAdaptivePageSizeChange,
 }: BaseTableProps<TData>) => {
   const { t } = useTranslation();
   const { error, isFetching, refetch } = queryResult;
   const screens = Grid.useBreakpoint();
   const isMobile = screens.md === false;
   const { wrapperRef, layout } = useShellTableLayout(fitToShell && !error);
-  // Chỉ báo số dòng mới khi sức chứa thay đổi, không ghi đè lựa chọn thủ công mỗi render.
-  const lastAdaptivePageSize = useRef<number>();
-  const adaptivePageSize = layout?.pageSize;
-  useEffect(() => {
-    if (tableProps.pagination === false || adaptivePageSize === undefined || !onAdaptivePageSizeChange || lastAdaptivePageSize.current === adaptivePageSize) return;
-    lastAdaptivePageSize.current = adaptivePageSize;
-    onAdaptivePageSizeChange(adaptivePageSize);
-  }, [adaptivePageSize, onAdaptivePageSizeChange, tableProps.pagination]);
 
   // 2. Tinh chỉnh columns: căn lề, fixed actions bên phải, ellipsis tooltip
   const processedColumns = useMemo(() => {
@@ -205,7 +197,7 @@ const BaseTableComponent = <TData extends BaseRecord>({
       responsive: true,
       showLessItems: true,
       showSizeChanger: isMobile ? false : (paginationObj.showSizeChanger ?? true),
-      pageSizeOptions: [...new Set([5, 10, 20, 50, 100, ...(adaptivePageSize === undefined ? [] : [adaptivePageSize])])].sort((a, b) => a - b).map(String),
+      pageSizeOptions: ["10", "20", "25", "50", "100"],
       showQuickJumper: isMobile ? false : (paginationObj.showQuickJumper ?? total > 50),
       showTotal: (totalCount: number, range: [number, number]) =>
         t("table.pagination.total", {
@@ -219,7 +211,7 @@ const BaseTableComponent = <TData extends BaseRecord>({
       // Preserve uncontrolled local tables; adding current=1 would freeze their navigation.
       ...(paginationObj.current !== undefined ? { current: Math.max(1, normalizePage(paginationObj.current)) } : {}),
       ...(paginationObj.defaultCurrent !== undefined ? { defaultCurrent: Math.max(1, normalizePage(paginationObj.defaultCurrent)) } : {}),
-      ...(paginationObj.pageSize !== undefined ? { pageSize: normalizePageSize(paginationObj.pageSize) } : {}),
+      pageSize: normalizePageSize(paginationObj.pageSize),
       ...(paginationObj.onChange !== undefined
         ? {
             onChange: (page: number, pageSize: number) => {
@@ -228,7 +220,7 @@ const BaseTableComponent = <TData extends BaseRecord>({
           }
         : {}),
     };
-  }, [tableProps.pagination, isMobile, t, adaptivePageSize]);
+  }, [tableProps.pagination, isMobile, t]);
 
   // 4. Trạng thái rỗng: giữ header, phân biệt rỗng thường vs rỗng do bộ lọc
   const resolvedEmptyText = useMemo(() => {

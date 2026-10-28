@@ -16,7 +16,7 @@ import type { ListQuerySerializationOptions, QueryParameters, QueryParameterValu
 import { clampInteger, truncateToInteger } from "@formatters/number";
 
 export const DEFAULT_LIST_PAGE = 1;
-export const DEFAULT_LIST_PAGE_SIZE = 20;
+export const DEFAULT_LIST_PAGE_SIZE = 25;
 export const MAX_LIST_PAGE_SIZE = 100;
 
 export const normalizePage = (page: number | undefined): number =>

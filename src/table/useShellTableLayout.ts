@@ -1,11 +1,9 @@
-/** Đo vùng còn lại trong app-shell để giữ footer phân trang và tính sức chứa của bảng. */
+/** Đo vùng còn lại trong app-shell để giữ footer phân trang nằm gọn trong khung nhìn. */
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { normalizePageSize } from "@/utils/querySerializer";
 
 interface ShellTableLayout {
   height: number;
   bodyHeight: number;
-  pageSize: number;
 }
 
 interface UseShellTableLayoutResult {
@@ -25,14 +23,12 @@ export const useShellTableLayout = (enabled: boolean): UseShellTableLayoutResult
     if (!enabled || !wrapper || !scroller || wrapper.closest(".ant-modal, .ant-drawer")) return;
 
     let timer: ReturnType<typeof setTimeout> | undefined;
-    let rowHeight = 52;
-    let lastWidth = 0;
     const measure = () => {
       const shellRect = scroller.getBoundingClientRect();
       const tableRect = wrapper.getBoundingClientRect();
       if (!shellRect.height || !tableRect.width) return;
 
-      // Dùng vị trí trong trang, không dùng scrollTop hiện tại để thay đổi số dòng khi cuộn.
+      // Dùng vị trí trong trang, không dùng scrollTop hiện tại.
       const tableOffset = tableRect.top - shellRect.top + scroller.scrollTop;
       let bottomPadding = 0;
       for (let parent = wrapper.parentElement; parent && parent !== scroller; parent = parent.parentElement) {
@@ -48,14 +44,8 @@ export const useShellTableLayout = (enabled: boolean): UseShellTableLayoutResult
       const footerHeight = pagination ? (pagination.getBoundingClientRect().height || 32) + 12 : 0;
       // Chừa khoảng cách hàng và thanh cuộn ngang; footer luôn nằm ngoài thân bảng.
       const bodyHeight = Math.max(52, Math.floor(height - padding - headerHeight - footerHeight - 24));
-      if (Math.abs(tableRect.width - lastWidth) > 1) rowHeight = 52;
-      lastWidth = tableRect.width;
-      for (const row of wrapper.querySelectorAll<HTMLElement>(".ant-table-tbody > .ant-table-row")) {
-        rowHeight = Math.max(rowHeight, row.getBoundingClientRect().height + 8);
-      }
-      const pageSize = normalizePageSize(Math.floor((bodyHeight - 8) / rowHeight));
-      setLayout((previous) => previous?.height === height && previous.bodyHeight === bodyHeight && previous.pageSize === pageSize
-        ? previous : { height, bodyHeight, pageSize });
+      setLayout((previous) => previous?.height === height && previous.bodyHeight === bodyHeight
+        ? previous : { height, bodyHeight });
     };
     const scheduleMeasure = () => {
       clearTimeout(timer);
@@ -69,7 +59,7 @@ export const useShellTableLayout = (enabled: boolean): UseShellTableLayoutResult
     if (content) observer.observe(content);
     let observedParts = new Set<HTMLElement>();
     const observeTableParts = () => {
-      const nextParts = new Set(wrapper.querySelectorAll<HTMLElement>(".ant-table-header, .ant-table-thead, .ant-pagination, .ant-table-row"));
+      const nextParts = new Set(wrapper.querySelectorAll<HTMLElement>(".ant-table-header, .ant-table-thead, .ant-pagination"));
       const toolbar = wrapper.parentElement?.querySelector<HTMLElement>(".resource-list-toolbar");
       if (toolbar) nextParts.add(toolbar);
       for (const element of observedParts) if (!nextParts.has(element)) observer.unobserve(element);

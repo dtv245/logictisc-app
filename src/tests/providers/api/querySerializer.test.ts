@@ -18,7 +18,7 @@ describe("list query serialization", () => {
     expect(normalizePage(4.8)).toBe(4);
     expect(normalizePageSize(-2)).toBe(1);
     expect(normalizePageSize(1_000)).toBe(100);
-    expect(normalizePageSize(undefined)).toBe(20);
+    expect(normalizePageSize(undefined)).toBe(25);
   });
 
   it("omits empty filters while retaining false and serializing one sorter", () => {
