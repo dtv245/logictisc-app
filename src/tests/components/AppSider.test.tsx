@@ -107,7 +107,7 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
       expect(screen.getByLabelText("Khách hàng")).toBeInTheDocument();
       expect(screen.getByLabelText("Hóa đơn & Thu chi")).toBeInTheDocument();
       expect(screen.getByLabelText("Lương & Quyết toán")).toBeInTheDocument();
-      expect(screen.getByLabelText("Nhân viên")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tài xế")).toBeInTheDocument();
       expect(screen.getByLabelText("Hồ sơ & tài liệu")).toBeInTheDocument();
     });
   });
@@ -117,7 +117,8 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
       "items" in entry ? entry.items.map((item) => item.route) : [entry.route],
     );
 
-    expect(routesInNavigation).toContain(routes.resources.loads.list);
+    expect(routesInNavigation).toContain(routes.tmsFlow.dispatch);
+    expect(routesInNavigation).not.toContain(routes.resources.loads.list);
     expect(routesInNavigation).toContain(routes.resources.trips.list);
     expect(routesInNavigation).not.toContain(routes.resources.loadBoard.list);
     expect(routesInNavigation).not.toContain(routes.resources.accidents.list);
@@ -259,8 +260,8 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
 
   it("khu vực bị từ chối quyền truy cập sẽ tự động ẩn khỏi thanh điều hướng", async () => {
     mockCanFn.mockImplementation(async (perm?: { resource?: string }) => {
-      // Chặn toàn bộ quyền truy cập vào khu vực admin (employees, documents)
-      if (perm?.resource === "employees" || perm?.resource === "documents") {
+      // Chặn toàn bộ quyền truy cập vào khu vực admin (drivers, documents)
+      if (perm?.resource === "drivers" || perm?.resource === "documents") {
         return { can: false };
       }
       return { can: true };
@@ -272,7 +273,7 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     });
 
     expect(screen.queryByText("Quản trị")).toBeNull();
-    expect(screen.queryByLabelText("Nhân viên")).toBeNull();
+    expect(screen.queryByLabelText("Tài xế")).toBeNull();
     expect(screen.queryByLabelText("Hồ sơ & tài liệu")).toBeNull();
   });
 
@@ -304,7 +305,7 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     });
     renderSider();
     expect(await screen.findByLabelText("Khách hàng")).toBeInTheDocument();
-    expect(screen.getByLabelText("Nhân viên")).toBeInTheDocument();
+    expect(screen.getByLabelText("Tài xế")).toBeInTheDocument();
     expect(screen.queryByLabelText("Hồ sơ & tài liệu")).not.toBeInTheDocument();
   });
 });

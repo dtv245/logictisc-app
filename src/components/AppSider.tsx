@@ -8,14 +8,14 @@
  *      dùng một Menu duy nhất để phím mũi tên đi liền qua toàn cột. Có hai loại mục:
  *        - Khu vực (Điều hành, Vận tải, Đội xe, Tài chính, Lương): bấm mở menu nổi
  *          chứa các màn hình con.
- *        - Mục lẻ (Khách hàng, Sản phẩm, Nhân viên, Tài liệu): bấm là sang trang luôn.
+ *        - Mục lẻ (Khách hàng, Sản phẩm, Tài xế, Tài liệu): bấm là sang trang luôn.
  *   3. Tiện ích thông báo: Chuông thông báo kèm badge đỏ góc trên phải.
  *   4. Cụm tiện ích & hồ sơ ghim ở đáy:
  *      - Nút Trợ lý AI: Vòng tròn nền tối viền tím, biểu tượng Sparkles trắng.
  *      - Avatar người dùng: Tròn 32px, nhấp mở menu tài khoản (Đổi công ty, Đăng xuất).
  *
  * Thứ tự theo đúng NAV_ZONES, sắp xếp theo luồng công việc thực tế:
- *   Điều hành -> Vận tải -> Đội xe -> Khách hàng -> Sản phẩm -> Tài chính -> Lương -> Nhân viên -> Tài liệu.
+ *   Điều hành -> Vận tải -> Đội xe -> Khách hàng -> Sản phẩm -> Tài chính -> Lương -> Tài xế -> Tài liệu.
  */
 
 import type { RefineThemedLayoutV2SiderProps } from "@refinedev/antd";
@@ -41,16 +41,13 @@ import {
   AiDispatchNavIcon,
   CustomersNavIcon,
   DocumentsNavIcon,
-  EmployeesNavIcon,
   FinanceZoneIcon,
-  FleetReportNavIcon,
   InvoicesNavIcon,
   LoadsNavIcon,
   LogoutNavIcon,
   MyPayslipsNavIcon,
   OperationsDashboardIcon,
   OperationsMonitorIcon,
-  OptimizationNavIcon,
   PaymentsNavIcon,
   PayPoliciesNavIcon,
   PayrollNavIcon,
@@ -75,6 +72,8 @@ export type NavZoneItem = {
   key: string;
   labelKey: string;
   route: string;
+  /** Route pattern used to keep legacy resource pages associated with this item. */
+  activeRoute?: string;
   /** Resource của Refine — kiểm tra quyền "list". */
   resource?: string;
   /** Quyền chi tiết — được ưu tiên hơn `resource`. */
@@ -143,27 +142,11 @@ export const NAV_ZONES: readonly NavZone[] = [
           ] satisfies readonly NavZoneItem[])
         : []),
       {
-        icon: <AiDispatchNavIcon />,
-        key: "app:ai-dispatch",
-        labelKey: "navigation.items.ai-dispatch",
-        route: routes.aiDispatch,
-        permission: { resource: "ai-dispatch", action: "AI_DISPATCH_VIEW" },
-        sectionKey: "smart-tools",
-      },
-      {
-        icon: <OptimizationNavIcon />,
-        key: "app:optimization",
-        labelKey: "navigation.items.optimization",
-        route: routes.optimization,
-        permission: { resource: "optimization", action: "OPTIMIZATION_VIEW" },
-        sectionKey: "smart-tools",
-      },
-    
-      {
         icon: <LoadsNavIcon />,
         key: "res:loads",
         labelKey: "navigation.items.loads",
-        route: routes.resources.loads.list,
+        route: routes.tmsFlow.dispatch,
+        activeRoute: routes.resources.loads.list,
         resource: "loads",
         sectionKey: "dispatch",
       },
@@ -190,14 +173,6 @@ export const NAV_ZONES: readonly NavZone[] = [
         route: routes.resources.trucks.list,
         resource: "trucks",
         sectionKey: "vehicles",
-      },
-      {
-        icon: <FleetReportNavIcon />,
-        key: "app:fleet-report",
-        labelKey: "navigation.items.fleet-report",
-        route: routes.fleetReport,
-        permission: { resource: "fleet-reports", action: "FLEET_REPORT_VIEW" },
-        sectionKey: "reports",
       },
       {
         icon: <CustomersNavIcon />,
@@ -289,11 +264,11 @@ export const NAV_ZONES: readonly NavZone[] = [
     ],
   },
   {
-    icon: <EmployeesNavIcon />,
-    key: "res:employees",
-    labelKey: "navigation.items.employees",
-    route: routes.resources.employees.list,
-    resource: "employees",
+    icon: <TrucksNavIcon />,
+    key: "res:drivers",
+    labelKey: "navigation.items.drivers",
+    route: routes.resources.drivers.list,
+    resource: "drivers",
   },
   {
     icon: <DocumentsNavIcon />,
@@ -366,7 +341,7 @@ const buildZoneChildren = (
   return children;
 };
 
-type ActiveMatch = { entryKey: string; item: NavZoneItem };
+type ActiveMatch = { entryKey: string; item: NavZoneItem; matchLength: number };
 
 export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
   Title: TitleComponent,
@@ -466,10 +441,18 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
     for (const entry of visibleEntries) {
       const items = isZoneGroup(entry) ? entry.items : [entry];
       for (const item of items) {
-        const matches =
-          pathname === item.route || pathname.startsWith(item.route + "/");
-        if (matches && (!best || item.route.length > best.item.route.length)) {
-          best = { entryKey: entry.key, item };
+        const matchingRoute = [item.route, item.activeRoute]
+          .filter((route): route is string => route !== undefined)
+          .filter(
+            (route) =>
+              pathname === route || pathname.startsWith(route + "/"),
+          )
+          .sort((left, right) => right.length - left.length)[0];
+        if (
+          matchingRoute &&
+          (!best || matchingRoute.length > best.matchLength)
+        ) {
+          best = { entryKey: entry.key, item, matchLength: matchingRoute.length };
         }
       }
     }

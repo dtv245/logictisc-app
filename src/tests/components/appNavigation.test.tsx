@@ -28,8 +28,6 @@ const APP_ROUTES: readonly string[] = [
   routes.profile,
   routes.profitability,
   routes.payroll,
-  routes.optimization,
-  routes.fleetReport,
   routes.myPayslips,
   routes.selectTenant,
   routes.resources.settlements.list,
@@ -63,8 +61,8 @@ describe("điều hướng cấp ứng dụng", () => {
       expect(targets.includes(routes.resources.settlements.list)).toBe(finance);
       expect(targets.includes(routes.profitability)).toBe(finance);
       expect(targets.includes(routes.payroll)).toBe(finance);
-      expect(targets.includes(routes.optimization)).toBe(["ADMIN", "DISPATCHER"].includes(authority));
-      expect(targets.includes(routes.fleetReport)).toBe(finance);
+      expect(targets).not.toContain(routes.optimization);
+      expect(targets).not.toContain(routes.fleetReport);
       expect(targets.includes(routes.resources.settlements.policies)).toBe(finance);
       expect(targets).not.toContain(routes.dashboard);
       expect(targets).toContain(routes.operations);

@@ -34,20 +34,6 @@ export interface AppNavItem {
 
 export const APP_NAV_ITEMS: readonly AppNavItem[] = [
   {
-    icon: <CarOutlined />,
-    key: "app:fleet-report",
-    labelKey: "fleet.title",
-    route: routes.fleetReport,
-    permission: { resource: "fleet-reports", action: "FLEET_REPORT_VIEW" },
-  },
-  {
-    icon: <CarOutlined />,
-    key: "app:optimization",
-    labelKey: "optimization.title",
-    route: routes.optimization,
-    permission: { resource: "optimization", action: "OPTIMIZATION_VIEW" },
-  },
-  {
     icon: <UserOutlined />,
     key: "app:my-payslips",
     labelKey: "payslips.mine",
