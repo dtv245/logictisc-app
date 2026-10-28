@@ -110,7 +110,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         <Pill
           className="ops-dashboard-header__pill"
           icon={<Sparkles size={14} />}
-          onClick={() => navigate(routes.aiDispatch)}
+          onClick={() => navigate(routes.tmsFlow.root)}
           tone="ai"
         >
           {monitoringCount !== undefined && approvalsCount !== undefined

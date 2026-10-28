@@ -13,23 +13,6 @@
   background: transparent;
 }
 
-.ops-preview-controls {
-  margin-bottom: 16px;
-  align-items: center;
-
-  .ant-alert-content {
-    min-width: 0;
-  }
-
-  .ant-alert-action {
-    flex-shrink: 0;
-  }
-
-  .ant-switch:not(.ant-switch-checked) .ant-switch-inner-unchecked {
-    color: var(--color-text);
-  }
-}
-
 .ops-tabs-header {
   padding: 0;
   background: transparent;

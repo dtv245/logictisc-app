@@ -59,7 +59,7 @@ export function OperationsBrief({ summary, causes = [], actions = [], confidence
       <header className="ops-brief-header">
         <span className="ops-brief-agent" aria-hidden="true"><Sparkles size={11} /></span>
         <div className="ops-brief-header__identity"><h2>{text.title}</h2><span>{metadata || text.noAnalysis}</span></div>
-        {canViewRuns && <Dropdown menu={{ items: [{ key: "activity", label: text.activity, onClick: () => navigate(routes.aiDispatch) }] }} trigger={["click"]}>
+        {canViewRuns && <Dropdown menu={{ items: [{ key: "activity", label: text.activity, onClick: () => navigate(routes.tmsFlow.root) }] }} trigger={["click"]}>
           <button className="ops-brief-more" type="button" aria-label={text.more}><MoreHorizontal size={16} /></button>
         </Dropdown>}
       </header>
@@ -85,8 +85,8 @@ export function OperationsBrief({ summary, causes = [], actions = [], confidence
         </div>
       </>}
       <footer className="ops-brief-footer">
-        <button type="button" className="ops-brief-review" onClick={() => navigate(routes.aiDispatch)}><Check size={12} />{text.review}</button>
-        {canViewRuns && <button type="button" className="ops-brief-activity" onClick={() => navigate(routes.aiDispatch)}>{text.activity}</button>}
+        <button type="button" className="ops-brief-review" onClick={() => navigate(routes.tmsFlow.approvals)}><Check size={12} />{text.review}</button>
+        {canViewRuns && <button type="button" className="ops-brief-activity" onClick={() => navigate(routes.tmsFlow.root)}>{text.activity}</button>}
       </footer>
       <Modal open={Boolean(selectedAction)} title={text.modal} onCancel={() => { if (!submitting) setSelectedAction(null); }} closable={!submitting} maskClosable={!submitting} keyboard={!submitting}
         footer={<><Button aria-label={text.reject} disabled={!onRejectAction || submitting} onClick={() => void submit(onRejectAction)}>{text.reject}</Button><Button type="primary" aria-label={text.approve} aria-busy={submitting} loading={submitting} disabled={!onApproveAction || submitting} onClick={() => void submit(onApproveAction)}>{text.approve}</Button></>}>
