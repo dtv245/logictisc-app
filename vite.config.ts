@@ -93,6 +93,25 @@ export default defineConfig(({ mode }) => {
               return;
             }
 
+            if (/^\/api\/loads(?:\/|\?|$)/.test(url)) {
+              res.writeHead(502, { 'Content-Type': 'application/json' });
+              res.end(
+                JSON.stringify({
+                  success: false,
+                  code: 'BACKEND_OFFLINE',
+                  message: `Real load data is unavailable because the backend at ${target} is offline.`,
+                  data: null,
+                  errors: [],
+                  meta: {
+                    timestamp: new Date().toISOString(),
+                    path: url,
+                    requestId: null,
+                  },
+                }),
+              );
+              return;
+            }
+
             if (url === '/api/me' && method === 'GET') {
               res.writeHead(200, { 'Content-Type': 'application/json' });
               res.end(
@@ -156,12 +175,6 @@ export default defineConfig(({ mode }) => {
                   { id: '00000000-0000-0000-0000-000000000001', firstName: 'Quản trị', lastName: 'Hệ thống', email: 'admin@logicstic.local', status: 'active' },
                   { id: '44444444-4444-4444-4444-444444444444', firstName: 'Nguyễn Văn', lastName: 'An', email: 'an.nguyen@logictics.local', status: 'active' },
                   { id: '55555555-5555-5555-5555-555555555555', firstName: 'Trần Văn', lastName: 'Bình', email: 'binh.tran@logictics.local', status: 'active' },
-                ];
-              }
-              if (pathname.startsWith('/api/loads')) {
-                return [
-                  { id: 'dddddddd-dddd-dddd-dddd-dddddddddddd', number: 1001, name: 'Lô hàng Linh kiện Samsung', status: 'dispatched', customerId: '11111111-1111-1111-1111-111111111111', customerName: 'Công ty TNHH Logistics Vina', assignedTruckNumber: 'TRK-101' },
-                  { id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', number: 1002, name: 'Lô hàng Dệt may xuất khẩu', status: 'draft', customerId: '22222222-2222-2222-2222-222222222222', customerName: 'Tập đoàn Vận tải Á Châu', assignedTruckNumber: 'TRK-102' },
                 ];
               }
               if (pathname.startsWith('/api/trips')) {

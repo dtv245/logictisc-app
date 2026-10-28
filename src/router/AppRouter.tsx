@@ -61,14 +61,6 @@ const PayslipShowPage = lazy(() => import("@pages/payslips/PayslipShow").then((m
 const PayrollEntryPage = lazy(() => import("@pages/payroll/PayrollEntryPage").then((module) => ({ default: module.PayrollEntryPage })));
 const PayrollReconciliationPage = lazy(() => import("@pages/payroll/PayrollReconciliationPage").then((module) => ({ default: module.PayrollReconciliationPage })));
 const PayrollRunShowPage = lazy(() => import("@pages/payroll/PayrollRunShow").then((module) => ({ default: module.PayrollRunShow })));
-const OptimizationPage = lazy(() => import("@pages/optimization/OptimizationPage").then((module) => ({ default: module.OptimizationPage })));
-const OptimizationRunShowPage = lazy(() => import("@pages/optimization/OptimizationRunShow").then((module) => ({ default: module.OptimizationRunShow })));
-const FleetReportPage = lazy(() => import("@pages/fleet/FleetReportPage").then((module) => ({ default: module.FleetReportPage })));
-const AiDispatchPage = lazy(() =>
-  import("@pages/ai-dispatch/AiDispatchPage").then((module) => ({
-    default: module.AiDispatchPage,
-  })),
-);
 const TmsFlowRoot = lazy(() =>
   import("@pages/tms-flow/TmsFlowRoot").then((module) => ({
     default: module.TmsFlowRoot,
@@ -227,12 +219,6 @@ export const AppRouter = ({
               path={routes.operations}
               element={<OperationsDashboardPage />}
             />
-            <Route path={routes.optimization} element={<ResourceAccessBoundary action="OPTIMIZATION_VIEW" resource="optimization"><OptimizationPage /></ResourceAccessBoundary>} />
-            <Route path={routes.optimizationRun} element={<ResourceAccessBoundary action="OPTIMIZATION_VIEW" resource="optimization"><OptimizationRunShowPage /></ResourceAccessBoundary>} />
-            <Route path={routes.fleetReport} element={<ResourceAccessBoundary action="FLEET_REPORT_VIEW" resource="fleet-reports"><FleetReportPage /></ResourceAccessBoundary>} />
-            <Route path={routes.aiDispatch} element={<ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch"><AiDispatchPage /></ResourceAccessBoundary>} />
-            <Route path={routes.aiDispatchShow} element={<ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch"><AiDispatchPage /></ResourceAccessBoundary>} />
-            <Route path={routes.resources.aiDispatch.show} element={<ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch"><AiDispatchPage /></ResourceAccessBoundary>} />
             {/* Real TMS operations flow: loads, trucks and AI decisions. */}
             <Route
               path={routes.tmsFlow.root}
@@ -288,7 +274,15 @@ export const AppRouter = ({
             <Route path={routes.payroll} element={<ResourceAccessBoundary action="PAYROLL_VIEW" resource="payroll"><PayrollEntryPage /></ResourceAccessBoundary>} />
             {PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED && <Route path={routes.payrollReconciliation} element={<ResourceAccessBoundary action="PAYROLL_VIEW" resource="payroll"><PayrollReconciliationPage /></ResourceAccessBoundary>} />}
             <Route path={routes.payrollShow} element={<ResourceAccessBoundary action="PAYROLL_VIEW" resource="payroll"><PayrollRunShowPage /></ResourceAccessBoundary>} />
-            {resourcePageRoutes.filter(({ resource, action }) => resource !== "conversations" && (action !== "create" || getResourceCapabilities(resource).create) && (action !== "edit" || getResourceCapabilities(resource).edit)).map(({ action, component, path, resource }) => (
+            <Route
+              path={routes.resources.loads.list}
+              element={
+                <ResourceAccessBoundary action="list" resource="loads">
+                  <Navigate to={routes.tmsFlow.dispatch} replace />
+                </ResourceAccessBoundary>
+              }
+            />
+            {resourcePageRoutes.filter(({ resource, action }) => resource !== "conversations" && !(resource === "loads" && action === "list") && (action !== "create" || getResourceCapabilities(resource).create) && (action !== "edit" || getResourceCapabilities(resource).edit)).map(({ action, component, path, resource }) => (
               <Route
                 element={
                   <ResourceAccessBoundary

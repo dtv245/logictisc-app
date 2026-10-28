@@ -43,7 +43,9 @@ export const tmsEndpoints = {
 
 export const tmsKeys = {
   all: ["tms"] as const,
-  loads: (tenant: string | undefined) => ["tms", tenant ?? "tenant", "loads"] as const,
+  // Keep pre-live/mock queue cache entries from being rendered after switching
+  // dispatch to the real loads endpoint.
+  loads: (tenant: string | undefined) => ["tms", tenant ?? "tenant", "loads", "live"] as const,
   trucks: (tenant: string | undefined) => ["tms", tenant ?? "tenant", "trucks"] as const,
   pending: (tenant: string | undefined) =>
     ["tms", tenant ?? "tenant", "pending-suggestions"] as const,

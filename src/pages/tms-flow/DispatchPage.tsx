@@ -549,9 +549,9 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
                   </p>
                   <Button
                     icon={<Sparkles size={14} aria-hidden="true" />}
-                    onClick={() => navigate(routes.aiDispatch)}
+                    onClick={() => navigate(routes.tmsFlow.root)}
                   >
-                    Open AI dispatch workspace
+                    Open TMS overview
                   </Button>
                 </div>
               ) : (

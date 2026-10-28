@@ -20,42 +20,6 @@
   text-align: center;
 }
 
-/* ── Demo banner ─────────────────────────────────────────────── */
-
-.tms-demo-banner {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-  padding: 8px 14px;
-  border-radius: var(--radius-md);
-  background: #1f2937;
-  color: #ffffff;
-  font-size: var(--font-size-xs);
-
-  &__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 9px;
-    border-radius: 999px;
-    background: #84cc16;
-    color: #1e293b;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  &__copy {
-    flex: 1 1 260px;
-    color: #e5e7eb;
-  }
-
-  &__reset {
-    color: #ffffff !important;
-  }
-}
-
 /* ── Topbar ──────────────────────────────────────────────────── */
 
 .tms-topbar {

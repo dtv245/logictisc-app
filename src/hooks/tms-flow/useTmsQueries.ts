@@ -44,6 +44,11 @@ export function useTmsLoads() {
       };
     },
     staleTime: REFRESH_MS,
+    // Loads are the source of truth for the dispatch queue. Always refresh when
+    // the screen mounts and keep an open queue current, including after a
+    // previous dev-server mock response was cached by React Query.
+    refetchOnMount: "always",
+    refetchInterval: REFRESH_MS,
     retry: false,
   });
 }

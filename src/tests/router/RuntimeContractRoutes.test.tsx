@@ -77,7 +77,7 @@ describe("current runtime route availability", () => {
     expect(documents?.edit).toBeUndefined();
   });
 
-  it("mounts AI Dispatch page without 404 when navigating to /ai-dispatch", async () => {
+  it("returns not found for the removed AI Dispatch route", async () => {
     const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
     render(
       <MemoryRouter initialEntries={[routes.aiDispatch]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -93,8 +93,7 @@ describe("current runtime route availability", () => {
         </I18nextProvider>
       </MemoryRouter>,
     );
-    expect(screen.queryByText(i18n.t("errors.notFound"))).not.toBeInTheDocument();
-    expect(await screen.findByText("AI Smart Vehicle Dispatch")).toBeInTheDocument();
+    expect(await screen.findByText(i18n.t("errors.notFound"))).toBeInTheDocument();
     expect(screen.getByLabelText("Current path")).toHaveTextContent(routes.aiDispatch);
   });
 });
