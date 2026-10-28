@@ -1212,6 +1212,7 @@ export const viMessages = {
       payroll: "Bảng lương",
       "payroll-reconciliation": "Đối soát bảng lương",
       "my-payslips": "Phiếu lương của tôi",
+      drivers: "Tài xế",
       employees: "Nhân viên",
       documents: "Hồ sơ & tài liệu",
     },
@@ -1315,6 +1316,13 @@ export const viMessages = {
       truckId: "Xe tải",
     },
     employees: {
+      firstName: "Tên",
+      lastName: "Họ",
+      email: "Email",
+      phoneNumber: "Số điện thoại",
+      status: "Trạng thái",
+    },
+    drivers: {
       firstName: "Tên",
       lastName: "Họ",
       email: "Email",

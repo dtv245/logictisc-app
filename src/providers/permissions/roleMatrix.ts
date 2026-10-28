@@ -25,7 +25,7 @@ const PAYROLL = ["ADMIN", "ACCOUNTANT", "PAYROLL", "PAYROLL_MANAGER"] as const;
 export const ROLE_MATRIX = [
   { resources: ["roles"], actions: CRUD_ACTIONS, roles: ["ADMIN"] },
   { resources: ["employees", "inspections"], actions: CRUD_ACTIONS, roles: DISPATCH },
-  { resources: ["drivers"], actions: READ_ACTIONS, roles: DISPATCH },
+  { resources: ["drivers"], actions: CRUD_ACTIONS, roles: DISPATCH },
   { resources: ["customers", "trucks"], actions: CRUD_ACTIONS, roles: OPERATIONS },
   { resources: ["loads"], actions: ["LARK_BASE_SYNC"], roles: DISPATCH },
   { resources: ["loads"], actions: [...CRUD_ACTIONS, "dispatch", "cancel", "pickup", "deliver", "PICKUP_BUSINESS_DATE"], roles: OPERATIONS },

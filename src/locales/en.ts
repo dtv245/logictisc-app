@@ -1209,6 +1209,7 @@ export const enMessages = {
       payroll: "Payroll",
       "payroll-reconciliation": "Payroll reconciliation",
       "my-payslips": "My payslips",
+      drivers: "Drivers",
       employees: "Employees",
       documents: "Documents",
     },
@@ -1314,6 +1315,13 @@ export const enMessages = {
       truckId: "Truck",
     },
     employees: {
+      firstName: "First name",
+      lastName: "Last name",
+      email: "Email",
+      phoneNumber: "Phone number",
+      status: "Status",
+    },
+    drivers: {
       firstName: "First name",
       lastName: "Last name",
       email: "Email",

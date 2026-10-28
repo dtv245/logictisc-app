@@ -17,6 +17,12 @@ import {
   type ResourcePageRoute,
 } from "./index";
 
+const driverMutationContract = {
+  ...resourceMutationContracts.employees,
+  createFields: resourceMutationContracts.employees.createFields.filter((field) => field !== "roleId"),
+  updateFields: resourceMutationContracts.employees.updateFields.filter((field) => field !== "roleId"),
+};
+
 export const foundationApiResources = {
   customers: {
     mutationContract: resourceMutationContracts.customers,
@@ -78,6 +84,7 @@ export const foundationApiResources = {
     allowedSortFields: [],
   },
   drivers: {
+    mutationContract: driverMutationContract,
     collectionPath: "/api/drivers",
     allowedFilterFields: ["search", "status"],
     allowedSortFields: ["firstName", "lastName", "email", "status"],
@@ -101,7 +108,7 @@ const supportedNames = new Set([
   ...(EXECUTIVE_CONTRACT_CONFIRMED ? ["dashboard"] : []),
   ...Object.keys(foundationApiResources),
 ]);
-const readOnlyResourceNames = new Set(["documents", "notifications", "drivers"]);
+const readOnlyResourceNames = new Set(["documents", "notifications"]);
 
 export const createFoundationResources = (
   translate: TFunction,

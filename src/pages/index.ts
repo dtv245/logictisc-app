@@ -43,12 +43,12 @@ import {
   DvirShow,
 } from "./dvir";
 import {
-  EmployeeCreate,
-  EmployeeEdit,
-  EmployeeList,
   employeesResource,
-  EmployeeShow,
 } from "./employees";
+import DriverCreate from "./drivers/create";
+import DriverEdit from "./drivers/edit";
+import DriverList from "./drivers/list";
+import DriverShow from "./drivers/show";
 import {
   ExpenseCreate,
   ExpenseEdit,
@@ -133,6 +133,7 @@ import {
   trucksResource,
   TruckShow,
 } from "./trucks";
+import { driversResource } from "@/resources/drivers.resource";
 
 interface CrudPageRoutes {
   create: string;
@@ -199,6 +200,7 @@ export const appResources: IResourceItem[] = [
   loadsResource,
   trucksResource,
   tripsResource,
+  driversResource,
   employeesResource,
   customersResource,
   invoicesResource,
@@ -226,8 +228,8 @@ export const appResourcePageRoutes: ResourcePageRoute[] = [
   ...createResourcePageRoutes(routes.resources.trips, {
     Create: TripCreate, Edit: TripEdit, List: TripList, Show: TripShow,
   }),
-  ...createResourcePageRoutes(routes.resources.employees, {
-    Create: EmployeeCreate, Edit: EmployeeEdit, List: EmployeeList, Show: EmployeeShow,
+  ...createResourcePageRoutes(routes.resources.drivers, {
+    Create: DriverCreate, Edit: DriverEdit, List: DriverList, Show: DriverShow,
   }),
   ...createResourcePageRoutes(routes.resources.customers, {
     Create: CustomerCreate, Edit: CustomerEdit, List: CustomerList, Show: CustomerShow,

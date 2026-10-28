@@ -53,6 +53,7 @@ const filterDeclarations: Readonly<
 > = {
   customers: [{ field: "search" }, { field: "status" }],
   employees: [{ field: "search" }, { field: "status" }, { field: "roleId" }],
+  drivers: [{ field: "search" }, { field: "status" }],
   trucks: [{ field: "search" }, { field: "status" }, { field: "type" }],
   loads: [
     { field: "search" },

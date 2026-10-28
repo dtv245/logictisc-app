@@ -8,6 +8,7 @@ import { translate } from "@locales/translate";
 
 export type EditableResourceName =
   | "customers"
+  | "drivers"
   | "employees"
   | "terminals"
   | "trucks"
@@ -475,6 +476,20 @@ export const resourceFormDefinitions: Readonly<
       text("status", true),
       datetime("joinedDate", true),
       relation("roleId", "roles", false, (r) => r.displayName || r.name || r.id),
+      number("salaryAmount", true, 0),
+      text("salaryCurrency", true),
+      ...optionalAddress,
+    ],
+  },
+  drivers: {
+    fields: [
+      { control: "email", name: "email", required: true },
+      text("firstName", true),
+      text("lastName", true),
+      text("phoneNumber"),
+      text("salaryType", true),
+      text("status", true),
+      datetime("joinedDate", true),
       number("salaryAmount", true, 0),
       text("salaryCurrency", true),
       ...optionalAddress,

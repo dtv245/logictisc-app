@@ -50,6 +50,7 @@ export const routes = {
     customers: createCrudRoutes("customers"),
     documents: createCrudRoutes("documents"),
     dvir: createCrudRoutes("dvir"),
+    drivers: createCrudRoutes("drivers"),
     employees: createCrudRoutes("employees"),
     expenses: createCrudRoutes("expenses"),
     hosEld: createCrudRoutes("hos-eld"),
