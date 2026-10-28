@@ -4,43 +4,8 @@ import { Tooltip } from "antd";
 import { routes } from "@constants/routes";
 import { createCrudColumns } from "@components/crudColumns";
 import type { Terminal } from "@/types/terminal.types";
-
-/**
- * Định dạng địa chỉ đầy đủ từ đối tượng Address hoặc các trường phẳng dự phòng.
- */
-export const formatTerminalAddress = (record: Terminal): string => {
-  if (record.address && typeof record.address === "object") {
-    const parts = [
-      record.address.line1,
-      record.address.line2,
-      record.address.city,
-      record.address.state,
-      record.address.country,
-      record.address.zipCode,
-    ].filter((part): part is string => Boolean(part && String(part).trim() !== ""));
-
-    if (parts.length > 0) {
-      return parts.join(", ");
-    }
-  }
-
-  // Fallback nếu record chứa flat fields từ API response thô
-  const flat = record as unknown as Record<string, unknown>;
-  const flatParts = [
-    flat.addressLine1,
-    flat.addressLine2,
-    flat.addressCity,
-    flat.addressState,
-    flat.addressCountry,
-    flat.addressZipCode,
-  ].filter((part): part is string => Boolean(part && String(part).trim() !== ""));
-
-  if (flatParts.length > 0) {
-    return flatParts.join(", ");
-  }
-
-  return "";
-};
+import { formatTerminalAddress } from "@/utils/terminals/formatTerminalAddress";
+export { formatTerminalAddress } from "@/utils/terminals/formatTerminalAddress";
 
 export const terminalColumns = createCrudColumns<Terminal>(
   "terminals",
