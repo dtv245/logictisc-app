@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next";
 import type { CalculateSettlementPayload } from "@/types/settlement.dto";
 import {
   useCalculateSettlement,
-  useDrivers,
   usePayPeriods,
 } from "../api/settlement.query";
+import { EntityPicker } from "@/components/EntityPicker";
 
 export interface CalculateSettlementModalProps {
   open: boolean;
@@ -24,7 +24,6 @@ export const CalculateSettlementModal = ({
   const { t } = useTranslation();
   const [form] = Form.useForm<CalculateSettlementPayload>();
   const { payPeriods, isLoading: isPeriodsLoading } = usePayPeriods();
-  const { drivers, isLoading: isDriversLoading } = useDrivers();
   const { calculateSettlement, isCalculating } = useCalculateSettlement();
 
   const handleOk = async () => {
@@ -80,22 +79,17 @@ export const CalculateSettlementModal = ({
             },
           ]}
         >
-          <Select
-            loading={isDriversLoading}
+          <EntityPicker
             placeholder={t(
               "settlements.filters.selectDriver",
               "Select Driver"
             )}
-            showSearch
-            filterOption={(input, option) =>
-              (option?.label ?? "")
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            options={drivers.map((d) => ({
-              label: d.fullName,
-              value: d.id,
-            }))}
+            resource="drivers"
+            pageSize={50}
+            labelFormat={(driver) => {
+              const name = `${String(driver.firstName ?? "")} ${String(driver.lastName ?? "")}`.trim();
+              return name || String(driver.email ?? driver.id ?? "");
+            }}
           />
         </Form.Item>
 

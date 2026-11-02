@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { formatDateTime } from "@/formatters/dateTime";
 import type { Load } from "@/types/load.types";
+import { formatDistance } from "@/utils/distance";
 import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
 import { useLoadAiGaps } from "@/hooks/ai/useLoadAiGaps";
 import { useLoadAiDispatch } from "@/hooks/ai/useLoadAiDispatch";
@@ -105,9 +106,7 @@ export const LoadOverviewPanel = ({ load, onOpenAiTab }: LoadOverviewPanelProps)
             <Tag>{load.source}</Tag>
           </Descriptions.Item>
           <Descriptions.Item label={t("loads.fields.distance", "Distance")}>
-            {load.distance !== null && load.distance !== undefined
-              ? String(load.distance)
-              : "—"}
+            {formatDistance(load.distance, "mi")}
           </Descriptions.Item>
           <Descriptions.Item label={t("loads.fields.proximity", "In Proximity")}>
             <Tag color={load.isInProximity ? "green" : "default"}>

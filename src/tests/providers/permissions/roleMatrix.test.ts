@@ -61,6 +61,16 @@ describe("canJwtRolesAccess", () => {
     expect(can("DRIVER", "drivers", "list")).toBe(false);
   });
 
+  it("grants self-profile and payroll-profile routes only to their assigned roles", () => {
+    expect(can("DRIVER", "drivers", "DRIVER_PROFILE_SELF_VIEW")).toBe(true);
+    expect(can("DISPATCHER", "drivers", "DRIVER_PROFILE_SELF_VIEW")).toBe(false);
+    expect(can("ADMIN", "drivers", "DRIVER_PAYROLL_PROFILE_VIEW")).toBe(true);
+    expect(can("PAYROLL", "drivers", "DRIVER_PAYROLL_PROFILE_VIEW")).toBe(true);
+    expect(can("PAYROLL_MANAGER", "drivers", "DRIVER_PAYROLL_PROFILE_VIEW")).toBe(true);
+    expect(can("ACCOUNTANT", "drivers", "DRIVER_PAYROLL_PROFILE_VIEW")).toBe(false);
+    expect(can("DISPATCHER", "drivers", "DRIVER_PAYROLL_PROFILE_VIEW")).toBe(false);
+  });
+
   it("applies the three terminal policy rows", () => {
     expect(can("DRIVER", "terminals", "show")).toBe(true);
     expect(can("DRIVER", "terminals", "edit")).toBe(false);

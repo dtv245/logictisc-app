@@ -1,4 +1,5 @@
 import { apiErrorMessages } from "./apiErrors";
+import { driverProfileVi } from "./driverProfile";
 
 /**
  * Vietnamese dictionary — single source for the `vi` locale.
@@ -10,7 +11,7 @@ import { apiErrorMessages } from "./apiErrors";
 const shared = {
   table: {
     pagination: {
-      total: "Hiển thị {{from}}–{{to}} trên tổng số {{total}} bản ghi",
+      total: "{{from}}–{{to}} / {{total}} mục",
     },
   },
   asyncState: {
@@ -71,6 +72,7 @@ export const viMessages = {
   "pickupBusinessDate": {"title": "Ngày lấy hàng nghiệp vụ", "date": "Ngày nghiệp vụ", "source": "Nguồn chứng minh", "save": "Ghi nhận ngày nghiệp vụ", "saved": "Đã ghi nhận ngày nghiệp vụ"},
 
   ...shared,
+  driverProfile: driverProfileVi,
   fleet: {
     "title": "Báo cáo đội xe",
     "scopeHelp": "Chọn policy đã công bố, ID xe cụ thể và kỳ báo cáo. Lịch sử thiếu vẫn hiển thị chưa có dữ liệu.",
@@ -796,7 +798,10 @@ export const viMessages = {
       kpi: {
         inTransit: "Đang trên đường",
         atRisk: "Nguy cơ trễ (At Risk)",
-        atRiskContext: "ETA sát giờ SLA",
+        atRiskContext: "Đơn đã quá hạn hoặc đến hạn trong 4 giờ",
+        loadScope: "Tính trên {{count}} đơn đã tải",
+        loadScopeTruncated: "Chỉ tải được {{shown}}/{{total}} đơn; các chỉ số vận hành tính trên phần đã tải.",
+        periodContext: "Kỳ báo cáo 30 ngày",
         onTime: "Đúng giờ (OTD)",
         deliveredToday: "Đã giao hôm nay",
         assignableVehicles: "Xe sẵn sàng gán",
@@ -1213,6 +1218,8 @@ export const viMessages = {
       "payroll-reconciliation": "Đối soát bảng lương",
       "my-payslips": "Phiếu lương của tôi",
       drivers: "Tài xế",
+      "driver-expiring": "Giấy tờ tài xế sắp hết hạn",
+      "my-driver-profile": "Hồ sơ tài xế của tôi",
       employees: "Nhân viên",
       documents: "Hồ sơ & tài liệu",
     },
@@ -1932,6 +1939,7 @@ export const viMessages = {
       truckNumber: "Xe tải",
       dispatchedAt: "Thời điểm xuất bến",
       completedAt: "Thời điểm hoàn thành",
+      inconsistent: "Không nhất quán",
       cancelledAt: "Thời điểm hủy",
       createdAt: "Thời điểm tạo",
     },

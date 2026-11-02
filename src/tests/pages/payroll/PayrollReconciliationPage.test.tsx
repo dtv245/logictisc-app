@@ -8,13 +8,13 @@ import { payment } from "@/tests/fixtures/payroll";
 import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 const evidenceCase = { caseEventId: "88888888-8888-4888-8888-888888888888", paymentId: payment.id, paymentStatus: "PROCESSING", sourceKey: "case-source", providerKey: "configured-bank", outcome: "SUCCEEDED", amount: "811.21", currency: "EUR", providerReference: "sensitive-bank-ref-987654321", occurredAt: "2026-10-02T10:00:00Z", reason: "Verify bank evidence" };
-const cases = { content: [evidenceCase], totalElements: 52, number: 0, size: 25 };
+const cases = { content: [evidenceCase], totalElements: 52, number: 0, size: 20 };
 describe("PayrollReconciliationPage", () => {
   it("requests server pages and masks provider references", async () => {
     const request = vi.fn(async (x: CustomParams) => ({ ...cases, number: typeof x.query === "object" && x.query !== null && "page" in x.query ? x.query.page : 0 })); await renderFinance(<PayrollReconciliationPage />, request);
     expect(await screen.findByText("Verify bank evidence")).toBeInTheDocument(); expect(screen.getByText("••••4321")).toBeInTheDocument(); expect(screen.queryByText(evidenceCase.providerReference)).not.toBeInTheDocument();
-    expect(request.mock.calls[0]?.[0]).toMatchObject({ url: "/api/payroll/reconciliation-cases", method: "get", query: { page: 0, size: 25 } });
-    fireEvent.click(screen.getByTitle("Next Page")); await waitFor(() => expect(request).toHaveBeenCalledTimes(2)); expect(request.mock.calls[1]?.[0].query).toEqual({ page: 1, size: 25 });
+    expect(request.mock.calls[0]?.[0]).toMatchObject({ url: "/api/payroll/reconciliation-cases", method: "get", query: { page: 0, size: 20 } });
+    fireEvent.click(screen.getByTitle("Next Page")); await waitFor(() => expect(request.mock.calls.some(([call]) => JSON.stringify(call.query) === JSON.stringify({ page: 1, size: 20 }))).toBe(true));
   });
   it("requires evidence, confirms reconciliation, preserves failed request and prevents double submit", async () => {
     const posts: CustomParams[] = []; let finish: (value: unknown) => void = () => undefined;

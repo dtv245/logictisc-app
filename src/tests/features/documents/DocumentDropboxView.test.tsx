@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { BaseRecord, DataProvider } from "@refinedev/core";
 import { DocumentDropboxView } from "@/features/documents/components/DocumentDropboxView";
@@ -16,7 +16,7 @@ const mockDocuments: Document[] = [
     fileSizeBytes: 2048576, // 2 MB
     blobPath: "/blobs/loads/bol-1001.pdf",
     blobContainer: "documents",
-    type: "bill_of_lading",
+    type: "BILL_OF_LADING",
     status: "active",
     description: "Signed BOL for pickup",
     uploadedById: "usr-1",
@@ -52,10 +52,12 @@ const mockDocuments: Document[] = [
 function createListProvider(
   docs: Document[] = mockDocuments,
 ): DataProvider["getList"] {
-  return async <TData extends BaseRecord>() => {
+  return async <TData extends BaseRecord>({ filters }: Parameters<DataProvider["getList"]>[0]) => {
+    const type = filters?.find((filter) => "field" in filter && filter.field === "type");
+    const filtered = type && "value" in type ? docs.filter((doc) => doc.type === type.value) : docs;
     return {
-      data: docs as unknown as TData[],
-      total: docs.length,
+      data: filtered as unknown as TData[],
+      total: filtered.length,
     };
   };
 }
@@ -96,6 +98,24 @@ describe("DocumentDropboxView", () => {
     // Check formatted file sizes
     expect(screen.getByText("2.0 MB")).toBeInTheDocument();
     expect(screen.getByText("512.0 KB")).toBeInTheDocument();
+  });
+
+  it("counts uppercase BILL_OF_LADING rows and shows the localized type label", async () => {
+    const listRequest = createListProvider();
+
+    await renderFinance(<DocumentDropboxView />, vi.fn(), {
+      role: "ADMIN",
+      listRequest,
+      initialEntries: ["/documents?pageSize=10&current=1"],
+    });
+
+    expect(await screen.findByText("Bill_of_Lading_1001.pdf")).toBeInTheDocument();
+    expect(screen.getAllByText("Bill of Lading").length).toBeGreaterThan(0);
+    expect(screen.queryByText("BILL_OF_LADING")).not.toBeInTheDocument();
+
+    const transportCard = screen.getByText("Transport Docs").closest(".ant-card");
+    expect(transportCard).not.toBeNull();
+    expect(within(transportCard as HTMLElement).getByText("1")).toBeInTheDocument();
   });
 
   it("switches between Grid View and List View", async () => {
@@ -144,6 +164,12 @@ describe("DocumentDropboxView", () => {
     await waitFor(() => {
       expect(screen.queryByText("Bill_of_Lading_1001.pdf")).not.toBeInTheDocument();
       expect(screen.getByText("Driver_License_Sarah.png")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /bill of lading/i }));
+    await waitFor(() => {
+      expect(screen.getByText("Bill_of_Lading_1001.pdf")).toBeInTheDocument();
+      expect(screen.queryByText("Driver_License_Sarah.png")).not.toBeInTheDocument();
     });
   });
 

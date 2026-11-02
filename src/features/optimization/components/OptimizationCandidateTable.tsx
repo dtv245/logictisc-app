@@ -1,7 +1,8 @@
 import { Alert, Button, Space, Table, Tabs, Tag, Tooltip, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { createListPaginationConfig } from "@/constants/pagination";
 import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { EmptyState } from "@/components/EmptyState";
 import { financialAmount } from "@formatters/financialDisplay";
@@ -23,14 +24,18 @@ export function OptimizationCandidateTable({
   const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
   const keys = useRef(new Map<string, string>());
 
-  const keyFor = (id: string) => {
+  const keyFor = useCallback((id: string) => {
     let key = keys.current.get(id);
     if (!key) {
       key = crypto.randomUUID();
       keys.current.set(id, key);
     }
     return key;
-  };
+  }, []);
+
+  const canAccept = actions.canAccept;
+  const actionPending = actions.pending;
+  const executeAction = actions.execute;
 
   const feasibleCandidates = useMemo(
     () =>
@@ -45,11 +50,7 @@ export function OptimizationCandidateTable({
     [outcome.candidates]
   );
 
-  if (outcome.candidates.length === 0) {
-    return <EmptyState />;
-  }
-
-  const renderDeadhead = (row: OptimizationCandidate) => {
+  const renderDeadhead = useCallback((row: OptimizationCandidate) => {
     const deadhead = row.explanation.evidence.route?.value.deadhead;
     if (!deadhead) return "—";
     if (deadhead.normalizedMiles != null) {
@@ -60,10 +61,10 @@ export function OptimizationCandidateTable({
       return `${deadhead.originalValue} km`;
     }
     return `${deadhead.originalValue} ${deadhead.originalUnit}`;
-  };
+  }, []);
 
   // Cột cho Tab Khả thi
-  const feasibleColumns: ColumnsType<OptimizationCandidate> = [
+  const feasibleColumns: ColumnsType<OptimizationCandidate> = useMemo(() => [
     {
       title: t("optimization.rank"),
       dataIndex: "rank",
@@ -178,7 +179,7 @@ export function OptimizationCandidateTable({
           >
             {t("optimization.explain")}
           </Button>
-          {actions.canAccept(candidate) && (
+          {canAccept(candidate) && (
             <ConfirmActionModal
               triggerLabel={t("optimization.accept")}
               triggerAriaLabel={t("optimization.acceptCandidate", { id: candidate.id })}
@@ -204,10 +205,10 @@ export function OptimizationCandidateTable({
                   />
                 </Space>
               }
-              disabled={actions.pending}
+              disabled={actionPending}
               onConfirm={async () => {
                 try {
-                  await actions.execute({
+                  await executeAction({
                     action: "accept",
                     candidate,
                     payload: {
@@ -227,10 +228,10 @@ export function OptimizationCandidateTable({
         </Space>
       ),
     },
-  ];
+  ], [actionPending, canAccept, executeAction, i18n.language, keyFor, renderDeadhead, setSelected, setTriggerElement, t]);
 
   // Cột cho Tab Không khả thi
-  const infeasibleColumns: ColumnsType<OptimizationCandidate> = [
+  const infeasibleColumns: ColumnsType<OptimizationCandidate> = useMemo(() => [
     {
       title: t("optimization.driverId"),
       dataIndex: "driverId",
@@ -307,7 +308,7 @@ export function OptimizationCandidateTable({
         </Button>
       ),
     },
-  ];
+  ], [i18n.language, renderDeadhead, setSelected, setTriggerElement, t]);
 
   if (outcome.candidates.length === 0) {
     return <EmptyState />;
@@ -331,7 +332,7 @@ export function OptimizationCandidateTable({
                 <Table
                   rowKey="id"
                   dataSource={feasibleCandidates}
-                  pagination={{ pageSize: 20, responsive: true }}
+                  pagination={{ pageSize: 20, responsive: true, ...createListPaginationConfig(t) }}
                   scroll={{ x: 1540 }}
                   locale={{ emptyText: <EmptyState /> }}
                   rowClassName={(record) => (record.rank === 1 ? "rank-one-highlight" : "")}
@@ -354,7 +355,7 @@ export function OptimizationCandidateTable({
                 <Table
                   rowKey="id"
                   dataSource={infeasibleCandidates}
-                  pagination={{ pageSize: 20, responsive: true }}
+                  pagination={{ pageSize: 20, responsive: true, ...createListPaginationConfig(t) }}
                   scroll={{ x: 1510 }}
                   locale={{ emptyText: <EmptyState /> }}
                   columns={infeasibleColumns}

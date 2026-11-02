@@ -16,6 +16,7 @@ export type DocumentOwnerType =
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type DocumentType =
+  | "BILL_OF_LADING"
   | "bill_of_lading"
   | "proof_of_delivery"
   | "driver_license"

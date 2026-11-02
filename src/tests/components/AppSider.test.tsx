@@ -9,6 +9,7 @@ import { JWT_ROLES, type JwtRole } from "@/types/roles.types";
 import { foundationResourcePageRoutes } from "@/pages/resourceRegistry";
 import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
+import { driverProfileRoutes } from "@/constants/driverProfileRoutes";
 import { routes } from "@/constants/routes";
 import { initializeAppI18n } from "@locales";
 import { ThemedLayoutContextProvider } from "@refinedev/antd";
@@ -146,6 +147,8 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
       routes.resources.settlements.policies,
       routes.payroll,
       routes.myPayslips,
+      driverProfileRoutes.expiring,
+      driverProfileRoutes.myProfile,
       ...(PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED ? [routes.payrollReconciliation] : []),
     ]);
     const navRoutes = NAV_ZONES.flatMap((entry) =>

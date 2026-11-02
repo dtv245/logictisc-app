@@ -4,6 +4,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatTimeOnly, formatDateOnly } from "@/formatters/dateTime";
 import type { Load } from "@/types/load.types";
+import { formatDistance } from "@/utils/distance";
 import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
 import { useLoadAiDispatch } from "@/hooks/ai/useLoadAiDispatch";
 import { TruckSvg } from "./TruckSvg";
@@ -57,7 +58,7 @@ export const ShipmentHeroCard: React.FC<ShipmentHeroCardProps> = ({ load }) => {
 
           <div className="shipment-hero__subtitle">
             #{load.number} · {load.customerName || load.customerId || t("loads.redesign.customerUnavailable")}
-            {load.distance ? ` · ${load.distance} mi` : ""}
+            {load.distance ? ` · ${formatDistance(load.distance, "mi")}` : ""}
           </div>
         </div>
 

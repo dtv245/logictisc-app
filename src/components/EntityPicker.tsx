@@ -37,7 +37,7 @@ export interface EntityPickerProps {
   value?: string;
   /** Danh sách các ID giá trị cần loại trừ khỏi options (ví dụ tài xế chính đã chọn) */
   excludeValues?: readonly (string | number)[];
-  /** Số bản ghi mỗi trang (mặc định theo Refine useSelect) */
+  /** Số bản ghi mỗi trang; luôn giới hạn tối đa 50. */
   pageSize?: number;
 }
 
@@ -53,6 +53,7 @@ export function EntityPicker({
   resource,
   value,
 }: EntityPickerProps) {
+  const safePageSize = Math.min(50, Math.max(1, Math.trunc(pageSize ?? 50)));
   const { selectProps } = useSelect<BaseRecord>({
     resource,
     optionLabel: (item: BaseRecord) =>
@@ -60,7 +61,7 @@ export function EntityPicker({
       String(item[labelField ?? "name"] ?? item.id ?? ""),
     optionValue: (item: BaseRecord) => String(item.id ?? ""),
     debounce: 300,
-    ...(pageSize ? { pagination: { pageSize } } : {}),
+    pagination: { pageSize: safePageSize },
     onSearch: (value) => [
       {
         field: "search",

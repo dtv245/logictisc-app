@@ -20,6 +20,7 @@
 
 import type { RefineThemedLayoutV2SiderProps } from "@refinedev/antd";
 import { useCanWithoutCache } from "@refinedev/core";
+import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Button, Dropdown, Layout, Menu, Tooltip, type MenuProps } from "antd";
 import type { TFunction } from "i18next";
 import { useEffect, useMemo, useRef, useState, type FC, type ReactNode } from "react";
@@ -35,6 +36,7 @@ import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/execut
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import type { AccessResource } from "@/types/roles.types";
 import { routes } from "@constants/routes";
+import { driverProfileRoutes } from "@/constants/driverProfileRoutes";
 import { AppTitle } from "./AppTitle";
 import {
   AiAgentNavIcon,
@@ -269,6 +271,20 @@ export const NAV_ZONES: readonly NavZone[] = [
     labelKey: "navigation.items.drivers",
     route: routes.resources.drivers.list,
     resource: "drivers",
+  },
+  {
+    icon: <ClockCircleOutlined />,
+    key: "app:driver-expiring",
+    labelKey: "navigation.items.driver-expiring",
+    route: driverProfileRoutes.expiring,
+    permission: { resource: "drivers", action: "list" },
+  },
+  {
+    icon: <UserOutlined />,
+    key: "app:my-driver-profile",
+    labelKey: "navigation.items.my-driver-profile",
+    route: driverProfileRoutes.myProfile,
+    permission: { resource: "drivers", action: "DRIVER_PROFILE_SELF_VIEW" },
   },
   {
     icon: <DocumentsNavIcon />,

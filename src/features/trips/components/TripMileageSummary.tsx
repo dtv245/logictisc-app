@@ -1,6 +1,8 @@
 import { Card, Col, Row, Statistic, Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
+import { formatDistance } from "@/utils/distance";
+
 export interface TripMileageSummaryProps {
   plannedDistanceMiles?: number | null;
   actualDistanceMiles?: number | null;
@@ -17,10 +19,7 @@ const formatMiles = (
     return { value: unavailableLabel, isAvailable: false };
   }
   return {
-    value: `${Number(miles).toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    })} mi`,
+    value: formatDistance(Number(miles), "mi"),
     isAvailable: true,
   };
 };
@@ -100,7 +99,7 @@ export const TripMileageSummary = ({
             <Typography.Text type="secondary" style={{ fontSize: 13 }}>
               {t("trips.mileage.legacyNote", "Legacy Route Distance")}:{" "}
               <Tag color="default">
-                {Number(legacyTotalDistance).toLocaleString()} mi
+                {formatDistance(Number(legacyTotalDistance), "mi")}
               </Tag>
             </Typography.Text>
           </div>

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { CanAccess } from "@refinedev/core";
 import {
   Button,
@@ -20,7 +20,7 @@ import {
   SearchOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FilterBar } from "@components";
 import { EmptyState } from "@/components/EmptyState";
@@ -39,20 +39,38 @@ import {
   type DriverPayPolicyView,
 } from "@/types/driverPayPolicy.dto";
 import "./Settlements.scss";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
+import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
 
 const { Title, Text } = Typography;
 
 export const DriverPayPolicyList: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { policies, isLoading, isError, error, refetch } = useDriverPayPolicies();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { policies, isFetching, isError, error, refetch } = useDriverPayPolicies();
   const { createPolicy, createNewVersion, isSubmitting } =
     useDriverPayPolicyMutations();
 
   // Search & Filters
-  const [searchTerm, setSearchTerm] = useState("");
-  const [methodFilter, setMethodFilter] = useState<string>("ALL");
-  const [scopeFilter, setScopeFilter] = useState<string>("ALL");
+  const searchTerm = searchParams.get("policySearch") ?? "";
+  const debouncedSearchTerm = useDebouncedSearch(searchTerm, 350);
+  const methodFilter = searchParams.get("policyMethod") ?? "ALL";
+  const scopeFilter = searchParams.get("policyScope") ?? "ALL";
+  const current = normalizePage(Number(searchParams.get("policyPage")));
+  const pageSize = normalizePageSize(Number(searchParams.get("policyPageSize") ?? DEFAULT_LIST_PAGE_SIZE));
+
+  const updateUrl = useCallback((updates: Record<string, string | undefined>) => {
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      for (const [key, value] of Object.entries(updates)) {
+        if (value && value !== "ALL") next.set(key, value);
+        else next.delete(key);
+      }
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
 
   // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -88,9 +106,9 @@ export const DriverPayPolicyList: React.FC = () => {
   const filteredData = useMemo(() => {
     return latestPolicies.filter((policy) => {
       const matchSearch =
-        !searchTerm ||
-        policy.policyCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        policy.name.toLowerCase().includes(searchTerm.toLowerCase());
+        !debouncedSearchTerm ||
+        policy.policyCode.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        policy.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
 
       const matchMethod =
         methodFilter === "ALL" || policy.payMethod === methodFilter;
@@ -102,7 +120,7 @@ export const DriverPayPolicyList: React.FC = () => {
 
       return matchSearch && matchMethod && matchScope;
     });
-  }, [latestPolicies, searchTerm, methodFilter, scopeFilter]);
+  }, [latestPolicies, debouncedSearchTerm, methodFilter, scopeFilter]);
 
   const handleCreateSubmit = async (request: DriverPayPolicyRequest) => {
     const created = await createPolicy(request);
@@ -121,7 +139,7 @@ export const DriverPayPolicyList: React.FC = () => {
     }
   };
 
-  const renderRateSummary = (record: DriverPayPolicyView) => {
+  const renderRateSummary = useCallback((record: DriverPayPolicyView) => {
     switch (record.payMethod) {
       case "PER_MILE":
         return `${record.perMileRate ?? 0} ${record.currency}/mi`;
@@ -138,9 +156,9 @@ export const DriverPayPolicyList: React.FC = () => {
       default:
         return "-";
     }
-  };
+  }, []);
 
-  const columns: ColumnsType<DriverPayPolicyView> = [
+  const columns: ColumnsType<DriverPayPolicyView> = useMemo(() => [
     {
       title: t("settlements.policyCode", "Policy Code"),
       dataIndex: "policyCode",
@@ -247,7 +265,7 @@ export const DriverPayPolicyList: React.FC = () => {
         </Space>
       ),
     },
-  ];
+  ], [groupedPolicies, navigate, renderRateSummary, t]);
 
   return (
     <div className="settlements-container">
@@ -282,21 +300,19 @@ export const DriverPayPolicyList: React.FC = () => {
         <FilterBar
           hasActiveFilter={Boolean(searchTerm || methodFilter !== "ALL" || scopeFilter !== "ALL")}
           onReset={() => {
-            setSearchTerm("");
-            setMethodFilter("ALL");
-            setScopeFilter("ALL");
+            updateUrl({ policySearch: undefined, policyMethod: undefined, policyScope: undefined, policyPage: "1" });
           }}
         >
           <Input
             allowClear
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => updateUrl({ policySearch: e.target.value.trim() || undefined, policyPage: "1" })}
             placeholder={t("settlements.searchPolicies", "Search by code or name")}
             prefix={<SearchOutlined />}
             style={{ width: "100%" }}
             value={searchTerm}
           />
           <Select
-            onChange={setMethodFilter}
+            onChange={(value) => updateUrl({ policyMethod: value, policyPage: "1" })}
             options={[
               { value: "ALL", label: t("settlements.allMethods", "All Pay Methods") },
               ...PAY_METHODS.map((m) => ({ value: m, label: m })),
@@ -305,7 +321,7 @@ export const DriverPayPolicyList: React.FC = () => {
             value={methodFilter}
           />
           <Select
-            onChange={setScopeFilter}
+            onChange={(value) => updateUrl({ policyScope: value, policyPage: "1" })}
             options={[
               { value: "ALL", label: t("settlements.allScopes", "All Scopes") },
               { value: "DEFAULT", label: t("settlements.defaultOnly", "Default Only (All Drivers)") },
@@ -324,7 +340,7 @@ export const DriverPayPolicyList: React.FC = () => {
               <QueryErrorState
                 description={error?.message}
                 onRetry={() => void refetch()}
-                retrying={isLoading}
+                retrying={isFetching}
               />
             )
           ) : (
@@ -332,8 +348,19 @@ export const DriverPayPolicyList: React.FC = () => {
               rowKey="id"
               columns={columns}
               dataSource={filteredData}
-              loading={isLoading}
-              pagination={{ pageSize: 15 }}
+              loading={isFetching}
+              pagination={{
+                current,
+                pageSize,
+                total: filteredData.length,
+                ...createListPaginationConfig(t),
+                onChange: (nextPage, nextPageSize) => {
+                  updateUrl({
+                    policyPage: String(nextPageSize === pageSize ? nextPage : 1),
+                    policyPageSize: String(nextPageSize),
+                  });
+                },
+              }}
               scroll={{ x: 1240 }}
               size="middle"
               locale={{ emptyText: <EmptyState description={t("settlements.noPoliciesFound", "No pay policies found")} /> }}

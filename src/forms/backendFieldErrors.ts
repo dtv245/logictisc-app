@@ -94,6 +94,16 @@ export function focusFirstFormError(
   return true;
 }
 
+/**
+ * True when the backend attached at least one error to a form field. Callers
+ * use this to skip a generic toast that would duplicate inline field errors.
+ */
+export function hasBackendFieldErrors(
+  error: { errors?: BackendFieldErrorMap } | undefined,
+): boolean {
+  return Boolean(error?.errors && Object.keys(error.errors).length > 0);
+}
+
 export function applyBackendFieldErrors(
   form: FieldErrorFormTarget,
   fieldErrors: BackendFieldErrorMap,

@@ -238,7 +238,7 @@ describe("BaseTable — trạng thái bình thường", () => {
       </I18nextProvider>,
     );
 
-    expect(screen.getByText(/Hiển thị 1–10 trên tổng số 42/)).toBeInTheDocument();
+    expect(screen.getByText(/1–10 \/ 42 mục/)).toBeInTheDocument();
   });
 
   it("giữ min-height cho wrapper khi bảng đang tải để tránh co giật layout", () => {

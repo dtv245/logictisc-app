@@ -1,4 +1,4 @@
-import { fireEvent, render as rtlRender, screen } from "@testing-library/react";
+import { fireEvent, render as rtlRender, screen, waitFor } from "@testing-library/react";
 import { Refine } from "@refinedev/core";
 import type { ReactNode } from "react";
 import { createAccessControlProvider } from "@providers/accessControlProvider";
@@ -155,7 +155,7 @@ describe("DriverPayPolicyList", () => {
     expect(screen.getByText("Read-Only")).toBeInTheDocument();
   });
 
-  it("filters policies by search term", () => {
+  it("filters policies by search term", async () => {
     render(
       <MemoryRouter>
         <DriverPayPolicyList />
@@ -165,7 +165,8 @@ describe("DriverPayPolicyList", () => {
     const searchInput = screen.getByPlaceholderText("Search by code or name");
     fireEvent.change(searchInput, { target: { value: "POL-002" } });
 
+    // Ô tìm kiếm debounce trước khi áp bộ lọc.
+    await waitFor(() => expect(screen.queryByText("Standard Mileage Policy v2")).not.toBeInTheDocument());
     expect(screen.getByText("Owner Operator Percent Revenue")).toBeInTheDocument();
-    expect(screen.queryByText("Standard Mileage Policy v2")).not.toBeInTheDocument();
   });
 });

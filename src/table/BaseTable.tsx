@@ -28,6 +28,7 @@ import { ApiHttpError } from "@/utils/httpError";
 import { resolveApiErrorMessage } from "@/utils/errorMessages";
 import "./BaseTable.scss";
 import { useShellTableLayout } from "./useShellTableLayout";
+import { createListPaginationConfig } from "@/constants/pagination";
 
 /**
  * Phần của kết quả query mà bảng cần. Khai hẹp thay vì nhận cả `QueryObserverResult`
@@ -196,17 +197,10 @@ const BaseTableComponent = <TData extends BaseRecord>({
       size: "small" as const,
       responsive: true,
       showLessItems: true,
-      showSizeChanger: isMobile ? false : (paginationObj.showSizeChanger ?? true),
-      pageSizeOptions: ["10", "20", "25", "50", "100"],
       showQuickJumper: isMobile ? false : (paginationObj.showQuickJumper ?? total > 50),
-      showTotal: (totalCount: number, range: [number, number]) =>
-        t("table.pagination.total", {
-          from: range[0],
-          to: range[1],
-          total: totalCount,
-          defaultValue: `${range[0]}–${range[1]} / ${totalCount}`,
-        }),
       ...paginationObj,
+      ...createListPaginationConfig(t),
+      showSizeChanger: isMobile ? false : (paginationObj.showSizeChanger ?? true),
       // The URL may contain zero/NaN even when the API serializer sends valid numbers.
       // Preserve uncontrolled local tables; adding current=1 would freeze their navigation.
       ...(paginationObj.current !== undefined ? { current: Math.max(1, normalizePage(paginationObj.current)) } : {}),

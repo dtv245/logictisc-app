@@ -84,7 +84,7 @@ describe("tripColumns — Chuẩn hóa UI Trips List theo Trucks", () => {
     expect(link).toHaveAttribute("href", "/trips/show/trip-101");
   });
 
-  it("cột totalDistance: align right, tabular-nums, kèm đơn vị km và định dạng số", () => {
+  it("cột totalDistance: align right, tabular-nums, dùng đơn vị dặm như chi tiết chuyến", () => {
     const sampleTrip: Trip = {
       id: "trip-102",
       number: 102,
@@ -96,8 +96,8 @@ describe("tripColumns — Chuẩn hóa UI Trips List theo Trucks", () => {
 
     renderWithProviders(<TableHarness data={[sampleTrip]} />);
 
-    // Kiểm tra định dạng số và đơn vị km
-    expect(screen.getByText(/1\.050 km/)).toBeInTheDocument();
+    // Cùng một trường totalDistance phải hiển thị cùng đơn vị với trang chi tiết.
+    expect(screen.getByText(/1\.050 mi/)).toBeInTheDocument();
 
     // Cột totalDistance có align right và numeric
     const totalDistanceCol = tripColumns.find((col) => col.dataIndex === "totalDistance");

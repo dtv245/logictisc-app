@@ -5,10 +5,16 @@ import { UUID_PATTERN } from "@/utils/uuid";
 
 export interface ProfitabilityFilterValues { loadId?: string; }
 
-export function ProfitabilityFilters({ onApply }: { onApply: (values: ProfitabilityFilterValues) => void }) {
+export function ProfitabilityFilters({
+  initialValues,
+  onApply,
+}: {
+  initialValues?: ProfitabilityFilterValues;
+  onApply: (values: ProfitabilityFilterValues) => void;
+}) {
   const { t } = useTranslation();
   const [form] = Form.useForm<ProfitabilityFilterValues>();
-  return <Form form={form} layout="vertical" onFinish={(values) => onApply({ loadId: values.loadId?.trim() || undefined })}>
+  return <Form initialValues={initialValues} form={form} layout="vertical" onFinish={(values) => onApply({ loadId: values.loadId?.trim() || undefined })}>
     <Space wrap align="start">
       <Form.Item name="loadId" label={t("finance.loadId")} rules={[{ pattern: UUID_PATTERN, message: t("finance.invalidLoadId"), whitespace: false }]}>
         <Input placeholder={t("finance.loadIdPlaceholder")} allowClear />

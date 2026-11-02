@@ -19,6 +19,8 @@ import { usePayrollPaymentActions } from "../hooks/usePayrollPaymentActions";
 import { SchedulePayrollPaymentModal } from "./SchedulePayrollPaymentModal";
 import { maskPaymentReference } from "../utils/paymentDisplay";
 import { payrollApi, payrollKeys } from "../api/payroll.api";
+import { PayrollReason } from "@/components/payroll/PayrollReason";
+import { PAYROLL_RECONCILIATION_REASONS } from "@/constants/payrollReasons";
 
 function PaymentAttempts({ item, run }: { item: PayrollItem; run: PayrollRun }) {
   const { t, i18n } = useTranslation(); const { tenant } = useCurrentTenant(); const access = useCan({ resource: "payroll", action: "PAYROLL_VIEW" });
@@ -34,7 +36,7 @@ function PaymentAttempts({ item, run }: { item: PayrollItem; run: PayrollRun }) 
     { title: t("loads.financial.amount"), width: 120, render: (_, row) => financialAmount(row.amount, row.currency, i18n.language) },
     { title: t("payroll.provider"), dataIndex: "providerKey", width: 120, render: (value: string | null) => value ?? "—" },
     { title: t("payroll.reference"), dataIndex: "providerReference", width: 140, render: maskPaymentReference },
-    { title: t("payroll.failure"), width: 180, render: (_, row) => row.failureCode ? <Alert type="error" message={t(`payroll.errors.${row.failureCode}`, { defaultValue: row.failureMessage ?? row.failureCode })} description={row.failureCode} /> : "—" },
+    { title: t("payroll.failure"), width: 180, render: (_, row) => row.failureCode ? <Alert type="error" message={Object.hasOwn(PAYROLL_RECONCILIATION_REASONS, row.failureCode) ? <PayrollReason reason={row.failureCode} /> : i18n.exists(`payroll.errors.${row.failureCode}`) ? t(`payroll.errors.${row.failureCode}`) : (row.failureMessage ?? <PayrollReason reason={row.failureCode} />)} description={row.failureCode} /> : "—" },
     ...(["scheduledAt", "succeededAt"] as const).map((field) => ({ title: t(`payroll.${field}`), dataIndex: field, width: 150, render: (value: string | null) => formatDateTime(value, { locale: i18n.language }) })),
     { title: t("common.actions"), width: 140, fixed: "right" as const, render: (_, payment) => actions.canDispatch(payment) ? <ConfirmActionModal disabled={actions.pending} title={t("payroll.dispatchPayment")} triggerLabel={t("payroll.dispatchPayment")} triggerAriaLabel={t("payroll.dispatchPayment")} description={t("payroll.paymentConfirm")} onConfirm={async () => { await actions.execute({ action: "dispatch", payment }); }} /> : "—" },
   ]} /></Space>;

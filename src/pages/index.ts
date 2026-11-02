@@ -47,8 +47,10 @@ import {
 } from "./employees";
 import DriverCreate from "./drivers/create";
 import DriverEdit from "./drivers/edit";
-import DriverList from "./drivers/list";
-import DriverShow from "./drivers/show";
+import { DriverDirectoryPage } from "./drivers/DriverDirectoryPage";
+import { DriverExpiringPage } from "./drivers/DriverExpiringPage";
+import { DriverPayrollProfilePage, DriverProfilePage, DriverSelfProfilePage } from "./drivers/DriverProfilePage";
+import { driverProfileRoutes } from "@/constants/driverProfileRoutes";
 import {
   ExpenseCreate,
   ExpenseEdit,
@@ -150,7 +152,7 @@ interface CrudPageComponents {
 }
 
 export interface ResourcePageRoute {
-  action: "create" | "edit" | "list" | "show";
+  action: "create" | "edit" | "list" | "show" | "DRIVER_PROFILE_SELF_VIEW" | "DRIVER_PAYROLL_PROFILE_VIEW";
   component: ComponentType;
   path: string;
   resource: string;
@@ -229,8 +231,11 @@ export const appResourcePageRoutes: ResourcePageRoute[] = [
     Create: TripCreate, Edit: TripEdit, List: TripList, Show: TripShow,
   }),
   ...createResourcePageRoutes(routes.resources.drivers, {
-    Create: DriverCreate, Edit: DriverEdit, List: DriverList, Show: DriverShow,
+    Create: DriverCreate, Edit: DriverEdit, List: DriverDirectoryPage, Show: DriverProfilePage,
   }),
+  { action: "list", component: DriverExpiringPage, path: driverProfileRoutes.expiring, resource: "drivers" },
+  { action: "DRIVER_PAYROLL_PROFILE_VIEW", component: DriverPayrollProfilePage, path: driverProfileRoutes.payrollProfile, resource: "drivers" },
+  { action: "DRIVER_PROFILE_SELF_VIEW", component: DriverSelfProfilePage, path: driverProfileRoutes.myProfile, resource: "drivers" },
   ...createResourcePageRoutes(routes.resources.customers, {
     Create: CustomerCreate, Edit: CustomerEdit, List: CustomerList, Show: CustomerShow,
   }),

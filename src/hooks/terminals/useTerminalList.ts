@@ -1,4 +1,3 @@
-import { useTable } from "@refinedev/antd";
 import { useCan } from "@refinedev/core";
 import type { PaginationConfig } from "antd/es/pagination";
 import { useMemo } from "react";
@@ -6,6 +5,8 @@ import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { useEntityFilters } from "@/hooks/useEntityFilters";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable";
+import { createListPaginationConfig } from "@/constants/pagination";
 import type { ApiError } from "@/types/api.types";
 import type { Terminal } from "@/types/terminal.types";
 import { DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE } from "@/utils/querySerializer";
@@ -20,18 +21,17 @@ export const useTerminalList = () => {
   const {
     filters,
     setCurrent,
+    setPageSize,
     setFilters,
     tableProps,
     tableQueryResult,
-  } = useTable<Terminal, ApiError>({
+  } = usePaginatedTable<Terminal, ApiError>({
     pagination: {
-      mode: "server",
       current: DEFAULT_LIST_PAGE,
       pageSize: DEFAULT_LIST_PAGE_SIZE,
     },
     queryOptions: { enabled: !isMockPreview },
     resource: "terminals",
-    syncWithLocation: true,
   });
 
   const entityFilters = useEntityFilters("terminals", {
@@ -69,24 +69,28 @@ export const useTerminalList = () => {
   const terminals = isMockPreview
     ? mockTerminals
     : ((tableProps.dataSource ?? []) as Terminal[]);
-  const isLoading = !isMockPreview && tableQueryResult.isLoading;
   const totalCount = isMockPreview
     ? terminals.length
     : (tableQueryResult.data?.total ?? terminals.length);
-  const listPagination: false | PaginationConfig = isMockPreview || !tableProps.pagination
+  const sourcePagination = tableProps.pagination;
+  const listPagination: false | PaginationConfig = isMockPreview || !sourcePagination
     ? false
     : {
-        current: tableProps.pagination.current,
-        pageSize: tableProps.pagination.pageSize,
-        total: tableProps.pagination.total,
-        onChange: (page: number) => setCurrent(page),
+        ...createListPaginationConfig(t),
+        current: sourcePagination.current,
+        pageSize: sourcePagination.pageSize,
+        total: sourcePagination.total,
+        onChange: (page: number, nextPageSize: number) => {
+          if (nextPageSize !== sourcePagination.pageSize) setPageSize(nextPageSize);
+          setCurrent(nextPageSize === sourcePagination.pageSize ? page : 1);
+        },
       };
 
   return {
     createAllowed: !isMockPreview && createAccess?.can === true,
     entityFilters,
     isFetching: !isMockPreview && tableQueryResult.isFetching,
-    isLoading,
+    isLoading: !isMockPreview && tableQueryResult.isFetching,
     isMockPreview,
     listPagination,
     onRetry: () => void tableQueryResult.refetch(),

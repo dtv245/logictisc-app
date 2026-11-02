@@ -1,28 +1,46 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { aiQueryKeys, fetchAiRuns } from "@/api/ai/ai.api";
-import type { AiRun } from "@/api/ai/ai.types";
+import type { AiRunPage } from "@/api/ai/ai.types";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 
 export interface UseAiRunsOptions {
   loadId?: string;
   canViewRuns?: boolean;
+  page?: number;
+  pageSize?: number;
 }
 
-export function useAiRuns({ loadId, canViewRuns = false }: UseAiRunsOptions = {}) {
+export function useAiRuns({ loadId, canViewRuns = false, page = 0, pageSize = 20 }: UseAiRunsOptions = {}) {
   const { tenant } = useCurrentTenant();
+  const queryClient = useQueryClient();
+  const queryKey = aiQueryKeys.runs(tenant?.tenantKey, loadId, page, pageSize);
 
-  const queryKey = aiQueryKeys.runs(tenant?.tenantKey, loadId);
-
-  const query = useQuery<AiRun[]>({
+  const query = useQuery<AiRunPage>({
     queryKey,
-    queryFn: () => fetchAiRuns(loadId),
+    queryFn: ({ signal }) => fetchAiRuns(loadId, page, pageSize, signal),
     enabled: Boolean(canViewRuns),
+    keepPreviousData: true,
     staleTime: 30 * 1000,
   });
 
+  useEffect(() => {
+    const pageData = query.data;
+    const nextPage = page + 1;
+    if (!canViewRuns || !pageData || pageData.totalItems <= nextPage * pageSize) return;
+    const nextKey = aiQueryKeys.runs(tenant?.tenantKey, loadId, nextPage, pageSize);
+    void queryClient.prefetchQuery(
+      nextKey,
+      ({ signal }) => fetchAiRuns(loadId, nextPage, pageSize, signal),
+      { staleTime: 30 * 1000 },
+    );
+  }, [canViewRuns, loadId, page, pageSize, query.data, queryClient, tenant?.tenantKey]);
+
   return {
-    runs: query.data ?? [],
+    runs: query.data?.items ?? [],
+    total: query.data?.totalItems ?? 0,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isError: query.isError,
     error: query.error,
     refetch: query.refetch,

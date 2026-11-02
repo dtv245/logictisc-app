@@ -25,6 +25,19 @@ const dashboardDataState = vi.hoisted(() => ({
   refetchAll: vi.fn(),
 }));
 
+const tmsLoadsState = vi.hoisted(() => ({
+  data: undefined as
+    | {
+        collection: { items: unknown[]; totalItems: number; truncated: boolean };
+        shipments: unknown[];
+        generatedAt: number;
+      }
+    | undefined,
+  isLoading: false,
+  error: null as unknown,
+  refetch: vi.fn(),
+}));
+
 // Helper to set viewport
 const setViewport = (width: number, height = 800) => {
   Object.defineProperty(window, "innerWidth", { writable: true, configurable: true, value: width });
@@ -81,6 +94,10 @@ vi.mock("@/hooks/useDashboardData", () => ({
   useDashboardData: () => dashboardDataState,
 }));
 
+vi.mock("@/hooks/tms-flow/useTmsQueries", () => ({
+  useTmsLoads: () => tmsLoadsState,
+}));
+
 vi.mock("@/hooks/dashboard/usePriorityShipments", () => ({
   usePriorityShipments: () => ({
     shipments: [],
@@ -105,6 +122,21 @@ describe("Dashboard & Operations Responsive Verification", () => {
     dashboardDataState.otd = { data: { otdPercentage: 94 }, isLoading: false, error: null };
     dashboardDataState.delays = { data: { totalLateLoads: 3 }, isLoading: false, error: null };
     dashboardDataState.exceptions = { data: { totalExceptions: 2 }, isLoading: false, error: null };
+
+    const now = Date.now();
+    const shipments = [
+      ...Array.from({ length: 7 }, () => ({ status: "in_transit", risk: "none", assignedTruckId: "truck" })),
+      ...Array.from({ length: 4 }, () => ({ status: "assigned", risk: "delayed", assignedTruckId: "truck" })),
+      ...Array.from({ length: 5 }, () => ({ status: "assigned", risk: "at_risk", assignedTruckId: "truck" })),
+      ...Array.from({ length: 8 }, () => ({ status: "delivered", risk: "none", deliveredAt: new Date(now).toISOString(), assignedTruckId: "truck" })),
+    ];
+    tmsLoadsState.data = {
+      collection: { items: shipments, totalItems: shipments.length, truncated: false },
+      shipments,
+      generatedAt: now,
+    };
+    tmsLoadsState.isLoading = false;
+    tmsLoadsState.error = null;
   });
 
   describe("1. DashboardHeader responsive controls", () => {
@@ -256,40 +288,65 @@ describe("Dashboard & Operations Responsive Verification", () => {
       expect(screen.queryByText("LD-84920")).not.toBeInTheDocument();
       expect(screen.getByRole("region", { name: "Bản tin điều phối" })).toBeInTheDocument();
       expect(screen.getByText("94")).toBeInTheDocument();
-      expect(screen.getByText("3")).toBeInTheDocument();
+      expect(screen.getByText("7")).toBeInTheDocument();
+      expect(screen.getByText("9")).toBeInTheDocument();
+      expect(screen.getByText("8")).toBeInTheDocument();
       expect(screen.getByText("2")).toBeInTheDocument();
+      expect(screen.getByText("Tính trên 24 đơn đã tải")).toBeInTheDocument();
       expect(screen.queryByText("28")).not.toBeInTheDocument();
       expect(screen.queryByText("46")).not.toBeInTheDocument();
       expect(screen.queryByText("14")).not.toBeInTheDocument();
     });
 
     it("keeps an Operations API 403 in error state and exposes recovery instead of zero/unavailable", () => {
-      dashboardDataState.delays = {
-        data: undefined,
-        isLoading: false,
-        error: new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Forbidden", requestId: "ops-forbidden" }),
-      };
+      tmsLoadsState.data = undefined;
+      tmsLoadsState.error = new ApiHttpError({ statusCode: 403, code: "FORBIDDEN", message: "Forbidden", requestId: "ops-forbidden" });
       renderWithProviders(<OperationsDashboardView />);
 
-      const atRisk = document.querySelector(".ops-kpi-item--error");
-      expect(atRisk).not.toBeNull();
-      expect(atRisk).toHaveTextContent("Lỗi");
-      expect(atRisk).not.toHaveTextContent("Dữ liệu nguồn chưa sẵn sàng");
-      expect(atRisk).not.toHaveTextContent("—");
-      fireEvent.click(screen.getByRole("button", { name: "Thử lại" }));
+      const errored = document.querySelector(".ops-kpi-item--error");
+      expect(errored).not.toBeNull();
+      expect(errored).toHaveTextContent("Lỗi");
+      expect(errored).not.toHaveTextContent("Dữ liệu nguồn chưa sẵn sàng");
+      expect(errored).not.toHaveTextContent("—");
+      fireEvent.click(screen.getAllByRole("button", { name: "Thử lại" })[0]);
+      expect(tmsLoadsState.refetch).toHaveBeenCalledTimes(1);
       expect(dashboardDataState.refetchAll).toHaveBeenCalledTimes(1);
     });
 
     it("keeps Operations KPI values in loading while the requests are pending", () => {
+      tmsLoadsState.data = undefined;
+      tmsLoadsState.isLoading = true;
       dashboardDataState.otd = { data: undefined, isLoading: true, error: null };
-      dashboardDataState.delays = { data: undefined, isLoading: true, error: null };
       dashboardDataState.exceptions = { data: undefined, isLoading: true, error: null };
 
       renderWithProviders(<OperationsDashboardView />);
 
-      expect(document.querySelectorAll(".ops-kpi-item--loading")).toHaveLength(3);
+      expect(document.querySelectorAll(".ops-kpi-item--loading")).toHaveLength(5);
       expect(document.querySelectorAll(".ops-kpi-item--error")).toHaveLength(0);
-      expect(document.querySelectorAll(".ops-kpi-item--unavailable")).toHaveLength(3);
+      expect(document.querySelectorAll(".ops-kpi-item--unavailable")).toHaveLength(1);
+    });
+
+    it("shows confirmed zeros and marks when operational KPIs cover only part of the loads", () => {
+      tmsLoadsState.data = {
+        collection: { items: [], totalItems: 0, truncated: false },
+        shipments: [],
+        generatedAt: Date.now(),
+      };
+      const { unmount } = renderWithProviders(<OperationsDashboardView />);
+
+      const inTransit = screen.getByText("Đang trên đường").closest(".ops-kpi-item");
+      expect(inTransit).toHaveTextContent("0");
+      expect(inTransit).not.toHaveTextContent("Chưa có dữ liệu được xác nhận");
+      expect(screen.getByText("Tính trên 0 đơn đã tải")).toBeInTheDocument();
+      unmount();
+
+      tmsLoadsState.data = {
+        collection: { items: [{}, {}], totalItems: 50, truncated: true },
+        shipments: [],
+        generatedAt: Date.now(),
+      };
+      renderWithProviders(<OperationsDashboardView />);
+      expect(screen.getByText(/Chỉ tải được 2\/50 đơn/)).toBeInTheDocument();
     });
 
     it("localizes dashboard KPI labels and search controls", async () => {

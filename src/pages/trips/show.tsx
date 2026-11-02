@@ -31,6 +31,11 @@ export const TripShow = () => {
 
   const trip = queryResult.data?.data;
   const tripId = trip?.id ? String(trip.id) : "";
+  // Trạng thái chỉ hỗ trợ completedAt khi đã completed. Giữ nguyên dữ liệu
+  // backend nhưng cảnh báo rõ thay vì ẩn timestamp hoặc coi là bình thường.
+  const completedAtInconsistent = Boolean(
+    trip?.completedAt && trip.status?.toLowerCase() !== "completed",
+  );
 
   if (queryResult.isError) {
     return (
@@ -100,13 +105,20 @@ export const TripShow = () => {
             <Descriptions.Item
               label={t("trips.fields.completedAt", "Completed At")}
             >
-              <TextField
-                value={
-                  trip.completedAt
-                    ? formatDateTime(trip.completedAt)
-                    : "—"
-                }
-              />
+              <Space size={4}>
+                <TextField
+                  value={
+                    trip.completedAt
+                      ? formatDateTime(trip.completedAt)
+                      : "—"
+                  }
+                />
+                {completedAtInconsistent ? (
+                  <Tag color="warning">
+                    {t("trips.fields.inconsistent", "Không nhất quán")}
+                  </Tag>
+                ) : null}
+              </Space>
             </Descriptions.Item>
             <Descriptions.Item
               label={t("trips.fields.cancelledAt", "Cancelled At")}
@@ -157,6 +169,15 @@ export const TripShow = () => {
       <TripMileageSummary
         legacyTotalDistance={trip.totalDistance}
       />
+
+      {completedAtInconsistent ? (
+        <Alert
+          style={{ marginBottom: 16 }}
+          type="warning"
+          showIcon
+          message="Dữ liệu không nhất quán: chuyến chưa hoàn tất nhưng đã có thời điểm hoàn tất. Vui lòng liên hệ quản trị viên."
+        />
+      ) : null}
 
       <Tabs
         activeKey={activeTab}

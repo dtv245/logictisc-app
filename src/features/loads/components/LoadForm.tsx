@@ -247,12 +247,8 @@ export const LoadForm = ({
                 </>
               )}
               <Col xs={24} md={12}>
-                <Form.Item label="Container gắn kèm" name="containerId">
-                  <EntityPicker
-                    resource="containers"
-                    placeholder="Chọn container (nếu có)"
-                    labelFormat={(r) => (r.number ? String(r.number) : String(r.id))}
-                  />
+                <Form.Item label="Container gắn kèm" name="containerId" extra="Chức năng chọn container chưa khả dụng. Bạn có thể tạo đơn hàng mà không chọn container.">
+                  <Select disabled placeholder="Chưa hỗ trợ chọn container" />
                 </Form.Item>
               </Col>
             </Row>
@@ -388,7 +384,7 @@ export const LoadForm = ({
       {/* Thanh thao tác dính đáy */}
       <FormFooterBar
         onCancel={onCancel}
-        saveButtonProps={saveButtonProps}
+        saveButtonProps={{ ...saveButtonProps, onClick: undefined }}
         saveText={isEdit ? t("actions.save", "Cập nhật đơn hàng") : t("actions.create", "Tạo đơn hàng")}
       />
     </Form>

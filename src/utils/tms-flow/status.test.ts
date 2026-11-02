@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { LoadResponse } from "@/types/load.dto";
 import type { TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
 import {
+  countTmsRiskQueue,
   deriveOperationalStatus,
   deriveRisk,
   matchesTmsQuery,
@@ -179,6 +180,20 @@ describe("queue selectors", () => {
     expect(matchesTmsQuery(open, "missing")).toBe(false);
   });
 
+  it("trims, ignores case and only matches full city or address text", () => {
+    const lane = makeView({
+      originCity: "Los Angeles",
+      destinationCity: "San Francisco",
+      originAddress: "1 Main St, Los Angeles, CA",
+      destinationAddress: "2 Market St, San Francisco, CA",
+    });
+
+    expect(matchesTmsQuery(lane, "  LOS ANGELES ")).toBe(true);
+    expect(matchesTmsQuery(lane, "san francisco")).toBe(true);
+    expect(matchesTmsQuery(lane, "2 market st")).toBe(true);
+    expect(matchesTmsQuery(lane, "LA-SF")).toBe(false);
+  });
+
   it("filters at-risk, unassigned and approvals from the same queue", () => {
     const delayed = makeView({ id: "delayed", risk: "delayed" });
     const unassigned = makeView({ id: "unassigned", risk: "none" });
@@ -273,7 +288,8 @@ describe("summarizeTmsLoads", () => {
       deliveredYesterday,
     ];
 
-    expect(summarizeTmsLoads(views, today)).toEqual({
+    const summary = summarizeTmsLoads(views, today);
+    expect(summary).toEqual({
       active: 3,
       inTransit: 1,
       deliveredToday: 1,
@@ -281,6 +297,8 @@ describe("summarizeTmsLoads", () => {
       atRisk: 1,
       unassigned: 1,
     });
+    // At-risk queue = past due + due inside the window, matching Dispatch.
+    expect(countTmsRiskQueue(summary)).toBe(2);
   });
 
   it("picks the primary risk load and ignores delivered loads", () => {

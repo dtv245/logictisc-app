@@ -17,6 +17,7 @@ import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
 import { ResourceListPage } from "@components/ResourceListPage";
 import { initializeAppI18n } from "@locales";
 import { ApiHttpError } from "@/utils/httpError";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
@@ -91,13 +92,16 @@ const columns = [
 
 async function renderList() {
   const i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
   return render(
-    <I18nextProvider i18n={i18n}>
-      <AntdLocaleProvider>
-        <ResourceListPage columns={columns} resource="loads" />
-      </AntdLocaleProvider>
-    </I18nextProvider>,
+    <QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={i18n}>
+        <AntdLocaleProvider>
+          <ResourceListPage columns={columns} resource="loads" />
+        </AntdLocaleProvider>
+      </I18nextProvider>
+    </QueryClientProvider>,
   );
 }
 

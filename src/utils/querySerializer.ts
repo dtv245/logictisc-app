@@ -11,13 +11,20 @@ import type {
   CrudSorting,
 } from "@refinedev/core";
 
+import {
+  DEFAULT_LIST_PAGE,
+  DEFAULT_LIST_PAGE_SIZE,
+  MAX_LIST_PAGE_SIZE,
+} from "@/constants/pagination";
 import type { ListQuerySerializationOptions, QueryParameters, QueryParameterValue } from "@/types/query.types";
 
 import { clampInteger, truncateToInteger } from "@formatters/number";
 
-export const DEFAULT_LIST_PAGE = 1;
-export const DEFAULT_LIST_PAGE_SIZE = 25;
-export const MAX_LIST_PAGE_SIZE = 100;
+export {
+  DEFAULT_LIST_PAGE,
+  DEFAULT_LIST_PAGE_SIZE,
+  MAX_LIST_PAGE_SIZE,
+} from "@/constants/pagination";
 
 export const normalizePage = (page: number | undefined): number =>
   clampInteger(truncateToInteger(page ?? Number.NaN, DEFAULT_LIST_PAGE), DEFAULT_LIST_PAGE, Number.MAX_SAFE_INTEGER);

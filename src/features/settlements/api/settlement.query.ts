@@ -3,7 +3,7 @@ import { useCan, useCustom, useCustomMutation, useNotification } from "@refinede
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { ApiError, PagedResponse } from "@/types/api.types";
+import type { ApiError } from "@/types/api.types";
 import type {
   CalculateSettlementPayload,
   DriverSettlementView,
@@ -20,6 +20,7 @@ export const SETTLEMENTS_QUERY_KEY = ["driver-settlements"];
 export interface UseSettlementsReturn {
   settlements: DriverSettlementView[];
   isLoading: boolean;
+  isFetching: boolean;
   isError: boolean;
   error: ApiError | null;
   refetch: () => void;
@@ -36,14 +37,19 @@ export const useSettlements = (
   if (filters?.status) queryParams.status = filters.status;
   if (filters?.settlementType) queryParams.settlementType = filters.settlementType;
 
-  const { data, isLoading, isError, error, refetch } = useCustom<
+  const { data, isLoading, isFetching, isError, error, refetch } = useCustom<
     DriverSettlementView[],
     ApiError,
     Record<string, string>
   >({
     url: SETTLEMENT_ENDPOINTS.list,
     errorNotification: false,
-    queryOptions: { queryKey: settlementKeys.list(tenant?.tenantKey, filters), enabled: Boolean(tenant?.tenantKey && access.data?.can) },
+    queryOptions: {
+      queryKey: settlementKeys.list(tenant?.tenantKey, filters),
+      enabled: Boolean(tenant?.tenantKey && access.data?.can),
+      keepPreviousData: true,
+      staleTime: 30_000,
+    },
     method: "get",
     config: {
       query: Object.keys(queryParams).length > 0 ? queryParams : undefined,
@@ -53,6 +59,7 @@ export const useSettlements = (
   return {
     settlements: Array.isArray(data?.data) ? data.data : [],
     isLoading,
+    isFetching,
     isError,
     error: error ?? null,
     refetch,
@@ -80,62 +87,6 @@ export const usePayPeriods = (): UsePayPeriodsReturn => {
 
   return {
     payPeriods: Array.isArray(data?.data) ? data.data : [],
-    isLoading,
-    isError,
-    refetch,
-  };
-};
-
-export interface DriverOption {
-  id: string;
-  fullName: string;
-  email?: string;
-}
-
-export interface UseDriversReturn {
-  drivers: DriverOption[];
-  isLoading: boolean;
-  isError: boolean;
-  refetch: () => void;
-}
-
-interface RawEmployee {
-  id: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-}
-
-export const useDrivers = (): UseDriversReturn => {
-  const { tenant } = useCurrentTenant();
-  const access = useCan({ resource: "drivers", action: "read" });
-  const { data, isLoading, isError, refetch } = useCustom<
-    PagedResponse<RawEmployee>,
-    ApiError
-  >({
-    url: SETTLEMENT_ENDPOINTS.drivers,
-    queryOptions: { queryKey: settlementKeys.drivers(tenant?.tenantKey), enabled: Boolean(tenant?.tenantKey && access.data?.can) },
-    method: "get",
-    config: {
-      query: {
-        page: 1,
-        pageSize: 100,
-      },
-    },
-  });
-
-  const rawList = Array.isArray(data?.data?.items)
-    ? data.data.items
-    : [];
-
-  const drivers: DriverOption[] = rawList.map((emp) => ({
-    id: emp.id,
-    fullName: `${emp.firstName ?? ""} ${emp.lastName ?? ""}`.trim() || emp.email || emp.id,
-    email: emp.email,
-  }));
-
-  return {
-    drivers,
     isLoading,
     isError,
     refetch,

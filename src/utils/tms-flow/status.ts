@@ -200,6 +200,14 @@ export const summarizeTmsLoads = (
   };
 };
 
+/**
+ * At-risk queue shown by Dispatch and the operations KPI: past-due loads plus
+ * loads due inside the risk window. `delayed` stays a strict subset so screens
+ * can still explain the two buckets separately.
+ */
+export const countTmsRiskQueue = (summary: TmsOperationsSummary): number =>
+  summary.delayed + summary.atRisk;
+
 /** Earliest due load that is delayed or inside the risk window. */
 export const selectPrimaryRiskShipment = (
   shipments: readonly TmsShipmentView[],

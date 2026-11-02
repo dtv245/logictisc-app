@@ -1,10 +1,15 @@
 import { Alert, Card, Empty, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { useCustom } from "@refinedev/core";
 import { StatusTag } from "@/components/StatusTag";
 import type { StatusTone } from "@/components/StatusTag";
 import type { ApiError } from "@/types/api.types";
 import type { Container } from "@/types/container.types";
+import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
+import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
 
 export interface TerminalContainersTabProps {
   terminalId: string;
@@ -26,7 +31,16 @@ const containerStatusToneMap: Record<string, StatusTone> = {
  * Gọi API `GET /api/containers?currentTerminalId={terminalId}`.
  */
 export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps) => {
-  const { data, isLoading, isError, error } = useCustom<
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const savedTerminalId = searchParams.get("terminalContainersTerminalId");
+  const current = savedTerminalId === terminalId
+    ? normalizePage(Number(searchParams.get("terminalContainersPage")))
+    : 1;
+  const pageSize = normalizePageSize(Number(
+    savedTerminalId === terminalId ? searchParams.get("terminalContainersPageSize") : DEFAULT_LIST_PAGE_SIZE,
+  ));
+  const { data, isFetching, isError, error } = useCustom<
     { items?: Container[] } | Container[],
     ApiError
   >({
@@ -49,7 +63,7 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
     ? rawData
     : (rawData as { items?: Container[] })?.items ?? [];
 
-  const columns: ColumnsType<Container> = [
+  const columns: ColumnsType<Container> = useMemo(() => [
     {
       title: "Mã số Container",
       dataIndex: "number",
@@ -112,7 +126,7 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
       ellipsis: true,
       render: (value: unknown) => String(value || "—"),
     },
-  ];
+  ], []);
 
   if (isError) {
     return (
@@ -151,10 +165,22 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
     >
       <Table<Container>
         rowKey="id"
-        loading={isLoading}
+        loading={isFetching}
         columns={columns}
         dataSource={containers}
-        pagination={{ pageSize: 10, showSizeChanger: true }}
+        pagination={{
+          current,
+          pageSize,
+          total: containers.length,
+          ...createListPaginationConfig(t),
+          onChange: (nextPage, nextPageSize) => {
+            const params = new URLSearchParams(searchParams);
+            params.set("terminalContainersTerminalId", terminalId);
+            params.set("terminalContainersPage", String(nextPageSize === pageSize ? nextPage : 1));
+            params.set("terminalContainersPageSize", String(nextPageSize));
+            setSearchParams(params);
+          },
+        }}
         locale={{
           emptyText: (
             <Empty

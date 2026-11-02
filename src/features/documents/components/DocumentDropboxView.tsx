@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Breadcrumb,
   Button,
@@ -27,7 +27,6 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import { useApiUrl, useDelete } from "@refinedev/core";
-import { useTable } from "@refinedev/antd";
 import { useTranslation } from "react-i18next";
 import type { Document } from "@/types/document.types";
 import type { ApiError } from "@/types/api.types";
@@ -37,8 +36,12 @@ import { DocumentDropboxCard } from "./DocumentDropboxCard";
 import { DocumentDropboxTable } from "./DocumentDropboxTable";
 import { DocumentDropboxDrawer } from "./DocumentDropboxDrawer";
 import { fetchDocumentDownload } from "../api/documents.api";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import { createListPaginationConfig } from "@/constants/pagination";
 import {
   DOCUMENT_CATEGORY_OPTIONS,
+  normalizeDocumentType,
 } from "./documentUtils";
 import "./DocumentDropboxView.scss";
 
@@ -55,13 +58,11 @@ export const DocumentDropboxView: React.FC = () => {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
 
   // Phân loại danh mục được chọn
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-
-  // Bộ lọc trạng thái
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  // Type/status filters use fields supported by GET /api/documents.
 
   // Sắp xếp
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "nameAsc" | "sizeDesc">("newest");
+  const debouncedSearchKeyword = useDebouncedSearch(searchKeyword, 350);
 
   // File chi tiết đang mở trong Drawer
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
@@ -77,21 +78,36 @@ export const DocumentDropboxView: React.FC = () => {
     setCurrent,
     pageSize,
     setPageSize,
-  } = useTable<Document, ApiError>({
+    filters,
+    setFilters,
+  } = usePaginatedTable<Document, ApiError>({
     resource: "documents",
-    pagination: { mode: "server" },
-    syncWithLocation: true,
   });
+
+  const selectedCategory = String(
+    filters.find((filter) => "field" in filter && filter.field === "type" && "value" in filter)?.value ?? "all",
+  );
+  const selectedStatus = String(
+    filters.find((filter) => "field" in filter && filter.field === "status" && "value" in filter)?.value ?? "all",
+  );
+  const updateDocumentFilter = (field: "type" | "status", value: string) => {
+    const nextFilters = filters.filter((filter) => !("field" in filter && filter.field === field));
+    if (value !== "all") nextFilters.push({ field, operator: "eq", value });
+    setFilters(nextFilters, "replace");
+    setCurrent(1);
+  };
 
   // Hook xóa tài liệu
   const { mutateAsync: deleteDocument } = useDelete();
+  const refetchTable = tableQueryResult.refetch;
 
   // Toàn bộ documents từ kết quả API
   const rawDocuments = useMemo(
     () => (tableProps.dataSource as Document[]) || [],
     [tableProps.dataSource],
   );
-  const isLoading = tableQueryResult.isLoading || tableQueryResult.isFetching;
+  const isLoading = tableQueryResult.isLoading;
+  const isFetching = tableQueryResult.isFetching;
 
   const paginationTotal =
     tableProps.pagination && typeof tableProps.pagination === "object"
@@ -109,10 +125,11 @@ export const DocumentDropboxView: React.FC = () => {
       if (doc.fileSizeBytes) {
         totalSizeBytes += doc.fileSizeBytes;
       }
-      if (doc.type === "bill_of_lading" || doc.type === "proof_of_delivery") {
+      const docType = normalizeDocumentType(doc.type);
+      if (docType === "bill_of_lading" || docType === "proof_of_delivery") {
         transportCount++;
       }
-      if (doc.type === "driver_license" || doc.type === "inspection") {
+      if (docType === "driver_license" || docType === "inspection") {
         fleetCount++;
       }
       if (doc.status === "active") {
@@ -133,19 +150,9 @@ export const DocumentDropboxView: React.FC = () => {
   const filteredDocuments = useMemo(() => {
     let result = [...rawDocuments];
 
-    // Lọc theo danh mục
-    if (selectedCategory !== "all") {
-      result = result.filter((d) => d.type === selectedCategory);
-    }
-
-    // Lọc theo trạng thái
-    if (selectedStatus !== "all") {
-      result = result.filter((d) => d.status === selectedStatus);
-    }
-
-    // Lọc theo từ khóa tìm kiếm (tên file, mô tả, tên file gốc)
-    if (searchKeyword.trim()) {
-      const q = searchKeyword.trim().toLowerCase();
+    // Search remains page-local until the document API supports a search field.
+    if (debouncedSearchKeyword.trim()) {
+      const q = debouncedSearchKeyword.trim().toLowerCase();
       result = result.filter(
         (d) =>
           d.fileName.toLowerCase().includes(q) ||
@@ -176,16 +183,16 @@ export const DocumentDropboxView: React.FC = () => {
     });
 
     return result;
-  }, [rawDocuments, selectedCategory, selectedStatus, searchKeyword, sortBy]);
+  }, [rawDocuments, debouncedSearchKeyword, sortBy]);
 
   // Hành động xem chi tiết
-  const handlePreview = (doc: Document) => {
+  const handlePreview = useCallback((doc: Document) => {
     setSelectedDoc(doc);
     setDrawerOpen(true);
-  };
+  }, []);
 
   // Hành động tải xuống
-  const handleDownload = async (doc: Document) => {
+  const handleDownload = useCallback(async (doc: Document) => {
     setDownloadingDocumentId(doc.id);
     message.loading({
       content: `${t("documents.dropbox.downloadStarted")}: ${doc.fileName}`,
@@ -216,10 +223,10 @@ export const DocumentDropboxView: React.FC = () => {
     } finally {
       setDownloadingDocumentId(null);
     }
-  };
+  }, [apiUrl, t]);
 
   // Hành động xóa tài liệu
-  const handleDelete = async (doc: Document): Promise<boolean> => {
+  const handleDelete = useCallback(async (doc: Document): Promise<boolean> => {
     setDeletingDocumentId(doc.id);
     try {
       await deleteDocument({
@@ -242,14 +249,14 @@ export const DocumentDropboxView: React.FC = () => {
       setSelectedDoc(null);
     }
     try {
-      await tableQueryResult.refetch();
+      await refetchTable();
     } catch {
       message.error(t("queryError.description"));
     } finally {
       setDeletingDocumentId(null);
     }
     return true;
-  };
+  }, [deleteDocument, refetchTable, selectedDoc?.id, t]);
 
   return (
     <div className="documents-dropbox-view" style={{ maxWidth: 1400, margin: "0 auto", padding: "16px 20px 40px" }}>
@@ -336,10 +343,10 @@ export const DocumentDropboxView: React.FC = () => {
             />
 
             <Button
-              icon={<ReloadOutlined spin={isLoading} />}
+              icon={<ReloadOutlined spin={isFetching} />}
               onClick={() => void tableQueryResult.refetch()}
               aria-label={t("actions.refresh")}
-              disabled={isLoading}
+              disabled={isFetching}
               style={{ borderRadius: 8 }}
             />
           </Space>
@@ -364,7 +371,7 @@ export const DocumentDropboxView: React.FC = () => {
           message={t("queryError.title")}
           description={tableQueryResult.error?.message || t("queryError.description")}
           action={
-            <Button size="small" onClick={() => void tableQueryResult.refetch()} disabled={isLoading}>
+            <Button size="small" onClick={() => void tableQueryResult.refetch()} disabled={isFetching}>
               {t("actions.retry")}
             </Button>
           }
@@ -397,7 +404,7 @@ export const DocumentDropboxView: React.FC = () => {
               key={cat.key}
               type={isSelected ? "primary" : "default"}
               icon={cat.icon}
-              onClick={() => setSelectedCategory(cat.value)}
+              onClick={() => updateDocumentFilter("type", cat.value)}
               style={{
                 borderRadius: 20,
                 fontSize: 13,
@@ -448,7 +455,7 @@ export const DocumentDropboxView: React.FC = () => {
                 <FilterOutlined style={{ color: "#64748b" }} />
                 <Select
                   value={selectedStatus}
-                  onChange={setSelectedStatus}
+                  onChange={(value) => updateDocumentFilter("status", value)}
                   style={{ width: 150 }}
                   options={[
                     { value: "all", label: t("documents.dropbox.allStatuses") },
@@ -536,7 +543,7 @@ export const DocumentDropboxView: React.FC = () => {
       ) : (
         <DocumentDropboxTable
           documents={filteredDocuments}
-          loading={isLoading}
+          loading={isFetching}
           deletingDocumentId={deletingDocumentId}
           downloadingDocumentId={downloadingDocumentId}
           onPreview={handlePreview}
@@ -561,20 +568,14 @@ export const DocumentDropboxView: React.FC = () => {
         </Text>
 
         <Pagination
+          {...createListPaginationConfig(t)}
           current={current}
           pageSize={pageSize}
           total={paginationTotal}
-          showSizeChanger
-          pageSizeOptions={["10", "20", "50"]}
           onChange={(page, newPageSize) => {
-            setCurrent(page);
-            if (newPageSize !== pageSize) {
-              setPageSize(newPageSize);
-            }
+            if (newPageSize !== pageSize) setPageSize(newPageSize);
+            setCurrent(newPageSize === pageSize ? page : 1);
           }}
-          showTotal={(total, range) =>
-            `${range[0]}-${range[1]} / ${total} tài liệu`
-          }
         />
       </div>
 

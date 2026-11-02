@@ -6,16 +6,19 @@
 import { Edit, useForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
+import { applyBackendFieldErrors, hasBackendFieldErrors } from "@/forms/backendFieldErrors";
 import type { ApiError } from "@/types/api.types";
 import { routes } from "@constants/routes";
 import { useResourceEditContract } from "@/components/resources/useResourceEditContract";
 import { LoadForm } from "@/features/loads/components/LoadForm";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 
 export const LoadEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const { form, formProps, saveButtonProps, queryResult } = useForm<
     BaseRecord,
@@ -25,6 +28,15 @@ export const LoadEdit = () => {
     action: "edit",
     redirect: "show",
     resource: "loads",
+    // Field-level errors already render under their inputs; keep the toast for
+    // failures that cannot be attached to a field.
+    errorNotification: (error) => {
+      if (hasBackendFieldErrors(error)) return false;
+      return createApiErrorNotification(error, t, {
+        operation: "update",
+        resourceLabel: t("resources.loads", "đơn hàng"),
+      });
+    },
     onMutationError: (error) => {
       applyBackendFieldErrors(form, error.errors ?? {});
       contract.reportError(error);

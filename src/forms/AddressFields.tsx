@@ -56,7 +56,7 @@ export const AddressFields = ({
         <Form.Item
           label="Địa chỉ dòng 1"
           name={line1Name}
-          rules={required ? [{ required: true, message: "Vui lòng nhập địa chỉ" }] : undefined}
+          rules={required ? [{ required: true, whitespace: true, message: "Vui lòng nhập địa chỉ" }] : undefined}
           extra="Số nhà, tên đường"
         >
           <Input placeholder="Ví dụ: 123 Main Street" />
@@ -75,7 +75,7 @@ export const AddressFields = ({
         <Form.Item
           label="Thành phố"
           name={cityName}
-          rules={required ? [{ required: true, message: "Vui lòng nhập thành phố" }] : undefined}
+          rules={required ? [{ required: true, whitespace: true, message: "Vui lòng nhập thành phố" }] : undefined}
         >
           <Input placeholder="Ví dụ: Dallas" />
         </Form.Item>
@@ -85,7 +85,7 @@ export const AddressFields = ({
         <Form.Item
           label="Bang / Tỉnh"
           name={stateName}
-          rules={required ? [{ required: true, message: "Vui lòng nhập bang/tỉnh" }] : undefined}
+          rules={required ? [{ required: true, whitespace: true, message: "Vui lòng nhập bang/tỉnh" }] : undefined}
         >
           <Input placeholder="Ví dụ: TX" maxLength={50} />
         </Form.Item>
@@ -95,7 +95,7 @@ export const AddressFields = ({
         <Form.Item
           label="Mã bưu chính (ZIP)"
           name={zipCodeName}
-          rules={required ? [{ required: true, message: "Vui lòng nhập mã bưu chính" }] : undefined}
+          rules={required ? [{ required: true, whitespace: true, message: "Vui lòng nhập mã bưu chính" }] : undefined}
         >
           <Input placeholder="Ví dụ: 75001" maxLength={20} />
         </Form.Item>
@@ -105,7 +105,7 @@ export const AddressFields = ({
         <Form.Item
           label="Quốc gia"
           name={countryName}
-          rules={required ? [{ required: true, message: "Vui lòng nhập quốc gia" }] : undefined}
+          rules={required ? [{ required: true, whitespace: true, message: "Vui lòng nhập quốc gia" }] : undefined}
         >
           <Input placeholder="Ví dụ: USA" />
         </Form.Item>

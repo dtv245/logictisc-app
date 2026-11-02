@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as refineCore from "@refinedev/core";
 import { TerminalContainersTab } from "@/features/terminals/components/TerminalContainersTab";
@@ -49,7 +50,11 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
       refetch: vi.fn(),
     } as unknown as ReturnType<typeof refineCore.useCustom>);
 
-    render(<TerminalContainersTab terminalId="term-123" />);
+    render(
+      <MemoryRouter>
+        <TerminalContainersTab terminalId="term-123" />
+      </MemoryRouter>,
+    );
 
     expect(refineCore.useCustom).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -73,7 +78,11 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
       refetch: vi.fn(),
     } as unknown as ReturnType<typeof refineCore.useCustom>);
 
-    render(<TerminalContainersTab terminalId="term-123" />);
+    render(
+      <MemoryRouter>
+        <TerminalContainersTab terminalId="term-123" />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText("MSCU1234567")).toBeInTheDocument();
     expect(screen.getByText("40HC")).toBeInTheDocument();
@@ -95,7 +104,11 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
       refetch: vi.fn(),
     } as unknown as ReturnType<typeof refineCore.useCustom>);
 
-    render(<TerminalContainersTab terminalId="term-123" />);
+    render(
+      <MemoryRouter>
+        <TerminalContainersTab terminalId="term-123" />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText("MSCU1234567")).toBeInTheDocument();
     expect(screen.getByText("TGHU7654321")).toBeInTheDocument();
@@ -110,7 +123,11 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
       refetch: vi.fn(),
     } as unknown as ReturnType<typeof refineCore.useCustom>);
 
-    render(<TerminalContainersTab terminalId="term-123" />);
+    render(
+      <MemoryRouter>
+        <TerminalContainersTab terminalId="term-123" />
+      </MemoryRouter>,
+    );
 
     expect(
       screen.getByText("Hiện không có container nào đang lưu bãi tại bến này")
@@ -126,7 +143,11 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
       refetch: vi.fn(),
     } as unknown as ReturnType<typeof refineCore.useCustom>);
 
-    render(<TerminalContainersTab terminalId="term-123" />);
+    render(
+      <MemoryRouter>
+        <TerminalContainersTab terminalId="term-123" />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText("Thông tin Container tại bến")).toBeInTheDocument();
     expect(

@@ -2,9 +2,10 @@
  * Hiển thị danh sách product bằng Refine useTable.
  */
 
-import { CreateButton, List, useModalForm, useTable } from "@refinedev/antd";
+import { CreateButton, List, useModalForm } from "@refinedev/antd";
 import { useShow } from "@refinedev/core";
-import { Descriptions, Form, Input, Modal, Tag } from "antd";
+import { Descriptions, Input, Modal, Tag } from "antd";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { ApiError } from "@/types/api.types";
@@ -15,23 +16,62 @@ import { FilterBar } from "@components";
 import { BaseTable } from "@table";
 import { formatMoney } from "@formatters/money";
 import { toIntlLocale } from "@formatters/intlLocale";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+
+interface ProductSearchInputProps {
+  initialValue: string;
+  onApply: (value: string) => void;
+  placeholder: string;
+}
+
+const ProductSearchInput = ({ initialValue, onApply, placeholder }: ProductSearchInputProps) => {
+  const [value, setValue] = useState(initialValue);
+  const debouncedValue = useDebouncedSearch(value, 350);
+
+  useEffect(() => {
+    const normalizedValue = debouncedValue.trim();
+    if (normalizedValue !== initialValue.trim()) onApply(normalizedValue);
+  }, [debouncedValue, initialValue, onApply]);
+
+  return (
+    <Input
+      allowClear
+      onChange={(event) => setValue(event.target.value)}
+      placeholder={placeholder}
+      style={{ width: "100%" }}
+      value={value}
+    />
+  );
+};
 
 export const ProductList = () => {
   const { i18n, t } = useTranslation();
 
-  const { searchFormProps, tableProps, tableQueryResult } = useTable<
+  const { filters, setCurrent, setFilters, tableProps, tableQueryResult } = usePaginatedTable<
     Product,
     ApiError,
     ProductSearchValues
   >({
     resource: "products",
-    pagination: { mode: "server" },
-    syncWithLocation: true,
-    onSearch: ({ name }) =>
-      name
-        ? [{ field: "name", operator: "contains", value: name }]
-        : [],
   });
+
+  const appliedNameFilter = filters.find(
+    (filter) => "field" in filter && filter.field === "name",
+  );
+  const appliedName =
+    appliedNameFilter && "value" in appliedNameFilter && typeof appliedNameFilter.value === "string"
+      ? appliedNameFilter.value
+      : "";
+  const applyNameSearch = useCallback((searchValue: string) => {
+    setFilters(
+      searchValue
+        ? [{ field: "name", operator: "contains", value: searchValue }]
+        : [],
+      "replace",
+    );
+    setCurrent(1);
+  }, [setCurrent, setFilters]);
 
   const createModal = useModalForm<Product, ApiError, ProductFormValues>({
     resource: "products",
@@ -42,33 +82,27 @@ export const ProductList = () => {
     resource: "products",
     action: "edit",
   });
+  const { show: showEditModal } = editModal;
 
   const { queryResult: showQueryResult, showId, setShowId } = useShow<Product, ApiError>({
     resource: "products",
   });
 
-  const columns = useProductColumns({
-    onEdit: (id) => editModal.show(id),
-    onShow: (id) => setShowId(id),
-  });
+  const showProductEdit = useCallback((id: string | number) => showEditModal(id), [showEditModal]);
+  const showProduct = useCallback((id: string | number) => setShowId(id), [setShowId]);
+  const columns = useProductColumns({ onEdit: showProductEdit, onShow: showProduct });
 
   return (
     <>
       <List headerButtons={<CreateButton onClick={(e) => { e.preventDefault(); createModal.show(); }} />}>
-        <Form<ProductSearchValues>
-          {...searchFormProps}
-          style={{ marginBottom: 16 }}
-        >
-          <FilterBar>
-            <Form.Item name="name" noStyle>
-              <Input
-                allowClear
-                placeholder={t("products.searchPlaceholder")}
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
-          </FilterBar>
-        </Form>
+        <FilterBar>
+          <ProductSearchInput
+            key={appliedName}
+            initialValue={appliedName}
+            onApply={applyNameSearch}
+            placeholder={t("products.searchPlaceholder")}
+          />
+        </FilterBar>
         <BaseTable<Product>
           fitToShell
           columns={columns}

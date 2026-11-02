@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { PriorityShipmentCard } from "@/components/dashboard/PriorityShipmentCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { usePriorityShipments } from "@/hooks/dashboard/usePriorityShipments";
+import { useTmsLoads } from "@/hooks/tms-flow/useTmsQueries";
+import { countTmsRiskQueue, summarizeTmsLoads } from "@/utils/tms-flow/status";
 import { DEFAULT_CURRENCY, INITIAL_DASHBOARD_FILTERS } from "../config/rankingWeights";
 import type { DashboardFilters } from "../types";
 import type { KpiItemProps } from "../types/primitives.types";
@@ -54,46 +56,66 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
   const dashboardData = useDashboardData(filters, { enableFinancials: false });
   // Priority panel has a real load source; the other panels stay unavailable.
   const priorityShipments = usePriorityShipments();
+  // Dispatch and the operations KPIs must read the same load queue so a load
+  // counted as at risk on Dispatch is counted here too.
+  const loads = useTmsLoads();
+  const loadSummary = useMemo(
+    () =>
+      loads.data
+        ? summarizeTmsLoads(
+            loads.data.shipments,
+            new Date(loads.data.generatedAt),
+          )
+        : null,
+    [loads.data],
+  );
 
   // KPI chỉ dùng field có trong response hiện tại; thiếu field không được thay bằng số mẫu.
   const kpiItems: KpiItemProps[] = useMemo(() => {
     const otd = dashboardData.otd;
-    const delays = dashboardData.delays;
     const exceptions = dashboardData.exceptions;
 
     const otdValue = typeof otd.data?.otdPercentage === "number" && Number.isFinite(otd.data.otdPercentage)
       ? Math.round(otd.data.otdPercentage)
       : null;
-    const delaysCount = typeof delays.data?.totalLateLoads === "number" && Number.isFinite(delays.data.totalLateLoads)
-      ? delays.data.totalLateLoads
-      : null;
     const exceptionsCount = typeof exceptions.data?.totalExceptions === "number" && Number.isFinite(exceptions.data.totalExceptions)
       ? exceptions.data.totalExceptions
       : null;
 
+    const liveValue = (pick: (summary: NonNullable<typeof loadSummary>) => number) =>
+      loadSummary ? pick(loadSummary) : null;
+    const liveState = (value: number | null) =>
+      getKpiState(loads.isLoading, loads.error, value);
+    const inTransit = liveValue((summary) => summary.inTransit);
+    const atRisk = liveValue(countTmsRiskQueue);
+    const deliveredToday = liveValue((summary) => summary.deliveredToday);
+
     return [
       {
         label: t("dashboard.opsView.kpi.inTransit"),
-        value: null,
-        state: "unavailable",
+        value: inTransit,
+        state: liveState(inTransit),
       },
       {
         label: t("dashboard.opsView.kpi.atRisk"),
-        value: delaysCount,
+        value: atRisk,
         context: t("dashboard.opsView.kpi.atRiskContext"),
-        state: getKpiState(delays.isLoading, delays.error, delaysCount),
+        state: liveState(atRisk),
       },
       {
         label: t("dashboard.opsView.kpi.onTime"),
         value: otdValue,
+        context: t("dashboard.opsView.kpi.periodContext"),
         state: getKpiState(otd.isLoading, otd.error, otdValue),
       },
       {
         label: t("dashboard.opsView.kpi.deliveredToday"),
-        value: null,
-        state: "unavailable",
+        value: deliveredToday,
+        state: liveState(deliveredToday),
       },
       {
+        // Không có API/field xác nhận trạng thái "sẵn sàng gán"; giữ trạng thái
+        // chưa có dữ liệu thay vì suy ra từ tổng số xe.
         label: t("dashboard.opsView.kpi.assignableVehicles"),
         value: null,
         state: "unavailable",
@@ -105,7 +127,12 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         state: getKpiState(exceptions.isLoading, exceptions.error, exceptionsCount),
       },
     ];
-  }, [dashboardData, t]);
+  }, [dashboardData, loadSummary, loads.isLoading, loads.error, t]);
+
+  const retryAll = () => {
+    void loads.refetch();
+    dashboardData.refetchAll();
+  };
 
   return (
     <div className={`ops-dashboard-layout ${className}`}>
@@ -116,7 +143,19 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
       {/* 2. KPI Strip (Full Width) */}
       <div className="ops-grid-area-kpi">
-        <KpiStrip items={kpiItems} onRetry={dashboardData.refetchAll} />
+        <KpiStrip items={kpiItems} onRetry={retryAll} />
+        {loads.data ? (
+          <p className="ops-kpi-scope">
+            {loads.data.collection.truncated
+              ? t("dashboard.opsView.kpi.loadScopeTruncated", {
+                  shown: loads.data.collection.items.length,
+                  total: loads.data.collection.totalItems,
+                })
+              : t("dashboard.opsView.kpi.loadScope", {
+                  count: loads.data.shipments.length,
+                })}
+          </p>
+        ) : null}
       </div>
 
       {/* 3. Priority Shipment Card (8 cols) & Operations Brief (4 cols) */}

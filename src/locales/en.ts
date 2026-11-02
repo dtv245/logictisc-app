@@ -1,4 +1,5 @@
 import { apiErrorMessages } from "./apiErrors";
+import { driverProfileEn } from "./driverProfile";
 
 /**
  * English dictionary — single source for the `en` locale.
@@ -10,7 +11,7 @@ import { apiErrorMessages } from "./apiErrors";
 const shared = {
   table: {
     pagination: {
-      total: "Showing {{from}}–{{to}} of {{total}} records",
+      total: "{{from}}–{{to}} / {{total}} items",
     },
   },
   asyncState: {
@@ -71,6 +72,7 @@ export const enMessages = {
   "pickupBusinessDate": {"title": "Pickup business date", "date": "Business date", "source": "Provenance source", "save": "Record business date", "saved": "Business date recorded"},
 
   ...shared,
+  driverProfile: driverProfileEn,
   fleet: {
     "title": "Fleet Reports",
     "scopeHelp": "Choose a published policy, explicit truck IDs and a reporting period. Missing history remains unavailable.",
@@ -793,7 +795,10 @@ export const enMessages = {
       kpi: {
         inTransit: "In transit",
         atRisk: "At risk",
-        atRiskContext: "ETA is close to the SLA",
+        atRiskContext: "Past due or due within 4 hours",
+        loadScope: "Computed from {{count}} loaded loads",
+        loadScopeTruncated: "Loaded {{shown}} of {{total}} loads; operational KPIs cover the loaded rows only.",
+        periodContext: "30-day reporting period",
         onTime: "On time (OTD)",
         deliveredToday: "Delivered today",
         assignableVehicles: "Vehicles ready to assign",
@@ -1210,6 +1215,8 @@ export const enMessages = {
       "payroll-reconciliation": "Payroll reconciliation",
       "my-payslips": "My payslips",
       drivers: "Drivers",
+      "driver-expiring": "Expiring driver documents",
+      "my-driver-profile": "My driver profile",
       employees: "Employees",
       documents: "Documents",
     },
@@ -1932,6 +1939,7 @@ export const enMessages = {
       truckNumber: "Truck",
       dispatchedAt: "Dispatched At",
       completedAt: "Completed At",
+      inconsistent: "Inconsistent",
       cancelledAt: "Cancelled At",
       createdAt: "Created At",
     },

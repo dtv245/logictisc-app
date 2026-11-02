@@ -118,6 +118,9 @@ const getNotificationKind = (error: NotificationError, compatibility?: Compatibi
 };
 
 const getCompatibilityFailureTitle = (input: CompatibilityNotificationError, server: boolean): ReactNode => {
+  if (/\(mã:\s*\)/i.test(input.rawMessage)) {
+    return input.rawMessage.replace(/\s*\(mã:\s*\)/i, "").trim() || "Đã xảy ra lỗi";
+  }
   const entry = ([
     ["There was an error creating", "Create"],
     ["Error when updating", "Update"],

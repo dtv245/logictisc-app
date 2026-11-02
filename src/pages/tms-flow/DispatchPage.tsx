@@ -16,6 +16,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { TmsFlowMap } from "@/components/tms-flow/TmsFlowMap";
 import { TmsTimeline } from "@/components/tms-flow/TmsTimeline";
 import { routes } from "@/constants/routes";
+import { TMS_RISK_WINDOW_HOURS } from "@/constants/tms";
 import { useTmsTimeline } from "@/hooks/tms-flow/useTmsQueries";
 import { useTmsWorkspace } from "@/hooks/tms-flow/useTmsWorkspace";
 import type {
@@ -321,10 +322,11 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
                   </button>
                 ))}
               </div>
+              <p className="tms-muted">At risk gồm đơn đã quá hạn và đơn đến hạn trong {TMS_RISK_WINDOW_HOURS} giờ; tìm kiếm áp dụng trên các đơn đã tải và chỉ khớp tên đầy đủ (viết tắt như "LA-SF" không khớp).</p>
               <Input
                 allowClear
                 onChange={(event) => updateParam("q", event.target.value)}
-                placeholder="Search load, customer, city"
+                placeholder="Tìm số đơn, khách hàng, thành phố hoặc địa chỉ"
                 prefix={<Search size={14} aria-hidden="true" />}
                 value={query}
               />
@@ -339,7 +341,10 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
                   />
                 ))}
                 {queue.length === 0 ? (
-                  <p className="tms-empty">No load matches this filter.</p>
+                  <p className="tms-empty">
+                    Không có đơn phù hợp. Tìm kiếm chỉ áp dụng trên các đơn đã tải và cần tên đầy đủ
+                    (ví dụ "Los Angeles" thay vì "LA").
+                  </p>
                 ) : null}
               </div>
             </>

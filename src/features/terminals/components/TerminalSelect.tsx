@@ -14,7 +14,7 @@ export interface TerminalSelectProps {
 
 /**
  * TerminalSelect — Dropdown chọn Terminal dùng lại cho các form (Load form SCR-T02 cho origin/destination).
- * Hỗ trợ nạp 100 bản ghi đầu tiên và tìm kiếm phía server (debounce 300ms) theo search query param.
+ * Hỗ trợ tìm kiếm phía server, giới hạn 50 lựa chọn và debounce 300ms.
  */
 export const TerminalSelect = ({
   value,
@@ -36,7 +36,7 @@ export const TerminalSelect = ({
         disabled={disabled}
         required={required}
         excludeValues={excludeIds}
-        pageSize={100}
+        pageSize={50}
         labelFormat={(r) => (r.name ? `${r.name} (${r.code ?? ""})` : String(r.id ?? ""))}
       />
     </div>

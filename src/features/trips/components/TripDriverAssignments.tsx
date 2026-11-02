@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { formatDateTime } from "@/formatters/dateTime";
+import { formatDistance } from "@/utils/distance";
 import type {
   AssignDriverPayload,
   TripDriverAssignment,
@@ -137,18 +138,14 @@ export const TripDriverAssignments = ({
       dataIndex: "plannedMiles",
       key: "plannedMiles",
       render: (miles?: number | null) =>
-        miles !== null && miles !== undefined && Number.isFinite(Number(miles))
-          ? `${Number(miles).toLocaleString()} mi`
-          : "—",
+        formatDistance(miles, "mi"),
     },
     {
       title: t("trips.driverAssignments.actualMiles", "Actual Miles"),
       dataIndex: "actualMiles",
       key: "actualMiles",
       render: (miles?: number | null) =>
-        miles !== null && miles !== undefined && Number.isFinite(Number(miles))
-          ? `${Number(miles).toLocaleString()} mi`
-          : "—",
+        formatDistance(miles, "mi"),
     },
     {
       title: t("columns.actions", "Actions"),

@@ -9,9 +9,14 @@ import {
 } from "antd";
 import { HistoryOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { AiRun } from "@/api/ai/ai.types";
 import { formatDateTime } from "@/formatters/dateTime";
 import { useAiRuns } from "@/hooks/ai/useAiRuns";
+import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
+import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
 
 const { Text } = Typography;
 
@@ -28,32 +33,19 @@ export const AiRunHistoryDrawer = ({
   loadId,
   canViewRuns = false,
 }: AiRunHistoryDrawerProps) => {
-  const { runs, isLoading, isError, error, refetch } = useAiRuns({
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = normalizePage(Number(searchParams.get("aiRunsPage"))) - 1;
+  const pageSize = normalizePageSize(Number(searchParams.get("aiRunsPageSize") ?? DEFAULT_LIST_PAGE_SIZE));
+  const { runs, total, isFetching, isError, error, refetch } = useAiRuns({
     loadId,
     canViewRuns: Boolean(open && canViewRuns),
+    page,
+    pageSize,
   });
 
-  // Nếu người dùng không có quyền xem lịch sử chạy AI
-  if (!canViewRuns) {
-    return (
-      <Drawer
-        title="Lịch sử tính toán của AI"
-        open={open}
-        onClose={onClose}
-        width={720}
-      >
-        <Alert
-          message="Không có quyền truy cập"
-          description="Tài khoản của bạn không được phân quyền xem lịch sử chạy mô hình AI và chi phí vận hành (capabilities.canViewRuns = false)."
-          type="warning"
-          showIcon
-        />
-      </Drawer>
-    );
-  }
-
   // Định nghĩa các cột. Token và Chi phí chỉ xuất hiện khi có quyền canViewRuns
-  const columns: ColumnsType<AiRun> = [
+  const columns: ColumnsType<AiRun> = useMemo(() => [
     {
       title: "Loại tác vụ",
       dataIndex: "type",
@@ -132,7 +124,52 @@ export const AiRunHistoryDrawer = ({
       width: 150,
       render: (val: string) => formatDateTime(val),
     },
-  ];
+  ], [canViewRuns]);
+
+  const pagination = useMemo(() => ({
+    current: page + 1,
+    pageSize,
+    total,
+    ...createListPaginationConfig(t),
+    onChange: (nextPage: number, nextPageSize: number) => {
+      const params = new URLSearchParams(searchParams);
+      params.set("aiRunsPage", String(nextPageSize === pageSize ? nextPage : 1));
+      params.set("aiRunsPageSize", String(nextPageSize));
+      setSearchParams(params);
+    },
+  }), [page, pageSize, searchParams, setSearchParams, t, total]);
+
+  const expandable = useMemo(() => ({
+    expandedRowRender: (record: AiRun) => (
+      <div style={{ padding: 8 }}>
+        {record.error ? (
+          <Alert message="Chi tiết lỗi:" description={record.error} type="error" showIcon />
+        ) : (
+          <Text type="secondary">Phiên chạy hoàn tất không có lỗi ngoại lệ ghi nhận.</Text>
+        )}
+      </div>
+    ),
+    rowExpandable: (record: AiRun) => Boolean(record.error),
+  }), []);
+
+  // Nếu người dùng không có quyền xem lịch sử chạy AI
+  if (!canViewRuns) {
+    return (
+      <Drawer
+        title="Lịch sử tính toán của AI"
+        open={open}
+        onClose={onClose}
+        width={720}
+      >
+        <Alert
+          message="Không có quyền truy cập"
+          description="Tài khoản của bạn không được phân quyền xem lịch sử chạy mô hình AI và chi phí vận hành (capabilities.canViewRuns = false)."
+          type="warning"
+          showIcon
+        />
+      </Drawer>
+    );
+  }
 
   return (
     <Drawer
@@ -146,7 +183,7 @@ export const AiRunHistoryDrawer = ({
       onClose={onClose}
       width={900}
       extra={
-        <Button size="small" icon={<ReloadOutlined />} onClick={() => void refetch()} loading={isLoading}>
+        <Button size="small" icon={<ReloadOutlined />} onClick={() => void refetch()} loading={isFetching}>
           Làm mới
         </Button>
       }
@@ -166,21 +203,10 @@ export const AiRunHistoryDrawer = ({
         columns={columns}
         dataSource={runs}
         rowKey="id"
-        loading={isLoading}
-        pagination={{ pageSize: 10 }}
+        loading={isFetching}
+        pagination={pagination}
         size="small"
-        expandable={{
-          expandedRowRender: (record) => (
-            <div style={{ padding: 8 }}>
-              {record.error ? (
-                <Alert message="Chi tiết lỗi:" description={record.error} type="error" showIcon />
-              ) : (
-                <Text type="secondary">Phiên chạy hoàn tất không có lỗi ngoại lệ ghi nhận.</Text>
-              )}
-            </div>
-          ),
-          rowExpandable: (record) => Boolean(record.error),
-        }}
+        expandable={expandable}
       />
     </Drawer>
   );

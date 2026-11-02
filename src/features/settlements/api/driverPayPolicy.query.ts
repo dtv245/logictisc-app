@@ -15,6 +15,7 @@ export const DRIVER_PAY_POLICIES_QUERY_KEY = ["driver-pay-policies"];
 export interface UseDriverPayPoliciesReturn {
   policies: DriverPayPolicyView[];
   isLoading: boolean;
+  isFetching: boolean;
   isError: boolean;
   error: ApiError | null;
   refetch: () => void;
@@ -23,18 +24,24 @@ export interface UseDriverPayPoliciesReturn {
 export const useDriverPayPolicies = (): UseDriverPayPoliciesReturn => {
   const { tenant } = useCurrentTenant();
   const access = useCan({ resource: "driver-pay-policies", action: "POLICY_VIEW" });
-  const { data, isLoading, isError, error, refetch } = useCustom<
+  const { data, isLoading, isFetching, isError, error, refetch } = useCustom<
     DriverPayPolicyView[],
     ApiError
   >({
     url: DRIVER_PAY_POLICY_ENDPOINTS.list,
-    queryOptions: { queryKey: ["driver-pay-policies", tenant?.tenantKey, "list"], enabled: Boolean(tenant?.tenantKey && access.data?.can) },
+    queryOptions: {
+      queryKey: ["driver-pay-policies", tenant?.tenantKey, "list"],
+      enabled: Boolean(tenant?.tenantKey && access.data?.can),
+      keepPreviousData: true,
+      staleTime: 30_000,
+    },
     method: "get",
   });
 
   return {
     policies: data?.data ?? [],
     isLoading,
+    isFetching,
     isError,
     error: error ?? null,
     refetch,

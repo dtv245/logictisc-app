@@ -1,5 +1,5 @@
 /** Settlement collection presentation; authoritative amounts remain per row/currency. */
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { CanAccess } from "@refinedev/core";
 import {
   Alert,
@@ -20,7 +20,7 @@ import {
   SearchOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { EmptyState } from "@/components/EmptyState";
@@ -36,35 +36,78 @@ import type {
   SettlementFilterParams,
 } from "@/types/settlement.dto";
 import "./Settlements.scss";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
+import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
 
 const { Title, Text } = Typography;
 
 export const SettlementList: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Search & Filter state
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<SettlementFilterParams>({});
+  const searchInput = searchParams.get("settlementSearch") ?? "";
+  const debouncedSearchTerm = useDebouncedSearch(searchInput, 350);
+  const current = normalizePage(Number(searchParams.get("settlementPage")));
+  const pageSize = normalizePageSize(Number(searchParams.get("settlementPageSize") ?? DEFAULT_LIST_PAGE_SIZE));
+  const filters = useMemo<SettlementFilterParams>(() => ({
+    payPeriodId: searchParams.get("settlementPayPeriodId") || undefined,
+    driverId: searchParams.get("settlementDriverId") || undefined,
+    status: searchParams.get("settlementStatus") || undefined,
+    settlementType: searchParams.get("settlementType") || undefined,
+  }), [searchParams]);
+
+  const updateUrl = useCallback((updates: Record<string, string | undefined>) => {
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      for (const [key, value] of Object.entries(updates)) {
+        if (value) next.set(key, value);
+        else next.delete(key);
+      }
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
 
   // Calculation Modal state
   const [isCalcModalOpen, setIsCalcModalOpen] = useState(false);
 
   // Queries
-  const { settlements, isLoading, isError, error, refetch } =
+  const { settlements, isLoading, isFetching, isError, error, refetch } =
     useSettlements(filters);
+
+  const handleFilterChange = useCallback((newFilters: SettlementFilterParams) => {
+    updateUrl({
+      settlementPayPeriodId: newFilters.payPeriodId,
+      settlementDriverId: newFilters.driverId,
+      settlementStatus: newFilters.status,
+      settlementType: newFilters.settlementType,
+      settlementPage: "1",
+    });
+  }, [updateUrl]);
+
+  const resetFilters = useCallback(() => {
+    updateUrl({
+      settlementPayPeriodId: undefined,
+      settlementDriverId: undefined,
+      settlementStatus: undefined,
+      settlementType: undefined,
+      settlementPage: "1",
+    });
+  }, [updateUrl]);
 
   // Search filtering on top of server filters
   const filteredSettlements = useMemo(() => {
-    if (!searchTerm.trim()) return settlements;
-    const term = searchTerm.toLowerCase().trim();
+    if (!debouncedSearchTerm.trim()) return settlements;
+    const term = debouncedSearchTerm.toLowerCase().trim();
     return settlements.filter((s) => {
       const matchNumber = s.settlementNumber.toLowerCase().includes(term);
       const matchDriver = s.driverName?.toLowerCase().includes(term);
       const matchPeriod = s.payPeriodCode?.toLowerCase().includes(term);
       return matchNumber || matchDriver || matchPeriod;
     });
-  }, [settlements, searchTerm]);
+  }, [settlements, debouncedSearchTerm]);
 
   const columns = useMemo(
     () =>
@@ -141,9 +184,10 @@ export const SettlementList: React.FC = () => {
 
         {/* Filters */}
         <SettlementFilters
+          key={JSON.stringify(filters)}
           filters={filters}
-          onFilterChange={(newFilters) => setFilters(newFilters)}
-          onReset={() => setFilters({})}
+          onFilterChange={handleFilterChange}
+          onReset={resetFilters}
         />
 
         {/* Search */}
@@ -155,8 +199,11 @@ export const SettlementList: React.FC = () => {
                 "Search by settlement #, driver, or pay period"
               )}
               prefix={<SearchOutlined />}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchInput}
+              onChange={(e) => {
+                const value = e.target.value;
+                updateUrl({ settlementSearch: value.trim() || undefined, settlementPage: "1" });
+              }}
               allowClear
               style={{ width: "100%" }}
             />
@@ -180,11 +227,18 @@ export const SettlementList: React.FC = () => {
             rowKey="id"
             columns={columns}
             dataSource={filteredSettlements}
-            loading={isLoading}
+            loading={isFetching}
             pagination={{
-              pageSize: 15,
-              showSizeChanger: true,
-              pageSizeOptions: ["10", "15", "25", "50"],
+              current,
+              pageSize,
+              total: filteredSettlements.length,
+              ...createListPaginationConfig(t),
+              onChange: (nextPage, nextPageSize) => {
+                updateUrl({
+                  settlementPage: String(nextPageSize === pageSize ? nextPage : 1),
+                  settlementPageSize: String(nextPageSize),
+                });
+              },
             }}
             scroll={{ x: 1200 }}
             size="middle"

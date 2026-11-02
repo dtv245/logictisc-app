@@ -30,7 +30,8 @@ interface FormValues {
 }
 
 const DOCUMENT_TYPE_OPTIONS: Array<{ value: DocumentType; labelKey: string }> = [
-  { value: "bill_of_lading", labelKey: "documents.upload.types.bill_of_lading" },
+  // Stored BOL rows use the uppercase value; the category filter matches it exactly.
+  { value: "BILL_OF_LADING", labelKey: "documents.upload.types.bill_of_lading" },
   { value: "proof_of_delivery", labelKey: "documents.upload.types.proof_of_delivery" },
   { value: "driver_license", labelKey: "documents.upload.types.driver_license" },
   { value: "inspection", labelKey: "documents.upload.types.inspection" },

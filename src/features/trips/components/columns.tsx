@@ -6,6 +6,7 @@ import { createCrudColumns } from "@components/crudColumns";
 import { displayValue } from "@formatters/display";
 import type { StatusTone } from "@components/StatusTag";
 import type { Trip } from "@/types/trip.types";
+import { formatDistance } from "@/utils/distance";
 
 export const tripStatusMap: Record<string, StatusTone> = {
   planned: "neutral",
@@ -90,7 +91,7 @@ export const tripColumns = createCrudColumns<Trip>(
         }
         return (
           <span className="tabular-nums">
-            {Number(value).toLocaleString("vi-VN")} km
+            {formatDistance(Number(value), "mi", { locale: "vi-VN" })}
           </span>
         );
       },

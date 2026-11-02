@@ -9,13 +9,17 @@ import { payroll, payrollId } from "@/tests/fixtures/payroll";
 import { settlementId } from "@/tests/fixtures/settlement";
 import { ApiHttpError } from "@/utils/httpError";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
+vi.mock("@/hooks/payroll/usePayrollSettlements", () => ({
+  usePayrollSettlements: (period: string) => ({ allowed: true, checkingAccess: false, isFetching: false, isError: false,
+    data: { data: [{ id: "22222222-2222-4222-8222-222222222222", settlementNumber: "DS-1", driverId: "driver-1", driverName: "Tài xế", payPeriodId: period, payPeriodCode: "P1", status: "LOCKED", currency: "EUR", settlementNet: "100.00" }], meta: { pagination: { total: 1 } } }, refetch: vi.fn() }),
+}));
 const page = <Routes><Route path="/payroll" element={<PayrollEntryPage />} /><Route path="/payroll/reconciliation" element={<p>Opened reconciliation</p>} /><Route path="/payroll/:id" element={<p>Opened run</p>} /></Routes>;
 const options = { initialEntries: ["/payroll"] };
 async function fill() {
   fireEvent.change(screen.getByLabelText("Pay Period ID"), { target: { value: payroll.payPeriodId } });
   fireEvent.change(screen.getByLabelText("Currency"), { target: { value: "EUR" } });
   const date = screen.getByLabelText("Effective Date"); fireEvent.change(date, { target: { value: "2026-10-01" } }); fireEvent.keyDown(date, { key: "Enter", code: "Enter" });
-  fireEvent.change(screen.getByLabelText("Source Settlement IDs"), { target: { value: settlementId } });
+  fireEvent.click(screen.getAllByRole("checkbox")[1]);
   fireEvent.click(screen.getByRole("button", { name: "Calculate Payroll" })); return screen.findByRole("dialog");
 }
 describe("PayrollEntryPage", () => {
@@ -44,10 +48,10 @@ describe("PayrollEntryPage", () => {
   it("denies Driver without showing a calculation action or fetching data", async () => {
     const request = vi.fn(async () => payroll); await renderFinance(page, request, { ...options, role: "DRIVER" }); expect(await screen.findByText("Access denied")).toBeInTheDocument(); expect(request).not.toHaveBeenCalled();
   });
-  it("requires valid settlement UUIDs and explicit currency before confirmation", async () => {
+  it("requires a selected settlement and explicit currency before confirmation", async () => {
     const request = vi.fn(async () => payroll); await renderFinance(page, request, options); await screen.findByRole("button", { name: "Calculate Payroll" });
-    fireEvent.change(screen.getByLabelText("Source Settlement IDs"), { target: { value: "not-an-id" } }); fireEvent.click(screen.getByRole("button", { name: "Calculate Payroll" }));
-    expect(await screen.findByText("Enter settlement UUIDs separated by commas or spaces.")).toBeInTheDocument(); expect(screen.queryByRole("dialog")).not.toBeInTheDocument(); expect(request).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Calculate Payroll" }));
+    expect(await screen.findByText("Vui lòng chọn ít nhất một quyết toán đủ điều kiện.")).toBeInTheDocument(); expect(screen.queryByRole("dialog")).not.toBeInTheDocument(); expect(request).not.toHaveBeenCalled();
   });
   it("blocks double submission while calculation is pending", async () => {
     let finish: (value: unknown) => void = () => undefined; const request = vi.fn(() => new Promise<unknown>((resolve) => { finish = resolve; }));

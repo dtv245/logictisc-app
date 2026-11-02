@@ -5,12 +5,20 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   applyBackendFieldErrors,
+  hasBackendFieldErrors,
   mapBackendFieldErrors,
   parseBackendFieldPath,
   type FieldErrorFormTarget,
 } from "@forms/backendFieldErrors";
 
 describe("backendFieldErrors", () => {
+  it("detects field errors so callers can skip the generic toast", () => {
+    expect(hasBackendFieldErrors(undefined)).toBe(false);
+    expect(hasBackendFieldErrors({})).toBe(false);
+    expect(hasBackendFieldErrors({ errors: {} })).toBe(false);
+    expect(hasBackendFieldErrors({ errors: { originCity: ["Required"] } })).toBe(true);
+  });
+
   it("parses nested collection paths for Ant Design Form", () => {
     expect(parseBackendFieldPath("stops[0].address.city")).toEqual([
       "stops",

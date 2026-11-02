@@ -3,6 +3,7 @@ import { Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import { formatTimeOnly } from "@/formatters/dateTime";
 import type { Load } from "@/types/load.types";
+import { formatDistance } from "@/utils/distance";
 
 export interface RouteProgressBarProps {
   load: Load;
@@ -63,7 +64,7 @@ export const RouteProgressBar: React.FC<RouteProgressBarProps> = ({ load }) => {
             {progressStage >= 1 ? t("loads.redesign.inTransit") : t("loads.redesign.awaitingDeparture")}
           </div>
           <div className="route-progress__stop-time">
-            {load.distance ? `${load.distance} mi` : ""}
+            {load.distance ? formatDistance(load.distance, "mi") : ""}
           </div>
         </div>
 

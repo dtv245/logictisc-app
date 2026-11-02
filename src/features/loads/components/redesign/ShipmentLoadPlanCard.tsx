@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import type { Load } from "@/types/load.types";
+import { formatDistance } from "@/utils/distance";
 
 export interface ShipmentLoadPlanCardProps {
   load: Load;
@@ -22,7 +23,7 @@ export const ShipmentLoadPlanCard: React.FC<ShipmentLoadPlanCardProps> = ({ load
             {load.assignedTruckNumber
               ? t("loads.redesign.assignedTruck", { number: load.assignedTruckNumber })
               : t("loads.redesign.truckUnavailable")}
-            {load.distance ? ` · ${t("loads.redesign.distance", { value: load.distance })}` : ""}
+            {load.distance ? ` · ${formatDistance(load.distance, "mi")}` : ""}
           </div>
         </div>
         <Tag color={load.type?.toLowerCase().includes("reefer") ? "blue" : "default"}>

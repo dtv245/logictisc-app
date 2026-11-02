@@ -1,4 +1,4 @@
-import { CreateButton, List, useTable } from "@refinedev/antd";
+import { CreateButton, List } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { useCan, useShow } from "@refinedev/core";
 import { Button, Space, type TableProps } from "antd";
@@ -28,6 +28,7 @@ import {
 import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
 import { DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE, normalizePage, normalizePageSize } from "@/utils/querySerializer";
 import { TableDataContext } from "./TableDataContext";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable";
 
 interface ResourceListPageProps<TData extends BaseRecord> {
   columns: ColumnsType<TData>;
@@ -60,10 +61,9 @@ export const ResourceListPage = <TData extends BaseRecord>({
     setFilters,
     tableProps,
     tableQueryResult,
-  } = useTable<TData, ApiError>({
-    pagination: { mode: "server", current: DEFAULT_LIST_PAGE, pageSize: DEFAULT_LIST_PAGE_SIZE },
+  } = usePaginatedTable<TData, ApiError>({
+    pagination: { current: DEFAULT_LIST_PAGE, pageSize: DEFAULT_LIST_PAGE_SIZE },
     resource,
-    syncWithLocation: true,
   });
 
   const safeCurrent = Math.max(1, normalizePage(current));

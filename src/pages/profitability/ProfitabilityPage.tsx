@@ -2,8 +2,11 @@
 import { useCan, useCustom } from "@refinedev/core";
 import { Button, Card, Space, Spin, Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
+import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
+import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ForbiddenState, QueryErrorState } from "@/components/ErrorStates";
@@ -20,18 +23,21 @@ export function ProfitabilityPage() {
   const { t, i18n } = useTranslation();
   const { tenant } = useCurrentTenant();
   const access = useCan({ resource: "profitability", action: "PROFITABILITY_VIEW" });
-  const [filters, setFilters] = useState<ProfitabilityFilterValues>({});
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filters: ProfitabilityFilterValues = { loadId: searchParams.get("loadId") ?? undefined };
+  const page = normalizePage(Number(searchParams.get("current")));
+  const pageSize = normalizePageSize(Number(searchParams.get("pageSize") ?? DEFAULT_LIST_PAGE_SIZE));
   const [selectedLoad, setSelectedLoad] = useState<string>();
   // The confirmed collection is a reporting response. Never fetch getOne for each row or aggregate it into KPIs.
   const query = useCustom<LoadFinancialSummaryDto[], ApiHttpError>({
     url: PROFITABILITY_ENDPOINTS.byLoad, method: "get", errorNotification: false,
     config: { query: filters.loadId ? { loadId: filters.loadId } : {} },
     queryOptions: { queryKey: financialQueryKeys.byLoad(tenant?.tenantKey, filters.loadId),
-      enabled: Boolean(tenant?.tenantKey && access.data?.can) },
+      enabled: Boolean(tenant?.tenantKey && access.data?.can), keepPreviousData: true, staleTime: 30_000 },
   });
   const rows = query.data?.data ?? [];
   const current = rows.find((row) => row.loadId === selectedLoad) ?? rows[0];
-  const columns: ColumnsType<LoadFinancialSummaryDto> = [
+  const columns: ColumnsType<LoadFinancialSummaryDto> = useMemo(() => [
     { title: t("finance.load"), render: (_, row) => row.loadNumber ?? row.loadId },
     { title: t("finance.currency"), dataIndex: "currency" },
     { title: t("finance.revenue"), render: (_, row) => financialAmount(row.actualInvoicedRevenue, row.currency, i18n.language) },
@@ -39,18 +45,37 @@ export function ProfitabilityPage() {
     { title: t("finance.allocatedProfit"), render: (_, row) => financialMetricValue(row.allocatedProfitMetric, row.currency, i18n.language) },
     { title: t("finance.marginPercent"), render: (_, row) => financialMetricValue(row.marginPercentMetric, row.currency, i18n.language) },
     { title: t("columns.actions"), render: (_, row) => <Button onClick={() => setSelectedLoad(row.loadId)}>{t("common.view")}</Button> },
-  ];
+  ], [i18n.language, setSelectedLoad, t]);
+  const handleFilterApply = (values: ProfitabilityFilterValues) => {
+    const next = new URLSearchParams(searchParams);
+    if (values.loadId) next.set("loadId", values.loadId);
+    else next.delete("loadId");
+    next.set("current", "1");
+    setSearchParams(next);
+    setSelectedLoad(undefined);
+  };
   if (access.isLoading) return <Spin />;
   if (access.data?.can !== true) return <ForbiddenState />;
   return <Space direction="vertical" size="large" style={{ width: "100%" }}>
     <PageHeader title={t("finance.title")} description={t("finance.reportScope")} />
-    <ProfitabilityFilters onApply={(values) => { setFilters(values); setSelectedLoad(undefined); }} />
+    <ProfitabilityFilters key={filters.loadId ?? "all"} initialValues={filters} onApply={handleFilterApply} />
     {query.isError ? <QueryErrorState retrying={query.isFetching} onRetry={() => void query.refetch()}
       description={<Space direction="vertical"><span>{t(`finance.errors.${query.error.code}`, { defaultValue: query.error.message })}</span>
         <Typography.Text>{query.error.code}{query.error.requestId ? ` / ${t("bootstrap.requestId.label")}: ${query.error.requestId}` : ""}</Typography.Text></Space>} />
       : query.isLoading ? <Spin /> : <>
         <Table rowKey="loadId" columns={columns} dataSource={rows} loading={query.isFetching} scroll={{ x: "max-content" }}
-          locale={{ emptyText: <EmptyState /> }} pagination={{ pageSize: 10 }} />
+          locale={{ emptyText: <EmptyState /> }} pagination={{
+            current: page,
+            pageSize,
+            total: rows.length,
+            ...createListPaginationConfig(t),
+            onChange: (nextPage, nextPageSize) => {
+              const next = new URLSearchParams(searchParams);
+              next.set("current", String(nextPageSize === pageSize ? nextPage : 1));
+              next.set("pageSize", String(nextPageSize));
+              setSearchParams(next);
+            },
+          }} />
         {current && <>
           <Typography.Title level={3}>{current.loadNumber ?? current.loadId}</Typography.Title>
           <ProfitabilitySummary report={toLoadProfitabilityReport(current)} />

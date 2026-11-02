@@ -9,19 +9,22 @@ import { useCan } from "@refinedev/core";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { routes } from "@/constants/routes";
-import { UUID_PATTERN, isUuid } from "@/utils/uuid";
+import { UUID_PATTERN } from "@/utils/uuid";
 import { PageHeader } from "@/components/PageHeader";
 import { ForbiddenState } from "@/components/ErrorStates";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import { usePayrollActions } from "@/features/payroll/hooks/usePayrollActions";
 import { PayrollActionError } from "@/features/payroll/components/PayrollActions";
 import type { CalculatePayrollPayload } from "@/types/payroll.dto";
+import type { DriverSettlementView } from "@/types/settlement.dto";
+import { PayrollSettlementPicker } from "@/components/payroll/PayrollSettlementPicker";
+import Decimal from "decimal.js";
 
 interface CalculateForm {
   payPeriodId: string;
   currency: string;
   effectiveDate: Dayjs;
-  settlementIds: string;
+  settlementIds: DriverSettlementView[];
 }
 
 const isFormField = (name: unknown): name is keyof CalculateForm =>
@@ -33,6 +36,9 @@ export function PayrollEntryPage() {
   const access = useCan({ resource: "payroll", action: "PAYROLL_VIEW" });
   const actions = usePayrollActions();
   const [form] = Form.useForm<CalculateForm>();
+  const payPeriodId = Form.useWatch("payPeriodId", form) ?? "";
+  const currency = Form.useWatch("currency", form) ?? "";
+  const selectedSettlements = Form.useWatch("settlementIds", form) ?? [];
   const [payload, setPayload] = useState<CalculatePayrollPayload>();
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
 
@@ -88,13 +94,16 @@ export function PayrollEntryPage() {
                 layout="vertical"
                 scrollToFirstError={{ block: "center" }}
                 disabled={actions.pending}
+                onValuesChange={(changed) => {
+                  if ("payPeriodId" in changed || "currency" in changed) form.setFieldValue("settlementIds", []);
+                }}
                 onFinish={(values) =>
                   setPayload({
                     idempotencyKey,
                     payPeriodId: values.payPeriodId.trim(),
                     currency: values.currency.trim().toUpperCase(),
                     effectiveDate: values.effectiveDate.format("YYYY-MM-DD"),
-                    settlementIds: values.settlementIds.split(/[\s,]+/).filter(Boolean),
+                    settlementIds: values.settlementIds.map((settlement) => settlement.id),
                   })
                 }
               >
@@ -159,28 +168,15 @@ export function PayrollEntryPage() {
                     {t("payroll.settlementsScope")}
                   </Typography.Title>
                   <Typography.Paragraph type="secondary" style={{ marginBottom: 16 }}>
-                    {t("payroll.settlementsScopeHelp")}
+                    Chọn quyết toán đã khóa, thuộc kỳ và tiền tệ của bảng lương.
                   </Typography.Paragraph>
 
                   <Form.Item
                     name="settlementIds"
-                    label={t("payroll.sourceSettlements")}
-                    rules={[
-                      { required: true },
-                      {
-                        validator: (_, value: string | undefined) => {
-                          const ids = value?.trim().split(/[\s,]+/).filter(Boolean) ?? [];
-                          return ids.length > 0 && ids.every(isUuid)
-                            ? Promise.resolve()
-                            : Promise.reject(new Error(t("payroll.invalidIds")));
-                        },
-                      },
-                    ]}
+                    label="Quyết toán nguồn"
+                    rules={[{ required: true, type: "array", min: 1, message: "Vui lòng chọn ít nhất một quyết toán đủ điều kiện." }]}
                   >
-                    <Input.TextArea
-                      rows={3}
-                      placeholder="UUID 1, UUID 2, UUID 3..."
-                    />
+                    <PayrollSettlementPicker key={`${payPeriodId}-${currency}`} payPeriodId={payPeriodId.trim()} currency={currency} />
                   </Form.Item>
                 </div>
 
@@ -267,6 +263,7 @@ export function PayrollEntryPage() {
         <p>
           {payload?.currency} / {payload?.effectiveDate}
         </p>
+        <p>Tổng quyết toán: {selectedSettlements.reduce((total, item) => total.plus(item.settlementNet), new Decimal(0)).toFixed(2)} {payload?.currency}</p>
       </Modal>
     </Space>
   );

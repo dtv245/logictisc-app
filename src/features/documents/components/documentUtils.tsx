@@ -126,6 +126,22 @@ export interface DocumentCategoryOption {
   icon: React.ReactNode;
 }
 
+/**
+ * Document types are stored inconsistently: some rows use `BILL_OF_LADING`,
+ * while uploads and other categories use lowercase snake_case. Normalize only
+ * for display and grouping — the server filter still receives the exact stored
+ * value chosen from the category list.
+ */
+export function normalizeDocumentType(type?: string | null): string {
+  return (type ?? "").trim().toLowerCase();
+}
+
+/** Locale key for a stored document type, without assuming its original casing. */
+export function documentTypeLabelKey(type?: string | null): string {
+  const normalized = normalizeDocumentType(type);
+  return normalized ? `documents.upload.types.${normalized}` : "";
+}
+
 export const DOCUMENT_CATEGORY_OPTIONS: DocumentCategoryOption[] = [
   {
     key: "all",
@@ -135,7 +151,7 @@ export const DOCUMENT_CATEGORY_OPTIONS: DocumentCategoryOption[] = [
   },
   {
     key: "bill_of_lading",
-    value: "bill_of_lading",
+    value: "BILL_OF_LADING",
     labelKey: "documents.upload.types.bill_of_lading",
     icon: <FileDoneOutlined />,
   },

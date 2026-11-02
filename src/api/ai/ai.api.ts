@@ -6,6 +6,7 @@ import type {
   AiGapSeverity,
   AiGapStatus,
   AiRun,
+  AiRunPage,
   DismissGapPayload,
   DispatchState,
   LoadAiDispatchResponse,
@@ -102,8 +103,8 @@ export const aiQueryKeys = {
     ["ai", tenant, "loads", loadId, "dispatch"] as const,
   overview: (tenant: string | undefined, loadIds: string[]) =>
     ["ai", tenant, "loads", "overview", [...loadIds].sort().join(",")] as const,
-  runs: (tenant: string | undefined, loadId?: string) =>
-    ["ai", tenant, "runs", loadId ?? "all"] as const,
+  runs: (tenant: string | undefined, loadId: string | undefined, page: number, size: number) =>
+    ["ai", tenant, "runs", loadId ?? "all", { page, size }] as const,
 };
 
 export async function fetchAiFeatures(): Promise<AiFeatures> {
@@ -307,10 +308,40 @@ export async function fetchLoadsAiOverview(
   return {};
 }
 
-export async function fetchAiRuns(loadId?: string): Promise<AiRun[]> {
+export async function fetchAiRuns(
+  loadId: string | undefined,
+  page: number,
+  size: number,
+  signal?: AbortSignal,
+): Promise<AiRunPage> {
   const res = await axios.get(aiEndpoints.runs, {
-    params: { loadId },
+    params: { loadId, page, size },
     headers: getAuthHeaders(),
+    ...(signal ? { signal } : {}),
   });
-  return res.data?.data ?? res.data ?? [];
+  const payload = res.data?.data ?? res.data ?? {};
+  const rows: unknown[] = Array.isArray(payload) ? payload : Array.isArray(payload.items) ? payload.items : [];
+  const items: AiRun[] = rows.map((raw) => {
+    const row = raw as Record<string, unknown>;
+    return {
+      id: String(row.id ?? ""),
+      loadId: row.loadId == null ? null : String(row.loadId),
+      type: String(row.runType ?? row.type ?? ""),
+      status: String(row.status ?? ""),
+      model: String(row.modelName ?? row.model ?? ""),
+      promptVersion: String(row.promptVersion ?? ""),
+      tokens: Number(row.totalTokens ?? row.tokens ?? 0),
+      cost: Number(row.estimatedCostUsd ?? row.cost ?? 0),
+      latencyMs: Number(row.latencyMs ?? 0),
+      error: row.errorMessage == null ? null : String(row.errorMessage),
+      createdAt: String(row.createdAt ?? ""),
+    };
+  });
+  return {
+    items,
+    totalItems: Number(payload.totalItems ?? items.length),
+    totalPages: Number(payload.totalPages ?? 1),
+    currentPage: Number(payload.currentPage ?? page + 1),
+    pageSize: Number(payload.pageSize ?? size),
+  };
 }

@@ -9,6 +9,7 @@ import {
   Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { useMemo } from "react";
 import {
   DeleteOutlined,
   DownloadOutlined,
@@ -20,7 +21,7 @@ import type { Document } from "@/types/document.types";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateTime } from "@/formatters/dateTime";
-import { formatFileSize, getFileVisual } from "./documentUtils";
+import { documentTypeLabelKey, formatFileSize, getFileVisual } from "./documentUtils";
 
 const { Text } = Typography;
 
@@ -45,7 +46,7 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
 
-  const columns: ColumnsType<Document> = [
+  const columns: ColumnsType<Document> = useMemo(() => [
     {
       title: t("columns.documents.fileName"),
       dataIndex: "fileName",
@@ -102,7 +103,7 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
       key: "type",
       render: (type: string) => (
         <Tag color="blue" style={{ borderRadius: 4, fontWeight: 500, margin: 0 }}>
-          {t(`documents.upload.types.${type}`, { defaultValue: type })}
+          {t(documentTypeLabelKey(type), { defaultValue: type })}
         </Tag>
       ),
     },
@@ -217,7 +218,7 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
         </Space>
       ),
     },
-  ];
+  ], [deletingDocumentId, downloadingDocumentId, i18n.language, onDelete, onDownload, onPreview, t]);
 
   return (
     <Table<Document>

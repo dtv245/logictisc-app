@@ -1,4 +1,4 @@
-import { fireEvent, render as rtlRender, screen } from "@testing-library/react";
+import { fireEvent, render as rtlRender, screen, waitFor } from "@testing-library/react";
 import { Refine } from "@refinedev/core";
 import type { ReactNode } from "react";
 import { createAccessControlProvider } from "@providers/accessControlProvider";
@@ -164,7 +164,7 @@ describe("SettlementList", () => {
     expect(screen.queryByRole("button", { name: /edit/i })).not.toBeInTheDocument();
   });
 
-  it("filters settlements table by search query", () => {
+  it("filters settlements table by search query", async () => {
     render(
       <MemoryRouter>
         <SettlementList />
@@ -176,8 +176,9 @@ describe("SettlementList", () => {
     );
     fireEvent.change(searchInput, { target: { value: "Beth" } });
 
+    // Ô tìm kiếm debounce trước khi áp bộ lọc.
+    await waitFor(() => expect(screen.queryByText("DS-2026-001")).not.toBeInTheDocument());
     expect(screen.getByText("DS-2026-002")).toBeInTheDocument();
-    expect(screen.queryByText("DS-2026-001")).not.toBeInTheDocument();
     expect(screen.queryByText("DS-2026-003")).not.toBeInTheDocument();
   });
 

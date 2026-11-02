@@ -10,6 +10,7 @@ import { ShipmentCard } from "@/components/tms-flow/ShipmentCard";
 import { TmsFlowMap } from "@/components/tms-flow/TmsFlowMap";
 import { TmsTimeline } from "@/components/tms-flow/TmsTimeline";
 import { routes } from "@/constants/routes";
+import { TMS_RISK_WINDOW_HOURS } from "@/constants/tms";
 import { useTmsTimeline } from "@/hooks/tms-flow/useTmsQueries";
 import { useTmsWorkspace } from "@/hooks/tms-flow/useTmsWorkspace";
 import type { TmsApproval } from "@/types/tms-flow/tmsFlow.types";
@@ -20,6 +21,7 @@ import {
   formatTmsDistance,
 } from "@/utils/tms-flow/presentation";
 import {
+  countTmsRiskQueue,
   selectPrimaryRiskShipment,
   summarizeTmsLoads,
 } from "@/utils/tms-flow/status";
@@ -162,6 +164,7 @@ export function OperationsDashboardPage() {
         />
       ) : null}
 
+      <p className="tms-muted">Số liệu theo các đơn đã tải{generatedAt != null ? ` lúc ${new Date(generatedAt).toLocaleString("vi-VN")}` : ""}. “Delayed” là đơn đã quá hạn; “At risk” là hàng đợi rủi ro gồm cả đơn đã quá hạn và đơn đến hạn trong {TMS_RISK_WINDOW_HOURS} giờ — cùng định nghĩa với bộ lọc At risk tại Dispatch.</p>
       <div className="tms-kpi-grid">
         <KpiTile
           label="Active"
@@ -192,7 +195,7 @@ export function OperationsDashboardPage() {
           onClick={() => navigate(`${routes.tmsFlow.dispatch}?filter=at-risk`)}
           testId="dashboard-kpi-at-risk"
           tone="warning"
-          value={summary.atRisk.toLocaleString("en-US")}
+          value={countTmsRiskQueue(summary).toLocaleString("en-US")}
         />
         <KpiTile
           label="Unassigned"
@@ -325,7 +328,7 @@ export function OperationsDashboardPage() {
           <FlowPanel title="Operations brief">
             <ul className="tms-brief__list">
               <li>{summary.delayed} loads are past their requested delivery time.</li>
-              <li>{summary.atRisk} loads are due within the next 4 hours.</li>
+              <li>{countTmsRiskQueue(summary)} loads are past due or due within the next {TMS_RISK_WINDOW_HOURS} hours.</li>
               <li>{summary.unassigned} active loads have no truck assigned.</li>
               <li>{approvals.length} AI dispatch decisions are pending approval.</li>
             </ul>

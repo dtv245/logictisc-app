@@ -30,7 +30,12 @@ export interface TmsLoadsSnapshot {
   generatedAt: number;
 }
 
-export function useTmsLoads() {
+export interface TmsQueryOptions {
+  /** Lets a caller skip the request until it knows the user may read the resource. */
+  enabled?: boolean;
+}
+
+export function useTmsLoads(options: TmsQueryOptions = {}) {
   const { tenant } = useCurrentTenant();
   return useQuery<TmsLoadsSnapshot>({
     queryKey: tmsKeys.loads(tenant?.tenantKey),
@@ -43,6 +48,7 @@ export function useTmsLoads() {
         shipments: collection.items.map((load) => toTmsShipment(load, generatedAt)),
       };
     },
+    enabled: options.enabled ?? true,
     staleTime: REFRESH_MS,
     // Loads are the source of truth for the dispatch queue. Always refresh when
     // the screen mounts and keep an open queue current, including after a
@@ -53,11 +59,12 @@ export function useTmsLoads() {
   });
 }
 
-export function useTmsTrucks() {
+export function useTmsTrucks(options: TmsQueryOptions = {}) {
   const { tenant } = useCurrentTenant();
   return useQuery({
     queryKey: tmsKeys.trucks(tenant?.tenantKey),
     queryFn: fetchAllTrucks,
+    enabled: options.enabled ?? true,
     staleTime: REFRESH_MS,
     retry: false,
   });

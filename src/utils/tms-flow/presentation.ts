@@ -5,6 +5,7 @@ import type {
   TmsOperationalStatus,
   TmsRiskLevel,
 } from "@/types/tms-flow/tmsFlow.types";
+import { formatDistance } from "@/utils/distance";
 
 type PresentationTone = "success" | "processing" | "warning" | "error" | "neutral";
 
@@ -59,7 +60,7 @@ export const formatTmsDate = (value?: string | null, fallback = "—"): string =
 };
 
 export const formatTmsDistance = (distance?: number | null): string =>
-  distance == null ? "—" : `${distance.toLocaleString("en-US")} mi`;
+  formatDistance(distance, "mi", { locale: "en-US" });
 
 export const formatTmsMoney = (
   amount?: number | null,

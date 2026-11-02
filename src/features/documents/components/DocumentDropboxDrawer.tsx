@@ -20,7 +20,7 @@ import type { Document } from "@/types/document.types";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateTime } from "@/formatters/dateTime";
-import { formatFileSize, getFileVisual } from "./documentUtils";
+import { documentTypeLabelKey, formatFileSize, getFileVisual } from "./documentUtils";
 
 const { Text, Title, Paragraph } = Typography;
 
@@ -128,7 +128,7 @@ export const DocumentDropboxDrawer: React.FC<DocumentDropboxDrawerProps> = ({
         </Title>
         <Space size={8} wrap style={{ justifyContent: "center" }}>
           <Tag color="blue" style={{ borderRadius: 4, fontWeight: 500 }}>
-            {t(`documents.upload.types.${doc.type}`, { defaultValue: doc.type })}
+            {t(documentTypeLabelKey(doc.type), { defaultValue: doc.type })}
           </Tag>
           <StatusTag
             label={t(`documents.status.${doc.status}`, { defaultValue: doc.status })}

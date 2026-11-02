@@ -1,10 +1,11 @@
 /** Lazy load-scoped documents: server pagination, identity guards and transport dates. */
 import { PlusOutlined } from "@ant-design/icons";
-import { useCan, useList } from "@refinedev/core";
+import { useCan, useDataProvider, useList } from "@refinedev/core";
 import { Button, Card, Spin, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { ForbiddenState } from "@/components/ErrorStates";
 import { StatusTag } from "@/components/StatusTag";
@@ -15,34 +16,55 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { BaseTable } from "@/table/BaseTable";
 import type { ApiHttpError } from "@/utils/httpError";
 import type { DocumentDto } from "@/types/document.dto";
+import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 
 export interface LoadDocumentsPanelProps {
   loadId: string;
 }
-
-const PAGE_SIZE = 20;
 
 export const LoadDocumentsPanel = ({ loadId }: LoadDocumentsPanelProps) => {
   const { t, i18n } = useTranslation();
   const { tenant } = useCurrentTenant();
   const access = useCan({ resource: "documents", action: "list" });
   const [current, setCurrent] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_LIST_PAGE_SIZE);
+  const queryClient = useQueryClient();
+  const getDataProvider = useDataProvider();
   const canRead = access.data?.can === true;
+  const filters = useMemo(() => [{ field: "loadId", operator: "eq" as const, value: loadId }], [loadId]);
   const query = useList<DocumentDto, ApiHttpError>({
     resource: "documents",
-    filters: [{ field: "loadId", operator: "eq", value: loadId }],
-    pagination: { current, pageSize: PAGE_SIZE, mode: "server" },
+    filters,
+    pagination: { current, pageSize, mode: "server" },
     errorNotification: false,
     queryOptions: {
       enabled: Boolean(loadId && tenant?.tenantKey && canRead),
-      queryKey: ["load-documents", tenant?.tenantKey, loadId, current, PAGE_SIZE],
+      queryKey: ["load-documents", tenant?.tenantKey, loadId, current, pageSize],
+      keepPreviousData: true,
+      staleTime: 30_000,
     },
   });
 
-  if (access.isLoading) return <Spin />;
-  if (!canRead || query.error?.statusCode === 403) return <ForbiddenState />;
+  useEffect(() => {
+    const total = query.data?.total ?? 0;
+    if (!query.data || !loadId || !tenant?.tenantKey || !canRead || total <= current * pageSize) return;
+    const nextCurrent = current + 1;
+    void queryClient.prefetchQuery(
+      ["load-documents", tenant.tenantKey, loadId, nextCurrent, pageSize],
+      (context) => getDataProvider().getList<DocumentDto>({
+        resource: "documents",
+        filters,
+        pagination: { current: nextCurrent, pageSize, mode: "server" },
+        hasPagination: true,
+        sorters: [],
+        sort: [],
+        meta: { queryContext: context },
+      }),
+      { staleTime: 30_000 },
+    );
+  }, [canRead, current, filters, getDataProvider, loadId, pageSize, query.data, queryClient, tenant?.tenantKey]);
 
-  const columns: ColumnsType<DocumentDto> = [
+  const columns: ColumnsType<DocumentDto> = useMemo(() => [
     {
       title: t("columns.documents.fileName"),
       dataIndex: "fileName",
@@ -75,7 +97,10 @@ export const LoadDocumentsPanel = ({ loadId }: LoadDocumentsPanelProps) => {
       dataIndex: "description",
       render: (value: string | null) => value || "—",
     },
-  ];
+  ], [i18n.language, t]);
+
+  if (access.isLoading) return <Spin />;
+  if (!canRead || query.error?.statusCode === 403) return <ForbiddenState />;
 
   return (
     <Card
@@ -98,13 +123,16 @@ export const LoadDocumentsPanel = ({ loadId }: LoadDocumentsPanelProps) => {
         queryResult={query}
         tableProps={{
           dataSource: query.data?.data ?? [],
-          loading: query.isLoading,
+        loading: query.isFetching,
           pagination: {
             current,
-            pageSize: PAGE_SIZE,
+            pageSize,
             total: query.data?.total ?? 0,
-            showSizeChanger: false,
-            onChange: setCurrent,
+            ...createListPaginationConfig(t),
+            onChange: (nextCurrent, nextPageSize) => {
+              setPageSize(nextPageSize);
+              setCurrent(nextPageSize === pageSize ? nextCurrent : 1);
+            },
           },
         }}
       />

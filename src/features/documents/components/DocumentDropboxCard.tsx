@@ -21,7 +21,7 @@ import type { Document } from "@/types/document.types";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateTime } from "@/formatters/dateTime";
-import { formatFileSize, getFileVisual } from "./documentUtils";
+import { documentTypeLabelKey, formatFileSize, getFileVisual } from "./documentUtils";
 
 const { Text } = Typography;
 
@@ -197,7 +197,7 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
             border: "none",
           }}
         >
-          {t(`documents.upload.types.${doc.type}`, { defaultValue: doc.type })}
+          {t(documentTypeLabelKey(doc.type), { defaultValue: doc.type })}
         </Tag>
         <StatusTag
           label={t(`documents.status.${doc.status}`, { defaultValue: doc.status })}

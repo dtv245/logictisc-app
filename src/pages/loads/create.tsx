@@ -5,15 +5,18 @@
 
 import { Create, useForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
+import { applyBackendFieldErrors, hasBackendFieldErrors } from "@/forms/backendFieldErrors";
 import type { ApiError } from "@/types/api.types";
 import { routes } from "@constants/routes";
 import { buildResourceMutation } from "@/components/resources/resourceMutation";
 import { LoadForm } from "@/features/loads/components/LoadForm";
+import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 
 export const LoadCreate = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { form, formProps, saveButtonProps } = useForm<
     BaseRecord,
@@ -23,6 +26,15 @@ export const LoadCreate = () => {
     action: "create",
     redirect: "list",
     resource: "loads",
+    // Lỗi từng field đã hiển thị ngay dưới ô nhập; toast chung chỉ gây nhiễu
+    // và từng chứa tiêu đề "Đã xảy ra lỗi (mã: )" không có mã.
+    errorNotification: (error) => {
+      if (hasBackendFieldErrors(error)) return false;
+      return createApiErrorNotification(error, t, {
+        operation: "create",
+        resourceLabel: t("resources.loads", "đơn hàng"),
+      });
+    },
     onMutationError: (error) => {
       applyBackendFieldErrors(form, error.errors ?? {});
     },

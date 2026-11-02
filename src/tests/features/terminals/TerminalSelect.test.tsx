@@ -29,7 +29,7 @@ vi.mock("@/components/EntityPicker", () => ({
 }));
 
 describe("TerminalSelect — Component chọn bến bãi / cảng", () => {
-  it("cấu hình EntityPicker với resource='terminals', pageSize=100 và định dạng nhãn '${name} (${code})'", () => {
+  it("cấu hình EntityPicker với resource='terminals', pageSize=50 và định dạng nhãn '${name} (${code})'", () => {
     const onChange = vi.fn();
     render(
       <TerminalSelect
@@ -42,7 +42,7 @@ describe("TerminalSelect — Component chọn bến bãi / cảng", () => {
 
     expect(screen.getByTestId("mock-entity-picker")).toBeInTheDocument();
     expect(screen.getByText("Resource: terminals")).toBeInTheDocument();
-    expect(screen.getByText("PageSize: 100")).toBeInTheDocument();
+    expect(screen.getByText("PageSize: 50")).toBeInTheDocument();
     expect(screen.getByText("Placeholder: Chọn bến bãi...")).toBeInTheDocument();
     expect(screen.getByTestId("formatted-label")).toHaveTextContent("Cat Lai Port (VNSGN)");
     expect(screen.getByTestId("formatted-fallback")).toHaveTextContent("term-2");

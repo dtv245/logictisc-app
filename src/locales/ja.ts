@@ -4,6 +4,8 @@
  * Key paths mirror the English catalogue; missing keys fall back to `en`.
  */
 
+import { driverProfileJa } from "./driverProfile";
+
 const shared = {
   forms: { options: {
     feasible: "適合",
@@ -131,6 +133,7 @@ export const jaMessages = {
   "pickupBusinessDate": {"title": "集荷の業務日", "date": "業務日", "source": "証拠の情報源", "save": "業務日を記録", "saved": "業務日を記録しました"},
 
   ...shared,
+  driverProfile: driverProfileJa,
   fleet: {
     "title": "車両レポート",
     "scopeHelp": "公開済みポリシー、対象車両ID、集計期間を指定してください。履歴が不足する指標は利用不可のまま表示されます。",
@@ -774,7 +777,10 @@ export const jaMessages = {
       kpi: {
         inTransit: "輸送中",
         atRisk: "遅延リスク",
-        atRiskContext: "ETAがSLA期限に接近しています",
+        atRiskContext: "期限超過または4時間以内に期限",
+        loadScope: "読み込み済み {{count}} 件の荷物から集計",
+        loadScopeTruncated: "{{total}} 件中 {{shown}} 件のみ読み込み済み。運用KPIは読み込み済みの行のみが対象です。",
+        periodContext: "直近30日間のレポート期間",
         onTime: "定時率 (OTD)",
         deliveredToday: "本日の配達完了",
         assignableVehicles: "割り当て可能な車両",
@@ -813,6 +819,7 @@ export const jaMessages = {
       truckNumber: "トラック",
       dispatchedAt: "出発日時",
       completedAt: "完了日時",
+      inconsistent: "不整合",
       cancelledAt: "キャンセル日時",
       createdAt: "作成日時",
     },

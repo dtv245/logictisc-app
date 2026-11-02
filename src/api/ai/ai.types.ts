@@ -156,7 +156,7 @@ export interface AiRun {
   id: string;
   loadId?: string | null;
   type: string;
-  status: "SUCCESS" | "FAILED" | "RUNNING";
+  status: string;
   model: string;
   promptVersion: string;
   tokens?: number | null; // Bảo mật: chỉ trả về/hiển thị khi có quyền canViewRuns
@@ -164,6 +164,14 @@ export interface AiRun {
   latencyMs: number;
   error?: string | null;
   createdAt: string;
+}
+
+export interface AiRunPage {
+  items: AiRun[];
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
 }
 
 export interface DismissGapPayload {

@@ -7,7 +7,8 @@ import type {
   SettlementStatus,
   SettlementType,
 } from "@/types/settlement.dto";
-import { useDrivers, usePayPeriods } from "../api/settlement.query";
+import { EntityPicker } from "@/components/EntityPicker";
+import { usePayPeriods } from "../api/settlement.query";
 
 export interface SettlementFiltersProps {
   filters: SettlementFilterParams;
@@ -41,7 +42,6 @@ export const SettlementFilters = ({
   const { t } = useTranslation();
   const [form] = Form.useForm<SettlementFilterParams>();
   const { payPeriods, isLoading: isPayPeriodsLoading } = usePayPeriods();
-  const { drivers, isLoading: isDriversLoading } = useDrivers();
 
   const handleValuesChange = (
     _: unknown,
@@ -109,23 +109,17 @@ export const SettlementFilters = ({
               label={t("settlements.driver", "Driver")}
               name="driverId"
             >
-              <Select
-                allowClear
-                loading={isDriversLoading}
+              <EntityPicker
                 placeholder={t(
                   "settlements.filters.selectDriver",
                   "Select Driver"
                 )}
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={drivers.map((driver) => ({
-                  label: driver.fullName,
-                  value: driver.id,
-                }))}
+                resource="drivers"
+                pageSize={50}
+                labelFormat={(driver) => {
+                  const name = `${String(driver.firstName ?? "")} ${String(driver.lastName ?? "")}`.trim();
+                  return name || String(driver.email ?? driver.id ?? "");
+                }}
               />
             </Form.Item>
           </Col>
