@@ -22,6 +22,14 @@ export interface UseAiDispatchActionsOptions {
   decisionId?: string;
 }
 
+export interface AiDispatchLatestRun {
+  sessionId: string;
+  status: string;
+  resultCode?: string;
+  summary?: string;
+  hasProposals: boolean;
+}
+
 export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) {
   const { initialPlans = [], sessionId, decisionId } = options;
   const { t } = useTranslation();
@@ -39,6 +47,7 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
   const [initialLoadPending, setInitialLoadPending] = useState(false);
   const [initialLoadError, setInitialLoadError] = useState<Error | null>(null);
   const [initialLoadAttempt, setInitialLoadAttempt] = useState(0);
+  const [latestRun, setLatestRun] = useState<AiDispatchLatestRun | null>(null);
 
   const activePlan = decisionId
     ? plans.find((plan) => plan.id === decisionId) ?? null
@@ -56,6 +65,9 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
 
     async function loadRealData() {
       try {
+        setPlans([]);
+        setActivePlanId(null);
+        setLatestRun(null);
         setInitialLoadPending(true);
         setPending(true);
         setInitialLoadError(null);
@@ -72,6 +84,12 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
             }),
           );
           setPlans(mapped);
+          setLatestRun({
+            sessionId: detail.id,
+            status: detail.status,
+            summary: detail.summary ?? undefined,
+            hasProposals: mapped.length > 0,
+          });
           setActivePlanId(
             decisionId
               ? mapped.find((plan) => plan.id === decisionId)?.id ?? null
@@ -97,8 +115,15 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
           const latestSession = sessionsRes.content[0];
           const detail = await fetchAiDispatchSessionDetail(latestSession.id);
           if (!mounted) return;
-          if (detail.decisions && detail.decisions.length > 0) {
-            const mapped = detail.decisions.map((d) =>
+          const decisions = detail.decisions ?? [];
+          setLatestRun({
+            sessionId: detail.id,
+            status: detail.status,
+            summary: detail.summary ?? undefined,
+            hasProposals: decisions.length > 0,
+          });
+          if (decisions.length > 0) {
+            const mapped = decisions.map((d) =>
               mapSuggestionToPlan(d, {
                 sessionId: detail.id,
                 summary: detail.summary ?? undefined,
@@ -127,12 +152,13 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
     };
   }, [tenant?.tenantKey, initialPlans.length, sessionId, decisionId, initialLoadAttempt]);
 
-  const runAiDispatch = async (params: CreateAiDispatchParams): Promise<AiMovementPlan> => {
+  const runAiDispatch = async (params: CreateAiDispatchParams): Promise<AiMovementPlan | null> => {
     if (!canRun) {
       throw new Error(t("forbidden.description"));
     }
     setPending(true);
     setError(null);
+    setLatestRun(null);
 
     try {
       // Backend khoá AUTONOMOUS_MODE_LOCKED; không gửi mode mà server chắc chắn từ chối.
@@ -147,10 +173,6 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
         instructions: params.instructions,
       });
 
-      if (!result.suggestions || result.suggestions.length === 0) {
-        throw new Error(result.summary || "AI không tìm thấy phương án điều phối phù hợp.");
-      }
-
       const sessionInfo = {
         sessionId: result.sessionId,
         loadId: params.loadId,
@@ -159,16 +181,25 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
       };
 
       const newPlans = result.suggestions.map((s) => mapSuggestionToPlan(s, sessionInfo));
-      setPlans((prev) => [...newPlans, ...prev]);
-      setActivePlanId(newPlans[0].id);
-
-      open?.({
-        type: "success",
-        message: t("aiDispatch.generatePlan"),
-        description: result.summary || t("aiDispatch.planSubtitle"),
+      setPlans((prev) => newPlans.length > 0 ? [...newPlans, ...prev] : []);
+      setActivePlanId(newPlans[0]?.id ?? null);
+      setLatestRun({
+        sessionId: result.sessionId,
+        status: result.status,
+        ...(result.resultCode ? { resultCode: result.resultCode } : {}),
+        summary: result.summary,
+        hasProposals: newPlans.length > 0,
       });
 
-      return newPlans[0];
+      if (newPlans.length > 0) {
+        open?.({
+          type: "success",
+          message: t("aiDispatch.generatePlan"),
+          description: result.summary || t("aiDispatch.planSubtitle"),
+        });
+      }
+
+      return newPlans[0] ?? null;
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err));
       setError(e);
@@ -303,6 +334,7 @@ export function useAiDispatchActions(options: UseAiDispatchActionsOptions = {}) 
     initialLoadPending,
     initialLoadError,
     retryInitialLoad,
+    latestRun,
     canRun,
     canApprove,
     runAiDispatch,

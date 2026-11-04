@@ -1,3 +1,4 @@
+import { Tooltip } from "antd";
 import { ArrowRight, Clock, MapPin, Truck } from "lucide-react";
 
 import { StatusTag } from "@/components/StatusTag";
@@ -25,6 +26,9 @@ export function ShipmentCard({
 }: ShipmentCardProps) {
   const status = operationalStatusMeta[shipment.status];
   const risk = riskMeta[shipment.risk];
+  const customerLabel = `${shipment.name} · ${shipment.customerName}`;
+  const laneLabel = `${shipment.originCity} → ${shipment.destinationCity}`;
+  const truckLabel = truckNumber ?? shipment.assignedTruckNumber ?? "Chưa phân công";
 
   return (
     <button
@@ -43,26 +47,36 @@ export function ShipmentCard({
           ) : null}
         </span>
       </span>
-      <span className="tms-shipment-card__customer">
-        {shipment.name} · {shipment.customerName}
-      </span>
-      <span className="tms-shipment-card__lane">
-        <MapPin size={13} aria-hidden="true" />
-        {shipment.originCity} <ArrowRight size={12} aria-hidden="true" /> {shipment.destinationCity}
-      </span>
+      <Tooltip title={customerLabel}>
+        <span className="tms-shipment-card__customer table-cell-ellipsis">
+          {customerLabel}
+        </span>
+      </Tooltip>
+      <Tooltip title={laneLabel}>
+        <span className="tms-shipment-card__lane">
+          <MapPin size={13} aria-hidden="true" />
+          <span className="table-cell-ellipsis">
+            {shipment.originCity} <ArrowRight size={12} aria-hidden="true" /> {shipment.destinationCity}
+          </span>
+        </span>
+      </Tooltip>
       <span className="tms-shipment-card__meta">
         <span>
           <Clock size={13} aria-hidden="true" />
-          Due {formatTmsDateTime(shipment.requestedDeliveryDate)}
+          Giao {formatTmsDateTime(shipment.requestedDeliveryDate)}
         </span>
-        <span className="tms-shipment-card__eta">
-          {truckNumber ?? shipment.assignedTruckNumber ?? "No truck"}
-        </span>
+        <Tooltip title={truckLabel}>
+          <span className="tms-shipment-card__eta table-cell-ellipsis">
+            {truckLabel}
+          </span>
+        </Tooltip>
       </span>
       {!compact && shipment.assignedTruckNumber ? (
-        <span className="tms-shipment-card__driver">
-          <Truck size={13} aria-hidden="true" /> Truck {shipment.assignedTruckNumber}
-        </span>
+        <Tooltip title={`Xe ${shipment.assignedTruckNumber}`}>
+          <span className="tms-shipment-card__driver table-cell-ellipsis">
+            <Truck size={13} aria-hidden="true" /> Xe {shipment.assignedTruckNumber}
+          </span>
+        </Tooltip>
       ) : null}
     </button>
   );

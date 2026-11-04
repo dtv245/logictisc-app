@@ -1,12 +1,16 @@
 import axios from "axios";
 import { getActiveAccessToken } from "@/providers/auth/activeToken";
 import type {
+  AiCapabilities,
+  AiDispatchCandidate,
+  AiDispatchRunResult,
   AiFeatures,
   AiGap,
   AiGapSeverity,
   AiGapStatus,
   AiRun,
   AiRunPage,
+  DecisionStatus,
   DismissGapPayload,
   DispatchState,
   LoadAiDispatchResponse,
@@ -14,6 +18,7 @@ import type {
   LoadAiOverviewItem,
   RejectDispatchPayload,
 } from "./ai.types";
+import { getFieldMapping } from "./fieldKeyMapping";
 
 export const aiEndpoints = {
   // Features / Config
@@ -160,35 +165,38 @@ export async function fetchLoadAiGaps(loadId: string): Promise<LoadAiGapsRespons
       ? envelopeData
       : [];
 
-    const normalizedGaps: AiGap[] = (rawGaps as Array<Record<string, unknown>>).map((g) => ({
-      id: String(g.id),
-      loadId: String(g.loadId ?? loadId),
-      ruleCode: typeof g.ruleCode === "string" ? g.ruleCode : undefined,
-      fieldName: String(g.fieldName ?? g.fieldKey ?? ""),
-      fieldKey: String(g.fieldKey ?? g.fieldName ?? ""),
-      fieldLabel: String(g.fieldLabel ?? g.fieldName ?? ""),
-      question: String(g.questionNatural ?? g.questionTemplate ?? g.question ?? ""),
-      questionNatural: typeof g.questionNatural === "string" ? g.questionNatural : undefined,
-      questionTemplate: typeof g.questionTemplate === "string" ? g.questionTemplate : undefined,
-      severity: String(g.severity ?? "warning").toLowerCase() as AiGapSeverity,
-      status: String(g.status ?? "open").toLowerCase() as AiGapStatus,
-      proposedValue: typeof g.proposedValue === "string" ? g.proposedValue : null,
-      askCount: Number(g.askCount) || 1,
-      maxAsks: Number(g.maxAsks) || 3,
-      lastAskedAt: String(g.lastAskedAt ?? g.createdAt ?? ""),
-      dismissReason: typeof g.dismissReason === "string" ? g.dismissReason : null,
-    }));
+    const normalizedGaps: AiGap[] = (rawGaps as Array<Record<string, unknown>>).map((g) => {
+      const fieldName = String(g.fieldName ?? g.fieldKey ?? "");
+      // AiGapView của backend không có fieldLabel; lấy nhãn tiếng Việt từ mapping
+      // form để câu hỏi dễ đọc, fallback về fieldName khi chưa có mapping.
+      const mapping = getFieldMapping(fieldName);
+      return {
+        id: String(g.id),
+        loadId: String(g.loadId ?? loadId),
+        ruleCode: typeof g.ruleCode === "string" ? g.ruleCode : undefined,
+        fieldName,
+        fieldKey: String(g.fieldKey ?? g.fieldName ?? ""),
+        fieldLabel: String(g.fieldLabel ?? mapping?.label ?? fieldName),
+        question: String(g.questionNatural ?? g.questionTemplate ?? g.question ?? ""),
+        questionNatural: typeof g.questionNatural === "string" ? g.questionNatural : undefined,
+        questionTemplate: typeof g.questionTemplate === "string" ? g.questionTemplate : undefined,
+        severity: String(g.severity ?? "warning").toLowerCase() as AiGapSeverity,
+        status: String(g.status ?? "open").toLowerCase() as AiGapStatus,
+        proposedValue: typeof g.proposedValue === "string" ? g.proposedValue : null,
+        askCount: Number(g.askCount) || 1,
+        maxAsks: Number(g.maxAsks) || 3,
+        lastAskedAt: String(g.lastAskedAt ?? g.createdAt ?? ""),
+        dismissReason: typeof g.dismissReason === "string" ? g.dismissReason : null,
+      };
+    });
 
+    // AiGapView.Summary không trả aiState/nextRunAt/capabilities. Trạng thái chạy
+    // nền do FE tự theo dõi sau khi gọi rerun; capabilities suy ra từ feature flag
+    // trong hook (backend vẫn là nơi kiểm quyền cuối cùng).
     return {
       loadId,
-      aiState: (envelopeData?.aiState as LoadAiGapsResponse["aiState"]) ?? "idle",
-      nextRunAt: envelopeData?.nextRunAt ?? null,
-      capabilities: envelopeData?.capabilities ?? {
-        canRerun: false,
-        canApprove: false,
-        canReject: false,
-        canViewRuns: false,
-      },
+      aiState: "idle",
+      nextRunAt: null,
       gaps: normalizedGaps,
     };
 }
@@ -198,11 +206,16 @@ export async function dismissAiGap(loadId: string, gapId: string, payload: Dismi
   return res.data?.data ?? res.data;
 }
 
-export async function rerunAiAnalysis(loadId: string) {
+export type AiRerunTarget = "gap" | "dispatch" | "both";
+
+export async function rerunAiAnalysis(
+  loadId: string,
+  target: AiRerunTarget = "gap",
+) {
   try {
     const res = await axios.post(
       aiEndpoints.rerunLoad(loadId),
-      {},
+      { target },
       { headers: getAuthHeaders() },
     );
     return res.data?.data ?? res.data;
@@ -229,10 +242,148 @@ export async function rerunAiAnalysis(loadId: string) {
   }
 }
 
+interface BackendLoadStatusView {
+  loadId?: string;
+  gapStatus?: string;
+  blockingGapsCount?: number;
+  warningGapsCount?: number;
+  dispatchStatus?: string;
+  latestSessionId?: string | null;
+  latestDecisionId?: string | null;
+  suggestedTruckId?: string | null;
+  suggestedTruckNumber?: string | null;
+  latestRunId?: string | null;
+  latestRunStatus?: string | null;
+  latestRunResultCode?: string | null;
+  latestRunSummary?: string | null;
+  latestRunAt?: string | null;
+  capabilities?: AiCapabilities;
+}
+
+interface BackendDecision {
+  decisionId?: string;
+  id?: string;
+  rank?: number | null;
+  truckId?: string;
+  truckNumber?: string | null;
+  driverId?: string;
+  driverName?: string | null;
+  score?: number | string | null;
+  confidence?: string;
+  reasoning?: string;
+  metrics?: AiDispatchCandidate["metrics"];
+  status?: string;
+}
+
+const mapOptionalNumber = (value: number | string | null | undefined): number | null | undefined => {
+  if (value === null || value === undefined) return value;
+  if (typeof value === "string" && value.trim() === "") return undefined;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const mapBackendDecision = (raw: BackendDecision): AiDispatchCandidate => {
+  const decisionId = String(raw.decisionId ?? raw.id ?? "");
+  return {
+    id: decisionId,
+    decisionId,
+    rank: mapOptionalNumber(raw.rank),
+    truckId: String(raw.truckId ?? ""),
+    truckNumber: String(raw.truckNumber ?? raw.truckId ?? ""),
+    driverId: String(raw.driverId ?? ""),
+    driverName: String(raw.driverName ?? raw.driverId ?? ""),
+    score: mapOptionalNumber(raw.score),
+    metrics: raw.metrics,
+    reasoning: String(raw.reasoning ?? ""),
+    confidence: typeof raw.confidence === "string" ? raw.confidence : undefined,
+    status: String(raw.status ?? "PENDING") as DecisionStatus,
+  };
+};
+
+/**
+ * Đọc trạng thái AI của một Load từ backend thật.
+ *
+ * `/api/ai/loads/{loadId}/status` chỉ trả trạng thái tổng hợp, không trả danh
+ * sách ứng viên. Khi có quyết định đang chờ duyệt, FE đọc thêm session detail
+ * để lấy các suggestion thật (không tự bịa ứng viên).
+ */
 export async function fetchLoadAiDispatch(loadId: string): Promise<LoadAiDispatchResponse> {
   const res = await axios.get(aiEndpoints.loadStatus(loadId), { headers: getAuthHeaders() });
-  const envelopeData = res.data?.data ?? res.data;
-  return envelopeData;
+  const status = (res.data?.data ?? res.data) as BackendLoadStatusView;
+
+  const blockingGapCount = Number(status.blockingGapsCount ?? 0);
+  const backendDispatch = String(status.dispatchStatus ?? "UNASSIGNED").toUpperCase();
+  const latestRunResultCode = status.latestRunResultCode ?? null;
+  let dispatchState: DispatchState;
+  if (backendDispatch === "EXECUTED") {
+    dispatchState = "assigned";
+  } else if (backendDispatch === "SUGGESTED") {
+    dispatchState = "ready";
+  } else if (latestRunResultCode === "EVIDENCE_UNAVAILABLE") {
+    dispatchState = "evidence_unavailable";
+  } else if (status.latestRunStatus === "FAILED") {
+    dispatchState = "failed";
+  } else if (backendDispatch === "UNASSIGNED") {
+    dispatchState = blockingGapCount > 0 ? "blocked_by_gap" : "not_started";
+  } else {
+    dispatchState = "not_started";
+  }
+
+  const latestSessionId = status.latestSessionId ?? null;
+  let suggestions: AiDispatchCandidate[] = [];
+  if (latestSessionId) {
+    try {
+      const detailRes = await axios.get(
+        aiEndpoints.dispatchSessionDetail(latestSessionId),
+        { headers: getAuthHeaders() },
+      );
+      const detail = detailRes.data?.data ?? detailRes.data;
+      const decisions: BackendDecision[] = Array.isArray(detail?.decisions)
+        ? (detail.decisions as BackendDecision[])
+        : [];
+      suggestions = decisions.map(mapBackendDecision);
+    } catch {
+      // Trạng thái load vẫn dùng được khi session detail lỗi hoặc đã bị xoá.
+    }
+  }
+
+  return {
+    loadId,
+    dispatchState,
+    blockingGapCount,
+    capabilities: status.capabilities ?? {},
+    suggestions,
+    latestSessionId,
+    latestDecisionId: status.latestDecisionId ?? null,
+    latestRunId: status.latestRunId ?? null,
+    latestRunStatus: status.latestRunStatus ?? null,
+    latestRunResultCode,
+    latestRunSummary: status.latestRunSummary ?? null,
+    latestRunAt: status.latestRunAt ?? null,
+    suggestedTruckId: status.suggestedTruckId ?? null,
+    suggestedTruckNumber: status.suggestedTruckNumber ?? null,
+  };
+}
+
+/**
+ * Khởi chạy AI dispatch cho một Load qua backend thật.
+ * POST /api/ai/dispatch/runs — backend luôn chạy HumanInTheLoop.
+ */
+export async function startAiDispatchRun(
+  loadId: string,
+  options: { maxSuggestions?: number; instructions?: string } = {},
+): Promise<AiDispatchRunResult> {
+  const res = await axios.post(
+    aiEndpoints.dispatchRuns,
+    {
+      loadId,
+      mode: "HumanInTheLoop",
+      maxSuggestions: options.maxSuggestions ?? 5,
+      instructions: options.instructions?.trim() || undefined,
+    },
+    { headers: getAuthHeaders() },
+  );
+  return res.data?.data ?? res.data;
 }
 
 export async function approveAiDispatchSuggestion(
@@ -287,19 +438,32 @@ export async function fetchLoadsAiOverview(
         const id = String(item.loadId);
         const blocking = Number(item.blockingGapsCount ?? item.blockingGaps) || 0;
         const warning = Number(item.warningGapsCount ?? item.warningGaps) || 0;
+        const dispatchStatus = String(item.dispatchStatus ?? "").toUpperCase();
+        const latestRunResultCode = typeof item.latestRunResultCode === "string"
+          ? item.latestRunResultCode
+          : null;
+        const dispatchState: DispatchState = dispatchStatus === "EXECUTED"
+          ? "assigned"
+          : dispatchStatus === "SUGGESTED"
+            ? "ready"
+            : latestRunResultCode === "EVIDENCE_UNAVAILABLE"
+              ? "evidence_unavailable"
+              : typeof item.dispatchState === "string"
+                ? item.dispatchState as DispatchState
+                : blocking > 0
+                  ? "blocked_by_gap"
+                  : "not_started";
         map[id] = {
           loadId: id,
           blockingGaps: blocking,
           blockingGapsCount: blocking,
           warningGaps: warning,
           warningGapsCount: warning,
-          dispatchState:
-            item.dispatchStatus === "SUGGESTED" || item.dispatchStatus === "EXECUTED"
-              ? "ready"
-              : typeof item.dispatchState === "string"
-              ? (item.dispatchState as DispatchState)
-              : "not_started",
+          dispatchState,
           dispatchStatus: typeof item.dispatchStatus === "string" ? item.dispatchStatus : undefined,
+          latestRunStatus: typeof item.latestRunStatus === "string" ? item.latestRunStatus : null,
+          latestRunResultCode,
+          latestRunSummary: typeof item.latestRunSummary === "string" ? item.latestRunSummary : null,
         };
       }
     }

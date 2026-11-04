@@ -5,12 +5,12 @@ import {
   approveAiDispatchSuggestion,
   fetchLoadAiDispatch,
   rejectAiDispatchSuggestion,
+  startAiDispatchRun,
 } from "@/api/ai/ai.api";
 import type {
   AiDispatchCandidate,
   DispatchState,
   LoadAiDispatchResponse,
-  RankingSource,
 } from "@/api/ai/ai.types";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 
@@ -52,6 +52,33 @@ export function useLoadAiDispatch({ loadId, enabled = true }: UseLoadAiDispatchO
     }, 5000);
     return () => clearInterval(interval);
   }, [expiresAt]);
+
+  // Mutation: khởi chạy AI dispatch cho Load (POST /api/ai/dispatch/runs)
+  const runMutation = useMutation({
+    mutationFn: () => startAiDispatchRun(loadId),
+    onSuccess: (result) => {
+      setFeasibilityError(null);
+      queryClient.setQueryData<LoadAiDispatchResponse>(queryKey, (current) => ({
+        loadId,
+        dispatchState: result.resultCode === "EVIDENCE_UNAVAILABLE"
+          ? "evidence_unavailable"
+          : result.suggestions?.length
+            ? "ready"
+            : current?.dispatchState ?? "not_started",
+        blockingGapCount: current?.blockingGapCount ?? 0,
+        rankingSource: result.rankingSource ?? current?.rankingSource,
+        capabilities: current?.capabilities ?? {},
+        suggestions: result.suggestions?.length ? result.suggestions : current?.suggestions ?? [],
+        latestSessionId: result.sessionId ?? current?.latestSessionId ?? null,
+        latestRunStatus: result.runStatus ?? current?.latestRunStatus ?? null,
+        latestRunResultCode: result.resultCode ?? current?.latestRunResultCode ?? null,
+        latestRunSummary: result.summary ?? current?.latestRunSummary ?? null,
+      }));
+      void queryClient.invalidateQueries(queryKey);
+      void queryClient.invalidateQueries(aiQueryKeys.loadGaps(tenant?.tenantKey, loadId));
+      void queryClient.invalidateQueries(aiQueryKeys.overview(tenant?.tenantKey, [loadId]));
+    },
+  });
 
   // Mutation Phê duyệt
   const approveMutation = useMutation({
@@ -124,14 +151,15 @@ export function useLoadAiDispatch({ loadId, enabled = true }: UseLoadAiDispatchO
   return {
     dispatchState: effectiveDispatchState,
     blockingGapCount: query.data?.blockingGapCount ?? 0,
-    rankingSource: (query.data?.rankingSource ?? "llm") as RankingSource,
+    rankingSource: query.data?.rankingSource,
     expiresAt,
     isExpired,
     suggestions,
     capabilities: query.data?.capabilities ?? {
-      canApprove: true,
-      canReject: true,
-      canRerun: true,
+      canApprove: false,
+      canReject: false,
+      canRerun: false,
+      canViewRuns: false,
     },
     feasibilityError,
     clearFeasibilityError: () => setFeasibilityError(null),
@@ -140,6 +168,16 @@ export function useLoadAiDispatch({ loadId, enabled = true }: UseLoadAiDispatchO
     isError: query.isError,
     error: query.error,
     refetch: query.refetch,
+    latestSessionId: query.data?.latestSessionId ?? null,
+    latestDecisionId: query.data?.latestDecisionId ?? null,
+    latestRunId: query.data?.latestRunId ?? null,
+    latestRunStatus: query.data?.latestRunStatus ?? null,
+    latestRunResultCode: query.data?.latestRunResultCode ?? null,
+    latestRunSummary: query.data?.latestRunSummary ?? null,
+    latestRunAt: query.data?.latestRunAt ?? null,
+    suggestedTruckNumber: query.data?.suggestedTruckNumber ?? null,
+    runDispatch: runMutation.mutateAsync,
+    isRunning: runMutation.isLoading,
     approveSuggestion: approveMutation.mutateAsync,
     isApproving: approveMutation.isLoading,
     rejectSuggestion: rejectMutation.mutateAsync,

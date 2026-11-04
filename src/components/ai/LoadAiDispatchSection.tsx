@@ -1,5 +1,6 @@
 import {
   Alert,
+  App,
   Button,
   Card,
   Col,
@@ -10,7 +11,6 @@ import {
   Modal,
   Progress,
   Row,
-  Select,
   Space,
   Spin,
   Tag,
@@ -45,6 +45,7 @@ export const LoadAiDispatchSection = ({
   loadId,
   onScrollToGaps,
 }: LoadAiDispatchSectionProps) => {
+  const { message } = App.useApp();
   const {
     dispatchState,
     blockingGapCount,
@@ -59,6 +60,10 @@ export const LoadAiDispatchSection = ({
     isError,
     error,
     refetch,
+    runDispatch,
+    isRunning,
+    latestRunSummary,
+    suggestedTruckNumber,
     approveSuggestion,
     isApproving,
     rejectSuggestion,
@@ -71,7 +76,22 @@ export const LoadAiDispatchSection = ({
 
   // Dialog Reject State
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
-  const [rejectForm] = Form.useForm<{ reason: string; substituteDriverId?: string }>();
+  const [rejectForm] = Form.useForm<{ reason: string }>();
+
+  const handleRunDispatch = async () => {
+    try {
+      const result = await runDispatch();
+      const summary = (result as { summary?: string } | undefined)?.summary;
+      if (summary) {
+        message.info(summary);
+      } else {
+        message.success("Đã hoàn tất yêu cầu điều phối AI.");
+      }
+    } catch (err) {
+      const detail = (err as { message?: string })?.message;
+      message.error(detail || "Không thể khởi chạy AI điều phối.");
+    }
+  };
 
   // Xử lý cuộn tới khu vực Gap
   const handleScrollToGaps = () => {
@@ -114,7 +134,6 @@ export const LoadAiDispatchSection = ({
       await rejectSuggestion({
         suggestionId: selectedCandidate.id,
         reason: values.reason,
-        substituteDriverId: values.substituteDriverId,
       });
       setRejectModalOpen(false);
       setSelectedCandidate(null);
@@ -207,11 +226,11 @@ export const LoadAiDispatchSection = ({
               <Tag color="blue" icon={<ThunderboltOutlined />}>
                 AI xếp hạng
               </Tag>
-            ) : (
+            ) : rankingSource === "optimization_fallback" ? (
               <Tag color="geekblue" icon={<ForkOutlined />}>
                 Xếp hạng theo điểm tối ưu
               </Tag>
-            )}
+            ) : null}
           </Space>
         }
         extra={
@@ -224,7 +243,12 @@ export const LoadAiDispatchSection = ({
                   : `Hết hạn lúc: ${formatDateTime(expiresAt)}`}
               </Text>
               {isExpired && (
-                <Button size="small" icon={<ReloadOutlined />} onClick={() => void refetch()}>
+                <Button
+                  size="small"
+                  icon={<ReloadOutlined />}
+                  loading={isRunning}
+                  onClick={() => void handleRunDispatch()}
+                >
                   Tính lại
                 </Button>
               )}
@@ -239,20 +263,55 @@ export const LoadAiDispatchSection = ({
             description="Chưa khởi chạy gợi ý điều phối cho đơn hàng này."
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           >
-            <Button type="primary" icon={<ThunderboltOutlined />} onClick={() => void refetch()}>
+            <Button
+              type="primary"
+              icon={<ThunderboltOutlined />}
+              loading={isRunning}
+              onClick={() => void handleRunDispatch()}
+              data-testid="ai-run-dispatch-btn"
+            >
               Yêu cầu AI phân tích gợi ý
             </Button>
           </Empty>
         )}
 
-        {dispatchState === "pending" && (
+        {(dispatchState === "pending" || isRunning) && (
           <Space direction="vertical" align="center" style={{ width: "100%", padding: 32 }}>
             <Spin size="large" />
-            <Text strong>AI đang phân tích các đội xe khả dụng và tính toán lịch trình tối ưu...</Text>
+            <Text strong>Đang gửi yêu cầu điều phối…</Text>
             <Text type="secondary">
-              Đang đối soát thời gian lái xe HOS, quãng đường chạy rỗng và khung giờ hẹn.
+              Đang kiểm tra dữ liệu khả dụng…
             </Text>
           </Space>
+        )}
+
+        {dispatchState === "evidence_unavailable" && (
+          <Alert
+            message="Lượt chạy đã kết thúc nhưng chưa đủ bằng chứng điều phối"
+            description={latestRunSummary || "Chưa có đủ dữ liệu đã xác thực để tạo đề xuất điều phối."}
+            type="warning"
+            showIcon
+            action={
+              capabilities.canRerun && (
+                <Button size="small" loading={isRunning} onClick={() => void handleRunDispatch()}>
+                  Chạy lại
+                </Button>
+              )
+            }
+            data-testid="ai-evidence-unavailable-alert"
+          />
+        )}
+
+        {dispatchState === "assigned" && (
+          <Alert
+            message="Đơn hàng đã được gán"
+            description={suggestedTruckNumber
+              ? `Xe đang được gán: ${suggestedTruckNumber}.`
+              : "Đơn hàng đã có xe được gán."}
+            type="success"
+            showIcon
+            data-testid="ai-dispatch-assigned-alert"
+          />
         )}
 
         {dispatchState === "blocked_by_gap" && (
@@ -283,7 +342,13 @@ export const LoadAiDispatchSection = ({
             type="warning"
             showIcon
             action={
-              <Button type="primary" size="small" icon={<ReloadOutlined />} onClick={() => void refetch()}>
+              <Button
+                type="primary"
+                size="small"
+                icon={<ReloadOutlined />}
+                loading={isRunning}
+                onClick={() => void handleRunDispatch()}
+              >
                 Tính lại gợi ý mới
               </Button>
             }
@@ -297,7 +362,12 @@ export const LoadAiDispatchSection = ({
             type="error"
             showIcon
             action={
-              <Button size="small" icon={<ReloadOutlined />} onClick={() => void refetch()}>
+              <Button
+                size="small"
+                icon={<ReloadOutlined />}
+                loading={isRunning}
+                onClick={() => void handleRunDispatch()}
+              >
                 Thử lại
               </Button>
             }
@@ -308,7 +378,11 @@ export const LoadAiDispatchSection = ({
           <Space direction="vertical" style={{ width: "100%" }} size="middle">
             {suggestions.length === 0 ? (
               <Empty
-                description="Không tìm thấy ứng viên ghép xe phù hợp với quy định an toàn."
+                description={
+                  suggestedTruckNumber
+                    ? `Đơn hàng đã được gán xe ${suggestedTruckNumber}. Không còn quyết định AI nào chờ duyệt.`
+                    : "Chưa có đề xuất AI đang chờ duyệt. Hệ thống chỉ đưa ra gợi ý khi có đủ dữ liệu tuyến đường, HOS, ETA và chi phí đã xác thực."
+                }
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               />
             ) : (
@@ -321,53 +395,43 @@ export const LoadAiDispatchSection = ({
                   statusUpper === "PENDING" || statusUpper === "SUGGESTED";
 
                 const truckNumber = candidate.truckNumber || candidate.truckPlate || "Xe chưa gán";
-                const displayScore =
-                  candidate.score <= 1.0 && candidate.score > 0
+                const displayScore = candidate.score == null
+                  ? null
+                  : candidate.score <= 1.0 && candidate.score > 0
                     ? Math.round(candidate.score * 100)
                     : candidate.score;
 
                 const confidenceDisplay =
-                  candidate.confidence ||
-                  (candidate.confidenceScore ? `${candidate.confidenceScore}%` : "Cao");
+                  candidate.confidence ??
+                  (candidate.confidenceScore != null
+                    ? `${candidate.confidenceScore}%`
+                    : "Cần xác minh");
 
-                const marginScore =
-                  candidate.utilities?.margin?.score ??
-                  (candidate.metrics?.expectedMarginRatio != null
-                    ? Math.round(candidate.metrics.expectedMarginRatio * 100)
-                    : 85);
+                // Backend gửi metrics thô (tỷ suất, số dặm, số giờ), không gửi
+                // điểm tiện ích đã chuẩn hoá. Không suy diễn điểm khi thiếu dữ
+                // liệu — hiển thị "—" thay vì một con số bịa.
+                const marginScore = candidate.utilities?.margin?.score ?? null;
                 const marginDisplay =
                   candidate.utilities?.margin?.displayValue ??
                   (candidate.metrics?.expectedMarginRatio != null
                     ? `Tỷ suất: ${Math.round(candidate.metrics.expectedMarginRatio * 100)}%`
                     : undefined);
 
-                const onTimeScore =
-                  candidate.utilities?.onTime?.score ??
-                  (candidate.metrics?.onTimeProbability != null
-                    ? Math.round(candidate.metrics.onTimeProbability * 100)
-                    : 90);
+                const onTimeScore = candidate.utilities?.onTime?.score ?? null;
                 const onTimeDisplay =
                   candidate.utilities?.onTime?.displayValue ??
                   (candidate.metrics?.onTimeProbability != null
                     ? `Xác suất: ${Math.round(candidate.metrics.onTimeProbability * 100)}%`
                     : undefined);
 
-                const deadheadScore =
-                  candidate.utilities?.deadhead?.score ??
-                  (candidate.metrics?.deadheadMiles != null
-                    ? Math.max(0, 100 - Math.round(candidate.metrics.deadheadMiles))
-                    : 80);
+                const deadheadScore = candidate.utilities?.deadhead?.score ?? null;
                 const deadheadDisplay =
                   candidate.utilities?.deadhead?.displayValue ??
                   (candidate.metrics?.deadheadMiles != null
                     ? `Chạy rỗng: ${candidate.metrics.deadheadMiles} dặm`
                     : undefined);
 
-                const hosScore =
-                  candidate.utilities?.hos?.score ??
-                  (candidate.metrics?.hosRemainingHours != null
-                    ? Math.min(100, Math.round((candidate.metrics.hosRemainingHours / 11) * 100))
-                    : 90);
+                const hosScore = candidate.utilities?.hos?.score ?? null;
                 const hosDisplay =
                   candidate.utilities?.hos?.displayValue ??
                   (candidate.metrics?.hosRemainingHours != null
@@ -393,10 +457,10 @@ export const LoadAiDispatchSection = ({
                       <Flex justify="space-between" align="center" wrap="wrap" gap={8}>
                         <Space size="middle" align="center">
                           <Tag
-                            color={candidate.rank === 1 ? "gold" : "blue"}
+                            color={candidate.rank == null ? "default" : candidate.rank === 1 ? "gold" : "blue"}
                             style={{ fontSize: 14, padding: "2px 8px" }}
                           >
-                            Hạng #{candidate.rank}
+                            {candidate.rank == null ? "Chưa xếp hạng" : `Hạng #${candidate.rank}`}
                           </Tag>
                           <Space>
                             <TruckOutlined style={{ fontSize: 16 }} />
@@ -418,15 +482,19 @@ export const LoadAiDispatchSection = ({
                           <Tooltip title="Điểm tối ưu tổng hợp (0 - 100)">
                             <Tag
                               color={
-                                displayScore >= 90
-                                  ? "green"
-                                  : displayScore >= 80
-                                  ? "blue"
-                                  : "warning"
+                                displayScore == null
+                                  ? undefined
+                                  : displayScore >= 90
+                                    ? "green"
+                                    : displayScore >= 80
+                                      ? "blue"
+                                      : "warning"
                               }
                               style={{ fontSize: 14, fontWeight: "bold" }}
                             >
-                              Điểm: {displayScore}/100
+                              {displayScore == null
+                                ? "Chưa đủ dữ liệu đánh giá"
+                                : `Điểm: ${displayScore}/100`}
                             </Tag>
                           </Tooltip>
 
@@ -454,15 +522,17 @@ export const LoadAiDispatchSection = ({
                               <Flex justify="space-between">
                                 <Text style={{ fontSize: 12 }}>1. Biên lợi nhuận (Margin)</Text>
                                 <Text strong style={{ fontSize: 12 }}>
-                                  {marginScore}đ
+                                  {marginScore != null ? `${marginScore}đ` : "—"}
                                 </Text>
                               </Flex>
-                              <Progress
-                                percent={marginScore}
-                                size="small"
-                                strokeColor="#52c41a"
-                                showInfo={false}
-                              />
+                              {marginScore != null && (
+                                <Progress
+                                  percent={marginScore}
+                                  size="small"
+                                  strokeColor="#52c41a"
+                                  showInfo={false}
+                                />
+                              )}
                               {marginDisplay && (
                                 <Text type="secondary" style={{ fontSize: 11 }}>
                                   {marginDisplay}
@@ -477,15 +547,17 @@ export const LoadAiDispatchSection = ({
                               <Flex justify="space-between">
                                 <Text style={{ fontSize: 12 }}>2. Đúng giờ (On-time)</Text>
                                 <Text strong style={{ fontSize: 12 }}>
-                                  {onTimeScore}đ
+                                  {onTimeScore != null ? `${onTimeScore}đ` : "—"}
                                 </Text>
                               </Flex>
-                              <Progress
-                                percent={onTimeScore}
-                                size="small"
-                                strokeColor="#1677ff"
-                                showInfo={false}
-                              />
+                              {onTimeScore != null && (
+                                <Progress
+                                  percent={onTimeScore}
+                                  size="small"
+                                  strokeColor="#1677ff"
+                                  showInfo={false}
+                                />
+                              )}
                               {onTimeDisplay && (
                                 <Text type="secondary" style={{ fontSize: 11 }}>
                                   {onTimeDisplay}
@@ -500,15 +572,17 @@ export const LoadAiDispatchSection = ({
                               <Flex justify="space-between">
                                 <Text style={{ fontSize: 12 }}>3. Chạy rỗng (Deadhead)</Text>
                                 <Text strong style={{ fontSize: 12 }}>
-                                  {deadheadScore}đ
+                                  {deadheadScore != null ? `${deadheadScore}đ` : "—"}
                                 </Text>
                               </Flex>
-                              <Progress
-                                percent={deadheadScore}
-                                size="small"
-                                strokeColor="#faad14"
-                                showInfo={false}
-                              />
+                              {deadheadScore != null && (
+                                <Progress
+                                  percent={deadheadScore}
+                                  size="small"
+                                  strokeColor="#faad14"
+                                  showInfo={false}
+                                />
+                              )}
                               {deadheadDisplay && (
                                 <Text type="secondary" style={{ fontSize: 11 }}>
                                   {deadheadDisplay}
@@ -523,15 +597,17 @@ export const LoadAiDispatchSection = ({
                               <Flex justify="space-between">
                                 <Text style={{ fontSize: 12 }}>4. Luật an toàn (HOS)</Text>
                                 <Text strong style={{ fontSize: 12 }}>
-                                  {hosScore}đ
+                                  {hosScore != null ? `${hosScore}đ` : "—"}
                                 </Text>
                               </Flex>
-                              <Progress
-                                percent={hosScore}
-                                size="small"
-                                strokeColor="#722ed1"
-                                showInfo={false}
-                              />
+                              {hosScore != null && (
+                                <Progress
+                                  percent={hosScore}
+                                  size="small"
+                                  strokeColor="#722ed1"
+                                  showInfo={false}
+                                />
+                              )}
                               {hosDisplay && (
                                 <Text type="secondary" style={{ fontSize: 11 }}>
                                   {hosDisplay}
@@ -680,19 +756,6 @@ export const LoadAiDispatchSection = ({
             />
           </Form.Item>
 
-          <Form.Item
-            name="substituteDriverId"
-            label="Tùy chọn: Đề xuất tài xế/xe thay thế (nếu có)"
-          >
-            <Select
-              allowClear
-              placeholder="Chọn tài xế thay thế theo ý định của bạn"
-              options={[
-                { label: "Lê Hoàng Nam (Xe 29C-111.22)", value: "drv-sub-1" },
-                { label: "Vũ Minh Tuấn (Xe 51D-999.88)", value: "drv-sub-2" },
-              ]}
-            />
-          </Form.Item>
         </Form>
       </Modal>
     </div>

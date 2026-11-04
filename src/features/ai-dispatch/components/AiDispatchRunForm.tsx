@@ -4,7 +4,7 @@
 import { Alert, Button, Card, Form, Input, Select, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import { FormGrid } from "@/forms/FormGrid";
-import { isUuid } from "@/utils/uuid";
+import { useTmsLoads } from "@/hooks/tms-flow/useTmsQueries";
 import type {
   AiMovementPlan,
   CreateAiDispatchParams,
@@ -26,6 +26,10 @@ export function AiDispatchRunForm({
 }) {
   const { t } = useTranslation();
   const [form] = Form.useForm<RunFormValues>();
+  const loads = useTmsLoads();
+  const availableLoads = (loads.data?.shipments ?? []).filter(
+    (load) => load.status !== "delivered" && load.status !== "cancelled",
+  );
 
   const onFinish = async (values: RunFormValues) => {
     const params: CreateAiDispatchParams = {
@@ -36,7 +40,7 @@ export function AiDispatchRunForm({
 
     try {
       const plan = await actions.runAiDispatch(params);
-      onPlanCreated?.(plan);
+      if (plan) onPlanCreated?.(plan);
     } catch {
       // Keep the form values in place; the action hook reports the API error.
     }
@@ -52,6 +56,15 @@ export function AiDispatchRunForm({
         onFinish={onFinish}
         disabled={actions.pending}
       >
+        {loads.isError && (
+          <Alert
+            type="error"
+            showIcon
+            message={t("queryError.title")}
+            description={loads.error instanceof Error ? loads.error.message : t("queryError.description")}
+            style={{ marginBottom: 20 }}
+          />
+        )}
         {!actions.canRun && (
           <Alert
             type="warning"
@@ -101,18 +114,21 @@ export function AiDispatchRunForm({
                   <Form.Item
                     name="loadId"
                     label={t("aiDispatch.loadId")}
-                    rules={[
-                      { required: true },
-                      {
-                        validator: async (_, value: string | undefined) => {
-                          if (!isUuid(value?.trim())) {
-                            throw new Error(t("aiDispatch.invalidUuid"));
-                          }
-                        },
-                      },
-                    ]}
+                    rules={[{ required: true }]}
+                    extra={loads.isLoading ? t("aiDispatch.loadsLoading") : undefined}
                   >
-                    <Input placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                    <Select
+                      showSearch
+                      optionFilterProp="label"
+                      loading={loads.isLoading}
+                      disabled={loads.isError || availableLoads.length === 0}
+                      placeholder={t("aiDispatch.loadIdPlaceholder")}
+                      options={availableLoads.map((load) => ({
+                        value: load.id,
+                        label: `#${load.number} · ${load.name} · ${load.originCity} → ${load.destinationCity}`,
+                      }))}
+                      notFoundContent={loads.isLoading ? undefined : t("aiDispatch.noAvailableLoads")}
+                    />
                   </Form.Item>
                 ),
               },

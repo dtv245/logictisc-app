@@ -102,6 +102,28 @@ vi.mock("@/api/ai/ai.api", async (importOriginal) => {
         }
       );
     }),
+    startAiDispatchRun: vi.fn(async (loadId: string) => {
+      const summary = "Lượt chạy đã kết thúc nhưng chưa đủ dữ liệu đã xác thực.";
+      currentDispatchMap[loadId] = {
+        loadId,
+        dispatchState: "evidence_unavailable",
+        blockingGapCount: 0,
+        latestRunStatus: "FALLBACK",
+        latestRunResultCode: "EVIDENCE_UNAVAILABLE",
+        latestRunSummary: summary,
+        capabilities: { canRerun: true, canApprove: false, canReject: false, canViewRuns: true },
+        suggestions: [],
+      };
+      return {
+        sessionId: "session-evidence-unavailable",
+        status: "COMPLETED",
+        runStatus: "FALLBACK",
+        resultCode: "EVIDENCE_UNAVAILABLE",
+        rankingSource: "evidence_unavailable",
+        summary,
+        suggestions: [],
+      };
+    }),
     approveAiDispatchSuggestion: vi.fn(async (_loadId: string, suggestionId: string) => {
       if (simulateFeasibilityFailed) {
         const err = {
@@ -324,6 +346,82 @@ describe("AI Components Integration & Unit Tests", () => {
         await screen.findByText(/Còn 2 thông tin chặn/i),
       ).toBeInTheDocument();
       expect(screen.getByTestId("link-to-gaps-btn")).toBeInTheDocument();
+    });
+
+    it("shows the durable evidence-unavailable summary after loading status", async () => {
+      const loadId = "load-evidence-unavailable";
+      currentDispatchMap[loadId] = {
+        loadId,
+        dispatchState: "evidence_unavailable",
+        blockingGapCount: 0,
+        latestRunStatus: "FALLBACK",
+        latestRunResultCode: "EVIDENCE_UNAVAILABLE",
+        latestRunSummary: "Lượt chạy đã kết thúc nhưng chưa đủ dữ liệu đã xác thực.",
+        capabilities: { canRerun: true, canApprove: false, canReject: false, canViewRuns: true },
+        suggestions: [],
+      };
+
+      renderWithProviders(<LoadAiDispatchSection loadId={loadId} />);
+
+      expect(await screen.findByTestId("ai-evidence-unavailable-alert")).toBeInTheDocument();
+      expect(screen.getByText("Lượt chạy đã kết thúc nhưng chưa đủ dữ liệu đã xác thực.")).toBeInTheDocument();
+      expect(screen.queryByText(/Chưa khởi chạy gợi ý điều phối/i)).not.toBeInTheDocument();
+    });
+
+    it("keeps the evidence-unavailable summary visible after a completed run mutation", async () => {
+      const loadId = "load-run-completed-without-evidence";
+      renderWithProviders(<LoadAiDispatchSection loadId={loadId} />);
+
+      fireEvent.click(await screen.findByTestId("ai-run-dispatch-btn"));
+
+      const alert = await screen.findByTestId("ai-evidence-unavailable-alert");
+      expect(alert).toBeInTheDocument();
+      expect(within(alert).getByText("Lượt chạy đã kết thúc nhưng chưa đủ dữ liệu đã xác thực.")).toBeInTheDocument();
+      expect(screen.queryByText(/Chưa khởi chạy gợi ý điều phối/i)).not.toBeInTheDocument();
+    });
+
+    it("uses neutral copy while dispatch is pending and shows missing evaluation fields", async () => {
+      const pendingLoadId = "load-pending-neutral";
+      currentDispatchMap[pendingLoadId] = {
+        loadId: pendingLoadId,
+        dispatchState: "pending",
+        blockingGapCount: 0,
+        capabilities: { canRerun: true, canApprove: false, canReject: false, canViewRuns: true },
+        suggestions: [],
+      };
+
+      renderWithProviders(<LoadAiDispatchSection loadId={pendingLoadId} />);
+      expect(await screen.findByText("Đang gửi yêu cầu điều phối…")).toBeInTheDocument();
+      expect(screen.getByText("Đang kiểm tra dữ liệu khả dụng…")).toBeInTheDocument();
+      expect(screen.queryByText(/đối soát thời gian lái xe HOS/i)).not.toBeInTheDocument();
+    });
+
+    it("shows missing score and rank as unverified rather than inventing values", async () => {
+      const loadId = "load-missing-decision-evaluation";
+      currentDispatchMap[loadId] = {
+        loadId,
+        dispatchState: "ready",
+        blockingGapCount: 0,
+        capabilities: { canRerun: true, canApprove: true, canReject: true, canViewRuns: true },
+        suggestions: [{
+          id: "decision-missing-evaluation",
+          rank: null,
+          truckId: "truck-1",
+          truckNumber: "29C-11111",
+          driverId: "driver-1",
+          driverName: "Nguyễn Văn A",
+          score: null,
+          confidence: undefined,
+          reasoning: "Chưa có đủ dữ liệu đánh giá.",
+          status: "Suggested",
+        }],
+      };
+
+      renderWithProviders(<LoadAiDispatchSection loadId={loadId} />);
+
+      expect(await screen.findByText("Chưa đủ dữ liệu đánh giá")).toBeInTheDocument();
+      expect(screen.getByText(/Tin cậy: Cần xác minh/)).toBeInTheDocument();
+      expect(screen.getByText("Chưa xếp hạng")).toBeInTheDocument();
     });
 
     it("khi dispatchState = ready: hiển thị ứng viên với đủ 4 tiện ích có số + chữ và nhãn HITL", async () => {

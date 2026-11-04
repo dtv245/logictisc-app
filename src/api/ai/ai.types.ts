@@ -63,7 +63,8 @@ export interface LoadAiGapsResponse {
   loadId: string;
   aiState: AiState;
   nextRunAt?: string | null;
-  capabilities: AiCapabilities;
+  /** Backend hiện chưa trả capabilities cho gaps; hook tự suy ra từ /api/ai/features. */
+  capabilities?: AiCapabilities;
   gaps: AiGap[];
 }
 
@@ -72,11 +73,13 @@ export type DispatchState =
   | "pending"
   | "blocked_by_gap"
   | "ready"
+  | "assigned"
+  | "evidence_unavailable"
   | "expired"
   | "failed"
   | "disabled";
 
-export type RankingSource = "llm" | "optimization_fallback";
+export type RankingSource = "llm" | "optimization_fallback" | "evidence_unavailable";
 
 export interface UtilityMetric {
   score: number; // 0 - 100
@@ -116,17 +119,19 @@ export type DecisionStatus =
 export interface AiDispatchCandidate {
   id: string;
   decisionId?: string;
-  rank: number;
+  rank?: number | null;
   truckId: string;
   truckNumber: string;
   truckPlate?: string;
   driverId: string;
   driverName: string;
-  score: number;
-  utilities: AiDispatchUtilities;
+  /** Null until the backend has qualified route, HOS, ETA, and cost inputs. */
+  score?: number | null;
+  /** Backend /api/ai/dispatch chỉ trả `metrics`, không trả điểm tiện ích đã chuẩn hoá. */
+  utilities?: AiDispatchUtilities;
   metrics?: AiDispatchCandidateMetrics;
   reasoning: string;
-  confidenceScore: number;
+  confidenceScore?: number;
   confidence?: string;
   status: DecisionStatus;
 }
@@ -135,11 +140,21 @@ export interface LoadAiDispatchResponse {
   loadId: string;
   dispatchState: DispatchState;
   blockingGapCount: number;
-  rankingSource: RankingSource;
+  /** Không có trong LoadStatusView của backend; chỉ hiển thị khi adapter biết nguồn xếp hạng. */
+  rankingSource?: RankingSource;
   expiresAt?: string | null;
   capabilities: AiCapabilities;
   suggestions: AiDispatchCandidate[];
   activeSuggestionId?: string | null;
+  latestSessionId?: string | null;
+  latestDecisionId?: string | null;
+  latestRunId?: string | null;
+  latestRunStatus?: string | null;
+  latestRunResultCode?: string | null;
+  latestRunSummary?: string | null;
+  latestRunAt?: string | null;
+  suggestedTruckId?: string | null;
+  suggestedTruckNumber?: string | null;
 }
 
 export interface LoadAiOverviewItem {
@@ -150,6 +165,19 @@ export interface LoadAiOverviewItem {
   warningGapsCount?: number;
   dispatchState: DispatchState;
   dispatchStatus?: string;
+  latestRunStatus?: string | null;
+  latestRunResultCode?: string | null;
+  latestRunSummary?: string | null;
+}
+
+export interface AiDispatchRunResult {
+  sessionId?: string | null;
+  status?: string;
+  runStatus?: string;
+  resultCode?: string | null;
+  rankingSource?: RankingSource;
+  summary?: string | null;
+  suggestions?: AiDispatchCandidate[];
 }
 
 export interface AiRun {

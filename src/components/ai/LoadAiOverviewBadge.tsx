@@ -20,9 +20,11 @@ export const LoadAiOverviewBadge = ({ overview }: LoadAiOverviewBadgeProps) => {
   const blockingGaps = overview.blockingGapsCount ?? overview.blockingGaps ?? 0;
   const warningGaps = overview.warningGapsCount ?? overview.warningGaps ?? 0;
   const dispatchState =
-    overview.dispatchStatus === "SUGGESTED" || overview.dispatchStatus === "EXECUTED"
-      ? "ready"
-      : overview.dispatchState;
+    overview.dispatchStatus === "EXECUTED"
+      ? "assigned"
+      : overview.dispatchStatus === "SUGGESTED"
+        ? "ready"
+        : overview.dispatchState;
 
   return (
     <Space size={4} wrap align="center" data-testid={`load-ai-badge-${overview.loadId}`}>
@@ -49,6 +51,22 @@ export const LoadAiOverviewBadge = ({ overview }: LoadAiOverviewBadgeProps) => {
         <Tooltip title="Đã có gợi ý ghép xe tối ưu từ AI">
           <Tag color="success" icon={<CheckCircleOutlined />} style={{ margin: 0, padding: "0 6px" }}>
             Có xe
+          </Tag>
+        </Tooltip>
+      )}
+
+      {dispatchState === "assigned" && (
+        <Tooltip title="Đơn hàng đã được gán xe">
+          <Tag color="success" icon={<CheckCircleOutlined />} style={{ margin: 0, padding: "0 6px" }}>
+            Đã gán
+          </Tag>
+        </Tooltip>
+      )}
+
+      {dispatchState === "evidence_unavailable" && (
+        <Tooltip title={overview.latestRunSummary || "Lượt chạy gần nhất chưa có đủ bằng chứng để đề xuất điều phối"}>
+          <Tag color="warning" icon={<ExclamationCircleOutlined />} style={{ margin: 0, padding: "0 6px" }}>
+            Thiếu bằng chứng
           </Tag>
         </Tooltip>
       )}

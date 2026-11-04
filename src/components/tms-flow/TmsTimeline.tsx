@@ -10,7 +10,7 @@ export interface TmsTimelineProps {
 export function TmsTimeline({
   events,
   limit,
-  emptyLabel = "No execution events recorded yet.",
+  emptyLabel = "Chưa có sự kiện vận hành nào được ghi nhận.",
 }: TmsTimelineProps) {
   const visible = [...events]
     .sort(
@@ -33,7 +33,7 @@ export function TmsTimeline({
             <small>
               {event.previousStatus && event.newStatus
                 ? `${event.previousStatus} → ${event.newStatus}`
-                : event.newStatus ?? event.source ?? "Recorded"}
+                : event.newStatus ?? event.source ?? "Đã ghi nhận"}
             </small>
             {event.note ? <small>{event.note}</small> : null}
           </span>

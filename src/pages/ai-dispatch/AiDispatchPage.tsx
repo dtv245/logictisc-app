@@ -193,6 +193,21 @@ export function AiDispatchPage() {
         />
       )}
 
+      {actions.latestRun && !actions.latestRun.hasProposals && (
+        <Alert
+          type={actions.latestRun.status.toLowerCase() === "failed" ? "error" : "warning"}
+          showIcon
+          message={
+            actions.latestRun.resultCode === "EVIDENCE_UNAVAILABLE"
+              ? t("aiDispatch.evidenceUnavailableTitle")
+              : actions.latestRun.status.toLowerCase() === "failed"
+                ? t("aiDispatch.runFailedTitle")
+                : t("aiDispatch.runCompletedWithoutProposal")
+          }
+          description={actions.latestRun.summary || t("aiDispatch.runSummaryUnavailable")}
+        />
+      )}
+
       {actions.initialLoadError && (
         <Alert
           type="error"

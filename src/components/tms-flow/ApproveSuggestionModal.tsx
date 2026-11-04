@@ -72,7 +72,7 @@ export function ApproveSuggestionModal({
       destroyOnClose
       footer={[
         <Button key="cancel" onClick={onClose} disabled={actions.pending}>
-          Cancel
+          Hủy
         </Button>,
         <Button
           danger
@@ -82,7 +82,7 @@ export function ApproveSuggestionModal({
           loading={actions.pending}
           onClick={() => void handleReject()}
         >
-          Reject
+          Từ chối
         </Button>,
         <Button
           data-testid="suggestion-approve"
@@ -92,12 +92,12 @@ export function ApproveSuggestionModal({
           onClick={() => void handleApprove()}
           type="primary"
         >
-          Approve suggestion
+          Duyệt đề xuất
         </Button>,
       ]}
       onCancel={onClose}
       open={open}
-      title={`AI dispatch decision${load ? ` · load #${load.number}` : ""}`}
+      title={`Đề xuất điều phối AI${load ? ` · lô #${load.number}` : ""}`}
       width={560}
     >
       <div className="tms-stack">
@@ -117,42 +117,43 @@ export function ApproveSuggestionModal({
 
         <dl className="tms-detail-list">
           <div>
-            <dt>Load</dt>
+            <dt>Lô hàng</dt>
             <dd>
               {load
                 ? `#${load.number} · ${load.name}`
-                : `Decision ${suggestion.decisionId.slice(0, 8)} (load not in the loaded queue)`}
+                : `Đề xuất ${suggestion.decisionId.slice(0, 8)} (lô hàng chưa có trong danh sách đã tải)`}
             </dd>
           </div>
           {load ? (
             <div>
-              <dt>Lane</dt>
+              <dt>Tuyến</dt>
               <dd>
                 {load.originCity} → {load.destinationCity}
               </dd>
             </div>
           ) : null}
           <div>
-            <dt>Truck</dt>
+            <dt>Xe</dt>
             <dd>
               {suggestion.truckNumber ?? truck?.number ?? suggestion.truckId}
               {truck?.mainDriverName ? ` · ${truck.mainDriverName}` : ""}
             </dd>
           </div>
           <div>
-            <dt>Driver</dt>
+            <dt>Tài xế</dt>
             <dd>{suggestion.driverName ?? suggestion.driverId}</dd>
           </div>
           <div>
-            <dt>Rank / score</dt>
+            <dt>Xếp hạng / điểm</dt>
             <dd>
-              #{suggestion.rank} · {Number(suggestion.score).toFixed(1)} ·{" "}
-              {suggestion.confidence}
+              {suggestion.rank == null ? "Chưa xếp hạng" : `Hạng #${suggestion.rank}`} · {suggestion.score == null
+                ? "Chưa đủ dữ liệu đánh giá"
+                : Number(suggestion.score).toFixed(1)} · {suggestion.confidence ?? "Cần xác minh"}
             </dd>
           </div>
           {load ? (
             <div>
-              <dt>Distance</dt>
+            <dt>Quãng đường</dt>
               <dd>{formatTmsDistance(load.distance)}</dd>
             </div>
           ) : null}
@@ -171,22 +172,22 @@ export function ApproveSuggestionModal({
         <p className="tms-muted">{suggestion.reasoning}</p>
 
         <label className="tms-field">
-          <span>Approval note (optional)</span>
+          <span>Ghi chú duyệt (không bắt buộc)</span>
           <Input.TextArea
             maxLength={500}
             onChange={(event) => setNotes(event.target.value)}
-            placeholder="Context for the audit trail"
+            placeholder="Thông tin bổ sung cho nhật ký duyệt"
             rows={2}
             value={notes}
           />
         </label>
 
         <label className="tms-field">
-          <span>Rejection reason (required to reject)</span>
+          <span>Lý do từ chối (bắt buộc khi từ chối)</span>
           <Input.TextArea
             maxLength={REASON_MAX_LENGTH}
             onChange={(event) => setReason(event.target.value)}
-            placeholder="Why this suggestion cannot be applied"
+            placeholder="Vì sao không thể áp dụng đề xuất này"
             rows={2}
             value={reason}
           />

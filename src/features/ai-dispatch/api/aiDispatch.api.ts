@@ -58,6 +58,8 @@ export interface BackendRunResult {
   sessionId: string;
   sessionNumber?: number;
   status: string;
+  runStatus?: string;
+  resultCode?: string | null;
   mode: string;
   rankingSource?: string;
   modelUsed?: string;
