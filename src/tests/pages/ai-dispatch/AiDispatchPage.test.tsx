@@ -231,7 +231,7 @@ describe("AiDispatchPage — Màn hình AI Điều phối xe & Kế hoạch di c
     // Chỉ hiển thị những trường thực sự được gửi tới API.
     expect(await screen.findByText("1. Dispatch request")).toBeInTheDocument();
     expect(screen.getByLabelText("Dispatch Mode")).toBeInTheDocument();
-    expect(screen.getByLabelText("Load to Assign (UUID)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Load to dispatch")).toBeInTheDocument();
     expect(screen.getByLabelText("AI Directives & Instructions")).toBeInTheDocument();
     expect(screen.queryByLabelText("Optimization Objective")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("AI Dispatch Model")).not.toBeInTheDocument();

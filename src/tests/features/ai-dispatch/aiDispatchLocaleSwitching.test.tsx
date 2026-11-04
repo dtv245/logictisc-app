@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { AiDispatchRunForm } from "@/features/ai-dispatch/components/AiDispatchRunForm";
 import type { AiDispatchActionsResult } from "@/features/ai-dispatch/hooks/useAiDispatchActions";
@@ -12,7 +13,14 @@ describe("AI Dispatch locale switching", () => {
   ])("renders AI Dispatch run form copy in $locale without mixed locale labels", async ({ locale, section, placeholder, submit, foreign }) => {
     await setTestLocale(locale);
     const actions = { pending: false, canRun: true, runAiDispatch: vi.fn() } as unknown as AiDispatchActionsResult;
-    render(<AiDispatchRunForm actions={actions} />);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AiDispatchRunForm actions={actions} />
+      </QueryClientProvider>,
+    );
 
     expect(screen.getByText(section)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(placeholder)).toBeInTheDocument();
