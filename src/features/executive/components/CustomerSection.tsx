@@ -23,7 +23,7 @@ import type {
   CustomerConcentrationRow,
   MetricUnit,
   MetricValue,
-} from "@/features/executive/types";
+} from "@/types/executive/executive.types";
 import {
   formatMetricOrDash,
   formatMetricValue,
