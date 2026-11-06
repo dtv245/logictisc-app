@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
 import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
-import type { AiMovementPlan } from "@/features/ai-dispatch/types/ai-dispatch.types";
+import type { AiMovementPlan } from "@/types/ai-dispatch/ai-dispatch.types";
 import type { AiDispatchActionsResult } from "../hooks/useAiDispatchActions";
 
 interface Props {

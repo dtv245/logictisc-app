@@ -1,4 +1,4 @@
-import type { AiDispatchMode, AiMovementPlan } from "@/features/ai-dispatch/types/ai-dispatch.types";
+import type { AiDispatchMode, AiMovementPlan } from "@/types/ai-dispatch/ai-dispatch.types";
 /**
  * Fixture mẫu dùng riêng cho kiểm thử tự động (Unit Tests).
  * KHÔNG sử dụng làm mock runtime trong ứng dụng thực tế.

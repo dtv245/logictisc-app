@@ -8,7 +8,7 @@ import { useTmsLoads } from "@/hooks/tms-flow/useTmsQueries";
 import type {
   AiMovementPlan,
   CreateAiDispatchParams,
-} from "@/features/ai-dispatch/types/ai-dispatch.types";
+} from "@/types/ai-dispatch/ai-dispatch.types";
 import type { AiDispatchActionsResult } from "../hooks/useAiDispatchActions";
 
 interface RunFormValues {

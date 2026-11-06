@@ -6,7 +6,7 @@ import { getAuthHeaders } from "@/api/ai/ai.api";
 import type {
   AiMovementPlan,
   AiDispatchSession,
-} from "@/features/ai-dispatch/types/ai-dispatch.types";
+} from "@/types/ai-dispatch/ai-dispatch.types";
 
 export const aiDispatchEndpoints = {
   runs: "/api/ai/dispatch/runs",

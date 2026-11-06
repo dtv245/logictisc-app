@@ -33,12 +33,12 @@ import {
 } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  DEFAULT_AI_SETTINGS,
-  type AiProviderConfig,
-  type AiProviderId,
-  type AiSettings,
-} from "@/features/ai-dispatch/types/aiConfig.types";
+import { DEFAULT_AI_SETTINGS } from "@/constants/aiConfig.constants";
+import type {
+  AiProviderConfig,
+  AiProviderId,
+  AiSettings,
+} from "@/types/ai-dispatch/aiConfig.types";
 import {
   useAiSettings,
 } from "../hooks/aiConfigStorage";
