@@ -10,7 +10,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Alert, Card, Empty, List, Space, Tag, Typography } from "antd";
 import { MapPin, Package, Truck, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { OptimizationCandidate } from "@/types/optimization.dto";
+import type { OptimizationCandidate } from "@/types/optimization/optimization.dto";
 import { extractRouteGeometry, type CandidateRouteGeometry } from "./routeGeometry";
 
 const MAP_STYLE_URL =

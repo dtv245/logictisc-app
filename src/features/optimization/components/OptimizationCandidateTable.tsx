@@ -7,7 +7,7 @@ import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { EmptyState } from "@/components/EmptyState";
 import { financialAmount } from "@formatters/financialDisplay";
 import { ApiHttpError } from "@/utils/httpError";
-import type { OptimizationCandidate, OptimizationOutcome } from "@/types/optimization.dto";
+import type { OptimizationCandidate, OptimizationOutcome } from "@/types/optimization/optimization.dto";
 import type { OptimizationActionsResult } from "../hooks/useOptimizationActions";
 import { OptimizationCandidateDrawer } from "./OptimizationCandidateDrawer";
 import { RejectionCodeTag } from "./rejectionCodes";

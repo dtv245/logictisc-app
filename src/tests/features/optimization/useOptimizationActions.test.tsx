@@ -2,7 +2,7 @@ import type { CustomParams } from "@refinedev/core";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useOptimizationActions } from "@/features/optimization/hooks/useOptimizationActions";
-import type { OptimizationCandidate } from "@/types/optimization.dto";
+import type { OptimizationCandidate } from "@/types/optimization/optimization.dto";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { candidate, optimization, optimizationAccepted, rejectedCandidate } from "@/tests/fixtures/optimization";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));

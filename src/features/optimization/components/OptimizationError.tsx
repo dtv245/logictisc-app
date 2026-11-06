@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ApiHttpError } from "@/utils/httpError";
 import { routes } from "@/constants/routes";
-import type { OptimizationOutcome } from "@/types/optimization.dto";
+import type { OptimizationOutcome } from "@/types/optimization/optimization.dto";
 
 export interface OptimizationErrorProps {
   error: Error | null;

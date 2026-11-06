@@ -11,7 +11,7 @@ import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { isUuid } from "@/utils/uuid";
 import { formatDateTime } from "@/formatters/dateTime";
 import type { ApiHttpError } from "@/utils/httpError";
-import type { OptimizationOutcome } from "@/types/optimization.dto";
+import type { OptimizationOutcome } from "@/types/optimization/optimization.dto";
 import { routes } from "@/constants/routes";
 import { optimizationApi, optimizationKeys } from "@/features/optimization/api/optimization.api";
 import { useOptimizationActions } from "@/features/optimization/hooks/useOptimizationActions";

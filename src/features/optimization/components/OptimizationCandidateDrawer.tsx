@@ -4,7 +4,7 @@ import { Alert, Card, Descriptions, Drawer, Progress, Skeleton, Space, Table, Ta
 import { useTranslation } from "react-i18next";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { formatDateTime } from "@/formatters/dateTime";
-import type { OptimizationCandidate, OptimizationProvenance } from "@/types/optimization.dto";
+import type { OptimizationCandidate, OptimizationProvenance } from "@/types/optimization/optimization.dto";
 import { RejectionCodeTag } from "./rejectionCodes";
 
 const CandidateVisualizations = lazy(

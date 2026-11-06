@@ -1,4 +1,4 @@
-import type { OptimizationAccepted, OptimizationCandidate, OptimizationOutcome, OptimizationScoringPolicy, CreateOptimizationRequest } from "@/types/optimization.dto";
+import type { OptimizationAccepted, OptimizationCandidate, OptimizationOutcome, OptimizationScoringPolicy, CreateOptimizationRequest } from "@/types/optimization/optimization.dto";
 import { loadId } from "./finance";
 export const optimizationRunId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 export const candidateId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";

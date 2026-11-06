@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import { Card, Skeleton, Space } from "antd";
-import type { OptimizationCandidate } from "@/types/optimization.dto";
+import type { OptimizationCandidate } from "@/types/optimization/optimization.dto";
 
 const CandidateRouteMap = lazy(() => import("./CandidateRouteMap"));
 const CandidateHosTimeline = lazy(() => import("./CandidateHosTimeline"));

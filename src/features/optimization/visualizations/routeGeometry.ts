@@ -1,5 +1,5 @@
 import { decodePolyline } from "@/features/map/lib/polyline";
-import type { OptimizationCandidate } from "@/types/optimization.dto";
+import type { OptimizationCandidate } from "@/types/optimization/optimization.dto";
 
 export type LngLat = [number, number]; // [lng, lat]
 

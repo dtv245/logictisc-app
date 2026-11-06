@@ -10,7 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { OptimizationCandidate } from "@/types/optimization.dto";
+import type { OptimizationCandidate } from "@/types/optimization/optimization.dto";
 
 export interface CandidateHosTimelineProps {
   candidate: OptimizationCandidate | null;

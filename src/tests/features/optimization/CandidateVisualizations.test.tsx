@@ -6,7 +6,7 @@ import { createInstance } from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import { viMessages } from "@/locales/vi";
 import { enMessages } from "@/locales/en";
-import type { OptimizationCandidate } from "@/types/optimization.dto";
+import type { OptimizationCandidate } from "@/types/optimization/optimization.dto";
 import { extractRouteGeometry, normalizeLngLat, parseCoordinatesArray } from "@/features/optimization/visualizations/routeGeometry";
 import CandidateRouteMap from "@/features/optimization/visualizations/CandidateRouteMap";
 import CandidateHosTimeline from "@/features/optimization/visualizations/CandidateHosTimeline";

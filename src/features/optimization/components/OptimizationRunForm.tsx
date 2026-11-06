@@ -6,7 +6,7 @@ import { FormGrid } from "@/forms/FormGrid";
 import { applyBackendFieldErrors, type FormFieldName } from "@/forms/backendFieldErrors";
 import { ApiHttpError } from "@/utils/httpError";
 import { isUuid } from "@/utils/uuid";
-import type { CreateOptimizationRequest, OptimizationOutcome, OptimizationSourceSelection, OptimizationTarget } from "@/types/optimization.dto";
+import type { CreateOptimizationRequest, OptimizationOutcome, OptimizationSourceSelection, OptimizationTarget } from "@/types/optimization/optimization.dto";
 import type { OptimizationActionsResult } from "../hooks/useOptimizationActions";
 import { OptimizationError } from "./OptimizationError";
 
