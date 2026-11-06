@@ -2,7 +2,7 @@
  * Chứa các kiểu dữ liệu đăng nhập và người dùng hiện tại.
  */
 
-import type { Tenant } from "./tenant.types";
+import type { Tenant } from "@/types/tenants/tenant.types";
 import type { JwtRole } from "@/types/roles/roles.types";
 
 export interface CurrentUser {
