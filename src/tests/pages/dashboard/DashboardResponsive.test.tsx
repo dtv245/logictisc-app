@@ -15,7 +15,7 @@ import { DispatchTimeline } from "@features/dashboard/components/DispatchTimelin
 import { OperationsDashboardView } from "@features/dashboard/components/OperationsDashboardView";
 import { VehicleTrackingMap } from "@features/operations/components/VehicleTrackingMap";
 import { OperationsChart } from "@features/operations/components/OperationsChart";
-import type { KpiItemProps } from "@features/dashboard/types/primitives.types";
+import type { KpiItemProps } from "@/types/dashboard/primitives.types";
 import { ApiHttpError } from "@/utils/httpError";
 
 const dashboardDataState = vi.hoisted(() => ({

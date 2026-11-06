@@ -16,7 +16,7 @@ import {
   normalizeWidgetError,
   serializeReportDateRange,
 } from "../../../features/dashboard/api";
-import type { MetricDto } from "../../../features/dashboard/types";
+import type { MetricDto } from "@/types/dashboard/dashboard.types";
 
 describe("Dashboard Formatters", () => {
   describe("formatCurrency", () => {

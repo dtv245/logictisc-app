@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { routes } from "@/constants/routes";
 import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
-import type { ProposedAction } from "@/features/dashboard/types/primitives.types";
+import type { ProposedAction } from "@/types/dashboard/primitives.types";
 import type { OperationsBriefProps } from "@/types/dashboard/operations-panels.types";
 import "@/features/dashboard/components/OperationsBrief.scss";
 

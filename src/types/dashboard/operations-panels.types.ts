@@ -1,4 +1,4 @@
-import type { ProposedAction, TimelineBlockModel } from "@/features/dashboard/types/primitives.types";
+import type { ProposedAction, TimelineBlockModel } from "@/types/dashboard/primitives.types";
 import type { ShipmentCardLocale } from "@/types/dashboard/priority-shipment.types";
 
 export interface CauseItem {

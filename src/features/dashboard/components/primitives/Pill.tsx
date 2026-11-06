@@ -1,5 +1,5 @@
 import React from "react";
-import type { Tone } from "../../types/primitives.types";
+import type { Tone } from "@/types/dashboard/primitives.types";
 import "./primitives.scss";
 
 export interface PillProps {

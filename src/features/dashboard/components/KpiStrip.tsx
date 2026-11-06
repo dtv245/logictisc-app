@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button, Skeleton } from "antd";
 import { AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { KpiItemProps } from "../types/primitives.types";
+import type { KpiItemProps } from "@/types/dashboard/primitives.types";
 import { DeltaPill, Pill } from "./primitives";
 import "./KpiStrip.scss";
 

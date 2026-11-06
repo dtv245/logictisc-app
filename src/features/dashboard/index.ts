@@ -1,5 +1,5 @@
-export * from "./types";
-export * from "./types/primitives.types";
+export * from "@/types/dashboard/dashboard.types";
+export * from "@/types/dashboard/primitives.types";
 export * from "./config/rankingWeights";
 export * from "./api";
 export * from "./utils/formatters";

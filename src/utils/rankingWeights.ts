@@ -2,7 +2,7 @@ import type {
   DashboardFilters,
   DriverRankingWeights,
   SupportedCurrency,
-} from "@/features/dashboard/types";
+} from "@/types/dashboard/dashboard.types";
 
 export const DEFAULT_RANKING_WEIGHTS: DriverRankingWeights = {
   onTimeWeight: 0.4,

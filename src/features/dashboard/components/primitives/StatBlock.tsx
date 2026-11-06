@@ -1,6 +1,6 @@
 import React from "react";
 import { Skeleton } from "antd";
-import type { StatBlockProps, Tone } from "../../types/primitives.types";
+import type { StatBlockProps, Tone } from "@/types/dashboard/primitives.types";
 import "./primitives.scss";
 
 export const StatBlock: React.FC<StatBlockProps> = ({

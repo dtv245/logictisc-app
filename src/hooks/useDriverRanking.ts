@@ -6,7 +6,7 @@ import type {
   DriverRankingReport,
   DriverRankingSortBy,
   WidgetAsyncState,
-} from "@/features/dashboard/types";
+} from "@/types/dashboard/dashboard.types";
 import {
   DASHBOARD_ENDPOINTS,
   normalizeWidgetError,

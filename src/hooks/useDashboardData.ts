@@ -18,7 +18,7 @@ import type {
   TransitTimeReport,
   TruckProfitabilityReport,
   WidgetAsyncState,
-} from "@/features/dashboard/types";
+} from "@/types/dashboard/dashboard.types";
 import {
   computeReportDateWindows,
   DASHBOARD_ENDPOINTS,

@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import type {
   WidgetError,
-} from "./types";
+} from "@/types/dashboard/dashboard.types";
 
 dayjs.extend(utc);
 
