@@ -8,7 +8,7 @@ import { CustomerCreateModal } from "@/components/customers/CustomerCreateModal"
 import { routes } from "@/constants/routes";
 import { DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import type { ApiError } from "@/types/api.types";
-import type { Customer } from "@/types/customer.types";
+import type { Customer } from "@/types/customers/customer.types";
 import { useEntityFilters } from "@/hooks/useEntityFilters";
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";
 

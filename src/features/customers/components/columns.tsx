@@ -4,7 +4,7 @@ import { Tooltip } from "antd";
 import { routes } from "@constants/routes";
 import { createCrudColumns } from "@components/crudColumns";
 import type { StatusTone } from "@components/StatusTag";
-import type { Customer } from "@/types/customer.types";
+import type { Customer } from "@/types/customers/customer.types";
 
 /**
  * Ánh xạ trạng thái khách hàng sang tone ngữ nghĩa chuẩn Design Tokens:

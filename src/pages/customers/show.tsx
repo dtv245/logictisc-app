@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import type { ApiError } from "@/types/api.types";
-import type { Customer } from "@/types/customer.types";
+import type { Customer } from "@/types/customers/customer.types";
 
 export const CustomerShow = () => {
   const { t } = useTranslation();

@@ -27,7 +27,7 @@ import {
   type MenuProps,
 } from "antd";
 import { useEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
-import type { Customer } from "@/types/customer.types";
+import type { Customer } from "@/types/customers/customer.types";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import "./CustomerList.scss";
 

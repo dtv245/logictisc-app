@@ -31,7 +31,7 @@ interface EnumSource {
  * vào type backend — test đỏ và buộc phải khai nguồn sự thật trước khi thêm.
  */
 const SELECT_ENUM_SOURCES: Readonly<Record<string, EnumSource>> = {
-  "customers.status": { file: "src/types/customer.types.ts", typeName: "CustomerStatus" },
+  "customers.status": { file: "src/types/customers/customer.types.ts", typeName: "CustomerStatus" },
   "employees.salaryType": { file: "src/types/employee.types.ts", typeName: "SalaryType" },
   "employees.status": { file: "src/types/employee.types.ts", typeName: "EmployeeStatus" },
   "invoices.status": { file: "src/types/invoice.dto.ts", typeName: "InvoiceStatus" },

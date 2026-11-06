@@ -23,6 +23,6 @@ export interface CustomerResponse {
 }
 
 export type ApiCustomerStatus = string;
-export type { CreateCustomerRequest } from "./handoff.generated";
+export type { CreateCustomerRequest } from "@/types/handoff.generated";
 // Customer PUT is a full request, not Partial/PATCH.
-export type { CreateCustomerRequest as UpdateCustomerRequest } from "./handoff.generated";
+export type { CreateCustomerRequest as UpdateCustomerRequest } from "@/types/handoff.generated";

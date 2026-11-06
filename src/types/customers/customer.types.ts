@@ -2,8 +2,8 @@
  * Chứa các kiểu dữ liệu của module khách hàng và tài khoản khách hàng.
  */
 
-import type { CustomerResponse } from "./customer.dto";
-import type { AuditableEntity, OptionalAddress } from "./common.types";
+import type { CustomerResponse } from "@/types/customers/customer.dto";
+import type { AuditableEntity, OptionalAddress } from "@/types/common.types";
 
 export type CustomerStatus = string;
 
