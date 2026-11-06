@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { financialAmount } from "@formatters/financialDisplay";
-import type { PayrollItem } from "@/types/payroll.dto";
+import type { PayrollItem } from "@/types/payroll/payroll.dto";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { driverProfileRoutes } from "@/constants/driverProfileRoutes";
 import { PayrollJurisdictionSummary } from "./PayrollJurisdictionSummary";

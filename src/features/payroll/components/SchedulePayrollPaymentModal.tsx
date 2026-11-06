@@ -4,7 +4,7 @@ import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { ApiHttpError } from "@/utils/httpError";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { PayrollItem, SchedulePayrollPaymentPayload } from "@/types/payroll.dto";
+import type { PayrollItem, SchedulePayrollPaymentPayload } from "@/types/payroll/payroll.dto";
 import { financialAmount } from "@formatters/financialDisplay";
 import { PayrollActionError } from "./PayrollActions";
 import type { PayrollPaymentActionsResult } from "../hooks/usePayrollPaymentActions";

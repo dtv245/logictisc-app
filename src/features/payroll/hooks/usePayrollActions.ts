@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
-import type { CalculatePayrollPayload, PayrollRun } from "@/types/payroll.dto";
+import type { CalculatePayrollPayload, PayrollRun } from "@/types/payroll/payroll.dto";
 import { payrollApi, payrollKeys } from "../api/payroll.api";
 export type PayrollCommand = { action: "calculate"; payload: CalculatePayrollPayload } | { action: "recalculate" | "submit-review" | "approve" | "lock" };
 export type PayrollAction = PayrollCommand["action"];

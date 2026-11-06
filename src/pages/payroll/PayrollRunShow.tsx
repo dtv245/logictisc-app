@@ -14,7 +14,7 @@ import { ForbiddenState, NotFoundState, QueryErrorState } from "@/components/Err
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateOnly, formatDateTime } from "@/formatters/dateTime";
-import type { PayrollRun } from "@/types/payroll.dto";
+import type { PayrollRun } from "@/types/payroll/payroll.dto";
 import type { ApiHttpError } from "@/utils/httpError";
 import { payrollApi, payrollKeys } from "@/features/payroll/api/payroll.api";
 import { usePayrollActions, payrollIsValidated } from "@/features/payroll/hooks/usePayrollActions";

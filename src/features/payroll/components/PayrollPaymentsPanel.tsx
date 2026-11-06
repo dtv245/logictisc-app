@@ -12,7 +12,7 @@ import { statusTone } from "@/components/statusTone";
 import { financialAmount } from "@formatters/financialDisplay";
 import { formatDateTime } from "@/formatters/dateTime";
 import type { ApiHttpError } from "@/utils/httpError";
-import type { PayrollItem, PayrollPayment, PayrollRun } from "@/types/payroll.dto";
+import type { PayrollItem, PayrollPayment, PayrollRun } from "@/types/payroll/payroll.dto";
 import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { PayrollActionError } from "./PayrollActions";
 import { usePayrollPaymentActions } from "../hooks/usePayrollPaymentActions";

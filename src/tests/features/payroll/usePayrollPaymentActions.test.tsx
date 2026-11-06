@@ -9,7 +9,7 @@ import { payroll, payrollId, payment } from "@/tests/fixtures/payroll";
 import { settlementId } from "@/tests/fixtures/settlement";
 import { tenantKey } from "@/tests/fixtures/finance";
 import { ApiHttpError } from "@/utils/httpError";
-import type { PayrollPayment } from "@/types/payroll.dto";
+import type { PayrollPayment } from "@/types/payroll/payroll.dto";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 const locked = { ...payroll, status: "LOCKED" };
 const schedule: PayrollPaymentCommand = { action: "schedule", itemId: payroll.items[0]!.id, payload: { idempotencyKey: "stable-payment-key", paymentMethod: "BANK_TRANSFER", providerKey: "configured-provider", destinationReference: "explicit-destination" } };

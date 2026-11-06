@@ -2,7 +2,7 @@
 import { Descriptions } from "antd";
 import { useTranslation } from "react-i18next";
 import { readPayrollResolution } from "../utils/payroll.snapshot";
-import type { PayrollItem } from "@/types/payroll.dto";
+import type { PayrollItem } from "@/types/payroll/payroll.dto";
 export function PayrollJurisdictionSummary({ item }: { item: PayrollItem }) {
   const { t } = useTranslation();
   const resolution = readPayrollResolution(item.calculationSnapshotJson);

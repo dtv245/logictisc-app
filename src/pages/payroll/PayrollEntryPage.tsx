@@ -15,7 +15,7 @@ import { ForbiddenState } from "@/components/ErrorStates";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import { usePayrollActions } from "@/features/payroll/hooks/usePayrollActions";
 import { PayrollActionError } from "@/features/payroll/components/PayrollActions";
-import type { CalculatePayrollPayload } from "@/types/payroll.dto";
+import type { CalculatePayrollPayload } from "@/types/payroll/payroll.dto";
 import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 import { PayrollSettlementPicker } from "@/components/payroll/PayrollSettlementPicker";
 import Decimal from "decimal.js";

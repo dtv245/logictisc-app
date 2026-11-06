@@ -1,5 +1,5 @@
 /** Payroll runtime fixture includes distinct run/payment states and server-only monetary results. */
-import type { PayrollRun, PayrollPayment } from "@/types/payroll.dto";
+import type { PayrollRun, PayrollPayment } from "@/types/payroll/payroll.dto";
 import { settlementId } from "./settlement";
 export const payrollId = "66666666-6666-4666-8666-666666666666";
 export const payroll: PayrollRun = {

@@ -16,7 +16,7 @@ import { PayrollActionError } from "@/features/payroll/components/PayrollActions
 import { usePayrollPaymentActions } from "@/features/payroll/hooks/usePayrollPaymentActions";
 import { ReconcilePayrollPaymentModal } from "@/features/payroll/components/ReconcilePayrollPaymentModal";
 import { maskPaymentReference } from "@/features/payroll/utils/paymentDisplay";
-import type { PayrollCasesPage } from "@/types/payroll.dto";
+import type { PayrollCasesPage } from "@/types/payroll/payroll.dto";
 import type { ApiHttpError } from "@/utils/httpError";
 import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { normalizePage, normalizePageSize } from "@/utils/querySerializer";

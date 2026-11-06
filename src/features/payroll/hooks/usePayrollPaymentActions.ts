@@ -7,7 +7,7 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { toMoneyDecimal } from "@/formatters/money";
-import type { PayrollItem, PayrollRun, PayrollPayment, PayrollPaymentEvent, ReconcileBankPayload, SchedulePayrollPaymentPayload } from "@/types/payroll.dto";
+import type { PayrollItem, PayrollRun, PayrollPayment, PayrollPaymentEvent, ReconcileBankPayload, SchedulePayrollPaymentPayload } from "@/types/payroll/payroll.dto";
 import { payrollApi, payrollKeys } from "../api/payroll.api";
 import { payrollIsValidated } from "./usePayrollActions";
 export function canScheduleItem(run: PayrollRun, item: PayrollItem, attempts: PayrollPayment[]): boolean {
