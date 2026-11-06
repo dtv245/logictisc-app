@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import { formatTimeOnly } from "@/formatters/dateTime";
 import type { ApiError } from "@/types/api.types";
-import type { LoadTimelineResponse } from "@/features/loads/types";
+import type { LoadTimelineResponse } from "@/types/loads/loads.types";
 import { useTranslation } from "react-i18next";
 
 export interface ShipmentTimelineCardProps {

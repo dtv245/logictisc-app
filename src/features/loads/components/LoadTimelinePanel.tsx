@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { formatDateTime } from "@/formatters/dateTime";
 import type { ApiError } from "@/types/api.types";
-import type { LoadEventView, LoadTimelineResponse } from "../types";
+import type { LoadEventView, LoadTimelineResponse } from "@/types/loads/loads.types";
 
 export interface LoadTimelinePanelProps {
   loadId: string;
