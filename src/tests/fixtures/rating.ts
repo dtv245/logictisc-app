@@ -1,5 +1,5 @@
 /** Deliberately non-reconciling test amounts prove the UI never derives authoritative values. */
-import type { RatingPreview } from "@/types/rateRule.dto";
+import type { RatingPreview } from "@/types/rates/rateRule.dto";
 import { loadId } from "./finance";
 export const rating: RatingPreview = {
   inputs: {

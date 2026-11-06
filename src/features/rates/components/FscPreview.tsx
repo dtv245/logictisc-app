@@ -13,7 +13,7 @@ import { ApiHttpError } from "@/utils/httpError";
 import { financialAmount } from "@formatters/financialDisplay";
 import { formatDateOnly, formatDateTime } from "@/formatters/dateTime";
 import { formatMoney } from "@/formatters/money";
-import type { RatingPreview, RatingPreviewRequest } from "@/types/rateRule.dto";
+import type { RatingPreview, RatingPreviewRequest } from "@/types/rates/rateRule.dto";
 import { isUuid } from "@/utils/uuid";
 import { FscPolicyFields } from "./FscPolicyFields";
 import { rateRuleApi } from "../api/rateRule.api";

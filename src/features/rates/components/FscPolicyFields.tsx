@@ -2,7 +2,7 @@
 import { Descriptions } from "antd";
 import { useTranslation } from "react-i18next";
 import { financialAmount } from "@formatters/financialDisplay";
-import type { IndexBasedFscPolicy } from "@/types/rateRule.dto";
+import type { IndexBasedFscPolicy } from "@/types/rates/rateRule.dto";
 
 export function FscPolicyFields({ policy }: { policy: IndexBasedFscPolicy }) {
   const { t, i18n } = useTranslation();
