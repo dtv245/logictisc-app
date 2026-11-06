@@ -10,7 +10,7 @@ import { TerminalForm } from "@/features/terminals/components/TerminalForm";
 import { applyBackendFieldErrors, hasBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import type { ApiError } from "@/types/api.types";
-import type { CreateTerminalRequest, Terminal } from "@/types/terminal.types";
+import type { CreateTerminalRequest, Terminal } from "@/types/terminals/terminal.types";
 import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 
 export interface TerminalCreateModalProps {

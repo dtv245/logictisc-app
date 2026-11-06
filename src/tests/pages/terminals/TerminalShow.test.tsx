@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TerminalShow } from "@/pages/terminals/show";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 
 const mockRefetch = vi.fn();
 const permissions = vi.hoisted(() => ({ canEdit: true, canDelete: true }));

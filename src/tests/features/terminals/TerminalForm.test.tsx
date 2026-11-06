@@ -6,7 +6,7 @@ import { I18nextProvider } from "react-i18next";
 import type { i18n as I18nInstance } from "i18next";
 import { initializeAppI18n } from "@locales";
 import { TerminalForm } from "@/features/terminals/components/TerminalForm";
-import type { CreateTerminalRequest, Terminal } from "@/types/terminal.types";
+import type { CreateTerminalRequest, Terminal } from "@/types/terminals/terminal.types";
 
 let i18nInstance: I18nInstance;
 

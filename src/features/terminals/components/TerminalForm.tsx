@@ -17,7 +17,7 @@ import type {
   CreateTerminalRequest,
   Terminal,
   TerminalType,
-} from "@/types/terminal.types";
+} from "@/types/terminals/terminal.types";
 import { TERMINAL_TYPE_OPTIONS } from "../config/terminal.constants";
 
 const TIME_FORMAT = "HH:mm:ss";

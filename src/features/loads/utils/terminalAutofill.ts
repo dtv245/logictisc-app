@@ -1,4 +1,4 @@
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import { isUsableCoordinate } from "@/utils/routeEstimate";
 
 const firstNonBlank = (

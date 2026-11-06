@@ -3,7 +3,7 @@ import { Form, type FormInstance } from "antd";
 import { useEffect } from "react";
 
 import { buildTerminalAddressValues } from "@/features/loads/utils/terminalAutofill";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 
 export interface TerminalAddressAutofillProps {
   addressPrefix: string;

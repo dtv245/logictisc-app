@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import { buildTerminalAddressValues } from "./terminalAutofill";
 
 const base = {

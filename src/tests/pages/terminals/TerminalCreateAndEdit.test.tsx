@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TerminalCreate } from "@/pages/terminals/create";
 import { TerminalEdit } from "@/pages/terminals/edit";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 
 const mockOnFinish = vi.fn();
 let capturedUseFormOptions: Record<string, unknown> = {};

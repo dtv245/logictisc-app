@@ -3,7 +3,7 @@ import type { Customer } from "@/types/customers/customer.types";
 import type { Employee } from "./employee.types";
 import type { Truck } from "./truck.types";
 import type { Container } from "@/types/containers/container.types";
-import type { Terminal } from "./terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import type { ISODateTime } from "./api.types";
 import type {
   LoadResponse,

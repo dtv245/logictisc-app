@@ -1,4 +1,4 @@
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 
 /** Format a terminal address from its nested or legacy flat API representation. */
 export const formatTerminalAddress = (record: Terminal): string => {

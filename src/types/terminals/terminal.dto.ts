@@ -1,4 +1,4 @@
-import type { ISODateTime } from "./api.types";
+import type { ApiResponse, ISODateTime, PagedResponse } from "@/types/api.types";
 
 /**
  * Khớp `TerminalType` của backend (`terminal/TerminalType.java`).
@@ -63,19 +63,4 @@ export interface TerminalResponse {
   lastModifiedAt?: ISODateTime | null;
 }
 
-export interface PagedResponse<T> {
-  items: T[];
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  code: string;
-  message: string;
-  data: T;
-  errors?: Array<{ field: string; message: string }>;
-  meta?: { timestamp: string; requestId: string };
-}
+export type { ApiResponse, PagedResponse };

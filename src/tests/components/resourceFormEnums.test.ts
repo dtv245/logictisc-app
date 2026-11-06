@@ -41,7 +41,7 @@ const SELECT_ENUM_SOURCES: Readonly<Record<string, EnumSource>> = {
   "loads.status": { file: "src/types/load.dto.ts", typeName: "LoadStatus" },
   "loads.type": { file: "src/types/load.dto.ts", typeName: "LoadType" },
   "payments.status": { file: "src/types/payment.dto.ts", typeName: "PaymentStatus" },
-  "terminals.type": { file: "src/types/terminal.dto.ts", typeName: "TerminalType" },
+  "terminals.type": { file: "src/types/terminals/terminal.dto.ts", typeName: "TerminalType" },
   "trips.status": { file: "src/types/trip.dto.ts", typeName: "TripStatus" },
   "trucks.status": { file: "src/types/truck.types.ts", typeName: "TruckStatus" },
   "trucks.type": { file: "src/types/truck.types.ts", typeName: "TruckType" },

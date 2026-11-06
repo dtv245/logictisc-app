@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 
 import { ActionButtons } from "@/components/ActionButtons";
 import { translateOptional } from "@/locales";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import { formatTerminalAddress } from "@/utils/terminals/formatTerminalAddress";
 
 const terminalGrid = {

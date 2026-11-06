@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Tooltip } from "antd";
 import { routes } from "@constants/routes";
 import { createCrudColumns } from "@/components/crudColumns";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import { formatTerminalAddress } from "@/utils/terminals/formatTerminalAddress";
 export { formatTerminalAddress } from "@/utils/terminals/formatTerminalAddress";
 

@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { formatTerminalAddress } from "@/features/terminals/components/columns";
 import { TerminalContainersTab } from "@/features/terminals/components/TerminalContainersTab";
 import type { ApiError } from "@/types/api.types";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import { routes } from "@constants/routes";
 
 export const TerminalShow = () => {

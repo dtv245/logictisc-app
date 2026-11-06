@@ -1,4 +1,4 @@
-import type { Address } from "./common.types";
+import type { Address } from "@/types/common.types";
 import type {
   ApiResponse,
   CreateTerminalRequest,
@@ -7,7 +7,7 @@ import type {
   TerminalType,
   UpdateTerminalRequest,
 } from "./terminal.dto";
-import type { ISODateTime } from "./api.types";
+import type { ISODateTime } from "@/types/api.types";
 
 export type {
   ApiResponse,

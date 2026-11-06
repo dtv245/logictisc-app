@@ -8,7 +8,7 @@ import { useEntityFilters } from "@/hooks/useEntityFilters";
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";
 import { createListPaginationConfig } from "@/constants/pagination";
 import type { ApiError } from "@/types/api.types";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import { DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE } from "@/utils/querySerializer";
 import { formatTerminalAddress } from "@/utils/terminals/formatTerminalAddress";
 import { terminalPreviewData } from "./terminalPreviewData";

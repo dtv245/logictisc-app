@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AutoOpen } from "@/components/AutoOpen";
 import { EntityPicker } from "@/components/EntityPicker";
 import { TerminalCreateModal } from "@/components/terminals/TerminalCreateModal";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import {
   readRecentSelections,
   rememberRecentSelection,

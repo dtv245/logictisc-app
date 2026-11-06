@@ -6,7 +6,7 @@ import { Edit, useForm } from "@refinedev/antd";
 import { useNavigate } from "react-router-dom";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import type { ApiError } from "@/types/api.types";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import { routes } from "@constants/routes";
 import { buildResourceMutation } from "@/components/resources/resourceMutation";
 import { TerminalForm } from "@/features/terminals/components/TerminalForm";

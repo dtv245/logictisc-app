@@ -1,4 +1,4 @@
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 
 /** Local-only examples shown by /terminals?preview=mock in Vite development mode. */
 export const terminalPreviewData: Terminal[] = [

@@ -1,5 +1,5 @@
 import type { ContainerIsoType, ContainerStatus } from "@/types/containers/container.dto";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 import type { ISODateTime } from "@/types/api.types";
 
 export interface Container {

@@ -1,4 +1,4 @@
-import type { TerminalType } from "@/types/terminal.types";
+import type { TerminalType } from "@/types/terminals/terminal.types";
 
 export const TERMINAL_TYPE_OPTIONS: Array<{ label: string; value: TerminalType }> = [
   { label: "Cảng biển (Sea Port)", value: "SEA_PORT" },

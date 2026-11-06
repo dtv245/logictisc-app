@@ -11,7 +11,7 @@ import type { i18n as I18nInstance } from "i18next";
 import { initializeAppI18n } from "@locales";
 import { useLocalizedColumns } from "@/hooks/useLocalizedColumns";
 import { terminalColumns, formatTerminalAddress } from "@features/terminals/components/columns";
-import type { Terminal } from "@/types/terminal.types";
+import type { Terminal } from "@/types/terminals/terminal.types";
 
 const queryClient = new QueryClient({
   defaultOptions: {
