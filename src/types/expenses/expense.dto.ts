@@ -1,5 +1,5 @@
-import type { Money } from "./common.types";
-import type { ISODateTime } from "./api.types";
+import type { Money } from "@/types/common.types";
+import type { ISODateTime } from "@/types/api.types";
 
 export type ExpenseType = "general" | "truck" | "repair";
 export type ExpenseStatus = "draft" | "submitted" | "approved" | "rejected" | "paid";
