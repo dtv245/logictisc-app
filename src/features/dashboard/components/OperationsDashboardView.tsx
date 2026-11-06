@@ -63,7 +63,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
   const loads = useTmsLoads();
   const trucks = useTmsTrucks();
   const networkVehicles = useMemo(
-    () => toNetworkVehicles(trucks.data ?? []),
+    () => toNetworkVehicles(trucks.data?.items ?? []),
     [trucks.data],
   );
   const loadSummary = useMemo(
