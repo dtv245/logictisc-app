@@ -37,6 +37,81 @@ interface TerminalCardGridProps {
   terminals: Terminal[];
 }
 
+interface TerminalCardItemProps {
+  terminal: Terminal;
+  isMockPreview: boolean;
+}
+
+const TerminalCardItemComponent: React.FC<TerminalCardItemProps> = ({
+  terminal,
+  isMockPreview,
+}) => {
+  const { i18n, t } = useTranslation();
+  const typeLabel = translateOptional(
+    i18n,
+    (key) => t(key),
+    `forms.options.${terminal.type}`,
+    terminal.type.replaceAll("_", " "),
+  );
+  const address = formatTerminalAddress(terminal);
+
+  return (
+    <List.Item key={terminal.id}>
+      <Card
+        className="terminal-grid-card"
+        hoverable
+        style={{ height: "100%" }}
+        title={
+          <Typography.Text ellipsis={{ tooltip: terminal.name }} strong>
+            {terminal.name}
+          </Typography.Text>
+        }
+      >
+        <Space direction="vertical" size={12} style={{ width: "100%" }}>
+          <div>
+            <Typography.Text type="secondary">
+              {t("columns.terminals.code", { defaultValue: "Mã bến bãi" })}
+            </Typography.Text>
+            <br />
+            <Typography.Text code>{terminal.code}</Typography.Text>
+          </div>
+          <Space wrap size={[4, 4]}>
+            <Tag color="blue">{typeLabel}</Tag>
+            <Tag bordered={false}>{terminal.countryCode}</Tag>
+          </Space>
+          <Space align="start" size={8}>
+            <EnvironmentOutlined aria-hidden="true" style={{ marginTop: 4 }} />
+            <Typography.Paragraph
+              ellipsis={{ rows: 2, tooltip: address || undefined }}
+              style={{ marginBottom: 0 }}
+              type={address ? "secondary" : undefined}
+            >
+              {address || t("asyncState.emptyDescription")}
+            </Typography.Paragraph>
+          </Space>
+          {terminal.notes ? (
+            <Typography.Paragraph
+              ellipsis={{ rows: 2, tooltip: terminal.notes }}
+              style={{ marginBottom: 0 }}
+            >
+              {terminal.notes}
+            </Typography.Paragraph>
+          ) : null}
+        </Space>
+        {!isMockPreview ? (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+            <ActionButtons record={terminal} resource="terminals" />
+          </div>
+        ) : null}
+      </Card>
+    </List.Item>
+  );
+};
+
+TerminalCardItemComponent.displayName = "TerminalCardItem";
+
+export const TerminalCardItem = React.memo(TerminalCardItemComponent);
+
 export const TerminalCardGrid: React.FC<TerminalCardGridProps> = ({
   isLoading,
   isMockPreview,
@@ -45,69 +120,18 @@ export const TerminalCardGrid: React.FC<TerminalCardGridProps> = ({
   queryError,
   terminals,
 }: TerminalCardGridProps) => {
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
 
-  const renderTerminalCard = (terminal: Terminal) => {
-    const typeLabel = translateOptional(
-      i18n,
-      (key) => t(key),
-      `forms.options.${terminal.type}`,
-      terminal.type.replaceAll("_", " "),
-    );
-    const address = formatTerminalAddress(terminal);
-
-    return (
-      <List.Item key={terminal.id}>
-        <Card
-          className="terminal-grid-card"
-          hoverable
-          style={{ height: "100%" }}
-          title={
-            <Typography.Text ellipsis={{ tooltip: terminal.name }} strong>
-              {terminal.name}
-            </Typography.Text>
-          }
-        >
-          <Space direction="vertical" size={12} style={{ width: "100%" }}>
-            <div>
-              <Typography.Text type="secondary">
-                {t("columns.terminals.code", { defaultValue: "Mã bến bãi" })}
-              </Typography.Text>
-              <br />
-              <Typography.Text code>{terminal.code}</Typography.Text>
-            </div>
-            <Space wrap size={[4, 4]}>
-              <Tag color="blue">{typeLabel}</Tag>
-              <Tag bordered={false}>{terminal.countryCode}</Tag>
-            </Space>
-            <Space align="start" size={8}>
-              <EnvironmentOutlined aria-hidden="true" style={{ marginTop: 4 }} />
-              <Typography.Paragraph
-                ellipsis={{ rows: 2, tooltip: address || undefined }}
-                style={{ marginBottom: 0 }}
-                type={address ? "secondary" : undefined}
-              >
-                {address || t("asyncState.emptyDescription")}
-              </Typography.Paragraph>
-            </Space>
-            {terminal.notes ? (
-              <Typography.Paragraph
-                ellipsis={{ rows: 2, tooltip: terminal.notes }}
-                style={{ marginBottom: 0 }}
-              >
-                {terminal.notes}
-              </Typography.Paragraph>
-            ) : null}
-          </Space>
-          {!isMockPreview ? (
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
-              <ActionButtons record={terminal} resource="terminals" />
-            </div>
-          ) : null}
-        </Card>
-      </List.Item>
-    );
-  };
+  const renderTerminalCard = React.useCallback(
+    (terminal: Terminal) => (
+      <TerminalCardItem
+        isMockPreview={isMockPreview}
+        key={terminal.id}
+        terminal={terminal}
+      />
+    ),
+    [isMockPreview],
+  );
 
   return (
     <>

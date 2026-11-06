@@ -17,7 +17,7 @@ import {
   Typography,
   theme,
 } from "antd";
-import type { CSSProperties, MouseEvent } from "react";
+import { memo, type CSSProperties, type MouseEvent } from "react";
 import { formatDateOnly } from "@/formatters/dateTime";
 import type { DriverDirectoryItem } from "@/types/drivers/driver-profile.types";
 import { StatusTag, type StatusTone } from "@/components/StatusTag";
@@ -85,7 +85,7 @@ interface DriverItemProps {
   onOpenProfile: (driver: DriverDirectoryItem) => void;
 }
 
-const DriverItem = ({ driver, locale, onOpenProfile }: DriverItemProps) => {
+const DriverItemComponent = ({ driver, locale, onOpenProfile }: DriverItemProps) => {
   const { token } = theme.useToken();
   const fullName = `${driver.firstName} ${driver.lastName}`.trim() || emptyValue;
   const email = driver.email?.trim();
@@ -177,6 +177,10 @@ const DriverItem = ({ driver, locale, onOpenProfile }: DriverItemProps) => {
     </List.Item>
   );
 };
+
+DriverItemComponent.displayName = "DriverItem";
+
+const DriverItem = memo(DriverItemComponent);
 
 const DriverListSkeleton = () => (
   <div aria-label="Đang tải tài xế" className="driver-directory-loading" role="status">

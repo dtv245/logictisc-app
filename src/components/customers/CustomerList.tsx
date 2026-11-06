@@ -25,7 +25,7 @@ import {
   theme,
   type MenuProps,
 } from "antd";
-import { useEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { memo, useEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import type { Customer } from "@/types/customers/customer.types";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { StatusTag, type StatusTone } from "@/components/StatusTag";
@@ -144,7 +144,7 @@ interface CustomerItemProps {
   mobile: boolean;
 }
 
-const CustomerItem = ({ customer, onView, onEdit, onDelete, canEdit, canDelete, mobile }: CustomerItemProps) => {
+const CustomerItemComponent = ({ customer, onView, onEdit, onDelete, canEdit, canDelete, mobile }: CustomerItemProps) => {
   const { token } = theme.useToken();
   const fullAddress = formatAddress(customer) || EMPTY_VALUE;
   const email = customer.email?.trim();
@@ -281,6 +281,10 @@ const CustomerItem = ({ customer, onView, onEdit, onDelete, canEdit, canDelete, 
     </List.Item>
   );
 };
+
+CustomerItemComponent.displayName = "CustomerItem";
+
+const CustomerItem = memo(CustomerItemComponent);
 
 const LoadingItems = () => (
   <div aria-label="Đang tải khách hàng" className="customer-list-loading" role="status">
