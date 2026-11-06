@@ -2,8 +2,8 @@
  * Unit tests cho AppSider — Thanh taskbar điều hướng Icon Rail phẳng liên tục.
  */
 
-import { AppSider } from "@components/AppSider";
-import { NAV_ZONES } from "@components/appNavigation";
+import { AppSider } from "@/components/AppSider";
+import { NAV_ZONES } from "@/components/appNavigation";
 import { canJwtRolesAccess } from "@/providers/permissions/roleMatrix";
 import { JWT_ROLES, type JwtRole } from "@/types/roles.types";
 import { foundationResourcePageRoutes } from "@/pages/resourceRegistry";

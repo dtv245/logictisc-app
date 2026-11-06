@@ -2,13 +2,13 @@
 import { Link } from "react-router-dom";
 import { Tooltip } from "antd";
 import { routes } from "@constants/routes";
-import { createCrudColumns } from "@components/crudColumns";
+import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
 import { formatMoney } from "@formatters/money";
 import { formatDateTime } from "@formatters/dateTime";
 import type { LoadBoardListing } from "@/types/load-board/load-board.types";
 import type { Address, Money } from "@/types/common.types";
-import type { StatusTone } from "@components/StatusTag";
+import type { StatusTone } from "@/components/StatusTag";
 
 /** Bảng map trạng thái ngữ nghĩa cho Load Board */
 const loadBoardStatusMap: Record<string, StatusTone> = {

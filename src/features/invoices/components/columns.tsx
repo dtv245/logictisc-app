@@ -5,7 +5,7 @@ import { Tag, Tooltip } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { routes } from "@constants/routes";
-import { createCrudColumns } from "@components/crudColumns";
+import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
 import { formatMoney } from "@formatters/money";
 import { formatDateOnly, getBrowserTimeZone } from "@formatters/dateTime";

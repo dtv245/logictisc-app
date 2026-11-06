@@ -15,7 +15,7 @@ import {
   customerStatusMap,
 } from "@features/customers/components/columns";
 import type { Customer } from "@/types/customers/customer.types";
-import { defaultStatusStyles } from "@components/StatusTag";
+import { defaultStatusStyles } from "@/components/StatusTag";
 
 const queryClient = new QueryClient({
   defaultOptions: {

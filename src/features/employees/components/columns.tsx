@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Tooltip } from "antd";
 import { routes } from "@constants/routes";
-import { createCrudColumns } from "@components/crudColumns";
+import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
 import type { Employee } from "@/types/employee.types";
 

@@ -10,7 +10,7 @@
  * không trùng nhau, và mỗi mục có nhãn dịch được ở cả `vi` lẫn `en`.
  */
 
-import { APP_NAV_ITEMS, visibleAppNavItems } from "@components/appNavigation";
+import { APP_NAV_ITEMS, visibleAppNavItems } from "@/components/appNavigation";
 import { routes } from "@constants/routes";
 import { enMessages, viMessages } from "@locales";
 import { describe, expect, it } from "vitest";

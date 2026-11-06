@@ -15,9 +15,9 @@
  * Lý do nằm ở `confirmDialog` bên dưới.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceCreateModal } from "@components/ResourceCreateModal";
-import { ResourceEditModal } from "@components/ResourceEditModal";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceCreateModal } from "@/components/ResourceCreateModal";
+import { ResourceEditModal } from "@/components/ResourceEditModal";
 import { initializeAppI18n } from "@locales";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { App as AntdApp } from "antd";

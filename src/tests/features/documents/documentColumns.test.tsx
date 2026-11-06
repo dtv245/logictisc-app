@@ -16,7 +16,7 @@ import {
   splitFileName,
 } from "@features/documents/components/columns";
 import type { Document } from "@/types/document.types";
-import { defaultStatusStyles } from "@components/StatusTag";
+import { defaultStatusStyles } from "@/components/StatusTag";
 
 const queryClient = new QueryClient({
   defaultOptions: {

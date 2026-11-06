@@ -4,7 +4,7 @@
  * được dịch** — trước đây bảng hiện `in_transit` trong khi form hiện "In transit".
  */
 
-import { createCrudColumns } from "@components/crudColumns";
+import { createCrudColumns } from "@/components/crudColumns";
 import { useLocalizedColumns } from "@/hooks/useLocalizedColumns";
 import { loadColumns } from "@features/loads/components/columns";
 import { initializeAppI18n } from "@locales";

@@ -18,8 +18,8 @@ import type { ColumnsType, ColumnType } from "antd/es/table";
 import { memo, useMemo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { EmptyState } from "@components/EmptyState";
-import { QueryErrorState } from "@components/ErrorStates";
+import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/ErrorStates";
 import {
   normalizePage,
   normalizePageSize,

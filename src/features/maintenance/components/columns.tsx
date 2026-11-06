@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Space, Tag, Tooltip } from "antd";
 import { routes } from "@constants/routes";
-import { createCrudColumns } from "@components/crudColumns";
+import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
 import { formatDateOnly } from "@formatters/dateTime";
 import { formatMoney } from "@formatters/money";

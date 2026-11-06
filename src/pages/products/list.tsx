@@ -12,7 +12,7 @@ import type { ApiError } from "@/types/api.types";
 import type { Product, ProductFormValues, ProductSearchValues } from "@/types/products/products.types";
 import { ProductForm } from "@features/products/components/form";
 import { useProductColumns } from "@features/products/components/columns";
-import { FilterBar } from "@components";
+import { FilterBar } from "@/components/FilterBar";
 import { BaseTable } from "@table";
 import { formatMoney } from "@formatters/money";
 import { toIntlLocale } from "@formatters/intlLocale";

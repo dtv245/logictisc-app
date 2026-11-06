@@ -2,9 +2,9 @@
 import { Link } from "react-router-dom";
 import { Tooltip } from "antd";
 import { routes } from "@constants/routes";
-import { createCrudColumns } from "@components/crudColumns";
+import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
-import type { StatusTone } from "@components/StatusTag";
+import type { StatusTone } from "@/components/StatusTag";
 import type { Trip } from "@/types/trip.types";
 import { formatDistance } from "@/utils/distance";
 

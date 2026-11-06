@@ -18,7 +18,7 @@ import { readFileSync } from "node:fs";
 import {
   createResourceFormInitialValues,
   resourceFormDefinitions,
-} from "@components/resources/resourceForms";
+} from "@/components/resources/resourceForms";
 import { describe, expect, it } from "vitest";
 
 interface EnumSource {

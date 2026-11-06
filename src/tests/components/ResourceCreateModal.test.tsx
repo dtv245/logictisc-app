@@ -1,5 +1,5 @@
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceCreateModal } from "@components/ResourceCreateModal";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceCreateModal } from "@/components/ResourceCreateModal";
 import { initializeAppI18n } from "@locales";
 import { Refine, type DataProvider } from "@refinedev/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

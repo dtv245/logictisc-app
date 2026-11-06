@@ -3,8 +3,8 @@
  */
 
 import type { AppBootstrapState } from "@config/bootstrapState";
-import { PageHeader } from "@components/PageHeader";
-import { StatusTag } from "@components/StatusTag";
+import { PageHeader } from "@/components/PageHeader";
+import { StatusTag } from "@/components/StatusTag";
 import {
   Card,
   Descriptions,

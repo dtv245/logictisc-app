@@ -22,9 +22,9 @@ import type { i18n as I18nInstance } from "i18next";
 import {
   createResourceFormInitialValues,
   resourceFormDefinitions,
-} from "@components/resources/resourceForms";
-import type { ResourceFormField } from "@components/resources/resourceForms";
-import { ResourceFormFields } from "@components/resources/ResourceFormFields";
+} from "@/components/resources/resourceForms";
+import type { ResourceFormField } from "@/components/resources/resourceForms";
+import { ResourceFormFields } from "@/components/resources/ResourceFormFields";
 import { initializeAppI18n } from "@locales";
 import { Button, Form } from "antd";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";

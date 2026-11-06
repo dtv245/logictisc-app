@@ -13,10 +13,10 @@
  * `EntityPicker` được mock vì nó gọi `useSelect` của Refine; ở đây chỉ quan tâm bố cục.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceFormFields } from "@components/resources/ResourceFormFields";
-import { resourceFormDefinitions } from "@components/resources/resourceForms";
-import type { EditableResourceName } from "@components/resources/resourceForms";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceFormFields } from "@/components/resources/ResourceFormFields";
+import { resourceFormDefinitions } from "@/components/resources/resourceForms";
+import type { EditableResourceName } from "@/components/resources/resourceForms";
 import { initializeAppI18n } from "@locales";
 import { render, screen } from "@testing-library/react";
 import { Form } from "antd";

@@ -2,7 +2,7 @@
  * Kiểm tra shell trên mobile, tablet và desktop sau khi chuyển các tiện ích
  * vào sidebar; các thao tác tài khoản vẫn dùng lifecycle xác thực hiện có.
  */
-import { AppLayout } from "@components/AppLayout";
+import { AppLayout } from "@/components/AppLayout";
 import { initializeAppI18n } from "@locales";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { i18n as I18nInstance } from "i18next";

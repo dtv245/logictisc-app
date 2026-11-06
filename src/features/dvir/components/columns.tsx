@@ -2,14 +2,14 @@
 import { Link } from "react-router-dom";
 import { StopOutlined } from "@ant-design/icons";
 import { routes } from "@constants/routes";
-import { createCrudColumns } from "@components/crudColumns";
+import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
 import { formatDateTime } from "@formatters/dateTime";
 import {
   defaultStatusStyles,
   type StatusStyleConfig,
   type StatusTone,
-} from "@components/StatusTag";
+} from "@/components/StatusTag";
 import type { DvirReport } from "@/types/dvir/dvir.types";
 
 /**

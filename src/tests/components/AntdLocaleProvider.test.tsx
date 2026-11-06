@@ -6,7 +6,7 @@
  * được vào text bên trong antd.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
 import { initializeAppI18n } from "@locales";
 import { render, screen, waitFor } from "@testing-library/react";
 import { Table } from "antd";

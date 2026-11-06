@@ -4,9 +4,9 @@
  * - Các trường form được chia 2 cột (columns={2}).
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceCreateModal } from "@components/ResourceCreateModal";
-import { ResourceEditModal } from "@components/ResourceEditModal";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceCreateModal } from "@/components/ResourceCreateModal";
+import { ResourceEditModal } from "@/components/ResourceEditModal";
 import { initializeAppI18n } from "@locales";
 import { render, screen } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";

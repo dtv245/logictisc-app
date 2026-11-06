@@ -15,7 +15,7 @@ import {
   declaredFilterFields,
   declaredFilterResources,
   resolveFilterControls,
-} from "@components/resources/resourceFilterControls";
+} from "@/components/resources/resourceFilterControls";
 import { foundationApiResources } from "@pages/resourceRegistry";
 import { initializeAppI18n } from "@locales";
 import type { i18n as I18nInstance } from "i18next";

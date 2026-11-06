@@ -1,12 +1,12 @@
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
 import {
   focusFirstFormErrorWithSections,
   ResourceFormFields,
-} from "@components/resources/ResourceFormFields";
+} from "@/components/resources/ResourceFormFields";
 import {
   findSectionKeyForField,
   resourceFormDefinitions,
-} from "@components/resources/resourceForms";
+} from "@/components/resources/resourceForms";
 import { initializeAppI18n } from "@locales";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Button, Form } from "antd";

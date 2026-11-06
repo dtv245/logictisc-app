@@ -18,11 +18,11 @@
  * test riêng ở `src/tests/forms/backendFieldErrors.test.ts`; ở đây chỉ kiểm việc nối dây.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceCreateModal } from "@components/ResourceCreateModal";
-import { ResourceCreatePage } from "@components/ResourceCreatePage";
-import { ResourceEditModal } from "@components/ResourceEditModal";
-import { ResourceEditPage } from "@components/ResourceEditPage";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceCreateModal } from "@/components/ResourceCreateModal";
+import { ResourceCreatePage } from "@/components/ResourceCreatePage";
+import { ResourceEditModal } from "@/components/ResourceEditModal";
+import { ResourceEditPage } from "@/components/ResourceEditPage";
 import { initializeAppI18n } from "@locales";
 import { act, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";

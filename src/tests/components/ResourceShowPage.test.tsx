@@ -8,8 +8,8 @@
  * render của component, không phải test tích hợp với Refine.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceShowPage } from "@components/ResourceShowPage";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceShowPage } from "@/components/ResourceShowPage";
 import { initializeAppI18n } from "@locales";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";

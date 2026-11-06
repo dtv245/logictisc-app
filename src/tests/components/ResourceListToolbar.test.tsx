@@ -1,6 +1,6 @@
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceListToolbar } from "@components/ResourceListToolbar";
-import { resolveFilterControls } from "@components/resources/resourceFilterControls";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceListToolbar } from "@/components/ResourceListToolbar";
+import { resolveFilterControls } from "@/components/resources/resourceFilterControls";
 import { initializeAppI18n } from "@locales";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { i18n as I18nInstance } from "i18next";

@@ -13,8 +13,8 @@
  * đây là unit test cho nhánh render, không phải test tích hợp với Refine.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceListPage } from "@components/ResourceListPage";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceListPage } from "@/components/ResourceListPage";
 import { initializeAppI18n } from "@locales";
 import { ApiHttpError } from "@/utils/httpError";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

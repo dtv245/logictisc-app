@@ -19,7 +19,7 @@ import { I18nextProvider } from "react-i18next";
 import type { i18n as I18nInstance } from "i18next";
 
 import { initializeAppI18n } from "@locales";
-import { defaultStatusStyles } from "@components/StatusTag";
+import { defaultStatusStyles } from "@/components/StatusTag";
 import {
   createSettlementColumns,
   SETTLEMENT_TYPE_TONE_MAP,

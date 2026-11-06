@@ -11,7 +11,7 @@
  *    giá trị không dịch được thì ô đó vẫn hiện enum thô — có màu mà vẫn sai.
  */
 
-import { statusTone, statusTones } from "@components/statusTone";
+import { statusTone, statusTones } from "@/components/statusTone";
 import { initializeAppI18n } from "@locales";
 import { describe, expect, it } from "vitest";
 

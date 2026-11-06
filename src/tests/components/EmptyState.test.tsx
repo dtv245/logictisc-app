@@ -17,8 +17,8 @@
  *    `asyncState.emptyDescription` — chuỗi của chính repo — chứ không bám vào "No data".
  */
 
-import { AsyncStateView } from "@components/AsyncState";
-import { EmptyState } from "@components/EmptyState";
+import { AsyncStateView } from "@/components/AsyncState";
+import { EmptyState } from "@/components/EmptyState";
 import { initializeAppI18n } from "@locales";
 import type { AsyncState } from "@utils/asyncStateModel";
 import { render, screen } from "@testing-library/react";

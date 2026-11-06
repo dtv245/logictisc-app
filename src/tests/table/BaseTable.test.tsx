@@ -18,7 +18,7 @@
  * `getByRole("columnheader", …)` — nó bỏ qua cây trợ năng ẩn — chứ đừng dùng `getByText`.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
 import { initializeAppI18n } from "@locales";
 import { BaseTable } from "@table";
 import type { BaseTableProps } from "@table";

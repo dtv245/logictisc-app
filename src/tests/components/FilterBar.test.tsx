@@ -13,9 +13,9 @@
  * `Select` trơn, không cần cả Refine runtime trong unit test này.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { FilterBar } from "@components/FilterBar";
-import { resolveFilterControls } from "@components/resources/resourceFilterControls";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { FilterBar } from "@/components/FilterBar";
+import { resolveFilterControls } from "@/components/resources/resourceFilterControls";
 import { initializeAppI18n } from "@locales";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { i18n as I18nInstance } from "i18next";

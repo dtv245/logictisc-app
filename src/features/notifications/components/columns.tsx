@@ -1,5 +1,5 @@
 /** Định nghĩa columns cho Notification resource. */
-import { createCrudColumns } from "@components/crudColumns";
+import { createCrudColumns } from "@/components/crudColumns";
 import type { Notification } from "@/types/notifications/notifications.types";
 export const notificationColumns = createCrudColumns<Notification>("notifications", [
   { dataIndex: "title", titleKey: "columns.notifications.title" },

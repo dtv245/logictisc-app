@@ -16,8 +16,8 @@ import { I18nextProvider } from "react-i18next";
 import type { i18n as I18nInstance } from "i18next";
 
 import { initializeAppI18n } from "@locales";
-import { StatusTag, defaultStatusStyles } from "@components/StatusTag";
-import { ActionButtons } from "@components/ActionButtons";
+import { StatusTag, defaultStatusStyles } from "@/components/StatusTag";
+import { ActionButtons } from "@/components/ActionButtons";
 import { useLocalizedColumns } from "@/hooks/useLocalizedColumns";
 import { truckColumns } from "@features/trucks/components/columns";
 import type { Truck } from "@/types/truck.types";

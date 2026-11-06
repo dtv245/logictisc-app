@@ -11,7 +11,7 @@
  *    định "`window.confirm` không được gọi" mới bắt được lỗi gọi nhầm bản cũ.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
 import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import { initializeAppI18n } from "@locales";
 import { act, render, screen, waitFor } from "@testing-library/react";

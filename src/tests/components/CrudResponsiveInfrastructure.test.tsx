@@ -12,13 +12,13 @@
  * 5. ResourceDetailView: Descriptions column adaptation (1 column mobile, 2 columns desktop).
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceDetailView } from "@components/resources/ResourceDetailView";
-import { ResourceFormFields } from "@components/resources/ResourceFormFields";
-import { ResourceModalFrame } from "@components/resources/ResourceModalFrame";
-import { resourceFormDefinitions } from "@components/resources/resourceForms";
-import { ResourceListToolbar } from "@components/ResourceListToolbar";
-import { resolveFilterControls } from "@components/resources/resourceFilterControls";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceDetailView } from "@/components/resources/ResourceDetailView";
+import { ResourceFormFields } from "@/components/resources/ResourceFormFields";
+import { ResourceModalFrame } from "@/components/resources/ResourceModalFrame";
+import { resourceFormDefinitions } from "@/components/resources/resourceForms";
+import { ResourceListToolbar } from "@/components/ResourceListToolbar";
+import { resolveFilterControls } from "@/components/resources/resourceFilterControls";
 import { initializeAppI18n } from "@locales";
 import { BaseTable } from "@table";
 import { fireEvent, render, screen } from "@testing-library/react";

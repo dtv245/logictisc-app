@@ -11,11 +11,11 @@
  * AC10: Tôn trọng permission và resource capabilities.
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ActionButtons } from "@components/ActionButtons";
-import { ResourceActionContext } from "@components/ResourceActionContext";
-import { ResourceCreateModal } from "@components/ResourceCreateModal";
-import { ResourceEditModal } from "@components/ResourceEditModal";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ActionButtons } from "@/components/ActionButtons";
+import { ResourceActionContext } from "@/components/ResourceActionContext";
+import { ResourceCreateModal } from "@/components/ResourceCreateModal";
+import { ResourceEditModal } from "@/components/ResourceEditModal";
 import { initializeAppI18n } from "@locales";
 import { Refine, type BaseRecord, type DataProvider } from "@refinedev/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

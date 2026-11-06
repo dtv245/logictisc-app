@@ -2,10 +2,8 @@
  * Presents fail-closed bootstrap states without owning network or retry logic.
  */
 
-import {
-  AccessibleAnnouncement,
-  ConfigErrorState,
-} from "@components";
+import { AccessibleAnnouncement } from "@/components/AccessibleAnnouncement";
+import { ConfigErrorState } from "@/components/ErrorStates";
 import {
   Button,
   Flex,

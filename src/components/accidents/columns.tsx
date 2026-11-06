@@ -1,10 +1,10 @@
 /** Định nghĩa columns cho Accident resource với chuẩn UX/a11y và Design Tokens. */
 import { Link } from "react-router-dom";
 import { routes } from "@constants/routes";
-import { createCrudColumns } from "@components/crudColumns";
+import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
 import { formatDateTime } from "@formatters/dateTime";
-import type { StatusStyleConfig, StatusTone } from "@components/StatusTag";
+import type { StatusStyleConfig, StatusTone } from "@/components/StatusTag";
 import type { AccidentReport } from "@/types/accidents/accidents.types";
 
 /**

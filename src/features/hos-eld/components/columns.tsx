@@ -2,8 +2,8 @@
 import { Link } from "react-router-dom";
 import { Tooltip } from "antd";
 import { routes } from "@constants/routes";
-import { createCrudColumns } from "@components/crudColumns";
-import type { StatusTone } from "@components/StatusTag";
+import { createCrudColumns } from "@/components/crudColumns";
+import type { StatusTone } from "@/components/StatusTag";
 import { displayValue } from "@formatters/display";
 import { formatDateOnly } from "@formatters/dateTime";
 import type { HosLog } from "@/types/hos-eld/hos-eld.types";

@@ -2,9 +2,9 @@
  * Tests cho ResourceDetailView — hiển thị chi tiết bản ghi theo bố cục ngang (hình chữ nhật).
  */
 
-import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { ResourceDetailView } from "@components/resources/ResourceDetailView";
-import { resourceFormDefinitions } from "@components/resources/resourceForms";
+import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
+import { ResourceDetailView } from "@/components/resources/ResourceDetailView";
+import { resourceFormDefinitions } from "@/components/resources/resourceForms";
 import { initializeAppI18n } from "@locales";
 import { render, screen } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";

@@ -22,7 +22,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FilterBar } from "@components";
+import { FilterBar } from "@/components/FilterBar";
 import { EmptyState } from "@/components/EmptyState";
 import { ForbiddenState, QueryErrorState } from "@/components/ErrorStates";
 

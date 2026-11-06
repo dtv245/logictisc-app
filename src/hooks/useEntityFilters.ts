@@ -21,7 +21,7 @@ import { useCallback, useMemo } from "react";
 import {
   resolveFilterControls,
   type ResourceFilterControl,
-} from "@components/resources/resourceFilterControls";
+} from "@/components/resources/resourceFilterControls";
 
 /** Phần `useTable` mà hook này cần — khai hẹp để test không phải dựng cả bảng. */
 export interface EntityTableFilterApi {
