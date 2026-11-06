@@ -3,7 +3,7 @@ import { useState } from "react";
 import Decimal from "decimal.js";
 import { usePayrollSettlements } from "@/hooks/payroll/usePayrollSettlements";
 import { isUuid } from "@/utils/uuid";
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 
 interface Props {
   payPeriodId: string;

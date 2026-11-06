@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { financialAmount } from "@formatters/financialDisplay";
 import { formatDateOnly } from "@/formatters/dateTime";
-import type { SettlementLineView } from "@/types/settlement.dto";
+import type { SettlementLineView } from "@/types/settlements/settlement.dto";
 
 export function SettlementLinesTable({ lines, sourceOnly = false }: { lines: SettlementLineView[]; sourceOnly?: boolean }) {
   const { t, i18n } = useTranslation();

@@ -10,7 +10,7 @@ import { ForbiddenState, NotFoundState, QueryErrorState } from "@/components/Err
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { routes } from "@/constants/routes";
 import { isUuid } from "@/utils/uuid";
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 import type { ApiHttpError } from "@/utils/httpError";
 import { SETTLEMENT_ENDPOINTS } from "@/features/settlements/api/settlement.api";
 import { settlementKeys } from "@/features/settlements/api/settlement.keys";

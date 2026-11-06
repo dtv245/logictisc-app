@@ -1,5 +1,5 @@
 /** Server totals intentionally disagree with line totals to detect client recalculation. */
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 import { loadId } from "./finance";
 export const settlementId = "22222222-2222-4222-8222-222222222222";
 export const settlement: DriverSettlementView = {

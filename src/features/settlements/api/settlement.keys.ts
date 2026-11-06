@@ -1,5 +1,5 @@
 /** Tenant-scoped settlement keys; custom query invalidation must target these keys explicitly. */
-import type { SettlementFilterParams } from "@/types/settlement.dto";
+import type { SettlementFilterParams } from "@/types/settlements/settlement.dto";
 export const settlementKeys = {
   list: (tenantKey: string | undefined, filters: SettlementFilterParams = {}) => ["settlements", tenantKey, "list", filters] as const,
   detail: (tenantKey: string | undefined, id: string) => ["settlements", tenantKey, "detail", id] as const,

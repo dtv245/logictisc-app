@@ -6,7 +6,7 @@ import type {
   SettlementFilterParams,
   SettlementStatus,
   SettlementType,
-} from "@/types/settlement.dto";
+} from "@/types/settlements/settlement.dto";
 import { EntityPicker } from "@/components/EntityPicker";
 import { usePayPeriods } from "../api/settlement.query";
 

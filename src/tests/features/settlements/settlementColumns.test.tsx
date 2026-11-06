@@ -24,7 +24,7 @@ import {
   createSettlementColumns,
   SETTLEMENT_TYPE_TONE_MAP,
 } from "@features/settlements/components/settlement.columns";
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 
 let i18nInstance: I18nInstance;
 

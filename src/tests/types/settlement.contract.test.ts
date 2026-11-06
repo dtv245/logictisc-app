@@ -8,7 +8,7 @@ import {
 import type {
   DriverSettlementView,
   SettlementStatus,
-} from "@/types/settlement.dto";
+} from "@/types/settlements/settlement.dto";
 
 describe("Settlement DTO and Column Helpers Contract", () => {
   it("formats currency amounts correctly for different numerical inputs", () => {

@@ -34,7 +34,7 @@ import { routes } from "@/constants/routes";
 import type {
   DriverSettlementView,
   SettlementFilterParams,
-} from "@/types/settlement.dto";
+} from "@/types/settlements/settlement.dto";
 import "./Settlements.scss";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";

@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
-import type { DriverSettlementView, SettlementAdjustmentPayload, SettlementStatus } from "@/types/settlement.dto";
+import type { DriverSettlementView, SettlementAdjustmentPayload, SettlementStatus } from "@/types/settlements/settlement.dto";
 import { ApiHttpError } from "@/utils/httpError";
 import { SETTLEMENT_ENDPOINTS } from "../api/settlement.api";
 

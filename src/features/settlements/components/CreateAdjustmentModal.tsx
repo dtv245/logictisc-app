@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { ApiHttpError } from "@/utils/httpError";
 import { UUID_PATTERN } from "@/utils/uuid";
-import type { SettlementAdjustmentPayload } from "@/types/settlement.dto";
+import type { SettlementAdjustmentPayload } from "@/types/settlements/settlement.dto";
 import type { UseSettlementActionsResult } from "../hooks/useSettlementActions";
 
 const isAdjustmentField = (name: unknown): name is keyof AdjustmentForm =>

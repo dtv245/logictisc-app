@@ -8,7 +8,7 @@ import { useSettlements, useCalculateSettlement } from "@/features/settlements/a
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { settlement } from "@/tests/fixtures/settlement";
 import { tenantKey } from "@/tests/fixtures/finance";
-import type { SettlementFilterParams } from "@/types/settlement.dto";
+import type { SettlementFilterParams } from "@/types/settlements/settlement.dto";
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
 function ListProbe() {
   const [filters, setFilters] = useState<SettlementFilterParams>({}); const query = useSettlements(filters);

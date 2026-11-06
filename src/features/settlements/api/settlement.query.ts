@@ -9,7 +9,7 @@ import type {
   DriverSettlementView,
   PayPeriodView,
   SettlementFilterParams,
-} from "@/types/settlement.dto";
+} from "@/types/settlements/settlement.dto";
 import { SETTLEMENT_ENDPOINTS } from "./settlement.api";
 import { settlementKeys } from "./settlement.keys";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";

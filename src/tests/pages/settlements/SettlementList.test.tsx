@@ -7,7 +7,7 @@ import { MemoryRouter } from "react-router-dom";
 import { setTestLocale } from "@/tests/testLocale";
 
 import { SettlementList } from "@/pages/settlements/SettlementList";
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 
 const mockUseSettlements = vi.fn();
 const mockUsePayPeriods = vi.fn();

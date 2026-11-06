@@ -1,5 +1,5 @@
 import { getLogisticsApiClient } from "@/lib/apiClient";
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 
 export interface SettlementPickerPage {
   data: DriverSettlementView[];

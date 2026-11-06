@@ -15,7 +15,7 @@ import type {
   DriverSettlementView,
   SettlementStatus,
   SettlementType,
-} from "@/types/settlement.dto";
+} from "@/types/settlements/settlement.dto";
 
 export const formatCurrencyAmount = (
   amount: number | string | null | undefined,

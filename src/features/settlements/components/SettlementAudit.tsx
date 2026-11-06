@@ -2,7 +2,7 @@
 import { Alert, Descriptions } from "antd";
 import { useTranslation } from "react-i18next";
 import { formatDateTime } from "@/formatters/dateTime";
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 export function SettlementAudit({ settlement }: { settlement: DriverSettlementView }) {
   const { t, i18n } = useTranslation();
   return (

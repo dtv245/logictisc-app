@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { QueryErrorState } from "@/components/ErrorStates";
 import { financialAmount } from "@formatters/financialDisplay";
 import type { ApiHttpError } from "@/utils/httpError";
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 import { SETTLEMENT_ENDPOINTS } from "../api/settlement.api";
 import { settlementKeys } from "../api/settlement.keys";
 

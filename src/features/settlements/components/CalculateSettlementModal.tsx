@@ -3,7 +3,7 @@ import { CalculatorOutlined } from "@ant-design/icons";
 import { Form, Modal, Select } from "antd";
 import { useTranslation } from "react-i18next";
 
-import type { CalculateSettlementPayload } from "@/types/settlement.dto";
+import type { CalculateSettlementPayload } from "@/types/settlements/settlement.dto";
 import {
   useCalculateSettlement,
   usePayPeriods,

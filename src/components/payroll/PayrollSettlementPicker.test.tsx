@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { PayrollSettlementPicker } from "@/components/payroll/PayrollSettlementPicker";
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 
 const period = "11111111-1111-4111-8111-111111111111";
 vi.mock("@/hooks/payroll/usePayrollSettlements", () => ({

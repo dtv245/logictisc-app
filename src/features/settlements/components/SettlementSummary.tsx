@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { financialAmount } from "@formatters/financialDisplay";
-import type { DriverSettlementView } from "@/types/settlement.dto";
+import type { DriverSettlementView } from "@/types/settlements/settlement.dto";
 
 export function SettlementSummary({ settlement: s }: { settlement: DriverSettlementView }) {
   const { t, i18n } = useTranslation();
