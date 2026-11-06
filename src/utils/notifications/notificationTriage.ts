@@ -5,7 +5,7 @@
 
 import type { StatusTone } from "@/components/StatusTag";
 import { routes } from "@/constants/routes";
-import type { Notification } from "@/features/notifications/types";
+import type { Notification } from "@/types/notifications/notifications.types";
 import type {
   TmsApproval,
   TmsShipmentView,

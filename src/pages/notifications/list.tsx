@@ -35,7 +35,7 @@ import {
 } from "@/constants/pagination";
 import { routes } from "@/constants/routes";
 import { NotificationMarkAllRead } from "@/features/notifications/components/NotificationMarkAllRead";
-import type { Notification } from "@/features/notifications/types";
+import type { Notification } from "@/types/notifications/notifications.types";
 import { useTmsWorkspace } from "@/hooks/tms-flow/useTmsWorkspace";
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";
 import {
