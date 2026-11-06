@@ -55,6 +55,7 @@ export interface PagedResponse<T> {
   totalPages: number;
   currentPage: number;
   pageSize: number;
+  hasNext?: boolean;
 }
 
 export interface ListQuery {
