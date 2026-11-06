@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { decodePolyline, encodePolyline } from "@/features/map/lib/polyline";
-import type { LngLat } from "@/features/map/types";
+import type { LngLat } from "@/types/map/map.types";
 
 describe("lib/polyline.ts", () => {
   // Toạ độ mẫu tại TP.HCM: [lng, lat]

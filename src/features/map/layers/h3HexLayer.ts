@@ -1,5 +1,5 @@
 import { PolygonLayer, type PickingInfo } from "deck.gl";
-import type { H3Cluster } from "../types";
+import type { H3Cluster } from "@/types/map/map.types";
 
 export interface H3HexLayerOptions {
   onHoverHex?: (cluster: H3Cluster | null, coords?: { x: number; y: number } | null) => void;

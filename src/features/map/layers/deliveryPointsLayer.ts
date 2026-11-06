@@ -1,6 +1,6 @@
 import { ScatterplotLayer, type PickingInfo } from "deck.gl";
-import type { DeliveryPoint } from "../types";
-import { STATUS_CONFIGS } from "../types";
+import type { DeliveryPoint } from "@/types/map/map.types";
+import { STATUS_CONFIGS } from "@/constants/map.constants";
 
 export interface DeliveryPointsLayerOptions {
   selectedPointId?: string | null;

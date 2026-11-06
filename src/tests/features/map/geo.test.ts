@@ -5,7 +5,7 @@ import {
   isInsideAnyZone,
   calculateBbox,
 } from "@/features/map/lib/geo";
-import type { DeliveryZone, LngLat } from "@/features/map/types";
+import type { DeliveryZone, LngLat } from "@/types/map/map.types";
 
 describe("lib/geo.ts", () => {
   // Toạ độ TP.HCM: [lng, lat]

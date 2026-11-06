@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { DeliveryPoint, DeliveryStatus, LngLat, VehicleType } from "../types";
+import type { DeliveryPoint, DeliveryStatus, LngLat, VehicleType } from "@/types/map/map.types";
 
 export interface ViewportState {
   longitude: number;

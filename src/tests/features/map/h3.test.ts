@@ -4,7 +4,7 @@ import {
   h3CellToBoundaryLngLat,
   aggregatePointsByH3,
 } from "@/features/map/lib/h3";
-import type { LngLat } from "@/features/map/types";
+import type { LngLat } from "@/types/map/map.types";
 
 describe("lib/h3.ts", () => {
   const sampleLngLat: LngLat = [106.660172, 10.762622];

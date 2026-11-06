@@ -1,5 +1,5 @@
 import polyline from "@mapbox/polyline";
-import type { LngLat } from "../types";
+import type { LngLat } from "@/types/map/map.types";
 
 /**
  * Độ chính xác (precision) của chuỗi polyline:

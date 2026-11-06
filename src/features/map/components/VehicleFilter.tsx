@@ -1,8 +1,8 @@
 import React from "react";
 import { Layers, Eye, EyeOff } from "lucide-react";
 import { useMapStore } from "../store/mapStore";
-import { VEHICLE_CONFIGS, STATUS_CONFIGS } from "../types";
-import type { VehicleType, DeliveryStatus } from "../types";
+import { VEHICLE_CONFIGS, STATUS_CONFIGS } from "@/constants/map.constants";
+import type { VehicleType, DeliveryStatus } from "@/types/map/map.types";
 
 export const VehicleFilter: React.FC = () => {
   const selectedVehicles = useMapStore((s) => s.selectedVehicles);

@@ -1,4 +1,4 @@
-import type { DeliveryPoint, DeliveryZone } from "@/features/map/types";
+import type { DeliveryPoint, DeliveryZone } from "@/types/map/map.types";
 
 /** No delivery-point/zone contract is available; never synthesize operational records. */
 export function useDeliveryPoints() {

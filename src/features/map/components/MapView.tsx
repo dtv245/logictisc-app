@@ -16,8 +16,8 @@ import { createH3HexLayer } from "../layers/h3HexLayer";
 import { createHighlightedRouteLayer, createRouteLayer } from "../layers/routeLayer";
 import { createZoneLayer } from "../layers/zoneLayer";
 import { aggregatePointsByH3 } from "../lib/h3";
-import type { DeliveryPoint, DeliveryZone, H3Cluster, LngLat, RouteData } from "../types";
-import { STATUS_CONFIGS, VEHICLE_CONFIGS } from "../types";
+import type { DeliveryPoint, DeliveryZone, H3Cluster, LngLat, RouteData } from "@/types/map/map.types";
+import { STATUS_CONFIGS, VEHICLE_CONFIGS } from "@/constants/map.constants";
 
 // URL vector map style miễn phí từ biến môi trường (fallback OpenFreeMap Liberty)
 const DEFAULT_MAP_STYLE =

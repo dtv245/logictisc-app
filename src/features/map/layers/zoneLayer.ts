@@ -1,5 +1,5 @@
 import { GeoJsonLayer, type PickingInfo } from "deck.gl";
-import type { DeliveryZone } from "../types";
+import type { DeliveryZone } from "@/types/map/map.types";
 
 export interface ZoneLayerOptions {
   onHoverZone?: (zone: DeliveryZone | null, coords?: { x: number; y: number } | null) => void;

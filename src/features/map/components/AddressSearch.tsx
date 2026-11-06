@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Search, MapPin, AlertCircle, X, Loader2 } from "lucide-react";
 import { useGeocode } from "@/hooks/useGeocode";
 import { useMapStore } from "../store/mapStore";
-import type { GeocodingResult } from "../types";
+import type { GeocodingResult } from "@/types/map/map.types";
 
 export const AddressSearch: React.FC = () => {
   const { query, setQuery, results, isLoading, postalCodeError, clearResults } =

@@ -1,5 +1,5 @@
 import { PathLayer, type PickingInfo } from "deck.gl";
-import type { LngLat, RouteData } from "../types";
+import type { LngLat, RouteData } from "@/types/map/map.types";
 
 export function createHighlightedRouteLayer(coordinates: LngLat[]) {
   return new PathLayer<{ coordinates: LngLat[] }>({

@@ -1,5 +1,5 @@
 import * as h3 from "h3-js";
-import type { H3Cluster, LngLat } from "../types";
+import type { H3Cluster, LngLat } from "@/types/map/map.types";
 
 /**
  * Chuyển đổi toạ độ [lng, lat] thành mã ô lục giác H3 theo độ phân giải (resolution 0-15).

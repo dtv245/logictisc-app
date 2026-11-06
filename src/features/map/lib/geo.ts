@@ -1,5 +1,5 @@
 import * as turf from "@turf/turf";
-import type { DeliveryZone, LngLat } from "../types";
+import type { DeliveryZone, LngLat } from "@/types/map/map.types";
 
 /**
  * Tính khoảng cách đường chim bay giữa hai điểm toạ độ (theo đơn vị Kilomet).

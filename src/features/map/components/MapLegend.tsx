@@ -1,6 +1,6 @@
 import React from "react";
-import { STATUS_CONFIGS, VEHICLE_CONFIGS } from "../types";
-import type { DeliveryStatus, VehicleType } from "../types";
+import { STATUS_CONFIGS, VEHICLE_CONFIGS } from "@/constants/map.constants";
+import type { DeliveryStatus, VehicleType } from "@/types/map/map.types";
 
 export const MapLegend: React.FC = () => {
   const statusKeys = Object.keys(STATUS_CONFIGS) as DeliveryStatus[];
