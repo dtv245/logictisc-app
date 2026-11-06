@@ -31,4 +31,4 @@ export interface TripStopResponse {
   location: GeoLocation;
 }
 
-export type { CreateTripRequest, UpdateTripRequest } from "./handoff.generated";
+export type { CreateTripRequest, UpdateTripRequest } from "@/types/handoff.generated";

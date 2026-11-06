@@ -111,4 +111,4 @@ export interface LoadConditionReportResponse {
   lastModifiedBy?: string | null;
 }
 
-export type { CreateLoadRequest, UpdateLoadRequest, SetPickupBusinessDateRequest } from "./handoff.generated";
+export type { CreateLoadRequest, UpdateLoadRequest, SetPickupBusinessDateRequest } from "@/types/handoff.generated";

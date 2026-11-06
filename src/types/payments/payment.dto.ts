@@ -36,4 +36,4 @@ export interface PaymentLinkResponse {
   lastModifiedBy?: string | null;
 }
 
-export type { CreatePaymentRequest, UpdatePaymentRequest } from "./handoff.generated";
+export type { CreatePaymentRequest, UpdatePaymentRequest } from "@/types/handoff.generated";
