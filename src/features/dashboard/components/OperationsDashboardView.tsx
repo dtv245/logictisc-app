@@ -2,11 +2,12 @@ import React, { useMemo } from "react";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { PriorityShipmentCard } from "@/components/dashboard/PriorityShipmentCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { usePriorityShipments } from "@/hooks/dashboard/usePriorityShipments";
-import { useTmsLoads } from "@/hooks/tms-flow/useTmsQueries";
+import { useTmsLoads, useTmsTrucks } from "@/hooks/tms-flow/useTmsQueries";
 import { countTmsRiskQueue, summarizeTmsLoads } from "@/utils/tms-flow/status";
+import { toNetworkVehicles } from "@/utils/tms-flow/map";
+import { describeTmsError } from "@/utils/tms-flow/presentation";
 import { DEFAULT_CURRENCY, INITIAL_DASHBOARD_FILTERS } from "../config/rankingWeights";
 import type { DashboardFilters } from "../types";
 import type { KpiItemProps } from "../types/primitives.types";
@@ -15,6 +16,7 @@ import { KpiStrip } from "./KpiStrip";
 import { OperationsBrief } from "./OperationsBrief";
 import { NetworkMiniMap } from "./NetworkMiniMap";
 import { DispatchTimeline } from "./DispatchTimeline";
+import { PriorityShipmentCard } from "./PriorityShipmentCard";
 import "./OperationsDashboardView.scss";
 
 export interface OperationsDashboardViewProps {
@@ -59,6 +61,11 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
   // Dispatch and the operations KPIs must read the same load queue so a load
   // counted as at risk on Dispatch is counted here too.
   const loads = useTmsLoads();
+  const trucks = useTmsTrucks();
+  const networkVehicles = useMemo(
+    () => toNetworkVehicles(trucks.data ?? []),
+    [trucks.data],
+  );
   const loadSummary = useMemo(
     () =>
       loads.data
@@ -136,12 +143,12 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
   return (
     <div className={`ops-dashboard-layout ${className}`}>
-      {/* 1. Header (Full Width) */}
+      {/* 1. Orientation: page title, date, search, and primary actions. */}
       <div className="ops-grid-area-header">
         <DashboardHeader />
       </div>
 
-      {/* 2. KPI Strip (Full Width) */}
+      {/* 2. Summary: current operating metrics before the actionable detail. */}
       <div className="ops-grid-area-kpi">
         <KpiStrip items={kpiItems} onRetry={retryAll} />
         {loads.data ? (
@@ -158,7 +165,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         ) : null}
       </div>
 
-      {/* 3. Priority Shipment Card (8 cols) & Operations Brief (4 cols) */}
+      {/* 3. Action: highlight the load that should be handled first. */}
       <div className="ops-grid-area-priority">
         <PriorityShipmentCard
           error={priorityShipments.error}
@@ -171,15 +178,22 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         />
       </div>
 
+      {/* 4. Context: operational analysis beside the network map. */}
       <div className="ops-grid-area-brief">
         <OperationsBrief />
       </div>
 
-      {/* 4. Mini Map (4 cols) & Dispatch Timeline (8 cols) */}
       <div className="ops-grid-area-map">
-        <NetworkMiniMap />
+        <NetworkMiniMap
+          error={!trucks.data && trucks.error ? describeTmsError(trucks.error) : undefined}
+          isLoading={trucks.isLoading}
+          onRetry={() => { void trucks.refetch(); }}
+          onRoadCount={networkVehicles.filter((vehicle) => vehicle.status === "moving").length}
+          vehicles={networkVehicles}
+        />
       </div>
 
+      {/* 5. Schedule: finish with driver availability and dispatch blocks. */}
       <div className="ops-grid-area-timeline">
         <DispatchTimeline />
       </div>

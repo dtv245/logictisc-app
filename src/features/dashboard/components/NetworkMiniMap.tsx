@@ -4,6 +4,7 @@ import { Navigation } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NetworkRouteMap } from "@/components/dashboard/NetworkRouteMap";
 import { OpsCard } from "@/features/dashboard/components/primitives/Card";
+import { CardSkeleton, OpsErrorState } from "@/features/dashboard/components/primitives/DashboardStates";
 import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
 import type { ShipmentCardLocale } from "@/types/dashboard/priority-shipment.types";
 import type { NetworkRouteLine, NetworkVehiclePoint } from "@/types/dashboard/network-map.types";
@@ -19,6 +20,9 @@ export interface NetworkMiniMapProps {
   vehicles?: readonly NetworkVehiclePoint[];
   routes?: readonly NetworkRouteLine[];
   isLive?: boolean;
+  isLoading?: boolean;
+  error?: string;
+  onRetry?: () => void;
   onOpenFullMap?: () => void;
   className?: string;
   locale?: ShipmentCardLocale;
@@ -27,7 +31,7 @@ export interface NetworkMiniMapProps {
 
 const mapLabelKeys = ["srLabel", "live", "lastKnown", "noPositions", "onRoad", "vehicles", "openFullMap", "mapStatus", "empty"] as const;
 
-export function NetworkMiniMap({ vehicles = EMPTY_VEHICLES, routes = EMPTY_ROUTES, isLive = false, onOpenFullMap, className = "", locale, onRoadCount }: NetworkMiniMapProps): ReactElement {
+export function NetworkMiniMap({ vehicles = EMPTY_VEHICLES, routes = EMPTY_ROUTES, isLive = false, isLoading = false, error, onRetry, onOpenFullMap, className = "", locale, onRoadCount }: NetworkMiniMapProps): ReactElement {
   const { i18n } = useTranslation();
   const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
   const text = createLocaleLabels(i18n.getFixedT(activeLocale), "dashboard.opsView.panels.map", mapLabelKeys);
@@ -54,7 +58,19 @@ export function NetworkMiniMap({ vehicles = EMPTY_VEHICLES, routes = EMPTY_ROUTE
         </div>
       )}
       <div className="ops-mini-map-canvas">
-        {hasPositions ? <NetworkRouteMap vehicles={vehicleList} routes={routeList} locale={activeLocale} /> : <div className="ops-mini-map-canvas__empty" role="status"><Navigation size={24} aria-hidden="true" /><span>{text.empty}</span></div>}
+        {isLoading ? (
+          <div className="ops-mini-map-canvas__state" role="status" aria-busy="true">
+            <CardSkeleton lines={2} />
+          </div>
+        ) : error ? (
+          <div className="ops-mini-map-canvas__state" role="alert">
+            <OpsErrorState message={error} onRetry={onRetry} />
+          </div>
+        ) : hasPositions ? (
+          <NetworkRouteMap vehicles={vehicleList} routes={routeList} locale={activeLocale} />
+        ) : (
+          <div className="ops-mini-map-canvas__empty" role="status"><Navigation size={24} aria-hidden="true" /><span>{text.empty}</span></div>
+        )}
       </div>
     </OpsCard>
   );

@@ -13,16 +13,19 @@ import {
   User,
   Zap,
 } from "lucide-react";
-import {
-  OpsCard,
-} from "./primitives";
+import { CardSkeleton, OpsCard, OpsErrorState, OpsUnavailableState } from "./primitives";
 import "./PriorityShipmentCard.scss";
-import type { PriorityShipmentViewModel } from "@/types/dashboard/priority-shipment.types";
+import type { PriorityShipmentViewModel, ShipmentCardLocale } from "@/types/dashboard/priority-shipment.types";
 import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
 
 export interface PriorityShipmentCardProps {
   shipments?: readonly PriorityShipmentViewModel[];
+  isLoading?: boolean;
+  isUnavailable?: boolean;
+  error?: string;
+  onRetry?: () => void;
   onSelectShipment?: (shipmentId: string) => void;
+  locale?: ShipmentCardLocale;
   className?: string;
 }
 
@@ -30,17 +33,52 @@ const priorityLabelKeys = ["title", "unavailableHint", "window", "eta", "detour"
 
 export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
   shipments = [],
+  isLoading = false,
+  isUnavailable = false,
+  error,
+  onRetry,
   onSelectShipment,
+  locale,
   className = "",
 }) => {
   const { i18n } = useTranslation();
-  const locale = resolveSupportedLocale(i18n.resolvedLanguage);
-  const fixedT = i18n.getFixedT(locale);
+  const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
+  const fixedT = i18n.getFixedT(activeLocale);
   const text = createLocaleLabels(fixedT, "dashboard.opsView.panels.priority", priorityLabelKeys);
   const list = shipments;
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const currentShipment = list[currentIndex] || list[0];
+
+  if (isLoading) {
+    return (
+      <OpsCard className={`ops-priority-shipment-card ${className}`}>
+        <div className="ops-priority-state" role="status" aria-busy="true">
+          <CardSkeleton lines={2} />
+        </div>
+      </OpsCard>
+    );
+  }
+
+  if (error) {
+    return (
+      <OpsCard className={`ops-priority-shipment-card ${className}`}>
+        <div className="ops-priority-state" role="alert">
+          <OpsErrorState message={error} onRetry={onRetry} />
+        </div>
+      </OpsCard>
+    );
+  }
+
+  if (isUnavailable) {
+    return (
+      <OpsCard className={`ops-priority-shipment-card ${className}`}>
+        <div className="ops-priority-state" role="status">
+          <OpsUnavailableState message={text.unavailableHint} />
+        </div>
+      </OpsCard>
+    );
+  }
 
   if (!currentShipment) {
     return (
