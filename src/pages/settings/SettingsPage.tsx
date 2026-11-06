@@ -1,5 +1,5 @@
 import { BulbOutlined, GlobalOutlined, RobotOutlined } from "@ant-design/icons";
-import { Alert, Card, Col, Row, Segmented, Space, Switch, Typography } from "antd";
+import { Alert, Button, Card, Col, Row, Segmented, Space, Switch, Typography } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/PageHeader";
@@ -59,7 +59,17 @@ export function SettingsPage() {
               <div>
                 <Typography.Title level={5} style={{ marginTop: 0 }}>{t("settings.appearance")}</Typography.Title>
                 <Typography.Paragraph type="secondary">{t("settings.appearanceHelp")}</Typography.Paragraph>
-                <Space><Switch checked={dark} onChange={changeTheme} aria-label={t("settings.darkMode")} /><Typography.Text>{t("settings.darkMode")}</Typography.Text></Space>
+                <Space>
+                  <Switch
+                    id="settings-dark-mode-switch"
+                    checked={dark}
+                    onChange={changeTheme}
+                    aria-label={t("settings.darkMode")}
+                  />
+                  <label htmlFor="settings-dark-mode-switch" style={{ cursor: "pointer", userSelect: "none" }}>
+                    <Typography.Text>{t("settings.darkMode")}</Typography.Text>
+                  </label>
+                </Space>
               </div>
             </Space>
           </Card>
@@ -67,7 +77,15 @@ export function SettingsPage() {
         <Col xs={24}>
           <Card
             title={<Space><RobotOutlined />{t("settings.ai")}</Space>}
-            extra={<a href="#ai-config" onClick={(event) => { event.preventDefault(); setAiModalOpen(true); }}>{t("settings.configureAi")}</a>}
+            extra={
+              <Button
+                type="link"
+                onClick={() => setAiModalOpen(true)}
+                style={{ padding: 0, height: "auto" }}
+              >
+                {t("settings.configureAi")}
+              </Button>
+            }
           >
             <Typography.Text strong>{activeProviderConfig.name}</Typography.Text>
             <Typography.Text type="secondary"> · {activeProviderConfig.model}</Typography.Text>

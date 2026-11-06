@@ -134,7 +134,7 @@ function AiConfigModalContent({
           }}
         >
           <Space align="start">
-            <RobotOutlined style={{ fontSize: 20, color: isCurrentActive ? "#52c41a" : "#8c8c8c", marginTop: 2 }} />
+            <RobotOutlined style={{ fontSize: 20, color: isCurrentActive ? "#15803d" : "#64748b", marginTop: 2 }} />
             <div>
               <Typography.Text strong style={{ fontSize: 16 }}>
                 {config.name}
@@ -148,9 +148,27 @@ function AiConfigModalContent({
                   <Tag color="default">{t("aiDispatch.provider")}</Tag>
                 )}
                 {providerId !== "custom" && (
-                  <Tag color={hasKey ? "blue" : "warning"}>
-                    {hasKey ? t("aiDispatch.providerConfigured") : t("aiDispatch.providerNotConfigured")}
-                  </Tag>
+                  hasKey ? (
+                    <Tag
+                      style={{
+                        background: "#f0f9ff",
+                        borderColor: "#bae6fd",
+                        color: "#0369a1",
+                      }}
+                    >
+                      {t("aiDispatch.providerConfigured")}
+                    </Tag>
+                  ) : (
+                    <Tag
+                      style={{
+                        background: "#fffbeb",
+                        borderColor: "#fde68a",
+                        color: "#b45309",
+                      }}
+                    >
+                      {t("aiDispatch.providerNotConfigured")}
+                    </Tag>
+                  )
                 )}
               </div>
             </div>
@@ -408,7 +426,7 @@ function AiConfigModalContent({
       className="ai-config-modal"
       title={
         <Space>
-          <RobotOutlined style={{ color: "#1890ff" }} />
+          <RobotOutlined style={{ color: "var(--color-primary, #0284c7)" }} />
           <span>{t("aiDispatch.configTitle")}</span>
         </Space>
       }
