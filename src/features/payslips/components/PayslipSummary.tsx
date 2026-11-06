@@ -3,7 +3,7 @@ import { Alert, Card, Col, Descriptions, Row, Space } from "antd";
 import { useTranslation } from "react-i18next";
 import { formatDateOnly, formatDateTime } from "@/formatters/dateTime";
 import { financialAmount } from "@formatters/financialDisplay";
-import type { PayslipDto } from "@/types/payslip.dto";
+import type { PayslipDto } from "@/types/payslips/payslip.dto";
 import type { PayslipSnapshot } from "../utils/payslip.snapshot";
 import { PayslipPaymentStatus } from "./PayslipPaymentStatus";
 

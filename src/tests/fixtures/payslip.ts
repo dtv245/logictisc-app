@@ -1,5 +1,5 @@
 /** Immutable payslip fixture deliberately has a backend net that differs from browser arithmetic. */
-import type { PayslipDto } from "@/types/payslip.dto";
+import type { PayslipDto } from "@/types/payslips/payslip.dto";
 import { payroll, payrollId } from "./payroll";
 export const payslipId = "99999999-9999-4999-8999-999999999999";
 export const payslipSnapshot = { employeeName: "Own Driver", payrollRunId: payrollId, runNumber: payroll.runNumber, periodStart: "2026-09-21", periodEnd: "2026-10-01", currency: "EUR", incomeTaxAmount: "12", insuranceAmount: "6",

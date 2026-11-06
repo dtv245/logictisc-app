@@ -17,7 +17,7 @@ import { formatDateOnly, formatDateTime } from "@/formatters/dateTime";
 import { financialAmount } from "@formatters/financialDisplay";
 import { payslipApi, payslipKeys } from "@/features/payslips/api/payslip.api";
 import { readPayslipSnapshot } from "@/features/payslips/utils/payslip.snapshot";
-import type { PayslipDto } from "@/types/payslip.dto";
+import type { PayslipDto } from "@/types/payslips/payslip.dto";
 import type { ApiHttpError } from "@/utils/httpError";
 import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
