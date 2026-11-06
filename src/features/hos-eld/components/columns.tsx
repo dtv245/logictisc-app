@@ -6,7 +6,7 @@ import { createCrudColumns } from "@components/crudColumns";
 import type { StatusTone } from "@components/StatusTag";
 import { displayValue } from "@formatters/display";
 import { formatDateOnly } from "@formatters/dateTime";
-import type { HosLog } from "../types";
+import type { HosLog } from "@/types/hos-eld/hos-eld.types";
 
 /**
  * Bảng màu trạng thái HOS/ELD chuẩn hóa theo nghiệp vụ:
