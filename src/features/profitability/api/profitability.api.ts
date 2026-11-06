@@ -1,7 +1,7 @@
 /** Confirmed reporting paths, tenant-scoped cache keys and transport projection. */
 import { getLogisticsApiClient } from "@/lib/apiClient";
 import type { PaginationMeta } from "@/types/api.types";
-import type { LoadFinancialSummaryDto, LoadProfitabilityReportDto } from "@/types/profitability.dto";
+import type { LoadFinancialSummaryDto, LoadProfitabilityReportDto } from "@/types/profitability/profitability.dto";
 import { readApiResponse } from "@/utils/envelope";
 import { ApiHttpError } from "@/utils/httpError";
 

@@ -1,5 +1,5 @@
 /** Contract fixtures deliberately disagree with row totals to catch browser aggregation. */
-import type { LoadProfitabilityReportDto, ProfitabilityMetricDto, LoadFinancialSummaryDto } from "@/types/profitability.dto";
+import type { LoadProfitabilityReportDto, ProfitabilityMetricDto, LoadFinancialSummaryDto } from "@/types/profitability/profitability.dto";
 import type { ShipmentCostView } from "@/types/shipmentCost.types";
 import type { AccessorialChargeView } from "@/types/accessorials/accessorial.types";
 

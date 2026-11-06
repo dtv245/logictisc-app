@@ -16,7 +16,7 @@ import { useInfiniteLoadProfitability } from "@/features/profitability/hooks/use
 import { financialAmount, financialMetricValue } from "@formatters/financialDisplay";
 import { toLoadProfitabilityReport } from "@/features/profitability/api/profitability.api";
 import type { ApiHttpError } from "@/utils/httpError";
-import type { LoadFinancialSummaryDto } from "@/types/profitability.dto";
+import type { LoadFinancialSummaryDto } from "@/types/profitability/profitability.dto";
 
 export function ProfitabilityPage() {
   const { t, i18n } = useTranslation();

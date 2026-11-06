@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ProfitabilityBreakdownTable } from "@/features/profitability/components/ProfitabilityBreakdownTable";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
-import type { ClassifiedCostDto } from "@/types/profitability.dto";
+import type { ClassifiedCostDto } from "@/types/profitability/profitability.dto";
 
 const row: ClassifiedCostDto = { costId: "c-1", tripId: null, category: "FUEL", sourceType: "EXPENSE", sourceId: "e-1", costBasis: "ACTUAL",
   allocationMethod: null, amount: null, currency: "EUR", behavior: "UNCLASSIFIED", reason: "POLICY_NOT_MATCHED" };

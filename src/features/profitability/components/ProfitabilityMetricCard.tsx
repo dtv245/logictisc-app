@@ -2,7 +2,7 @@
 import { Card, Space, Statistic, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
-import type { ProfitabilityMetricDto } from "@/types/profitability.dto";
+import type { ProfitabilityMetricDto } from "@/types/profitability/profitability.dto";
 import { financialMetricValue } from "@formatters/financialDisplay";
 
 export const ProfitabilityMetricCard = ({ title, metric, currency }: {

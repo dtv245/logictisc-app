@@ -1,7 +1,7 @@
 /** Presents backend values and classification evidence without recomputing financial metrics. */
 import { Alert, Card, Col, Row, Statistic, Typography } from "antd";
 import { useTranslation } from "react-i18next";
-import type { LoadProfitabilityReportDto } from "@/types/profitability.dto";
+import type { LoadProfitabilityReportDto } from "@/types/profitability/profitability.dto";
 import { financialAmount } from "@formatters/financialDisplay";
 import { ProfitabilityMetricCard } from "./ProfitabilityMetricCard";
 

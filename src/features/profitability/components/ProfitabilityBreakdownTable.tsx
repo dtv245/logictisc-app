@@ -4,7 +4,7 @@ import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { StatusTag } from "@/components/StatusTag";
-import type { ClassifiedCostDto } from "@/types/profitability.dto";
+import type { ClassifiedCostDto } from "@/types/profitability/profitability.dto";
 import { financialAmount } from "@formatters/financialDisplay";
 
 export function ProfitabilityBreakdownTable({ costs }: { costs: ClassifiedCostDto[] }) {
