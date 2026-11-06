@@ -1,5 +1,5 @@
 import type { Invoice } from "@/types/invoices/invoice.types";
-import type { PaymentResponse } from "@/types/payment.dto";
+import type { PaymentResponse } from "@/types/payments/payment.dto";
 import type { ISODateTime } from "@/types/api.types";
 
 export type Payment = PaymentResponse;

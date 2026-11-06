@@ -19,7 +19,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import type { ApiError, PagedResponse } from "@/types/api.types";
 import type { Invoice, InvoiceLineDetail } from "@/types/invoices/invoice.types";
-import type { PaymentResponse } from "@/types/payment.dto";
+import type { PaymentResponse } from "@/types/payments/payment.dto";
 
 const toIntlLocale = (language: string): string =>
   language === "vi" ? "vi-VN" : "en-US";

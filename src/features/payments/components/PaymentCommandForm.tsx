@@ -11,7 +11,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { applyBackendFieldErrors } from "@/forms/backendFieldErrors";
 import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
-import type { PaymentResponse } from "@/types/payment.dto";
+import type { PaymentResponse } from "@/types/payments/payment.dto";
 import { createPaymentCommands, PAYMENT_COMMANDS_RUNTIME_VERIFIED, type PaymentCreateValues } from "../api/paymentCommands";
 
 export function PaymentCommandForm({ action, id, runtimeVerified = PAYMENT_COMMANDS_RUNTIME_VERIFIED }: { action: "create" | "edit" | "cancel"; id?: string; runtimeVerified?: boolean }) {

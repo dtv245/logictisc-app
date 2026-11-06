@@ -2,7 +2,7 @@
 import Decimal from "decimal.js";
 import type { CustomParams, DataProvider } from "@refinedev/core";
 import type { CreatePaymentRequest, UpdatePaymentRequest } from "@/types/handoff.generated";
-import type { PaymentResponse } from "@/types/payment.dto";
+import type { PaymentResponse } from "@/types/payments/payment.dto";
 import { createCommandIntent } from "@/utils/commandIntent";
 import { toWireDecimal } from "@/utils/decimal";
 import { ApiHttpError } from "@/utils/httpError";
