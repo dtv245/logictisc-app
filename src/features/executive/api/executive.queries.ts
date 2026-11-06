@@ -39,7 +39,7 @@ import type {
   MonthlyFinancialsDto,
   ReceivablesAgingDto,
   ReportMetric,
-} from "@/types/report.dto";
+} from "@/types/reports/report.dto";
 import { CONCENTRATION_LIMIT, DISPLAY_CURRENCY } from "../config/executive.constants";
 import {
   buildMetricDefinitions,
