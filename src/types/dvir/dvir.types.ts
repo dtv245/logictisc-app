@@ -3,7 +3,7 @@
  */
 
 import type { AuditableEntity, GeoLocation } from "@/types/common.types";
-import type { Employee } from "@/types/employee.types";
+import type { Employee } from "@/types/employees/employee.types";
 import type { Trip } from "@/types/trip.types";
 import type { Truck } from "@/types/trucks/truck.types";
 

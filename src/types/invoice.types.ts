@@ -1,6 +1,6 @@
 import type { Money } from "./common.types";
 import type { Customer } from "@/types/customers/customer.types";
-import type { Employee } from "./employee.types";
+import type { Employee } from "@/types/employees/employee.types";
 import type { Load } from "./load.types";
 import type { InvoiceResponse, InvoiceLineItemType } from "./invoice.dto";
 

@@ -21,7 +21,7 @@ import type { i18n as I18nInstance } from "i18next";
 import { initializeAppI18n } from "@locales";
 import { useLocalizedColumns } from "@/hooks/useLocalizedColumns";
 import { employeeColumns } from "@features/employees/components/columns";
-import type { Employee } from "@/types/employee.types";
+import type { Employee } from "@/types/employees/employee.types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

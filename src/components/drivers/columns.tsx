@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@/formatters/display";
 import { routes } from "@/constants/routes";
-import type { Employee } from "@/types/employee.types";
+import type { Employee } from "@/types/employees/employee.types";
 
 export const driverColumns = createCrudColumns<Employee>("drivers", [
   {

@@ -2,7 +2,7 @@
 import { CreateButton } from "@refinedev/antd";
 import { ResourceListPage } from "@/components/ResourceListPage";
 import { EmployeeCreateModal } from "@/components/employees/EmployeeCreateModal";
-import type { Employee } from "@/types/employee.types";
+import type { Employee } from "@/types/employees/employee.types";
 import { employeeColumns } from "@features/employees/components/columns";
 
 export const EmployeeList = () => (

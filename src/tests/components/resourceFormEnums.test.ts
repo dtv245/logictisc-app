@@ -32,8 +32,8 @@ interface EnumSource {
  */
 const SELECT_ENUM_SOURCES: Readonly<Record<string, EnumSource>> = {
   "customers.status": { file: "src/types/customers/customer.types.ts", typeName: "CustomerStatus" },
-  "employees.salaryType": { file: "src/types/employee.types.ts", typeName: "SalaryType" },
-  "employees.status": { file: "src/types/employee.types.ts", typeName: "EmployeeStatus" },
+  "employees.salaryType": { file: "src/types/employees/employee.types.ts", typeName: "SalaryType" },
+  "employees.status": { file: "src/types/employees/employee.types.ts", typeName: "EmployeeStatus" },
   "invoices.status": { file: "src/types/invoice.dto.ts", typeName: "InvoiceStatus" },
   "invoices.taxBehavior": { file: "src/types/invoice.dto.ts", typeName: "TaxBehavior" },
   "invoices.type": { file: "src/types/invoice.dto.ts", typeName: "InvoiceType" },
@@ -43,8 +43,8 @@ const SELECT_ENUM_SOURCES: Readonly<Record<string, EnumSource>> = {
   "payments.status": { file: "src/types/payment.dto.ts", typeName: "PaymentStatus" },
   "terminals.type": { file: "src/types/terminals/terminal.dto.ts", typeName: "TerminalType" },
   "trips.status": { file: "src/types/trip.dto.ts", typeName: "TripStatus" },
-  "trucks.status": { file: "src/types/truck.types.ts", typeName: "TruckStatus" },
-  "trucks.type": { file: "src/types/truck.types.ts", typeName: "TruckType" },
+  "trucks.status": { file: "src/types/trucks/truck.types.ts", typeName: "TruckStatus" },
+  "trucks.type": { file: "src/types/trucks/truck.types.ts", typeName: "TruckType" },
 };
 
 /**

@@ -2,7 +2,7 @@
  * Chứa các kiểu dữ liệu xe tải và lịch sử bảo trì.
  */
 
-import type { Employee } from "@/types/employee.types";
+import type { Employee } from "@/types/employees/employee.types";
 import type {
   MaintenanceIntervalType,
   MaintenancePart,

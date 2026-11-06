@@ -1,5 +1,5 @@
 import type { AuditableEntity } from "@/types/common.types";
-import type { Employee } from "@/types/employee.types";
+import type { Employee } from "@/types/employees/employee.types";
 import type { Truck } from "@/types/trucks/truck.types";
 
 export type MaintenanceType =

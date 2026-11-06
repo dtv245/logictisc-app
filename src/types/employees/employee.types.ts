@@ -5,9 +5,9 @@
 import type {
   AuditableEntity,
   DatabaseInterval,
-} from "./common.types";
-import type { Document } from "./document.types";
-import type { Invoice } from "./invoice.types";
+} from "@/types/common.types";
+import type { Document } from "@/types/document.types";
+import type { Invoice } from "@/types/invoice.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type SalaryType = string;

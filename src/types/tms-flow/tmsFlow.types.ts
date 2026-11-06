@@ -4,7 +4,7 @@
  * No resource configuration, endpoints or constants belong here.
  */
 
-import type { EmployeeResponse } from "@/types/employee.dto";
+import type { EmployeeResponse } from "@/types/employees/employee.dto";
 import type { LoadResponse } from "@/types/load.dto";
 import type { TruckResponse } from "@/types/trucks/truck.dto";
 
