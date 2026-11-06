@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getAuthHeaders } from "@/api/ai/ai.api";
-import type { DocumentType } from "@/types/document.types";
+import type { DocumentType } from "@/types/documents/document.types";
 
 // Runtime OpenAPI (2026-10-05) and DocumentController expose GET/DELETE only.
 // Keep the upload implementation dormant until POST multipart is confirmed.

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { BaseRecord, DataProvider } from "@refinedev/core";
 import { DocumentDropboxView } from "@/features/documents/components/DocumentDropboxView";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
-import type { Document } from "@/types/document.types";
+import type { Document } from "@/types/documents/document.types";
 import { ApiHttpError } from "@/utils/httpError";
 
 const mockDocuments: Document[] = [

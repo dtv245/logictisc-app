@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DocumentDropboxDrawer } from "@/features/documents/components/DocumentDropboxDrawer";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
-import type { Document } from "@/types/document.types";
+import type { Document } from "@/types/documents/document.types";
 
 const document: Document = {
   id: "document-1",

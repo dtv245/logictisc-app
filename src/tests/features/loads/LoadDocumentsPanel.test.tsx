@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LoadDocumentsPanel } from "@/features/loads/components/LoadDocumentsPanel";
 import { ApiHttpError } from "@/utils/httpError";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
-import type { DocumentDto } from "@/types/document.dto";
+import type { DocumentDto } from "@/types/documents/document.dto";
 
 const identity = vi.hoisted(() => ({ tenantKey: "tenant-documents" as string | undefined }));
 vi.mock("@/hooks/useCurrentTenant", () => ({

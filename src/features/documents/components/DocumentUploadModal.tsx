@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { applyBackendFieldErrors, type FieldErrorFormTarget } from "@/forms/backendFieldErrors";
 import { useDocumentUpload } from "../hooks/useDocumentUpload";
 import { DOCUMENT_UPLOAD_CONTRACT_CONFIRMED } from "../api/documents.api";
-import type { Document, DocumentType } from "@/types/document.types";
+import type { Document, DocumentType } from "@/types/documents/document.types";
 
 export interface DocumentUploadModalProps {
   trigger?: (show: () => void) => React.ReactNode;

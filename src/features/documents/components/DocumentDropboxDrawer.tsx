@@ -16,7 +16,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import type { Document } from "@/types/document.types";
+import type { Document } from "@/types/documents/document.types";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatDateTime } from "@/formatters/dateTime";

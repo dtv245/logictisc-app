@@ -2,7 +2,7 @@
  * Chứa các kiểu dữ liệu tài liệu và liên kết theo dõi chuyến hàng.
  */
 
-import type { AuditableEntity, GeoLocation } from "./common.types";
+import type { AuditableEntity, GeoLocation } from "@/types/common.types";
 import type { Load } from "@/types/loads/load.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.

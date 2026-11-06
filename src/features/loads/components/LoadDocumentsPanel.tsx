@@ -15,7 +15,7 @@ import { formatDateTime } from "@/formatters/dateTime";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { BaseTable } from "@/table/BaseTable";
 import type { ApiHttpError } from "@/utils/httpError";
-import type { DocumentDto } from "@/types/document.dto";
+import type { DocumentDto } from "@/types/documents/document.dto";
 import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 
 export interface LoadDocumentsPanelProps {

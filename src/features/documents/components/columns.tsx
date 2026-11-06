@@ -5,7 +5,7 @@ import { routes } from "@constants/routes";
 import { createCrudColumns } from "@/components/crudColumns";
 import { formatDateTime } from "@formatters/dateTime";
 import type { StatusTone } from "@/components/StatusTag";
-import type { Document } from "@/types/document.types";
+import type { Document } from "@/types/documents/document.types";
 import { formatFileSize } from "./documentUtils";
 
 /**

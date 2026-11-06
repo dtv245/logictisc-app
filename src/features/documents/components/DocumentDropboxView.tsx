@@ -28,7 +28,7 @@ import {
 } from "@ant-design/icons";
 import { useApiUrl, useDelete } from "@refinedev/core";
 import { useTranslation } from "react-i18next";
-import type { Document } from "@/types/document.types";
+import type { Document } from "@/types/documents/document.types";
 import type { ApiError } from "@/types/api.types";
 import { DocumentStatsBar } from "./DocumentStatsBar";
 import { DocumentDropboxDropzone } from "./DocumentDropboxDropzone";
