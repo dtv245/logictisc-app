@@ -13,7 +13,7 @@ import {
   useProductColumns,
   productColumns,
 } from "@features/products/components/columns";
-import type { Product } from "@/features/products/types";
+import type { Product } from "@/types/products/products.types";
 
 const queryClient = new QueryClient({
   defaultOptions: {
