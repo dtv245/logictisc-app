@@ -1,4 +1,4 @@
-import type { Money } from "./common.types";
+import type { Money } from "@/types/common.types";
 
 export type InvoiceType = string;
 /**

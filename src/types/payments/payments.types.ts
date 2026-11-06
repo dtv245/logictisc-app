@@ -1,4 +1,4 @@
-import type { Invoice } from "@/types/invoice.types";
+import type { Invoice } from "@/types/invoices/invoice.types";
 import type { PaymentResponse } from "@/types/payment.dto";
 import type { ISODateTime } from "@/types/api.types";
 

@@ -23,7 +23,7 @@ import {
   calculateOverdueDays,
   isInvoiceFullyPaid,
 } from "@features/invoices/components/columns";
-import type { Invoice } from "@/types/invoice.types";
+import type { Invoice } from "@/types/invoices/invoice.types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

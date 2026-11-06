@@ -18,7 +18,7 @@ import { formatMoney } from "@formatters/money";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import type { ApiError, PagedResponse } from "@/types/api.types";
-import type { Invoice, InvoiceLineDetail } from "@/types/invoice.types";
+import type { Invoice, InvoiceLineDetail } from "@/types/invoices/invoice.types";
 import type { PaymentResponse } from "@/types/payment.dto";
 
 const toIntlLocale = (language: string): string =>

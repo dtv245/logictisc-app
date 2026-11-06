@@ -9,7 +9,7 @@ import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
 import { formatMoney } from "@formatters/money";
 import { formatDateOnly, getBrowserTimeZone } from "@formatters/dateTime";
-import type { Invoice } from "@/types/invoice.types";
+import type { Invoice } from "@/types/invoices/invoice.types";
 
 /**
  * Kiểm tra xem hóa đơn đã được thanh toán đầy đủ hay chưa.

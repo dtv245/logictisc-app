@@ -2,7 +2,7 @@
 import { CreateButton } from "@refinedev/antd";
 import { ResourceListPage } from "@/components/ResourceListPage";
 import { InvoiceCreateModal } from "@/components/invoices/InvoiceCreateModal";
-import type { Invoice } from "@/types/invoice.types";
+import type { Invoice } from "@/types/invoices/invoice.types";
 import { invoiceColumns } from "@features/invoices/components/columns";
 
 export const InvoiceList = () => (

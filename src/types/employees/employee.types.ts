@@ -7,7 +7,7 @@ import type {
   DatabaseInterval,
 } from "@/types/common.types";
 import type { Document } from "@/types/document.types";
-import type { Invoice } from "@/types/invoice.types";
+import type { Invoice } from "@/types/invoices/invoice.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type SalaryType = string;
