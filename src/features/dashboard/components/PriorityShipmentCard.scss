@@ -378,3 +378,67 @@
     font-size: 10px;
   }
 }
+
+.ops-priority-shipment-card {
+  border: 1px solid var(--ops-border, #e5eaf1);
+  border-top: 3px solid var(--ops-warning, #a96b12);
+  border-radius: 14px;
+  background: var(--ops-surface, #fff);
+  box-shadow: var(--ops-shadow, 0 2px 10px rgb(23 43 77 / 5%));
+}
+
+.ops-priority-header { gap: 16px; }
+.ops-priority-section-label,
+.ops-route-label { color: var(--ops-muted, #718198); font-size: 10px; font-weight: 750; letter-spacing: .07em; }
+.ops-priority-agent-banner { border-color: #ded5ff; border-radius: 7px; background: var(--ops-ai-soft, #f3efff); color: #5d3ac5; }
+.ops-priority-header__title { color: var(--ops-ink, #172b4d); font-size: clamp(19px, 2vw, 24px); font-weight: 680; letter-spacing: -.03em; }
+.ops-priority-header__meta,
+.ops-priority-header__switcher-text { color: var(--ops-muted, #718198); }
+.ops-priority-risk { padding: 4px 7px; border-radius: 6px; background: #fff4e5; color: var(--ops-warning, #a96b12); }
+.ops-priority-time-stats { gap: 20px; }
+.ops-priority-time-stats span,
+.ops-telemetry-callout__label { color: var(--ops-muted, #718198); }
+.ops-priority-time-stats strong,
+.ops-telemetry-callout__value { color: var(--ops-ink, #172b4d); font-variant-numeric: tabular-nums; }
+.ops-priority-time-stats .is-late,
+.ops-priority-time-stats .is-late + small { color: var(--ops-danger, #d94355); }
+.ops-priority-time-stats .is-ai,
+.ops-priority-time-stats .is-ai + small { color: var(--ops-ai, #7046e8); }
+
+.ops-priority-truck-stage {
+  min-height: 205px;
+  margin-top: 3px;
+  border: 1px solid #e9eef5;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fbfcfe 0%, #f5f8fc 100%);
+}
+
+.ops-telemetry-callout {
+  padding: 8px 11px;
+  border: 1px solid rgb(229 234 241 / 85%);
+  border-radius: 9px;
+  box-shadow: 0 3px 12px rgb(23 43 77 / 7%);
+}
+
+.ops-priority-route-progress { padding-top: 8px; }
+.ops-route-timeline::before { height: 3px; border-radius: 99px; }
+.ops-route-timeline__dot { border-color: #8090a4; box-shadow: 0 0 0 3px var(--ops-surface, #fff); }
+.ops-route-timeline__stop--passed .ops-route-timeline__dot { border-color: var(--ops-success, #218253); background: var(--ops-success, #218253); }
+
+@media (max-width: 760px) {
+  .ops-priority-shipment-card { min-height: 0; padding: 16px !important; }
+  .ops-priority-time-stats { position: static; justify-content: flex-start; gap: clamp(12px, 5vw, 28px); padding: 8px 0; }
+  .ops-priority-truck-stage { min-height: 220px; }
+}
+
+@media (max-width: 520px) {
+  .ops-priority-header { align-items: flex-start; flex-direction: column; }
+  .ops-priority-time-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .ops-priority-time-stats > div { align-items: flex-start; min-width: 0; }
+  .ops-priority-time-stats strong { font-size: 17px; white-space: normal; }
+  .ops-priority-truck-stage { min-height: 190px; }
+  .ops-priority-truck-stage__visual { left: 16%; top: 20%; width: 68%; height: 58%; }
+  .ops-telemetry-callout { max-width: 128px; padding: 6px 8px; }
+  .ops-telemetry-callout__label { font-size: 9px; }
+  .ops-telemetry-callout__value { font-size: 11px; }
+}
