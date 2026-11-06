@@ -1,5 +1,5 @@
 import { formatTimeOnly } from "@/formatters/dateTime";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import type { PriorityShipmentViewModel } from "@/types/dashboard/priority-shipment.types";
 
 /** Maps only fields the current Load contract supplies; missing ETA and telemetry stay absent. */

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ShipmentCard } from "@/components/tms-flow/ShipmentCard";
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import { toTmsShipment } from "@/utils/tms-flow/status";
 
 const makeLoad = (overrides: Partial<LoadResponse> = {}): LoadResponse => ({

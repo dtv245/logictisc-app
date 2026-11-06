@@ -15,7 +15,7 @@ import {
   TMS_MAX_TRUCK_PAGES,
 } from "@/constants/tms";
 import type { EmployeeResponse } from "@/types/employees/employee.dto";
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import type { PagedResponse } from "@/types/api.types";
 import type { TruckResponse } from "@/types/trucks/truck.dto";
 import type {

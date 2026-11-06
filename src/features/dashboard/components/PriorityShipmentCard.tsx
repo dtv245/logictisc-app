@@ -13,7 +13,7 @@ import {
   User,
   Zap,
 } from "lucide-react";
-import { CardSkeleton, OpsCard, OpsErrorState, OpsUnavailableState } from "./primitives";
+import { CardSkeleton, OpsCard, OpsErrorState } from "./primitives";
 import "./PriorityShipmentCard.scss";
 import type { PriorityShipmentViewModel, ShipmentCardLocale } from "@/types/dashboard/priority-shipment.types";
 import { createLocaleLabels, resolveSupportedLocale } from "@/locales";
@@ -70,17 +70,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
     );
   }
 
-  if (isUnavailable) {
-    return (
-      <OpsCard className={`ops-priority-shipment-card ${className}`}>
-        <div className="ops-priority-state" role="status">
-          <OpsUnavailableState message={text.unavailableHint} />
-        </div>
-      </OpsCard>
-    );
-  }
-
-  if (!currentShipment) {
+  if (isUnavailable || !currentShipment) {
     return (
       <OpsCard className={`ops-priority-shipment-card ${className}`}>
         <div className="ops-priority-empty-state" role="status">
