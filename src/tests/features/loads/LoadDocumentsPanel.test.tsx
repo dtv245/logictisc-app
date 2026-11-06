@@ -53,12 +53,12 @@ describe("LoadDocumentsPanel", () => {
     expect(screen.getByText("Bill of Lading")).toBeInTheDocument();
     expect(request).toHaveBeenCalledWith(expect.objectContaining({
       resource: "documents", filters: [{ field: "loadId", operator: "eq", value: loadId }],
-      pagination: expect.objectContaining({ current: 1, pageSize: 20, mode: "server" }),
+      pagination: expect.objectContaining({ current: 1, pageSize: 10, mode: "server" }),
     }));
     fireEvent.click(screen.getByTitle("Next Page"));
     expect(await screen.findByText("Second page.pdf")).toBeInTheDocument();
-    expect(request).toHaveBeenCalledWith(expect.objectContaining({ pagination: expect.objectContaining({ current: 2, pageSize: 20 }) }));
-    expect(client.getQueryCache().find(["load-documents", "tenant-documents", loadId, 2, 20])).toBeDefined();
+    expect(request).toHaveBeenCalledWith(expect.objectContaining({ pagination: expect.objectContaining({ current: 2, pageSize: 10 }) }));
+    expect(client.getQueryCache().find(["load-documents", "tenant-documents", loadId, 2, 10])).toBeDefined();
     expect(custom).not.toHaveBeenCalled();
     expect(screen.queryByTestId("upload-document-btn")).not.toBeInTheDocument();
   });
@@ -78,7 +78,7 @@ describe("LoadDocumentsPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Change load" }));
     await screen.findByText(new RegExp(`${secondLoadId}.*page 1`));
     expect(screen.queryByText(new RegExp(`${loadId}.*page 2`))).not.toBeInTheDocument();
-    expect(client.getQueryCache().find(["load-documents", "tenant-documents", secondLoadId, 1, 20])).toBeDefined();
+    expect(client.getQueryCache().find(["load-documents", "tenant-documents", secondLoadId, 1, 10])).toBeDefined();
     // Prefetch trang kế tiếp là chủ ý; kiểm tra các cặp (load, trang) đã được đọc
     // thay vì đếm cứng tổng số request.
     const requestedPages = request.mock.calls.map(([params]) => {
@@ -94,7 +94,7 @@ describe("LoadDocumentsPanel", () => {
     const { client } = await renderFinance(<LoadDocumentsPanel loadId={loadId} />, async () => undefined, {
       role: "ADMIN", listRequest: listProvider(async () => ({ data: [], total: 0 })),
     });
-    await waitFor(() => expect(client.getQueryCache().find(["load-documents", "tenant-documents", loadId, 1, 20])?.state.status).toBe("success"));
+    await waitFor(() => expect(client.getQueryCache().find(["load-documents", "tenant-documents", loadId, 1, 10])?.state.status).toBe("success"));
     // Ant Design also renders a hidden measurement row for horizontally scrolling tables.
     expect((await screen.findAllByText("No data")).length).toBeGreaterThan(0);
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();

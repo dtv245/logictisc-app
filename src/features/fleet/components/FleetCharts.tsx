@@ -301,15 +301,33 @@ export const FleetCharts: React.FC<FleetChartsProps> = ({ report, truckMap }) =>
             {t("fleet.charts.ganttLegend", { defaultValue: "Chú thích trạng thái" })}:
           </Typography.Text>
           <Space wrap size={[8, 8]}>
-            <Tag color="#10b981">
+            <Tag
+              style={{
+                background: "#f0fdf4",
+                borderColor: "#bbf7d0",
+                color: "#15803d",
+              }}
+            >
               {t("fleet.charts.ganttProductive", { defaultValue: "Hoạt động (Productive)" })}
             </Tag>
-            <Tag color="#f59e0b">
+            <Tag
+              style={{
+                background: "#fffbeb",
+                borderColor: "#fde68a",
+                color: "#b45309",
+              }}
+            >
               {t("fleet.charts.ganttNonProductive", {
                 defaultValue: "Không hoạt động (Non-productive)",
               })}
             </Tag>
-            <Tag color="#9ca3af">
+            <Tag
+              style={{
+                background: "#f8fafc",
+                borderColor: "#e2e8f0",
+                color: "#475569",
+              }}
+            >
               {t("fleet.charts.ganttExcluded", { defaultValue: "Loại trừ (Excluded)" })}
             </Tag>
             <Tag

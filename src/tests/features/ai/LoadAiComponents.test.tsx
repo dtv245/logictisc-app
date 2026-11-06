@@ -177,7 +177,7 @@ describe("AI Components Integration & Unit Tests", () => {
 
       renderWithProviders(<LoadAiDispatchSection loadId={loadId} />);
 
-      expect(await screen.findByText("Load thiếu dữ liệu bắt buộc")).toBeInTheDocument();
+      expect(await screen.findByText(/Load thiếu dữ liệu bắt buộc/)).toBeInTheDocument();
       expect(screen.queryByTestId("link-to-gaps-btn")).not.toBeInTheDocument();
     });
 

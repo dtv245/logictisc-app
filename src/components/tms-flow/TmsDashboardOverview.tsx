@@ -59,8 +59,8 @@ function collectionHint(
   if (!collection) return t("tmsDashboard.countUnavailable");
   if (collection.countSource === "client-fallback") {
     return collection.truncated
-      ? t("tmsDashboard.loadedLowerBound", { count: collection.items.length })
-      : t("tmsDashboard.loadedDerivedCount", { count: collection.items.length });
+      ? t("tmsDashboard.overview.loadedLowerBound", { count: collection.items.length })
+      : t("tmsDashboard.overview.loadedDerivedCount", { count: collection.items.length });
   }
   return readyHint;
 }

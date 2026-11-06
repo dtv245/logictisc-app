@@ -180,12 +180,18 @@ export function FleetMetricCard({
                 <span
                   data-testid={`fleet-metric-info-${code}`}
                   title={tooltipTitle}
-                  style={{ display: "inline-flex", alignItems: "center", cursor: "pointer" }}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    padding: "2px 4px",
+                    borderRadius: 4,
+                  }}
                 >
                   <InfoCircleOutlined
                     role="img"
                     aria-label={`${metricTitleStr} - ${tooltipTitle}`}
-                    style={{ color: "rgba(0, 0, 0, 0.45)", fontSize: 13 }}
+                    style={{ color: "var(--color-text-secondary, #475569)", fontSize: 14 }}
                   />
                 </span>
               </Tooltip>

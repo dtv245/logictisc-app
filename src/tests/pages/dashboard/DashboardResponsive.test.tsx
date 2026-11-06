@@ -96,6 +96,7 @@ vi.mock("@/hooks/useDashboardData", () => ({
 
 vi.mock("@/hooks/tms-flow/useTmsQueries", () => ({
   useTmsLoads: () => tmsLoadsState,
+  useTmsTrucks: () => ({ data: { items: [] }, isLoading: false, isError: false }),
 }));
 
 vi.mock("@/hooks/dashboard/usePriorityShipments", () => ({

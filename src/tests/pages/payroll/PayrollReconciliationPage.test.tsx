@@ -13,8 +13,8 @@ describe("PayrollReconciliationPage", () => {
   it("requests server pages and masks provider references", async () => {
     const request = vi.fn(async (x: CustomParams) => ({ ...cases, number: typeof x.query === "object" && x.query !== null && "page" in x.query ? x.query.page : 0 })); await renderFinance(<PayrollReconciliationPage />, request);
     expect(await screen.findByText("Verify bank evidence")).toBeInTheDocument(); expect(screen.getByText("••••4321")).toBeInTheDocument(); expect(screen.queryByText(evidenceCase.providerReference)).not.toBeInTheDocument();
-    expect(request.mock.calls[0]?.[0]).toMatchObject({ url: "/api/payroll/reconciliation-cases", method: "get", query: { page: 0, size: 20 } });
-    fireEvent.click(screen.getByTitle("Next Page")); await waitFor(() => expect(request.mock.calls.some(([call]) => JSON.stringify(call.query) === JSON.stringify({ page: 1, size: 20 }))).toBe(true));
+    expect(request.mock.calls[0]?.[0]).toMatchObject({ url: "/api/payroll/reconciliation-cases", method: "get", query: { page: 0, size: 10 } });
+    fireEvent.click(screen.getByTitle("Next Page")); await waitFor(() => expect(request.mock.calls.some(([call]) => JSON.stringify(call.query) === JSON.stringify({ page: 1, size: 10 }))).toBe(true));
   });
   it("requires evidence, confirms reconciliation, preserves failed request and prevents double submit", async () => {
     const posts: CustomParams[] = []; let finish: (value: unknown) => void = () => undefined;

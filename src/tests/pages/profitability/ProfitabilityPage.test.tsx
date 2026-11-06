@@ -32,8 +32,8 @@ describe("ProfitabilityPage", () => {
     expect(await screen.findByTestId("profitability-summary")).toHaveTextContent("777.00");
     expect(screen.getByTestId("profitability-summary")).toHaveTextContent("25%");
     expect(loader).toHaveBeenCalledTimes(1);
-    expect(loader.mock.calls[0]?.slice(0, 3)).toEqual([1, 20, undefined]);
-    expect(client.getQueryData(["profitability", tenantKey, "by-load", null, "pages", 20])).toBeDefined();
+    expect(loader.mock.calls[0]?.slice(0, 3)).toEqual([1, 10, undefined]);
+    expect(client.getQueryData(["profitability", tenantKey, "by-load", null, "pages", 10])).toBeDefined();
   });
   it("validates UUID and refetches only the supported loadId filter", async () => {
     loader.mockResolvedValueOnce(singleRow());
@@ -47,7 +47,7 @@ describe("ProfitabilityPage", () => {
     fireEvent.change(screen.getByLabelText("Load ID"), { target: { value: loadId } });
     fireEvent.click(screen.getByRole("button", { name: "Apply Filter" }));
     await waitFor(() => expect(loader).toHaveBeenCalledTimes(2));
-    expect(loader.mock.calls[1]?.slice(0, 3)).toEqual([1, 20, loadId]);
+    expect(loader.mock.calls[1]?.slice(0, 3)).toEqual([1, 10, loadId]);
     fireEvent.click(screen.getByRole("button", { name: "Reset Filter" }));
     expect(screen.getByLabelText("Load ID")).toHaveValue("");
   });
@@ -59,7 +59,7 @@ describe("ProfitabilityPage", () => {
     loader.mockResolvedValueOnce({ rows: [second], pagination: null });
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));
     await waitFor(() => expect(loader).toHaveBeenCalledTimes(2));
-    expect(loader.mock.calls[1]?.slice(0, 3)).toEqual([2, 20, undefined]);
+    expect(loader.mock.calls[1]?.slice(0, 3)).toEqual([2, 10, undefined]);
     expect(await screen.findByText("L-102")).toBeInTheDocument();
     expect(screen.getByText("All 21 loads loaded.")).toBeInTheDocument();
   });

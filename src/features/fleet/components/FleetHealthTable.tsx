@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Space, Switch, Tag, Tooltip } from "antd";
 import { CloseCircleOutlined, WarningOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { BaseTable } from "@/table/BaseTable";
 import type { FleetCoverage, FleetDecimal } from "@/types/fleetReport.dto";
 import { formatSecondsToHoursMinutes } from "../utils/fleetDuration";
@@ -37,6 +36,8 @@ export function FleetHealthTable({ coverage, truckMap }: FleetHealthTableProps) 
         title: t("fleet.licensePlate", { defaultValue: "Biển số" }),
         dataIndex: "truckId",
         key: "licensePlate",
+        width: 150,
+        fixed: "left",
         render: (_: unknown, record: FleetCoverage) => {
           const plate = record.licensePlate || (truckMap && truckMap[record.truckId]);
           if (plate) {
@@ -124,7 +125,15 @@ export function FleetHealthTable({ coverage, truckMap }: FleetHealthTableProps) 
               }}
             >
               {hasGap && (
-                <Tag color="warning" icon={<WarningOutlined />} style={{ margin: 0 }}>
+                <Tag
+                  icon={<WarningOutlined />}
+                  style={{
+                    margin: 0,
+                    background: "#fffbeb",
+                    borderColor: "#fde68a",
+                    color: "#b45309",
+                  }}
+                >
                   {t("fleet.missingDataTag", { defaultValue: "Thiếu dữ liệu" })}
                 </Tag>
               )}
@@ -161,9 +170,14 @@ export function FleetHealthTable({ coverage, truckMap }: FleetHealthTableProps) 
                   })}
                 >
                   <Tag
-                    color="error"
                     icon={<CloseCircleOutlined />}
-                    style={{ margin: 0, cursor: "help" }}
+                    style={{
+                      margin: 0,
+                      cursor: "help",
+                      background: "#fef2f2",
+                      borderColor: "#fecaca",
+                      color: "#b91c1c",
+                    }}
                   >
                     {t("fleet.timeConflictTag", { defaultValue: "Xung đột thời gian" })}
                   </Tag>
@@ -237,11 +251,11 @@ export function FleetHealthTable({ coverage, truckMap }: FleetHealthTableProps) 
           tableProps={{
             dataSource: filteredCoverage,
             pagination: {
-              pageSize: DEFAULT_LIST_PAGE_SIZE,
+              pageSize: 20,
               showSizeChanger: true,
               pageSizeOptions: ["10", "20", "50", "100"],
             },
-            scroll: { x: "max-content" },
+            scroll: { x: 1000 },
           }}
           columns={columns}
         />
