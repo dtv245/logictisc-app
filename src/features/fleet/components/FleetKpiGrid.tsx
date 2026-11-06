@@ -2,7 +2,7 @@
 /** Backend-owned percentages remain independent; missing history never becomes zero. */
 import { Col, Row, Space, Typography } from "antd";
 import { useTranslation } from "react-i18next";
-import type { FleetReport } from "@/types/fleetReport.dto";
+import type { FleetReport } from "@/types/fleet/fleetReport.dto";
 import { FleetMetricCard } from "./FleetMetricCard";
 
 export const KPI_FORMULAS: Record<string, string> = {

@@ -1,5 +1,5 @@
 import { toMoneyDecimal } from "@/formatters/money";
-import type { FleetMetric } from "@/types/fleetReport.dto";
+import type { FleetMetric } from "@/types/fleet/fleetReport.dto";
 
 export function formatMetricValue(
   value: string | number | null | undefined,

@@ -5,7 +5,7 @@ import { Space, Switch, Tag, Tooltip } from "antd";
 import { CloseCircleOutlined, WarningOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { BaseTable } from "@/table/BaseTable";
-import type { FleetCoverage, FleetDecimal } from "@/types/fleetReport.dto";
+import type { FleetCoverage, FleetDecimal } from "@/types/fleet/fleetReport.dto";
 import { formatSecondsToHoursMinutes } from "../utils/fleetDuration";
 
 export { formatSecondsToHoursMinutes };

@@ -7,7 +7,7 @@ import {
   FleetHealthTable,
   formatSecondsToHoursMinutes,
 } from "@/features/fleet/components/FleetHealthTable";
-import type { FleetCoverage } from "@/types/fleetReport.dto";
+import type { FleetCoverage } from "@/types/fleet/fleetReport.dto";
 import { viMessages } from "@/locales";
 
 // Initialize i18n instance for testing

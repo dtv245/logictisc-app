@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useCan } from "@refinedev/core";
 import { StatusTag } from "@/components/StatusTag";
 import { formatDateTime } from "@/formatters/dateTime";
-import type { FleetMetricAvailability, FleetReport } from "@/types/fleetReport.dto";
+import type { FleetMetricAvailability, FleetReport } from "@/types/fleet/fleetReport.dto";
 import { formatMetricValue } from "../utils/fleetMetricFormat";
 
 export interface FleetMetricCardProps {

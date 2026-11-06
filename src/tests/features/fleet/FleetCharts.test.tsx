@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import { FleetCharts } from "@/features/fleet/components/FleetCharts";
 import { fleetReport } from "@/tests/fixtures/fleet";
 import { viMessages } from "@/locales";
-import type { FleetReport } from "@/types/fleetReport.dto";
+import type { FleetReport } from "@/types/fleet/fleetReport.dto";
 
 vi.mock("recharts", async () => {
   const actual = await vi.importActual<typeof import("recharts")>("recharts");

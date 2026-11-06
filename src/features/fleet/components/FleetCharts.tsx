@@ -22,7 +22,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { FleetCoverage, FleetReport } from "@/types/fleetReport.dto";
+import type { FleetCoverage, FleetReport } from "@/types/fleet/fleetReport.dto";
 import { formatSecondsToHoursMinutes } from "../utils/fleetDuration";
 
 export interface FleetChartsProps {

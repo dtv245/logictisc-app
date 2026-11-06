@@ -1,5 +1,5 @@
 import type { TFunction } from "i18next";
-import type { FleetDecimal } from "@/types/fleetReport.dto";
+import type { FleetDecimal } from "@/types/fleet/fleetReport.dto";
 
 export function formatSecondsToHoursMinutes(
   seconds: FleetDecimal | null | undefined,
