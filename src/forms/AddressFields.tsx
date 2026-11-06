@@ -1,4 +1,4 @@
-import { Col, Collapse, DatePicker, Form, Input, InputNumber, Row } from "antd";
+import { Col, Collapse, DatePicker, Form, type FormItemProps, Input, InputNumber, Row } from "antd";
 import type { ReactNode } from "react";
 import { TerminalSelect } from "@/features/terminals/components/TerminalSelect";
 
@@ -20,6 +20,12 @@ export interface AddressFieldsProps {
   dateFieldName?: string;
   dateLabel?: ReactNode;
   dateRequired?: boolean;
+  /** Rule nghiệp vụ bổ sung cho ô ngày (ví dụ giờ giao phải sau giờ lấy). */
+  dateRules?: FormItemProps["rules"];
+  /** Field khác cần theo dõi để validate lại ô ngày. */
+  dateDependencies?: FormItemProps["dependencies"];
+  /** Hiện lối tắt tạo bến bãi mới dưới ô chọn Terminal. */
+  terminalAllowCreate?: boolean;
 }
 
 /**
@@ -38,6 +44,9 @@ export const AddressFields = ({
   dateFieldName,
   dateLabel = "Ngày thực hiện",
   dateRequired = false,
+  dateRules,
+  dateDependencies,
+  terminalAllowCreate = false,
 }: AddressFieldsProps) => {
   const line1Name = `${prefix}Line1`;
   const line2Name = `${prefix}Line2`;
@@ -117,7 +126,11 @@ export const AddressFields = ({
           <Form.Item
             label={dateLabel}
             name={dateFieldName}
-            rules={dateRequired ? [{ required: true, message: `Vui lòng chọn ${String(dateLabel)}` }] : undefined}
+            dependencies={dateDependencies}
+            rules={[
+              ...(dateRequired ? [{ required: true, message: `Vui lòng chọn ${String(dateLabel)}` }] : []),
+              ...(dateRules ?? []),
+            ]}
           >
             <DatePicker showTime style={{ width: "100%" }} placeholder="Chọn ngày & giờ" />
           </Form.Item>
@@ -128,7 +141,10 @@ export const AddressFields = ({
       {includeTerminal && terminalName && (
         <Col xs={24} sm={12} md={8}>
           <Form.Item label={terminalLabel} name={terminalName}>
-            <TerminalSelect placeholder="Chọn trạm trung chuyển (nếu có)" />
+            <TerminalSelect
+              allowCreate={terminalAllowCreate}
+              placeholder="Chọn trạm trung chuyển (nếu có)"
+            />
           </Form.Item>
         </Col>
       )}
@@ -142,6 +158,7 @@ export const AddressFields = ({
             items={[
               {
                 key: "coordinates",
+                forceRender: true,
                 label: <span style={{ color: "#666", fontSize: 13 }}>▸ Tọa độ GPS (Vĩ độ / Kinh độ - tùy chọn)</span>,
                 children: (
                   <Row gutter={[16, 0]}>

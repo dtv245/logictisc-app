@@ -7,6 +7,7 @@ import {
   rerunAiAnalysis,
 } from "@/api/ai/ai.api";
 import type { AiGap, AiState, LoadAiGapsResponse } from "@/api/ai/ai.types";
+import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 
 export interface UseLoadAiGapsOptions {
@@ -17,6 +18,8 @@ export interface UseLoadAiGapsOptions {
 export function useLoadAiGaps({ loadId, enabled = true }: UseLoadAiGapsOptions) {
   const { tenant } = useCurrentTenant();
   const queryClient = useQueryClient();
+  const features = useAiFeatures();
+  const aiEnabled = !features.isError && (features.data?.enabled ?? false);
 
   const [aiState, setAiState] = useState<AiState>("idle");
   const [retryAfterSeconds, setRetryAfterSeconds] = useState<number | null>(null);
@@ -113,7 +116,7 @@ export function useLoadAiGaps({ loadId, enabled = true }: UseLoadAiGapsOptions) 
 
   // Mutation: Chạy lại AI
   const rerunMutation = useMutation({
-    mutationFn: () => rerunAiAnalysis(loadId),
+    mutationFn: () => rerunAiAnalysis(loadId, "gap"),
     onSuccess: () => {
       setAiState("running");
       consecutivePollsRef.current = 0;
@@ -159,7 +162,14 @@ export function useLoadAiGaps({ loadId, enabled = true }: UseLoadAiGapsOptions) 
     dismissedGaps,
     aiState: query.data?.aiState ?? aiState,
     nextRunAt: query.data?.nextRunAt,
-    capabilities: query.data?.capabilities ?? { canRerun: true },
+    // Backend chỉ trả capabilities cho load status; với gaps, quyền thao tác
+    // bám theo feature flag và vẫn được Spring Security kiểm tra lại.
+    capabilities: query.data?.capabilities ?? {
+      canRerun: aiEnabled,
+      canApprove: aiEnabled,
+      canReject: aiEnabled,
+      canViewRuns: aiEnabled,
+    },
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

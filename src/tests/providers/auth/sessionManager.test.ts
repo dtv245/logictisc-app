@@ -4,6 +4,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 
+import type { LarkAuthLoginResponse } from "@/types/auth.types";
 import type {
   AccessTokenVerifier,
   OidcGateway,
@@ -349,13 +350,15 @@ describe("AuthSessionManager", () => {
 
 describe("AuthSessionManager — Lark completeLarkLogin", () => {
   const createLarkGateway = (overrides: {
-    completeLogin?: () => Promise<{ user: OidcUserSnapshot; returnTo: string }>;
+    startLogin?: (returnTo: string) => Promise<void>;
+    completeLogin?: () => Promise<{ user: OidcUserSnapshot; auth: LarkAuthLoginResponse; returnTo: string }>;
   } = {}) => ({
-    startLogin: vi.fn(),
+    startLogin: overrides.startLogin ?? vi.fn().mockResolvedValue(undefined),
     completeLogin:
       overrides.completeLogin ??
       vi.fn().mockResolvedValue({
         user: createUser("lark-token", "lark-user-1"),
+        auth: { accessToken: "lark-token", tokenType: "Bearer", expiresIn: 3600, subject: "lark-user-1", email: "dispatcher@example.com", tenantId: "lark-tenant", roles: ["MANAGER"] },
         returnTo: "/dashboard",
       }),
   });
@@ -418,14 +421,26 @@ describe("AuthSessionManager — Lark completeLarkLogin", () => {
     );
   });
 
-  it("throws LARK_GATEWAY_NOT_CONFIGURED for startLarkLogin without gateway", () => {
+  it("throws LARK_GATEWAY_NOT_CONFIGURED for startLarkLogin without gateway", async () => {
     const manager = new AuthSessionManager({
       oidc: createGateway(),
       tokenVerifier: createVerifier(),
     });
 
-    expect(() => manager.startLarkLogin("/dashboard")).toThrow(
+    await expect(manager.startLarkLogin("/dashboard")).rejects.toThrow(
       "LARK_GATEWAY_NOT_CONFIGURED",
     );
+  });
+
+  it("awaits the configured gateway when starting Lark login", async () => {
+    const startLogin = vi.fn().mockResolvedValue(undefined);
+    const manager = new AuthSessionManager({
+      oidc: createGateway(),
+      lark: createLarkGateway({ startLogin }),
+      tokenVerifier: createVerifier(),
+    });
+
+    await manager.startLarkLogin("/loads");
+    expect(startLogin).toHaveBeenCalledWith("/loads");
   });
 });

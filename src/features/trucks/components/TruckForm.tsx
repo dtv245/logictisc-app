@@ -16,10 +16,12 @@ import { FormSection } from "@/forms/FormSection";
 
 export interface TruckFormProps {
   form: FormInstance;
+  formId?: string;
   initialValues?: Record<string, unknown>;
   onFinish?: (values: Record<string, unknown>) => void;
   saveButtonProps?: ButtonProps;
   isEdit?: boolean;
+  isModal?: boolean;
   onCancel?: () => void;
 }
 
@@ -48,14 +50,17 @@ const TRUCK_TYPE_OPTIONS = [
  */
 export const TruckForm = ({
   form,
+  formId,
   initialValues,
   onFinish,
   saveButtonProps,
   isEdit = false,
+  isModal = false,
   onCancel,
 }: TruckFormProps) => {
   const { t } = useTranslation();
   const isAdrCertified = Form.useWatch("adrEquipmentIsAdrCertified", form);
+  const mainDriverId = Form.useWatch("mainDriverId", form);
 
   const currentYear = new Date().getFullYear();
 
@@ -68,13 +73,27 @@ export const TruckForm = ({
     ...initialValues,
   };
 
+  const handleValuesChange = (changedValues: Record<string, unknown>) => {
+    if (
+      "adrEquipmentIsAdrCertified" in changedValues &&
+      !changedValues.adrEquipmentIsAdrCertified
+    ) {
+      form.setFieldsValue({
+        adrEquipmentAllowedClasses: undefined,
+        adrEquipmentOrangePlateNumber: undefined,
+      });
+    }
+  };
+
   return (
     <Form
       form={form}
+      id={formId}
       layout="vertical"
       validateTrigger="onBlur"
       scrollToFirstError
       initialValues={defaultValues}
+      onValuesChange={handleValuesChange}
       onFinish={onFinish}
     >
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
@@ -197,8 +216,25 @@ export const TruckForm = ({
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Tài xế phụ" name="secondaryDriverId">
+              <Form.Item
+                dependencies={["mainDriverId"]}
+                label="Tài xế phụ"
+                name="secondaryDriverId"
+                rules={[
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || value !== getFieldValue("mainDriverId")) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error("Tài xế phụ không được trùng với tài xế chính"),
+                      );
+                    },
+                  }),
+                ]}
+              >
                 <EntityPicker
+                  excludeValues={mainDriverId ? [mainDriverId] : undefined}
                   resource="drivers"
                   placeholder="Tìm và chọn tài xế phụ (tùy chọn)"
                   labelFormat={(r) =>
@@ -268,11 +304,13 @@ export const TruckForm = ({
         </FormSection>
       </div>
 
-      <FormFooterBar
-        onCancel={onCancel}
-        saveButtonProps={saveButtonProps}
-        saveText={saveButtonProps?.children ?? (isEdit ? t("actions.save", "Cập nhật phương tiện") : t("actions.create", "Tạo mới phương tiện"))}
-      />
+      {!isModal && (
+        <FormFooterBar
+          onCancel={onCancel}
+          saveButtonProps={saveButtonProps}
+          saveText={saveButtonProps?.children ?? (isEdit ? t("actions.save", "Cập nhật phương tiện") : t("actions.create", "Tạo mới phương tiện"))}
+        />
+      )}
     </Form>
   );
 };

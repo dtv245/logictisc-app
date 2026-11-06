@@ -1,0 +1,188 @@
+.driver-directory-list {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--driver-border);
+  border-radius: 12px;
+  background: var(--driver-background);
+}
+
+.driver-directory-filters {
+  width: 100%;
+}
+
+.driver-directory-search {
+  flex: 1 1 320px;
+  max-width: 560px;
+}
+
+.driver-directory-status-filter,
+.driver-directory-availability-filter {
+  min-width: 190px;
+}
+
+.driver-directory-results .ant-list-items {
+  min-width: 0;
+}
+
+.driver-directory-item {
+  align-items: flex-start !important;
+  gap: 20px;
+  padding: 18px 16px !important;
+  transition: background-color 160ms ease;
+  cursor: pointer;
+}
+
+.driver-directory-item:hover,
+.driver-directory-item:focus-visible {
+  background: var(--driver-row-hover);
+}
+
+.driver-directory-item:focus-visible {
+  outline: 2px solid var(--driver-focus);
+  outline-offset: -2px;
+}
+
+.driver-directory-item .ant-list-item-meta {
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: flex-start;
+}
+
+.driver-directory-item .ant-list-item-meta-avatar {
+  margin-inline-end: 16px;
+}
+
+.driver-directory-item .ant-list-item-meta-content {
+  min-width: 0;
+}
+
+.driver-directory-item .ant-list-item-meta-title {
+  margin-bottom: 6px;
+}
+
+.driver-directory-title {
+  max-width: 100%;
+}
+
+.driver-directory-name {
+  max-width: min(42vw, 440px);
+  font-size: 16px;
+}
+
+.driver-directory-description {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.driver-directory-contact,
+.driver-directory-address {
+  min-width: 0;
+  max-width: 100%;
+  line-height: 1.5;
+}
+
+.driver-directory-contact .ant-typography,
+.driver-directory-address {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.driver-directory-address {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
+}
+
+.driver-directory-item .ant-list-item-action {
+  margin-inline-start: 12px;
+}
+
+.driver-directory-item .ant-list-item-action > li {
+  padding: 0;
+}
+
+.driver-directory-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  min-width: 150px;
+}
+
+.driver-directory-joined {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.driver-directory-loading {
+  padding: 4px 16px;
+}
+
+.driver-directory-skeleton {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--driver-split);
+}
+
+.driver-directory-empty {
+  padding: 48px 16px;
+}
+
+.driver-directory-pagination {
+  align-self: flex-end;
+  padding: 16px;
+}
+
+@media (max-width: 767px) {
+  .driver-directory-search,
+  .driver-directory-status-filter,
+  .driver-directory-availability-filter {
+    width: 100%;
+    max-width: none;
+  }
+
+  .driver-directory-item {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 12px !important;
+  }
+
+  .driver-directory-item .ant-list-item-meta {
+    width: 100%;
+  }
+
+  .driver-directory-item .ant-list-item-action {
+    align-self: stretch;
+    width: 100%;
+    margin: 0;
+  }
+
+  .driver-directory-item .ant-list-item-action > li {
+    width: 100%;
+  }
+
+  .driver-directory-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .driver-directory-name {
+    max-width: 60vw;
+  }
+
+  .driver-directory-pagination {
+    align-self: center;
+    padding: 14px 8px;
+  }
+}

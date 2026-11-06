@@ -1,7 +1,7 @@
-import { CreateButton, List } from "@refinedev/antd";
+import { List } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
 import { useCan, useShow } from "@refinedev/core";
-import { Button, Space, type TableProps } from "antd";
+import { Button, Space, Tooltip, type TableProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,6 @@ import { resolveAsyncState } from "@utils/asyncStateModel";
 import { AsyncStateView } from "./AsyncState";
 import { ResourceListToolbar } from "./ResourceListToolbar";
 import { getResourceCapabilities } from "./resources/resourceCapabilities";
-import { ResourceCreateModal } from "./ResourceCreateModal";
 import { ResourceEditModal } from "./ResourceEditModal";
 import { ResourceModalFrame } from "./resources/ResourceModalFrame";
 import { ResourceActionContext } from "./ResourceActionContext";
@@ -125,19 +124,16 @@ export const ResourceListPage = <TData extends BaseRecord>({
     isLoading: showQueryResult?.isFetching ?? false,
   });
 
-  const defaultCreateButton = canCreate ? (
-    <ResourceCreateModal
-      resource={resource}
-      trigger={(show) => (
-        <CreateButton onClick={(e) => { e.preventDefault(); show(); }} />
-      )}
-    />
-  ) : null;
+  // Đợt 3: Loại bỏ fallback ResourceCreateModal dùng chung.
+  // Mỗi màn CRUD truyền popup tạo mới riêng qua `headerButtons`, tôn trọng `canCreate`.
+  const defaultCreateButton = null;
 
   const resolvedHeaderButtons =
     headerButtons !== undefined
       ? typeof headerButtons === "function"
-        ? headerButtons({ defaultButtons: defaultCreateButton })
+        ? canCreate
+          ? headerButtons({ defaultButtons: defaultCreateButton })
+          : null
         : headerButtons
       : defaultCreateButton;
 
@@ -254,9 +250,21 @@ export const ResourceListPage = <TData extends BaseRecord>({
               {showQueryResult?.data?.data && (
                 <>
                   {(showQueryResult.data.data.number || showQueryResult.data.data.name) && (
-                    <span style={{ color: "rgba(0, 0, 0, 0.45)", fontWeight: "normal" }}>
-                      #{String(showQueryResult.data.data.number || showQueryResult.data.data.name)}
-                    </span>
+                    <Tooltip
+                      title={`#${String(showQueryResult.data.data.number || showQueryResult.data.data.name)}`}
+                    >
+                      <span
+                        className="table-cell-ellipsis"
+                        style={{
+                          color: "rgba(0, 0, 0, 0.45)",
+                          fontWeight: "normal",
+                          maxWidth: 320,
+                          verticalAlign: "bottom",
+                        }}
+                      >
+                        #{String(showQueryResult.data.data.number || showQueryResult.data.data.name)}
+                      </span>
+                    </Tooltip>
                   )}
                   {showQueryResult.data.data.status && (
                     <StatusTag

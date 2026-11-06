@@ -52,11 +52,21 @@ const createErrorResponse = (
     headers: { "Content-Type": "application/json" },
   });
 
+const createAuthorizeResponse = (state = "backend-signed-state"): Response =>
+  createSuccessResponse({
+    success: true,
+    data: {
+      authorizationUrl: `https://open.larksuite.com/authorize?state=${encodeURIComponent(state)}`,
+    },
+  });
+
 const VALID_LARK_RESPONSE = {
   accessToken: "lark.jwt.token",
   tokenType: "Bearer" as const,
   expiresIn: 3600,
   subject: "user-abc-123",
+  tenantId: "tenant-abc",
+  roles: ["DISPATCHER"],
   name: "Nguyen Van A",
   email: "a@example.com",
   returnTo: "/loads",
@@ -104,25 +114,30 @@ describe("isLarkCallbackResponse", () => {
 // ---------------------------------------------------------------------------
 
 describe("LarkGateway.startLogin", () => {
-  it("redirects to the login URL with encoded state", () => {
+  it("requests the backend authorize URL and redirects with its signed state", async () => {
     const storage = createFakeStorage();
     const redirect = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(createAuthorizeResponse());
     const gateway = createLarkGateway({
       loginUrl: LARK_LOGIN_URL,
       callbackUrl: LARK_CALLBACK_URL,
       storage,
       redirect,
+      fetchImpl,
     });
 
-    gateway.startLogin("/trips/42?tab=stops");
+    await gateway.startLogin("/trips/42?tab=stops");
 
     expect(redirect).toHaveBeenCalledOnce();
     const redirectedUrl = new URL(redirect.mock.calls[0][0] as string);
-    expect(redirectedUrl.origin + redirectedUrl.pathname).toBe(LARK_LOGIN_URL);
-    expect(redirectedUrl.searchParams.has("state")).toBe(true);
+    expect(redirectedUrl.searchParams.get("state")).toBe("backend-signed-state");
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "https://api.test/auth/lark/authorize?returnTo=%2Ftrips%2F42%3Ftab%3Dstops",
+      expect.objectContaining({ method: "GET" }),
+    );
   });
 
-  it("persists the state to session storage before redirecting", () => {
+  it("persists the backend state to session storage before redirecting", async () => {
     const storage = createFakeStorage();
     const redirect = vi.fn();
     const gateway = createLarkGateway({
@@ -130,16 +145,17 @@ describe("LarkGateway.startLogin", () => {
       callbackUrl: LARK_CALLBACK_URL,
       storage,
       redirect,
+      fetchImpl: vi.fn().mockResolvedValue(createAuthorizeResponse("signed-state")),
     });
 
-    gateway.startLogin("/dashboard");
+    await gateway.startLogin("/dashboard");
 
     expect(Object.keys(storage.data)).toHaveLength(1);
     const storedValue = Object.values(storage.data)[0];
-    expect(typeof storedValue).toBe("string");
+    expect(storedValue).toBe("signed-state");
   });
 
-  it("normalizes open-redirect returnTo before embedding it in state", () => {
+  it("normalizes open-redirect returnTo before requesting authorization", async () => {
     const storage = createFakeStorage();
     const redirect = vi.fn();
     const gateway = createLarkGateway({
@@ -147,15 +163,13 @@ describe("LarkGateway.startLogin", () => {
       callbackUrl: LARK_CALLBACK_URL,
       storage,
       redirect,
+      fetchImpl: vi.fn().mockResolvedValue(createAuthorizeResponse()),
     });
 
     // Absolute URLs must be rejected and replaced with the fallback path.
-    gateway.startLogin("https://attacker.example/steal");
+    await gateway.startLogin("https://attacker.example/steal");
 
-    const redirectedUrl = new URL(redirect.mock.calls[0][0] as string);
-    const state = redirectedUrl.searchParams.get("state")!;
-    const decoded = JSON.parse(atob(state)) as { returnTo: string };
-    expect(decoded.returnTo).toBe("/");
+    expect(redirect).toHaveBeenCalledOnce();
   });
 });
 
@@ -167,7 +181,7 @@ describe("LarkGateway.completeLogin — success", () => {
   let storage: ReturnType<typeof createFakeStorage>;
   let fetchImpl: ReturnType<typeof vi.fn>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Simulate having gone through startLogin first so state exists.
     storage = createFakeStorage();
     const redirect = vi.fn();
@@ -176,10 +190,14 @@ describe("LarkGateway.completeLogin — success", () => {
       callbackUrl: LARK_CALLBACK_URL,
       storage,
       redirect,
+      fetchImpl: vi.fn().mockResolvedValue(createAuthorizeResponse()),
     });
-    tempGateway.startLogin("/loads");
+    await tempGateway.startLogin("/loads");
 
-    fetchImpl = vi.fn().mockResolvedValue(createSuccessResponse(VALID_LARK_RESPONSE));
+    fetchImpl = vi.fn().mockResolvedValue(createSuccessResponse({
+      success: true,
+      data: VALID_LARK_RESPONSE,
+    }));
   });
 
   it("returns user snapshot and returnTo on success", async () => {
@@ -200,7 +218,7 @@ describe("LarkGateway.completeLogin — success", () => {
     expect(result.returnTo).toBe(VALID_LARK_RESPONSE.returnTo);
   });
 
-  it("forwards code and state query params to the backend callback URL", async () => {
+  it("posts the callback DTO and state to the backend", async () => {
     const storedState = Object.values(storage.data)[0]!;
     const gateway = createLarkGateway({
       loginUrl: LARK_LOGIN_URL,
@@ -213,9 +231,19 @@ describe("LarkGateway.completeLogin — success", () => {
 
     await gateway.completeLogin();
 
-    const calledUrl = new URL(fetchImpl.mock.calls[0][0] as string);
-    expect(calledUrl.searchParams.get("code")).toBe("MY_CODE");
-    expect(calledUrl.searchParams.get("state")).toBe(storedState);
+    expect(fetchImpl).toHaveBeenCalledWith(
+      LARK_CALLBACK_URL,
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          code: "MY_CODE",
+          state: storedState,
+          error: null,
+          errorDescription: null,
+        }),
+      }),
+    );
   });
 
   it("removes state from storage after callback", async () => {
@@ -234,7 +262,7 @@ describe("LarkGateway.completeLogin — success", () => {
     expect(Object.keys(storage.data)).toHaveLength(0);
   });
 
-  it("uses state-decoded returnTo when backend omits it", async () => {
+  it("uses the local root fallback when backend omits its validated returnTo", async () => {
     const responseWithoutReturnTo = {
       ...VALID_LARK_RESPONSE,
       returnTo: undefined,
@@ -253,8 +281,7 @@ describe("LarkGateway.completeLogin — success", () => {
 
     const result = await gateway.completeLogin();
 
-    // returnTo should come from the state that was set during startLogin("/loads")
-    expect(result.returnTo).toBe("/loads");
+    expect(result.returnTo).toBe("/");
   });
 });
 
@@ -280,11 +307,12 @@ describe("LarkGateway.completeLogin — CSRF protection", () => {
 
   it("throws LARK_CALLBACK_STATE_MISMATCH when state does not match storage", async () => {
     const storage = createFakeStorage({ lark_auth_state: "stored-state" });
+    const fetchImpl = vi.fn();
     const gateway = createLarkGateway({
       loginUrl: LARK_LOGIN_URL,
       callbackUrl: LARK_CALLBACK_URL,
       storage,
-      fetchImpl: vi.fn(),
+      fetchImpl,
       locationHref: () =>
         "https://app.test/auth/callback?code=CODE&state=different-state",
     });
@@ -292,6 +320,8 @@ describe("LarkGateway.completeLogin — CSRF protection", () => {
     await expect(gateway.completeLogin()).rejects.toThrow(
       "LARK_CALLBACK_STATE_MISMATCH",
     );
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(storage.getItem("lark_auth_state")).toBeNull();
   });
 
   it("throws LARK_CALLBACK_STATE_MISMATCH when no state exists in storage", async () => {
@@ -318,7 +348,7 @@ describe("LarkGateway.completeLogin — CSRF protection", () => {
 describe("LarkGateway.completeLogin — backend errors", () => {
   let storage: ReturnType<typeof createFakeStorage>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     storage = createFakeStorage();
     const redirect = vi.fn();
     const tempGateway = createLarkGateway({
@@ -326,8 +356,9 @@ describe("LarkGateway.completeLogin — backend errors", () => {
       callbackUrl: LARK_CALLBACK_URL,
       storage,
       redirect,
+      fetchImpl: vi.fn().mockResolvedValue(createAuthorizeResponse()),
     });
-    tempGateway.startLogin("/dashboard");
+    await tempGateway.startLogin("/dashboard");
   });
 
   const makeGateway = (fetchImpl: ReturnType<typeof vi.fn>) => {

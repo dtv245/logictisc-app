@@ -18,7 +18,38 @@ export type TmsOperationalStatus =
 
 export type TmsRiskLevel = "none" | "at_risk" | "delayed";
 
-export type TmsQueueFilter = "all" | "at-risk" | "unassigned" | "approvals";
+export type TmsRiskReasonCode =
+  | "OPEN_EXCEPTION"
+  | "PICKUP_OVERDUE"
+  | "DELIVERY_OVERDUE"
+  | (string & {});
+
+/** Current, explainable risk fact from `GET /api/loads/dispatch-board/risk`. */
+export interface TmsLoadRiskReason {
+  code: TmsRiskReasonCode;
+  message: string;
+  exceptionId?: string | null;
+  exceptionType?: string | null;
+  exceptionReason?: string | null;
+  detectedAt?: string | null;
+  dueAt?: string | null;
+}
+
+/** Item returned by `GET /api/loads/dispatch-board/risk`. */
+export interface TmsOperationalRiskLoadDto {
+  load: LoadResponse;
+  unassignedTruck: boolean;
+  riskReasons: TmsLoadRiskReason[];
+}
+
+export type TmsQueueFilter =
+  | "all"
+  | "at-risk"
+  | "unassigned"
+  | "approvals"
+  | "overdue"
+  | "ai-pending"
+  | "in-transit";
 
 export interface TmsOperationsSummary {
   active: number;
@@ -34,6 +65,8 @@ export interface TmsLoadCollection {
   /** True when the client stopped paginating before reaching `totalItems`. */
   truncated: boolean;
   totalItems: number;
+  /** `client-fallback` totals must not be presented as server-filtered counts. */
+  countSource?: "server" | "client-fallback";
 }
 
 /** Read model used by every TMS screen; derived from `LoadResponse`, never invented. */
@@ -45,6 +78,7 @@ export interface TmsShipmentView {
   rawStatus: string;
   status: TmsOperationalStatus;
   risk: TmsRiskLevel;
+  riskReasons?: TmsLoadRiskReason[];
   originCity: string;
   destinationCity: string;
   originAddress: string;
@@ -81,14 +115,14 @@ export interface TmsAiSuggestionMetric {
 /** Pending AI dispatch decision as returned by `/api/ai/dispatch/pending`. */
 export interface TmsAiSuggestion {
   decisionId: string;
-  rank: number;
+  rank?: number | null;
   truckId: string;
   tripId?: string | null;
   truckNumber?: string | null;
   driverId: string;
   driverName?: string | null;
-  score: number | string;
-  confidence: string;
+  score?: number | string | null;
+  confidence?: string | null;
   reasoning: string;
   metrics?: TmsAiSuggestionMetric;
   status: string;
@@ -119,6 +153,7 @@ export interface TmsApproval {
   load?: TmsShipmentView;
   truck?: TruckResponse;
   driver?: EmployeeResponse;
+  dispatchStatus?: string;
 }
 
 export interface TmsTimelineEvent {

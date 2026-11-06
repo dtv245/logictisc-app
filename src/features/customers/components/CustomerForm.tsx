@@ -4,6 +4,7 @@ import {
   Form,
   type FormInstance,
   Input,
+  InputNumber,
   Row,
   Segmented,
   Switch,
@@ -16,12 +17,15 @@ import { FormSection } from "@/forms/FormSection";
 
 export interface CustomerFormProps {
   form: FormInstance;
+  formId?: string;
   initialValues?: Record<string, unknown>;
   onFinish?: (values: Record<string, unknown>) => void;
   saveButtonProps?: ButtonProps;
   isEdit?: boolean;
   isModal?: boolean;
   onCancel?: () => void;
+  addressExpanded?: boolean;
+  onAddressExpandedChange?: (expanded: boolean) => void;
 }
 
 const CUSTOMER_STATUS_OPTIONS = [
@@ -38,12 +42,15 @@ const CUSTOMER_STATUS_OPTIONS = [
  */
 export const CustomerForm = ({
   form,
+  formId,
   initialValues,
   onFinish,
   saveButtonProps,
   isEdit = false,
   isModal = false,
   onCancel,
+  addressExpanded,
+  onAddressExpandedChange,
 }: CustomerFormProps) => {
   const { t } = useTranslation();
 
@@ -112,6 +119,45 @@ export const CustomerForm = ({
               <Switch checkedChildren="Có" unCheckedChildren="Không" />
             </Form.Item>
           </Col>
+
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Số ngày thanh toán"
+              name="paymentTermsDays"
+              rules={[
+                { type: "number", min: 0, message: "Số ngày thanh toán không được âm" },
+              ]}
+              extra="Số ngày được nợ kể từ ngày phát hành hóa đơn"
+            >
+              <InputNumber
+                min={0}
+                precision={0}
+                style={{ width: "100%" }}
+                placeholder="Ví dụ: 30"
+              />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Tiền tệ mặc định"
+              name="defaultCurrency"
+              normalize={(val: unknown) => (typeof val === "string" ? val.toUpperCase() : val)}
+              rules={[
+                {
+                  pattern: /^[A-Z]{3}$/,
+                  message: "Mã tiền tệ phải gồm đúng 3 chữ cái (Ví dụ: USD, VND)",
+                },
+              ]}
+              extra="Mã ISO 4217, tự động in hoa"
+            >
+              <Input
+                maxLength={3}
+                placeholder="Ví dụ: USD"
+                style={{ textTransform: "uppercase" }}
+              />
+            </Form.Item>
+          </Col>
         </Row>
       </FormSection>
 
@@ -121,9 +167,19 @@ export const CustomerForm = ({
       >
         <Collapse
           ghost
+          {...(addressExpanded !== undefined
+            ? {
+                activeKey: addressExpanded ? ["address"] : [],
+                onChange: (keys) => {
+                  const active = Array.isArray(keys) ? keys.includes("address") : keys === "address";
+                  onAddressExpandedChange?.(active);
+                },
+              }
+            : {})}
           items={[
             {
               key: "address",
+              forceRender: true,
               label: <span style={{ color: "#666" }}>▸ Chi tiết địa chỉ trụ sở & ghi chú</span>,
               children: (
                 <>
@@ -143,6 +199,7 @@ export const CustomerForm = ({
   return (
     <Form
       form={form}
+      id={formId}
       layout="vertical"
       validateTrigger="onBlur"
       scrollToFirstError

@@ -9,7 +9,7 @@
  * `i18n.language` có thể là "en-US" nên phải cắt theo dấu gạch, không so khớp tuyệt đối.
  */
 
-import { ConfigProvider } from "antd";
+import { ConfigProvider, type ThemeConfig } from "antd";
 import type { Locale } from "antd/es/locale";
 import enUS from "antd/locale/en_US";
 import jaJP from "antd/locale/ja_JP";
@@ -23,13 +23,19 @@ const ANTD_LOCALES: Record<string, Locale> = {
   vi: viVN,
 };
 
-export const AntdLocaleProvider = ({ children }: { children: ReactNode }) => {
+export const AntdLocaleProvider = ({
+  children,
+  theme,
+}: {
+  children: ReactNode;
+  theme?: ThemeConfig;
+}) => {
   const { i18n } = useTranslation();
 
   const language = i18n.language.split("-")[0];
 
   return (
-    <ConfigProvider locale={ANTD_LOCALES[language] ?? ANTD_LOCALES.en}>
+    <ConfigProvider locale={ANTD_LOCALES[language] ?? ANTD_LOCALES.en} theme={theme}>
       {children}
     </ConfigProvider>
   );

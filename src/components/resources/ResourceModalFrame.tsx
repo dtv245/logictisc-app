@@ -30,6 +30,7 @@ export interface ResourceModalFrameProps {
   triggerElement?: HTMLElement | null;
   maskClosable?: boolean;
   destroyOnHidden?: boolean;
+  forceRender?: boolean;
   children: ReactNode;
   width?: number;
   className?: string;
@@ -49,6 +50,7 @@ export const ResourceModalFrame = ({
   triggerElement,
   maskClosable = false,
   destroyOnHidden = true,
+  forceRender = false,
   children,
   width = 860,
   className,
@@ -109,6 +111,7 @@ export const ResourceModalFrame = ({
       centered
       className={`resource-form-modal ${className ?? ""}`}
       destroyOnHidden={destroyOnHidden}
+      forceRender={forceRender}
       footer={null}
       maskClosable={maskClosable}
       onCancel={onCancel}

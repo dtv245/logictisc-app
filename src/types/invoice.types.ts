@@ -29,3 +29,25 @@ export interface InvoiceWithRelations extends Invoice {
   customer?: Customer | null;
   employee?: Employee | null;
 }
+
+/**
+ * Immutable line projection returned by `GET /api/invoices/{id}/lines`.
+ * Rated provenance columns are null for legacy invoices.
+ */
+export interface InvoiceLineDetail {
+  id: string;
+  invoiceId: string;
+  description: string;
+  type: string;
+  quantity?: number | null;
+  order: number;
+  notes?: string | null;
+  taxRatePercent?: number | null;
+  taxAmount: number;
+  taxCode?: string | null;
+  amountAmount: number;
+  amountCurrency: string;
+  ratingSourceId?: string | null;
+  creditedLineId?: string | null;
+  creditedQuantity?: number | null;
+}

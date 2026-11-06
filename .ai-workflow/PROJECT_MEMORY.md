@@ -7,17 +7,17 @@
 | Field | Value |
 |---|---|
 | Schema Version | 1 |
-| Revision | 17 |
+| Revision | 20 |
 | Project | LogisticsX Frontend |
 | Repository Root | /home/vumoi/logictics-app |
 | Execution Mode | SCOPED_TASK |
-| Last Updated | 2026-10-07T10:46:00+07:00 |
-| Current Phase | 16 — Documentation |
-| Active Role | Tech Lead |
-| Status | DONE |
-| Next Role | Tech Lead |
-| Next Action | Sử dụng bảng truy vết alignment và test matrix để điều phối mở khóa từng slice theo thứ tự ưu tiên khi backend bàn giao runtime V38 |
-| Handoff Sequence | 17 |
+| Last Updated | 2026-11-06T15:04:25+07:00 |
+| Current Phase | 8 — Frontend Development |
+| Active Role | Code Reviewer |
+| Status | READY_FOR_REVIEW |
+| Next Role | Code Reviewer |
+| Next Action | Review StrictMode map reuse and teardown; verify remaining Firefox/Mapbox console messages in the browser |
+| Handoff Sequence | 20 |
 
 ## 2. Project Snapshot
 
@@ -27,18 +27,18 @@
 - **Core Features:** See canonical plan section 48 current execution matrix and section 49 checkmarks.
 - **Technology:** React 18, TypeScript 6, Vite 8, Refine 4, Ant Design 5, Query 4, Vitest and Playwright.
 - **Constraints:** Frontend only; preserve dirty Lark/user work, foundation, tenant boundaries and screen-scoped fetching. No invented endpoints, production mocks, client ledger reconstruction or backend changes.
-- **Scope:** User requested a reusable prompt based on docs to align business, backend and frontend. Documentation task complete; Oct6 feature/blocker matrices are historical checkpoints requiring reconciliation with the Oct7 backend handoff before implementation.
+- **Scope:** Current scoped task hardens the TMS map UI against Mapbox WebGL context loss and diagnoses the reported dispatch-board 404s. No API, hook, route, Refine resource, translation-key or dependency changes were made.
 - **Out of Scope:** Backend source/config/container/build/restart, database/migration/reset/reseed, framework migration, deployment and unrelated user changes.
-- **Repository Baseline:** Historical Oct6 branch KAN-79-integrations-dang-nhap-bang-lark, HEAD 0eb8bf6; typecheck/lint/build PASS; 115 files / 633 tests PASS; authenticated E2E NOT RUN. Oct7 prompt task inspected dirty Git status, package.json and docs; production source/tests untouched. No current build/test/runtime certification claimed.
+- **Repository Baseline:** Historical Oct6 branch KAN-79-integrations-dang-nhap-bang-lark, HEAD 0eb8bf6; typecheck/lint/build PASS; 115 files / 633 tests PASS; authenticated E2E NOT RUN. Map redesign gates and the 2026-11-06 WebGL fix gates passed; 11 focused tests cover map context-loss handling and cleanup. Live Mapbox rendering was not verified.
 
 ## 3. Current Delivery State
 
 ### Current Objective
 
-- **Feature/Task ID:** DOC-ALIGN-PROMPT-001
-- **Objective:** Deliver one Vietnamese prompt grounded in frontend v2 and Oct7 backend contracts, with business/API/UI/test traceability, evidence precedence and scoped implementation instructions.
-- **Acceptance Gate:** Prompt exists, referenced input files resolve, business invariants reviewed against handoff, whitespace/memory validation PASS, prior handoffs unchanged. Full project acceptance remains unverified.
-- **Allowed Change Scope:** docs/prompt-business-backend-frontend-alignment.md and PROJECT_MEMORY.md only; backend plans/contracts read only; no implementation, runtime or database change.
+- **Feature/Task ID:** TMS-MAP-WEBGL-ROBUSTNESS-2026-11-06
+- **Objective:** Prevent uncaught Mapbox style access after `webglcontextlost`, avoid redundant map destruction during React StrictMode effect replay, and classify the dispatch-board 404 source.
+- **Acceptance Gate:** Context loss pauses child layers and displays fallback; context restore remounts them; cleanup is safe if Mapbox has no style; StrictMode reuses one Map instance but real unmount removes it; typecheck/lint/build and focused tests pass. Backend route availability must be checked in the authenticated running environment.
+- **Allowed Change Scope:** `src/components/map/`, `src/pages/tms-flow/LiveTrackingPage.tsx`, related map tests and `.ai-workflow/PROJECT_MEMORY.md`; no backend, API contract, hook, route, Refine resource, i18n key or package changes.
 
 ### Phase Status
 
@@ -52,7 +52,7 @@
 | 5. API Design | Tech Lead | Tech Lead; Software Architect; Backend Developer; Frontend Developer; Security Engineer | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
 | 6. Project Structure | Tech Lead | Tech Lead; Software Architect; Backend Developer; Frontend Developer | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
 | 7. Backend Development | Backend Developer | Backend Developer; Tech Lead; Database Engineer; QA / Tester; Security Engineer; Code Reviewer | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
-| 8. Frontend Development | Frontend Developer | Frontend Developer; Tech Lead; QA / Tester; Security Engineer; Code Reviewer | `BLOCKED` | Runtime/Plan Alignment DONE; current contract matrix verified against 137-path runtime. Four gates PASS, 115 files / 633 tests. Remaining approved queue depends on backend contracts/authorization; no fully READY task. |
+| 8. Frontend Development | Frontend Developer | Frontend Developer; Tech Lead; QA / Tester; Security Engineer; Code Reviewer | `READY_FOR_REVIEW` | Map UI plus WebGL loss/restoration guard and StrictMode map reuse complete; typecheck/lint/build and 11 focused tests PASS. Firefox/Mapbox deprecation warnings remain upstream; authenticated runtime result for dispatch-board endpoints remains unresolved. |
 | 9. Integration | Tech Lead | Tech Lead; Backend Developer; Frontend Developer; QA / Tester | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
 | 10. Testing | QA / Tester | QA / Tester; Backend Developer; Frontend Developer; Tech Lead | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
 | 11. Security Review | Security Engineer | Security Engineer; Software Architect; Backend Developer; Frontend Developer; Code Reviewer | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
@@ -70,6 +70,8 @@ Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publish
 | ID | Requirement IDs | Owner | Status | Evidence | Next Action |
 |---|---|---|---|---|---|
 | DOC-ALIGN-PROMPT-001 | User prompt-writing request | Tech Lead | `DONE` | docs/prompt-business-backend-frontend-alignment.md; HOFF-0016 | Apply only when implementation is requested within authorized scope |
+| TMS-MAP-WEBGL-ROBUSTNESS-2026-11-06 | Recover map UI safely after WebGL context loss; diagnose dispatch-board 404s | Frontend Developer | `READY_FOR_REVIEW` | mapStyleSafety.ts; MapShell/VehicleLayer/DispatchMapLayers; HOFF-0019–0020; final gates PASS | Verify authenticated API runtime; review browser recovery with approved token |
+| TMS-MAP-REDESIGN-2026-11-06 | Three TMS map screens, MapShell, GeoJSON vehicle layers and responsive floating panels | Frontend Developer | `READY_FOR_REVIEW` | src/components/map/MapShell.tsx; src/components/map/VehicleLayer.tsx; DispatchPage/LiveTrackingPage; HOFF-0018; final gates PASS | Independent review; live Mapbox check when token/model asset are available |
 | Runtime/Plan Alignment 2026-10-06 | Runtime/Plan Alignment 2026-10-06 | Frontend Developer | `DONE` | Current plan section 48; progress; HOFF-0014; all gates PASS | Preserve matrix; recheck only newly available contracts |
 | FE-COST-002 / FE-ACCESSORIAL-001 | FE-COST-002 / FE-ACCESSORIAL-001 | Frontend Developer | `DONE` | Existing accepted embedded cost/accessorial workflow | Preserve confirmed workflow |
 | FE-PROFIT-001 | FE-PROFIT-001 | Frontend Developer | `DONE` | Accepted by-load reporting; optional dimensions BE-024 separate | Preserve confirmed by-load scope |
@@ -112,6 +114,8 @@ Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publish
 | Requirement / Story | Business Rule | Domain / Data | API / UI | Tests | Status |
 |---|---|---|---|---|---|
 | DOC-ALIGN-PROMPT-001 | Business acceptance, source contract, target runtime and frontend evidence are independent | Frontend v2 plus Oct7 verified handoff and backend current plan checkpoint | Reusable audit/implementation prompt; no source edit | Reference/structure/whitespace and memory checks; product tests NOT RUN (docs only) | DONE |
+| TMS-MAP-REDESIGN-2026-11-06 | Reuse current map interactions and keep the map as the base visual layer; do not infer vehicle motion without telemetry | Existing TruckResponse coordinates/status only; no API/data contract changes | Shared MapShell and GeoJSON VehicleLayer applied to dispatch, approvals and live tracking | MapShell/VehicleLayer/DispatchPage targeted tests: 3 files / 15 tests PASS; typecheck/lint/build PASS | READY_FOR_REVIEW |
+| TMS-MAP-WEBGL-ROBUSTNESS-2026-11-06 | A lost WebGL context may temporarily remove Mapbox's style; async layer updates and React cleanup must tolerate that state | Mapbox context events and existing Mapbox sources/layers | Pause map children on loss, show fallback, restore after WebGL/style is ready, and make cleanup best-effort | MapShell/VehicleLayer/DispatchMapLayers tests: 3 files / 11 tests PASS; final typecheck/lint/build PASS | READY_FOR_REVIEW |
 | Runtime/Plan Alignment 2026-10-06 | Current first matrix governs; Oct5 absence is historical | Fresh 137-path OpenAPI/current controllers | Plan/progress/gaps/unblock and Executive contract gate | Navigation/router 19 targeted; 633 full PASS | DONE |
 | FE-PAYROLL-005; FE-RATE-002; FE-OPT-001/002; FE-FLEET-001 | Preserve accepted backend evidence and exact role grants | Confirmed runtime contracts | Existing enabled frontend implementations unchanged | Existing full-suite feature tests retained | DONE |
 | Remaining-contract recheck 2026-10-06T03:45:39+07:00 | Live contract and safe authorization required | Same 137-path OpenAPI; Messaging principal binding unresolved | Evidence docs/handoff only; production source unchanged | 115 files / 633 tests and full gates PASS | DONE (verification only) |
@@ -120,12 +124,14 @@ Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publish
 ## 5. Architecture and Data Snapshot
 
 - **Architecture Style:** Existing React Refine application; docs/adr/001-unified-runtime-foundation.md.
-- **Modules / Boundaries:** Existing shallow src/features, src/pages, src/components, src/types structure.
+- **Modules / Boundaries:** Existing shallow src/features, src/pages, src/components, src/types structure. TMS map presentation now shares `src/components/map/MapShell` and `VehicleLayer`.
 - **Dependency Direction:** Pages/components → Refine hooks → existing DataProvider/API client → Spring backend.
 - **Authentication / Authorization:** Existing shared JWT/session/tenant boundary preserved; exact fail-closed capabilities retained. Caller IDs cannot replace server authorization.
 - **Data Model / Migration:** Backend source/config/migrations byte-identical to pre-task hash snapshot; no database operation or migration work.
 - **API / Integration Contract:** Oct6 runtime matrix is a historical checkpoint. Oct7 handoff publishes 176 operations / 140 paths / 291 schemas, V38, including /api/me and messaging ownership enforcement; provenance LOCAL_JAR_CONTRACT_SNAPSHOT, deployment_verified=false. Prompt names the actual docs/frontend-backend-handoff/docs paths and requires manifest/provenance verification.
 - **Deployment / Runtime:** Oct7 handoff reports the existing :8080 runtime still on old V35/138-path artifact. This prompt task did not probe or modify runtime; historical frontend build evidence does not certify current integration or deployment.
+- **Map Runtime:** `mapbox-gl` 3.33.0 is installed; dispatch/approvals already used Mapbox, while live tracking previously used Leaflet through `NetworkRouteMap`. Leaflet remains needed by other screens. The optional `/models/truck.glb` asset is absent, and no live Mapbox token was verified.
+- **Dispatch API Runtime:** Frontend paths match `LoadOperationalController` and its documented routes. Vite's configured proxy target is localhost:8080. Unauthenticated local GETs returned 401 through both 8080 and 5173; the user's authenticated browser requests returned 404, so the deployed/running authenticated contract still needs confirmation.
 
 ## 6. Decisions
 
@@ -135,6 +141,8 @@ Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publish
 | FE-EXECUTIVE-DORMANT | 2026-10-06 | Frontend Developer | Gate Executive menu/resources/rendering and redirect old return targets to Operations | BE-031 summary absent and incompatible report DTO/parameters | Queries/metrics/page preserved; Fleet independently DONE; no compatibility fabrication | Previous exposed Executive navigation |
 | FE-SETTLEMENT-EXACT-COMMANDS | 2026-10-06 | Frontend Developer | Retain existing confirmed commands/corrections | Current SettlementActions already matches runtime | No generic reject/recalculate/payment aliases; BE-025 remains partial | Planned unsupported action names |
 | DOC-CONTRACT-PRECEDENCE-20261007 | 2026-10-07 | Tech Lead | Reconcile Oct7 packaged contracts with the dated Oct6 frontend matrix before executing the prompt | New handoff has /api/me and ownership enforcement; deployment_verified=false | Preserve requirements and accepted work; distinguish missing source contract, runtime drift and client mismatch | Treating Oct6 absence/no-READY claims as current without recheck |
+| TMS-MAP-LAYERS-20261106 | 2026-11-06 | Frontend Developer | Share one Mapbox canvas shell and render vehicles from a clustered GeoJSON source; retain Leaflet where other screens still use it | Existing Mapbox dispatch canvas, mapbox-gl 3.33.0, code search and Mapbox model/GeoJSON docs | No DOM Marker per vehicle, no API or package changes; optional 3D branch falls back to canvas icons if the model is unavailable | None |
+| TMS-MAP-WEBGL-RECOVERY-20261106 | 2026-11-06 | Frontend Developer | Pause child map layers on WebGL context loss and make style/source/layer cleanup safe during restoration | User console stack points to unguarded `getLayer/getSource`; Mapbox style may temporarily be unavailable | Show fallback and resume on style/context restoration; no crash from stale layer cleanup | None |
 
 ## 7. Assumptions, Risks, and Blockers
 
@@ -150,6 +158,8 @@ Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publish
 |---|---|---|---|---|---|---|
 | FE-DIRTY-GRAPH | CRITICAL | Full dirty working tree includes substantial pre-existing feature work; broad graph risk is unresolved | CLI detect-changes all: 45 tracked files, 266 symbols, 24 flows, CRITICAL; MCP zero was unseen | Session diff reviewed against snapshot; LOW scoped impact with callers, UNKNOWN confirmed by usage; four gates PASS; no clean graph/commit claim | Frontend Developer | OPEN |
 | FE-AUTH-E2E | HIGH | Deterministic authenticated browser certification unavailable | BE-021 identity and test environment absent | Preserve shared identity boundary; document E2E NOT RUN; no production mock | Backend/test environment owners | BLOCKED |
+| TMS-MAP-LIVE-VERIFY | MEDIUM | Runtime appearance, Mapbox token compatibility and optional 3D model rendering are not browser-verified | No live token verified; `public/models/truck.glb` absent; code-level tests use Mapbox mocks | Keep optional model path fail-soft; review visually with authorized token and model asset | Frontend Developer | OPEN |
+| TMS-MAP-FIREFOX-WARNINGS | LOW | Firefox reports deprecated renderer/upload APIs from Mapbox; Mapbox also deliberately loses the GL context on `map.remove()` | User console logs; installed Mapbox 3.33.0 source calls `WEBGL_lose_context`; React StrictMode replays effects in development | Reuse one map through StrictMode replay; retain real unmount cleanup/recovery; do not suppress browser/library warnings in app code | Frontend Developer | OPEN |
 
 ### Blockers
 
@@ -157,6 +167,7 @@ Rows below retain the Oct6 feature acceptance checkpoints, not a fresh absence/s
 
 | ID | Blocker | Needed To Unblock | Owner | Status |
 |---|---|---|---|---|
+| TMS-DISPATCH-API-404 | Authenticated dev browser receives 404 for risk/unassigned dispatch reads | Check running backend version/route registration for `/api/loads/dispatch-board/risk` and `/unassigned` behind the same auth session; source controller and tests define both routes | Backend/runtime owner | NEEDS_RUNTIME_VERIFICATION |
 | BE-021 | Identity/Profile and authenticated E2E | GET /api/me matching shared session claims and deterministic authorized test environment | Backend owners | BLOCKED_BACKEND |
 | BE-020 | Document upload | Final multipart file/metadata/storage/ownership/error/authorization contract | Backend owners | BLOCKED_BACKEND |
 | FE-LOAD-001 Exceptions | Individual Load exception workflow | Load-scoped object read/action contract | Backend owners | BLOCKED_BACKEND |
@@ -186,6 +197,9 @@ BE-029 runtime deployment absence is RESOLVED / HISTORICAL for the five recently
 | Executive dormant route gate | src/features/executive/config/executive.contract.ts; router/AppRouter; appNavigation; resourceRegistry | Frontend Developer | VERIFIED | 2026-10-06 |
 | Navigation/resource regression | src/tests/router/RuntimeContractRoutes.test.tsx; src/tests/components/appNavigation.test.tsx | Frontend Developer | PASS | 2026-10-06 |
 | Persistent handoff | .ai-workflow/PROJECT_MEMORY.md HOFF-0014 | Frontend Developer | UPDATED | 2026-10-06 |
+| Shared TMS MapShell and vehicle layer | src/components/map/MapShell.tsx; src/components/map/VehicleLayer.tsx; src/components/map/DispatchMapLayers.tsx | Frontend Developer | READY_FOR_REVIEW | 2026-11-06 |
+| Map shell and vehicle layer tests | src/components/map/MapShell.test.tsx; src/components/map/VehicleLayer.test.tsx; src/pages/tms-flow/DispatchPage.test.tsx | Frontend Developer | PASS — 15 tests | 2026-11-06 |
+| WebGL context-loss recovery | src/components/map/mapStyleSafety.ts; MapShell/VehicleLayer/DispatchMapLayers tests | Frontend Developer | PASS — 11 focused tests; backend 404 needs runtime check | 2026-11-06 |
 
 ## 9. Role Handoffs
 
@@ -550,10 +564,76 @@ BE-029 runtime deployment absence is RESOLVED / HISTORICAL for the five recently
 - **Next Required Action:** Khi backend bàn giao môi trường chạy V38, tiến hành mở khóa từng slice theo đúng thứ tự ưu tiên: 1. Identity `/api/me` → 2. Multipart Documents → 3. Load Exceptions → 4. Global Cost Ledger → 5. Settlement actions → 6. Payroll collection/profile → 7. Rate rules collection → 8. Executive compatibility → 9. Expense/Maintenance CRUD → 10. Messaging.
 - **Acceptance Gate:** Mọi thay đổi code tiếp theo phải chạy qua bộ 5 quality gates (`typecheck`, `lint`, `test`, `build`, `git diff --check`).
 - **Do Not Redo:** Không làm lại các task đã xác nhận DONE (FE-BASE-001, FE-FOUNDATION-001, FE-AUTH-001, FE-TRIP-001, FE-COST-002, FE-ACCESSORIAL-001, FE-PROFIT-001, FE-SETTLEMENT-001, FE-SETTLEMENT-002, FE-SETTLEMENT-004, FE-PAYROLL-002, FE-PAYROLL-005, FE-RATE-002, FE-OPT-001, FE-OPT-002, FE-FLEET-001, FE-PERF-001, Notification completion).
+- **Blockers:** None for the documentation/alignment objective. Backend contract/runtime blockers remain tracked in §§7–8 and are outside HOFF-0017's scope. This required field was added as a schema correction because the prior handoff omitted it.
+
+### HOFF-0018 — Frontend Developer → Code Reviewer
+
+- **Timestamp:** 2026-11-06T14:43:56+07:00
+- **From Role:** Frontend Developer
+- **To Role:** Code Reviewer
+- **Phase:** 8 — Frontend Development
+- **Status:** DONE
+- **Objective:** Redesign map presentation for `/tms/dispatch`, `/tms/approvals` and `/tms/live-tracking` while preserving application contracts and operational behavior.
+- **Inputs Read:** User map requirements; repository frontend AGENTS rules; existing Mapbox dispatch map, live tracking/Leaflet component, mapbox helpers, Vite env example and Mapbox style-spec docs.
+- **Completed:** Added responsive MapShell with Mapbox context, token/WebGL/style fallback, navigation control, resize padding, collapsible floating panels and mobile drawers. Added clustered GeoJSON VehicleLayer with generated 2D truck images, click/cluster behavior, selected highlighting, animation and optional fail-soft 3D model layer. Integrated it with dispatch, approvals and live tracking; kept Leaflet available for other screens.
+- **Requirement IDs:** Map redesign steps 1–5; dispatch, approvals and live tracking map presentation.
+- **Files and Artifacts:** `src/components/map/MapShell.tsx`, `MapShell.css`, `MapContext.ts`, `VehicleLayer.tsx`, `vehicleLayer.types.ts`, `vehicleLayer.utils.ts`, `DispatchMapLayers.tsx`, focused tests; `src/pages/tms-flow/DispatchPage.tsx`, `LiveTrackingPage.tsx`, `src/components/AppLayout.scss`, `src/vite-env.d.ts`, `.env.example`.
+- **Decisions:** Continue using `VITE_MAPBOX_ACCESS_TOKEN`; add `VITE_MAPBOX_STYLE_URL` with fallback to `VITE_MAP_STYLE_URL`; do not claim motion state without telemetry. The optional Mapbox model layer uses a GeoJSON source and per-feature `model-id`; live 3D stays optional because the GLB asset is absent.
+- **Assumptions:** Existing `TruckResponse` coordinates and operational status are authoritative; speed, bearing and GPS update time are not present in this contract. Actual motion/bearing cannot be shown accurately until telemetry is supplied.
+- **Verification:** `npx tsc --noEmit` exit 0; `npm run lint` exit 0; `npm run build` exit 0; `npx vitest run src/components/map/MapShell.test.tsx src/components/map/VehicleLayer.test.tsx src/pages/tms-flow/DispatchPage.test.tsx` exit 0, 3 files / 15 tests passed. Build reports a >500 kB Mapbox chunk warning. Final map rendering with a live token was not run.
+- **Open Issues and Risks:** `public/models/truck.glb` is absent; live token/style/CORS and responsive visual behavior remain unverified in a real browser. GitNexus impact returned UNKNOWN because its database storage version is incompatible with the installed runtime (42 vs 40); callers were checked textually, and this is not a clean graph-risk verdict.
+- **Blockers:** Live validation needs an authorized Mapbox public token and the intended truck model asset if 3D is required. Independent code review is pending.
+- **Next Required Action:** Review the scoped implementation and run the three screens in a browser with approved Mapbox configuration; confirm panel/map behavior and decide whether to supply `/models/truck.glb`.
+- **Acceptance Gate:** Independent review finds no blocking issue; typecheck/lint/build remain green; live validation is recorded if a token/model asset is available. Do not mark the overall project production-ready from this scoped implementation.
+- **Do Not Redo:** Do not change API, business hooks, routes, Refine resources, i18n keys or package dependencies. Keep Leaflet where other screens still use it. No Git operations were performed.
+
+### HOFF-0019 — Frontend Developer → Code Reviewer
+
+- **Timestamp:** 2026-11-06T14:56:19+07:00
+- **From Role:** Frontend Developer
+- **To Role:** Code Reviewer
+- **Phase:** 8 — Frontend Development
+- **Status:** DONE
+- **Objective:** Prevent uncaught Mapbox style access after `webglcontextlost`, recover map layers after context restoration, and diagnose the reported dispatch-board 404s.
+- **Inputs Read:** User browser console output; frontend AGENTS rules; MapShell, DispatchMapLayers, VehicleLayer, LiveTrackingPage; backend `LoadOperationalController`, route tests/docs; Vite proxy configuration.
+- **Completed:** Added safe Mapbox style/source/layer/image guards. MapShell now pauses child layers and shows its fallback during context loss, then restores children after Mapbox style/context readiness. Dispatch and vehicle layer updates, events, camera moves and cleanup now tolerate the style being unavailable. Confirmed the frontend risk/unassigned paths match backend source routes; unauthenticated requests to the local backend and Vite proxy return 401, while authenticated browser reports 404, so runtime version/route registration remains unresolved.
+- **Requirement IDs:** TMS-MAP-WEBGL-ROBUSTNESS-2026-11-06; dispatch-board risk and unassigned runtime diagnosis.
+- **Files and Artifacts:** `src/components/map/mapStyleSafety.ts`; `src/components/map/MapShell.tsx` and `.test.tsx`; `src/components/map/DispatchMapLayers.tsx` and `.test.tsx`; `src/components/map/VehicleLayer.tsx` and `.test.tsx`; `src/pages/tms-flow/LiveTrackingPage.tsx`; `.ai-workflow/PROJECT_MEMORY.md`.
+- **Decisions:** No backend, API, route, hook, Refine resource, package, or database change. Did not expose or inspect the actual Mapbox token. Firefox/Mapbox deprecation messages are external warnings; the application handles context loss by falling back and recovering.
+- **Assumptions:** The authenticated browser's 404 may reflect a running backend version or route registration differing from the source tree; the unauthenticated 401 checks prove proxy reachability only, not authenticated route availability.
+- **Verification:** `npx tsc --noEmit` exit 0; `npm run lint` exit 0; `npm run build` exit 0 (Vite reports the existing large Mapbox chunk warning); `npx vitest run src/components/map/MapShell.test.tsx src/components/map/VehicleLayer.test.tsx src/components/map/DispatchMapLayers.test.tsx` exit 0, 3 files / 11 tests passed. No full test suite or authenticated browser test was run.
+- **Open Issues and Risks:** Authenticated browser still reports 404 for `/api/loads/dispatch-board/risk` and `/unassigned`; verify the running backend artifact/route registration. The “Lỗi bản đồ nguồn” JSON parse message was not found in application source and may be a Mapbox style/source response issue; its network response is needed to identify the exact cause. Browser/GPU can continue to emit WebGL context-loss and Firefox deprecation warnings even though the UI now recovers safely.
+- **Blockers:** Authenticated dispatch-board endpoint availability cannot be verified without the corresponding authorized runtime session; live Mapbox token/style rendering was not verified.
+- **Next Required Action:** Review the scoped WebGL recovery changes and verify both endpoints using the authenticated running application/backend; inspect the failed Mapbox style/source response if its JSON parse warning persists.
+- **Acceptance Gate:** No uncaught `getOwnLayer` error during style-less cleanup; fallback and restoration behavior covered by focused tests; typecheck/lint/build pass; authenticated API behavior is confirmed separately before claiming the 404 fixed.
+- **Do Not Redo:** Do not alter backend endpoint contracts or switch frontend paths without authenticated runtime evidence. No Git operations were performed.
+
+### HOFF-0020 — Frontend Developer → Code Reviewer
+
+- **Timestamp:** 2026-11-06T15:04:25+07:00
+- **From Role:** Frontend Developer
+- **To Role:** Code Reviewer
+- **Phase:** 8 — Frontend Development
+- **Status:** DONE
+- **Objective:** Reduce avoidable Mapbox WebGL context churn caused by React StrictMode effect replay and clarify the repeated Firefox console warnings.
+- **Inputs Read:** Current frontend AGENTS.md and plan.md map rules; MapShell and lifecycle tests; React StrictMode root; installed Mapbox GL JS 3.33.0 source; all MapShell call sites.
+- **Completed:** MapShell now retains a per-container Map instance across the synchronous StrictMode cleanup/setup replay and defers disposal by one microtask. A replay cancels disposal; a real component unmount still calls `map.remove()`. Updated the lifecycle test to assert one Map constructor call and real unmount cleanup. Confirmed Mapbox's installed `Map.remove()` calls `WEBGL_lose_context.loseContext()`, explaining context-loss messages during intentional teardown. Firefox renderer/upload deprecation messages originate in the Mapbox bundle and are not application logs.
+- **Requirement IDs:** TMS-MAP-WEBGL-ROBUSTNESS-2026-11-06; StrictMode lifecycle and Firefox WebGL warning diagnosis.
+- **Files and Artifacts:** `src/components/map/MapShell.tsx`; `src/components/map/MapShell.test.tsx`; `.ai-workflow/PROJECT_MEMORY.md`.
+- **Decisions:** Avoid console interception and dependency/package changes. Keep real Mapbox teardown on actual unmount and retain context-loss fallback/recovery. GitNexus impact returned `UNKNOWN` due database/runtime version mismatch (42/40); source search confirmed MapShell is used by dispatch and live tracking, with approvals rendered through DispatchPage.
+- **Assumptions:** Remaining `webglcontextlost` browser messages can still occur on real component unmount or genuine GPU/driver loss; the fix specifically removes the duplicate context teardown from StrictMode's development replay.
+- **Verification:** `npx vitest run src/components/map/MapShell.test.tsx src/components/map/VehicleLayer.test.tsx src/components/map/DispatchMapLayers.test.tsx` exit 0, 3 files / 11 tests passed. `npm run build` exit 0 (existing >500 kB Mapbox chunk warning). `npm run lint` exit 0. Full Vitest suite and live Firefox browser retest were not run.
+- **Open Issues and Risks:** Firefox's `WEBGL_debug_renderer_info` and non-DOM upload deprecations remain in Mapbox GL JS 3.33.0; browser-generated context-loss messages remain expected when a map is actually removed or the GPU drops it. Authenticated dispatch-board 404 and live browser recovery remain unresolved from HOFF-0019.
+- **Blockers:** Browser/GPU-specific behavior cannot be confirmed in this session's mocked map tests; authenticated backend runtime checks remain unavailable.
+- **Next Required Action:** Reload the affected screen with the updated frontend and confirm that development startup no longer produces a StrictMode duplicate-map context loss; distinguish remaining teardown/GPU events from loss of the active map.
+- **Acceptance Gate:** One map instance survives StrictMode effect replay; real unmount removes it; focused tests, build and lint pass; no application-level attempt to hide Firefox/Mapbox warnings.
+- **Do Not Redo:** Do not suppress browser console warnings, skip `map.remove()`, or modify package/dependency/API contracts without separate approval. No Git operations were performed.
 
 ## 10. Final Readiness
 
 Product gate statuses/evidence below are retained from the historical Oct6 checkpoint; documentation-only work on Oct7 does not rerun or certify them.
+
+Scoped map UI status on 2026-11-06: READY_FOR_REVIEW. The focused map tests and required typecheck/lint/build passed; live-token/browser validation and optional GLB rendering remain unverified.
 
 | Check | Status | Evidence / Exception |
 |---|---|---|
@@ -576,3 +656,15 @@ Product gate statuses/evidence below are retained from the historical Oct6 check
 **Production Verdict:** `NOT READY`
 
 **Residual Risks / Approved Exceptions:** Missing contracts/authorization and E2E remain unresolved; user approved frontend-only scope, no task deferrals. See docs/frontend-backend-unblock.md.
+
+### HOFF-0021 — Frontend Developer → Code Reviewer
+
+- **Timestamp:** 2026-11-06T18:44:16+07:00
+- **Phase:** 8 — Frontend Development
+- **Objective:** Redesign the dashboard the user actually opens at `/tms` and make it visible on localhost:5173.
+- **Completed:** Corrected the route mismatch from the prior `/operations` pass. Added dashboard overview and work-queue components; reflowed TMS dashboard sections around existing API-backed counts, risk/approval queues, fleet map, priority load and timeline. Added responsive 1440/390 fixture screenshots and progress/plan notes.
+- **Files:** `src/components/tms-flow/TmsDashboardContent.tsx`, `TmsDashboardOverview.tsx`, `TmsDashboardWorkQueue.tsx`, `src/styles/tms-flow.scss`, locale vi/en, `plan.md`, `docs/UI_UX_IMPLEMENTATION_PROGRESS.md`, screenshots under `docs/design/tms-dashboard-refresh/`.
+- **Branch:** `codex/tms-dashboard-refresh-2026-11-06`, created in the working directory serving port 5173. Existing uncommitted work was preserved. No commit or deploy.
+- **Verification:** `npm run typecheck`, `npm run lint`, `git diff --check` pass. Browser fixture shows `/tms`, two queue rows, and no horizontal overflow at 1440/390px. Map token/live backend not available in the fixture; map fallback remains visible and truthful. Tests/build not run in this turn.
+- **Risk note:** GitNexus MCP remained incompatible with stored database version 42 vs runtime 40. CLI reindex completed; source search confirmed `OperationsDashboardPage` imports the dashboard component and AppRouter mounts it at `/tms`. No hooks, APIs, permissions or mutation flows changed.
+- **Next:** User can reload `http://localhost:5173/tms` to see the current branch; authenticated-data/Mapbox UAT remains `NEEDS-LIVE`.

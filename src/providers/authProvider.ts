@@ -10,7 +10,6 @@ import type {
 } from "@refinedev/core";
 
 import { routes } from "../constants/routes";
-import type { LarkAuthLoginResponse } from "../types/auth.types";
 import type {
   AuthIdentity,
   BrowserLocationAdapter,
@@ -19,7 +18,6 @@ import type { LogisticsApiClient } from "../types/apiClient.types";
 import { translate } from "@locales/translate";
 import { normalizeLocalReturnTo } from "../providers/auth/oidcGateway";
 import { AuthSessionManager } from "../providers/auth/sessionManager";
-import { env } from "../config/env";
 
 const DEFAULT_LOGIN_PATH = "/login";
 
@@ -148,92 +146,31 @@ export const createAuthProvider = (
           params,
           options.location.getCurrentPath(),
         );
-        options.sessions.startLarkLogin(returnTo);
+        await options.sessions.startLarkLogin(returnTo);
         return { success: true };
       }
 
       const provider = readStringProperty(params, "provider");
 
-      if (
-        provider === "lark" ||
-        (mode === "callback" &&
-          Boolean(
-            readStringProperty(params, "code") ||
-              readStringProperty(params, "error") ||
-              readStringProperty(params, "errorDescription"),
-          ))
-      ) {
+      if (provider === "lark") {
         if (mode === "redirect") {
           const returnTo = extractLoginReturnTo(
             params,
             options.location.getCurrentPath(),
           );
-          const larkLoginBase = options.larkLoginUrl ?? env.larkLoginUrl;
-          const larkUrl = `${larkLoginBase}?returnTo=${encodeURIComponent(returnTo)}`;
-          if (options.location.assign) {
-            options.location.assign(larkUrl);
-          } else {
-            window.location.assign(larkUrl);
-          }
+          await options.sessions.startLarkLogin(returnTo);
           return { success: true };
         }
 
         if (mode === "callback") {
-          const code = readStringProperty(params, "code");
-          const state = readStringProperty(params, "state");
-          const returnTo = readStringProperty(params, "returnTo");
-          const error = readStringProperty(params, "error");
-          const errorDescription =
-            readStringProperty(params, "errorDescription") ??
-            readStringProperty(params, "error_description");
-
-          if (error) {
-            return {
-              success: false,
-              error: {
-                message: errorDescription || `LARK_AUTH_CANCELLED: ${error}`,
-                name: "LARK_AUTH_CANCELLED",
-              },
-            };
-          }
-
-          if (!code) {
-            return {
-              success: false,
-              error: {
-                message: "Authorization code is missing",
-                name: "LARK_CODE_MISSING",
-              },
-            };
-          }
-
           try {
-            if (!options.apiClient) {
-              throw new Error("LARK_API_CLIENT_REQUIRED");
-            }
-
-            const response = await options.apiClient.instance.post<unknown>(
-              "/api/auth/lark/callback",
-              {
-                code,
-                state,
-                returnTo,
-                error,
-                errorDescription,
-              },
-              {
-                logistics: { authentication: "none" },
-              },
-            );
-
-            const loginResponse = response.data as LarkAuthLoginResponse;
-            await options.sessions.establishLarkSession(loginResponse);
+            const result = await options.sessions.completeLarkLogin();
 
             return {
               success: true,
               redirectTo: normalizeLocalReturnTo(
-                loginResponse.returnTo ?? routes.dashboard,
-                routes.dashboard,
+                result.returnTo ?? routes.tmsFlow.root,
+                routes.tmsFlow.root,
               ),
               successNotification: { message: translate("auth.loginSuccess") },
             };

@@ -59,6 +59,10 @@ export interface LoadResponse {
   type: string;
   unNumber?: string | null;
   version?: number | null;
+  /** Cargo weight in pounds; null = not captured (never 0 as a placeholder). */
+  weightLbs?: number | null;
+  /** Cargo volume in cubic feet; null = not captured (never 0 as a placeholder). */
+  volumeCuft?: number | null;
 }
 
 export interface LoadExceptionResponse {

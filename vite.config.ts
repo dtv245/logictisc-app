@@ -20,12 +20,12 @@ function createDevLogger(target: string) {
     if (
       typeof msg === 'string' &&
       msg.includes('http proxy error') &&
-      (msg.includes('ECONNREFUSED') || msg.includes('502'))
+      (msg.includes('ECONNREFUSED') || msg.includes('ECONNRESET') || msg.includes('502'))
     ) {
       if (!warnedBackendOffline) {
         warnedBackendOffline = true
         logger.warn(
-          `\n⚠️  [vite] Backend API chưa chạy tại ${target}. Dev proxy đang kích hoạt chế độ Mock Fallback cho /api.\n`,
+          `\n⚠️  [vite] Backend API không khả dụng hoặc vừa khởi động lại tại ${target}. Các API fallback chỉ dùng cho phát triển.\n`,
         )
       }
       return
@@ -81,13 +81,13 @@ export default defineConfig(({ mode }) => {
             }
 
             if (url === '/api/health' || url.startsWith('/api/health?')) {
-              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.writeHead(503, { 'Content-Type': 'application/json' });
               res.end(
                 JSON.stringify({
                   application: 'logicstic',
-                  database: 'enabled',
-                  profiles: 'dev-local',
-                  status: 'UP',
+                  database: 'unknown',
+                  profiles: 'dev-proxy-fallback',
+                  status: 'DOWN',
                 }),
               );
               return;

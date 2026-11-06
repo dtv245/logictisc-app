@@ -49,14 +49,13 @@ export const useLocalizedColumns = <TData extends BaseRecord>(
                   return defaultEmptyRender;
                 }
                 const text = String(value);
-                if (rest.ellipsis) {
-                  return (
-                    <Tooltip title={text}>
-                      <span className="table-cell-ellipsis">{text}</span>
-                    </Tooltip>
-                  );
-                }
-                return numeric ? <span className="tabular-nums">{text}</span> : text;
+                return (
+                  <Tooltip title={text}>
+                    <span className={numeric ? "tabular-nums table-cell-ellipsis" : "table-cell-ellipsis"}>
+                      {text}
+                    </span>
+                  </Tooltip>
+                );
               },
             };
           }
@@ -90,10 +89,14 @@ export const useLocalizedColumns = <TData extends BaseRecord>(
               );
             }
 
-            return label;
+            return (
+              <Tooltip title={label}>
+                <span className="table-cell-ellipsis">{label}</span>
+              </Tooltip>
+            );
           },
         };
       }),
-    [columns, t],
+    [columns, t, i18n],
   );
 };

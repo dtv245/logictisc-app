@@ -6,7 +6,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { App } from "./App";
-import { initializeAppI18n } from "./locales";
+import { initializeAppI18n, resolveSupportedLocale } from "./locales";
 import "@refinedev/antd/dist/reset.css";
 import "./styles/global.scss";
 import "./styles/app.scss";
@@ -18,7 +18,12 @@ if (!rootElement) {
 }
 
 const i18n = await initializeAppI18n({
-  locale: "vi",
+  locale: resolveSupportedLocale(
+    (() => {
+      try { return window.localStorage.getItem("logistics_language") ?? "vi"; }
+      catch { return "vi"; }
+    })(),
+  ),
   fallbackLocale: "en",
 });
 

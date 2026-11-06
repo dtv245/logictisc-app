@@ -22,8 +22,11 @@ import {
   approveSuggestion,
   fetchAllLoads,
   fetchAllTrucks,
+  fetchDispatchRiskLoadsPage,
+  fetchDispatchUnassignedLoadsPage,
   fetchLoad,
   fetchLoadAiStatuses,
+  fetchLoadsPage,
   fetchPendingSuggestions,
   rejectSuggestion,
   TmsApiError,
@@ -50,6 +53,30 @@ describe("TMS API", () => {
   beforeEach(() => {
     axiosMock.get.mockReset();
     axiosMock.post.mockReset();
+  });
+
+  it("fetches a single page of 10 loads by default for infinite scroll", async () => {
+    axiosMock.get.mockResolvedValueOnce(
+      page(makeItems(10), {
+        totalItems: 1000,
+        totalPages: 100,
+        currentPage: 1,
+        pageSize: 10,
+      }),
+    );
+
+    const result = await fetchLoadsPage(1);
+
+    expect(result.items).toHaveLength(10);
+    expect(result.totalItems).toBe(1000);
+    expect(result.totalPages).toBe(100);
+    expect(result.currentPage).toBe(1);
+    expect(result.pageSize).toBe(10);
+    expect(axiosMock.get).toHaveBeenCalledTimes(1);
+    expect(axiosMock.get).toHaveBeenCalledWith(
+      tmsEndpoints.loads,
+      expect.objectContaining({ params: { page: 1, pageSize: 10 } }),
+    );
   });
 
   it("collects every load page until the backend reports the last page", async () => {
@@ -182,6 +209,61 @@ describe("TMS API", () => {
       tmsEndpoints.loadAiOverview,
       { loadIds: body.loadIds },
       expect.objectContaining({ headers: { Authorization: "Bearer test" } }),
+    );
+  });
+
+  it("fetches operational risk loads page from /api/loads/dispatch-board/risk with max pageSize 50", async () => {
+    const riskItem = {
+      load: { id: "load-risk-1", number: 5001 },
+      unassignedTruck: true,
+      riskReasons: [
+        {
+          code: "OPEN_EXCEPTION",
+          message: "Load has an unresolved exception.",
+          exceptionId: "exc-1",
+          exceptionType: "BREAKDOWN",
+          exceptionReason: "Engine overheating",
+        },
+      ],
+    };
+    axiosMock.get.mockResolvedValueOnce(
+      page([riskItem], {
+        totalItems: 42,
+        totalPages: 3,
+        currentPage: 1,
+        pageSize: 20,
+      }),
+    );
+
+    const result = await fetchDispatchRiskLoadsPage(1, 20);
+
+    expect(result.items).toEqual([riskItem]);
+    expect(result.totalItems).toBe(42);
+    expect(result.totalPages).toBe(3);
+    expect(axiosMock.get).toHaveBeenCalledWith(
+      tmsEndpoints.dispatchRiskLoads,
+      expect.objectContaining({ params: { page: 1, pageSize: 20 } }),
+    );
+  });
+
+  it("fetches operational unassigned loads page from /api/loads/dispatch-board/unassigned", async () => {
+    axiosMock.get.mockResolvedValueOnce(
+      page(makeItems(20, "unassigned"), {
+        totalItems: 85,
+        totalPages: 5,
+        currentPage: 2,
+        pageSize: 20,
+      }),
+    );
+
+    const result = await fetchDispatchUnassignedLoadsPage(2, 20);
+
+    expect(result.items).toHaveLength(20);
+    expect(result.totalItems).toBe(85);
+    expect(result.currentPage).toBe(2);
+    expect(axiosMock.get).toHaveBeenCalledWith(
+      tmsEndpoints.dispatchUnassignedLoads,
+      expect.objectContaining({ params: { page: 2, pageSize: 20 } }),
     );
   });
 });

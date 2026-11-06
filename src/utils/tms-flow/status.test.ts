@@ -4,6 +4,7 @@ import type { LoadResponse } from "@/types/load.dto";
 import type { TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
 import {
   countTmsRiskQueue,
+  deriveOperationalRiskLevel,
   deriveOperationalStatus,
   deriveRisk,
   matchesTmsQuery,
@@ -12,6 +13,7 @@ import {
   selectTmsQueue,
   sortTmsQueue,
   summarizeTmsLoads,
+  toTmsRiskShipment,
   toTmsShipment,
 } from "@/utils/tms-flow/status";
 
@@ -215,6 +217,34 @@ describe("queue selectors", () => {
         (view) => view.id,
       ),
     ).toEqual(["assigned"]);
+    expect(
+      selectTmsQueue(views, "ai-pending", "", new Set(["assigned"])).map(
+        (view) => view.id,
+      ),
+    ).toEqual(["assigned"]);
+  });
+
+  it("filters overdue loads using the shared pickup/delivery deadline rule", () => {
+    const overdue = makeView({
+      id: "late-pickup",
+      raw: makeLoad({
+        id: "late-pickup",
+        requestedPickupDate: new Date(NOW - HOUR).toISOString(),
+        requestedDeliveryDate: new Date(NOW + HOUR).toISOString(),
+      }),
+    });
+    const deliveredLate = makeView({
+      id: "delivered-late",
+      status: "delivered",
+      raw: makeLoad({
+        id: "delivered-late",
+        deliveredAt: new Date(NOW - HOUR).toISOString(),
+        requestedDeliveryDate: new Date(NOW - 2 * HOUR).toISOString(),
+      }),
+    });
+
+    expect(selectTmsQueue([overdue, deliveredLate], "overdue", "", new Set()).map((view) => view.id))
+      .toEqual(["late-pickup"]);
   });
 
   it("sorts delayed before at risk, then by earliest delivery", () => {
@@ -317,5 +347,72 @@ describe("summarizeTmsLoads", () => {
     ];
 
     expect(selectPrimaryRiskShipment(views)?.id).toBe("late");
+  });
+});
+
+describe("operational risk load mapping", () => {
+  it("maps DELIVERY_OVERDUE and PICKUP_OVERDUE to delayed, and OPEN_EXCEPTION to at_risk", () => {
+    const load = makeLoad({
+      deliveredAt: new Date(NOW - HOUR).toISOString(),
+    });
+    expect(
+      deriveOperationalRiskLevel(
+        load,
+        [
+          {
+            code: "OPEN_EXCEPTION",
+            message: "Load has an unresolved exception.",
+            exceptionId: "exc-1",
+            exceptionType: "BREAKDOWN",
+          },
+        ],
+        NOW,
+      ),
+    ).toBe("at_risk");
+
+    expect(
+      deriveOperationalRiskLevel(
+        makeLoad(),
+        [
+          {
+            code: "PICKUP_OVERDUE",
+            message: "Pickup deadline has passed without pickup recorded.",
+          },
+        ],
+        NOW,
+      ),
+    ).toBe("delayed");
+
+    expect(
+      deriveOperationalRiskLevel(
+        makeLoad({ deliveredAt: new Date(NOW - HOUR).toISOString() }),
+        [{ code: "DELIVERY_OVERDUE", message: "deadline passed" }],
+        NOW,
+      ),
+    ).toBe("none");
+  });
+
+  it("retains riskReasons on TmsShipmentView and keeps delivered loads with open exceptions in the at-risk queue", () => {
+    const riskItem = {
+      load: makeLoad({
+        id: "delivered-exc",
+        deliveredAt: new Date(NOW - HOUR).toISOString(),
+      }),
+      unassignedTruck: false,
+      riskReasons: [
+        {
+          code: "OPEN_EXCEPTION" as const,
+          message: "Load has an unresolved exception.",
+          exceptionType: "DAMAGE",
+          exceptionReason: "Broken seal",
+        },
+      ],
+    };
+
+    const view = toTmsRiskShipment(riskItem, NOW);
+    expect(view.status).toBe("delivered");
+    expect(view.risk).toBe("at_risk");
+    expect(view.riskReasons).toEqual(riskItem.riskReasons);
+    expect(selectTmsQueue([view], "at-risk", "", new Set())).toEqual([view]);
   });
 });

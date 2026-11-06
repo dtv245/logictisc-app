@@ -29,7 +29,7 @@ import {
   TruckOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import type { AiDispatchCandidate } from "@/api/ai/ai.types";
 import { formatDateTime } from "@/formatters/dateTime";
 import { useLoadAiDispatch } from "@/hooks/ai/useLoadAiDispatch";
@@ -77,6 +77,9 @@ export const LoadAiDispatchSection = ({
   // Dialog Reject State
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectForm] = Form.useForm<{ reason: string }>();
+  useLayoutEffect(() => {
+    if (rejectModalOpen) rejectForm.resetFields();
+  }, [rejectModalOpen, rejectForm]);
 
   const handleRunDispatch = async () => {
     try {
@@ -123,7 +126,6 @@ export const LoadAiDispatchSection = ({
 
   const handleOpenReject = (candidate: AiDispatchCandidate) => {
     setSelectedCandidate(candidate);
-    rejectForm.resetFields();
     setRejectModalOpen(true);
   };
 
@@ -692,7 +694,7 @@ export const LoadAiDispatchSection = ({
         cancelText="Hủy"
         confirmLoading={isApproving}
         okButtonProps={{ disabled: isApproving }}
-        destroyOnClose
+        destroyOnHidden
       >
         <Space direction="vertical" style={{ width: "100%" }} size="middle">
           <Paragraph>
@@ -733,7 +735,7 @@ export const LoadAiDispatchSection = ({
         cancelText="Hủy"
         confirmLoading={isRejecting}
         okButtonProps={{ disabled: isRejecting }}
-        destroyOnClose
+        destroyOnHidden
       >
         <Paragraph>
           Vui lòng nêu lý do từ chối gợi ý xe <Text strong>{selectedCandidate?.truckNumber}</Text> để hệ thống AI học hỏi và điều chỉnh trọng số tối ưu.

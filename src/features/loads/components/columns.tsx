@@ -16,14 +16,23 @@ export const loadColumns = createCrudColumns<Load>(
       sorter: true,
       width: 140,
       minWidth: 120,
-      render: (value: unknown, record: Load) => (
-        <Link
-          to={routes.resources.loads.show.replace(":id", String(record.id))}
-          className="table-number-link"
-        >
-          {displayValue(value)}
-        </Link>
-      ),
+      ellipsis: true,
+      render: (value: unknown, record: Load) => {
+        const text = displayValue(value);
+        if (text === "—") {
+          return <span className="table-cell-empty">—</span>;
+        }
+        return (
+          <Tooltip title={text}>
+            <Link
+              to={routes.resources.loads.show.replace(":id", String(record.id))}
+              className="table-number-link table-cell-ellipsis"
+            >
+              {text}
+            </Link>
+          </Tooltip>
+        );
+      },
     },
     {
       dataIndex: "name",

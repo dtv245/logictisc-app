@@ -13,15 +13,12 @@ const createCrudRoutes = (resource: string) => ({
 
 export const routes = {
   callback: "/auth/callback",
-  dashboard: "/dashboard",
   diagnostics: "/diagnostics",
   forbidden: "/403",
   login: "/login",
   notFound: "/404",
-  // Màn hình điều phối, tách khỏi `dashboard` (Executive Overview): hai màn
-  // hình trả lời hai câu hỏi khác nhau và cùng tồn tại.
-  operations: "/operations",
   profile: "/profile",
+  settings: "/settings",
   profitability: "/finance/profitability",
   optimization: "/optimization",
   optimizationRun: "/optimization/runs/:id",
@@ -39,6 +36,7 @@ export const routes = {
     root: "/tms",
     dispatch: "/tms/dispatch",
     approvals: "/tms/approvals",
+    liveTracking: "/tms/live-tracking",
     shipment: "/tms/shipments/:shipmentId",
   },
   selectTenant: "/select-tenant",
@@ -52,7 +50,6 @@ export const routes = {
     dvir: createCrudRoutes("dvir"),
     drivers: createCrudRoutes("drivers"),
     employees: createCrudRoutes("employees"),
-    expenses: createCrudRoutes("expenses"),
     hosEld: createCrudRoutes("hos-eld"),
     invoices: createCrudRoutes("invoices"),
     loadBoard: createCrudRoutes("load-board"),

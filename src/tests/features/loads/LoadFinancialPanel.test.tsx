@@ -8,7 +8,12 @@ import { ApiHttpError } from "@/utils/httpError";
 import type { CustomParams } from "@refinedev/core";
 
 vi.mock("@/hooks/useCurrentTenant", () => ({ useCurrentTenant: () => ({ tenant: { tenantKey: "tenant-finance" } }) }));
-const backend = async ({ url }: CustomParams): Promise<unknown> => url.endsWith("/costs") ? costs : url.endsWith("/accessorials") ? accessorials : report;
+// Raw-mode callers (the cost tab) receive the full HTTP envelope at the transport boundary.
+const envelope = (data: unknown) => ({
+  success: true, code: "OK", message: "OK", data, errors: [],
+  meta: { timestamp: new Date(0).toISOString(), path: "/", requestId: "test-request" },
+});
+const backend = async ({ url }: CustomParams): Promise<unknown> => url.endsWith("/costs") ? envelope(costs) : url.endsWith("/accessorials") ? accessorials : report;
 
 describe("LoadFinancialPanel", () => {
   it("displays authoritative values without summing costs or deriving margin, and fetches only the open tab", async () => {
@@ -32,7 +37,7 @@ describe("LoadFinancialPanel", () => {
     expect(screen.getByText("Voided")).toBeInTheDocument();
     expect(screen.getAllByText(/EUR/).length).toBeGreaterThan(0);
     expect(request.mock.calls.some(([x]) => x.url.endsWith("/accessorials"))).toBe(false);
-    expect(client.getQueryCache().find(["load-finance", tenantKey, loadId, "costs"])).toBeDefined();
+    expect(client.getQueryCache().find(["load-finance", tenantKey, loadId, "costs", 1])).toBeDefined();
   });
   it("approves a pending charge only after confirmation and keeps the three amounts independent", async () => {
     const request = vi.fn(backend);
@@ -69,7 +74,7 @@ describe("LoadFinancialPanel", () => {
     const request = vi.fn(async ({ url }: CustomParams) => {
       if (!url.endsWith("/costs")) return report;
       if (failure) throw new ApiHttpError({ statusCode: 503, code: "SERVICE_UNAVAILABLE", message: "Cost service unavailable", requestId: "r-1" });
-      return [];
+      return envelope([]);
     });
     await renderFinance(<LoadFinancialPanel loadId={loadId} />, request);
     await screen.findByTestId("profitability-summary");

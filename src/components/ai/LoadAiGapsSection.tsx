@@ -459,7 +459,7 @@ export const LoadAiGapsSection = ({
         cancelText="Hủy"
         confirmLoading={isDismissing}
         okButtonProps={{ disabled: !isDismissReasonValid || isDismissing }}
-        destroyOnClose
+        destroyOnHidden
       >
         <Paragraph>
           Bạn có chắc chắn muốn bỏ qua câu hỏi về:{" "}

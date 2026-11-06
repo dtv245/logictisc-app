@@ -1,5 +1,5 @@
 import { useCan } from "@refinedev/core";
-import { Button, Card, Col, Form, Input, Row, Skeleton, Space, theme } from "antd";
+import { Button, Card, Col, Form, Input, Row, Skeleton, theme } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/PageHeader";
@@ -28,7 +28,7 @@ export function OptimizationPage() {
   if (!tenant?.tenantKey || access.data?.can !== true) return <ForbiddenState />;
 
   return (
-    <Space direction="vertical" size="large" style={{ width: "100%" }}>
+    <div className="tms-page optimization-page">
       <PageHeader title={t("optimization.title")} />
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={8}>
@@ -65,7 +65,11 @@ export function OptimizationPage() {
           </Card>
         </Col>
         <Col xs={24} lg={16}>
-          <Card title={t("optimization.run")} style={{ borderRadius: token.borderRadiusLG }}>
+          <Card
+            title={t("optimization.run")}
+            style={{ borderRadius: token.borderRadiusLG }}
+            className="optimization-run-card"
+          >
             <OptimizationRunForm
               actions={actions}
               onCreated={(outcome) => navigate(routes.optimizationRun.replace(":id", outcome.run.id))}
@@ -73,6 +77,6 @@ export function OptimizationPage() {
           </Card>
         </Col>
       </Row>
-    </Space>
+    </div>
   );
 }

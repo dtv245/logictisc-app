@@ -13,14 +13,30 @@ export const driverColumns = createCrudColumns<Employee>("drivers", [
     sorter: true,
     width: 150,
     minWidth: 130,
-    render: (value: unknown, record: Employee) => (
-      <Link
-        to={routes.resources.drivers.show.replace(":id", String(record.id))}
-        className="table-number-link"
-      >
-        {displayValue(value)}
-      </Link>
-    ),
+    ellipsis: true,
+    render: (value: unknown, record: Employee) => {
+      if (!value || String(value).trim() === "") {
+        return (
+          <Link
+            to={routes.resources.drivers.show.replace(":id", String(record.id))}
+            className="table-number-link"
+          >
+            {displayValue(value)}
+          </Link>
+        );
+      }
+      const text = displayValue(value);
+      return (
+        <Tooltip title={text}>
+          <Link
+            to={routes.resources.drivers.show.replace(":id", String(record.id))}
+            className="table-number-link table-cell-ellipsis"
+          >
+            {text}
+          </Link>
+        </Tooltip>
+      );
+    },
   },
   {
     dataIndex: "lastName",

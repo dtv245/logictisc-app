@@ -1,0 +1,135 @@
+diff --git a/src/features/terminals/components/TerminalForm.tsx b/src/features/terminals/components/TerminalForm.tsx
+index 1035f0a..03a23b3 100644
+--- a/src/features/terminals/components/TerminalForm.tsx
++++ b/src/features/terminals/components/TerminalForm.tsx
+@@ -97,7 +97,7 @@ export const TerminalForm = ({
+         <FormSection
+           id="general-info"
+           title="Thông tin chung"
+-          description="Định danh cảng / bến bãi, phân loại và mã UN/LOCODE"
++          description="Định danh cảng / bến bãi, phân loại và mã bến bãi"
+         >
+           <Row gutter={[24, 0]}>
+             <Col xs={24} md={12}>
+@@ -106,7 +106,7 @@ export const TerminalForm = ({
+                 name="name"
+                 rules={[
+                   { required: true, message: "Vui lòng nhập tên cảng / bến bãi" },
+-                  { max: 200, message: "Tên không được vượt quá 200 ký tự" },
++                  { max: 100, message: "Tên không được vượt quá 100 ký tự" },
+                 ]}
+               >
+                 <Input placeholder="Ví dụ: Cat Lai Port" />
+@@ -128,20 +128,19 @@ export const TerminalForm = ({
+ 
+             <Col xs={24} md={12}>
+               <Form.Item
+-                label="Mã UN/LOCODE (Code)"
++                label="Mã bến bãi (Code)"
+                 name="code"
+                 normalize={(val: unknown) => (typeof val === "string" ? val.toUpperCase() : val)}
+                 rules={[
+-                  { required: true, message: "Vui lòng nhập mã UN/LOCODE" },
++                  { required: true, message: "Vui lòng nhập mã bến bãi" },
+                   {
+-                    pattern: /^[A-Za-z]{5}$/,
+-                    message: "Mã UN/LOCODE phải đúng 5 chữ cái (Ví dụ: VNSGN, USNYC)",
++                    pattern: /^[A-Za-z0-9-]+$/,
++                    message: "Mã bến bãi chỉ gồm chữ, số và dấu gạch ngang",
+                   },
+                 ]}
+-                extra="Mã chuẩn 5 chữ cái, tự động in hoa"
++                extra="Tự động in hoa"
+               >
+                 <Input
+-                  maxLength={5}
+                   placeholder="Ví dụ: VNSGN"
+                   style={{ textTransform: "uppercase" }}
+                 />
+diff --git a/src/tests/features/terminals/TerminalForm.test.tsx b/src/tests/features/terminals/TerminalForm.test.tsx
+index 655dc3d..4107326 100644
+--- a/src/tests/features/terminals/TerminalForm.test.tsx
++++ b/src/tests/features/terminals/TerminalForm.test.tsx
+@@ -49,7 +49,7 @@ describe("TerminalForm Component", () => {
+     expect(screen.getByText("Thông tin chung")).toBeInTheDocument();
+     expect(screen.getByText("Địa chỉ bến bãi")).toBeInTheDocument();
+     expect(screen.getByLabelText("Tên cảng / bến bãi")).toBeInTheDocument();
+-    expect(screen.getByLabelText("Mã UN/LOCODE (Code)")).toBeInTheDocument();
++    expect(screen.getByLabelText("Mã bến bãi (Code)")).toBeInTheDocument();
+     expect(screen.getByLabelText("Mã quốc gia (Country Code)")).toBeInTheDocument();
+     expect(screen.getByLabelText("Phân loại bến bãi")).toBeInTheDocument();
+     expect(screen.getByLabelText("Địa chỉ dòng 1")).toBeInTheDocument();
+@@ -67,7 +67,7 @@ describe("TerminalForm Component", () => {
+ 
+     await waitFor(() => {
+       expect(screen.getByText("Vui lòng nhập tên cảng / bến bãi")).toBeInTheDocument();
+-      expect(screen.getByText("Vui lòng nhập mã UN/LOCODE")).toBeInTheDocument();
++      expect(screen.getByText("Vui lòng nhập mã bến bãi")).toBeInTheDocument();
+       expect(screen.getByText("Vui lòng nhập mã quốc gia")).toBeInTheDocument();
+       expect(screen.getByText("Vui lòng chọn loại bến bãi")).toBeInTheDocument();
+       expect(screen.getByText("Vui lòng nhập địa chỉ dòng 1")).toBeInTheDocument();
+@@ -78,11 +78,11 @@ describe("TerminalForm Component", () => {
+     });
+   });
+ 
+-  it("báo lỗi khi mã UN/LOCODE không đúng 5 chữ cái và mã quốc gia không đúng 2 chữ cái", async () => {
++  it("báo lỗi khi mã bến bãi chứa ký tự ngoài tập cho phép và mã quốc gia không đúng 2 chữ cái", async () => {
+     render(<FormHarness />);
+ 
+-    const codeInput = screen.getByLabelText("Mã UN/LOCODE (Code)");
+-    fireEvent.change(codeInput, { target: { value: "VN1" } });
++    const codeInput = screen.getByLabelText("Mã bến bãi (Code)");
++    fireEvent.change(codeInput, { target: { value: "VN@1" } });
+ 
+     const countryCodeInput = screen.getByLabelText("Mã quốc gia (Country Code)");
+     fireEvent.change(countryCodeInput, { target: { value: "VNM" } });
+@@ -92,7 +92,7 @@ describe("TerminalForm Component", () => {
+ 
+     await waitFor(() => {
+       expect(
+-        screen.getByText("Mã UN/LOCODE phải đúng 5 chữ cái (Ví dụ: VNSGN, USNYC)"),
++        screen.getByText("Mã bến bãi chỉ gồm chữ, số và dấu gạch ngang"),
+       ).toBeInTheDocument();
+       expect(
+         screen.getByText("Mã quốc gia phải đúng 2 chữ cái ISO (Ví dụ: VN, US)"),
+@@ -100,6 +100,22 @@ describe("TerminalForm Component", () => {
+     });
+   });
+ 
++  it("xác nhận mã gồm chữ, số và dấu gạch ngang như VN1 là hợp lệ", async () => {
++    render(<FormHarness />);
++
++    const codeInput = screen.getByLabelText("Mã bến bãi (Code)");
++    fireEvent.change(codeInput, { target: { value: "VN1" } });
++
++    const submitBtn = screen.getByRole("button", { name: "Tạo mới bến bãi" });
++    fireEvent.click(submitBtn);
++
++    await waitFor(() => {
++      expect(
++        screen.queryByText("Mã bến bãi chỉ gồm chữ, số và dấu gạch ngang"),
++      ).not.toBeInTheDocument();
++    });
++  });
++
+   it("gợi ý addressCountry khi nhập countryCode", async () => {
+     render(<FormHarness />);
+ 
+@@ -127,7 +143,7 @@ describe("TerminalForm Component", () => {
+     fireEvent.change(screen.getByLabelText("Tên cảng / bến bãi"), {
+       target: { value: "Cat Lai Port" },
+     });
+-    fireEvent.change(screen.getByLabelText("Mã UN/LOCODE (Code)"), {
++    fireEvent.change(screen.getByLabelText("Mã bến bãi (Code)"), {
+       target: { value: "vnsgn" },
+     });
+     fireEvent.change(screen.getByLabelText("Mã quốc gia (Country Code)"), {
+@@ -192,7 +208,7 @@ describe("TerminalForm Component", () => {
+     render(<FormHarness initialValues={initial} isEdit={true} />);
+ 
+     expect(screen.getByLabelText("Tên cảng / bến bãi")).toHaveValue("Cat Lai Port");
+-    expect(screen.getByLabelText("Mã UN/LOCODE (Code)")).toHaveValue("VNSGN");
++    expect(screen.getByLabelText("Mã bến bãi (Code)")).toHaveValue("VNSGN");
+     expect(screen.getByLabelText("Mã quốc gia (Country Code)")).toHaveValue("VN");
+     expect(screen.getByLabelText("Ghi chú")).toHaveValue("Khu vực cổng A");
+     expect(screen.getByRole("button", { name: "Cập nhật bến bãi" })).toBeInTheDocument();

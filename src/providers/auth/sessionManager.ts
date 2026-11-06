@@ -121,15 +121,14 @@ export class AuthSessionManager {
   };
 
   /**
-   * Pha redirect Lark: chuyển hướng trình duyệt tới backend login URL.
-   * Không async vì redirect xảy ra ngay lập tức; wrapper async để
-   * AuthProvider có thể dùng cùng pattern với OIDC startLogin.
+   * Pha redirect Lark: lấy URL authorization có state từ backend, lưu state
+   * vào session của tab rồi chuyển hướng trình duyệt tới Lark.
    */
-  startLarkLogin = (returnTo: string): void => {
+  startLarkLogin = async (returnTo: string): Promise<void> => {
     if (!this.lark) {
       throw new Error("LARK_GATEWAY_NOT_CONFIGURED");
     }
-    this.lark.startLogin(returnTo);
+    await this.lark.startLogin(returnTo);
   };
 
   completeLogin = async (
@@ -150,8 +149,8 @@ export class AuthSessionManager {
   /**
    * Pha callback Lark: gọi backend để đổi authorization code lấy JWT nội bộ.
    * Backend xác minh danh tính Lark, ánh xạ user/tenant/role, và trả về token
-   * cùng profile tối thiểu. Session được thiết lập qua cùng `establishSession`
-   * như OIDC để đảm bảo nhất quán.
+   * cùng profile tối thiểu. Dùng tenant/roles backend trả về để thiết lập
+   * session Lark; JWT HMAC nội bộ không xác minh bằng JWKS của OIDC.
    */
   completeLarkLogin = async (): Promise<LarkLoginResult> => {
     if (!this.lark) {
@@ -159,7 +158,7 @@ export class AuthSessionManager {
     }
     try {
       const result = await this.lark.completeLogin();
-      await this.establishSession(result.user);
+      await this.establishLarkSession(result.auth);
       this.initialized = true;
       return result;
     } catch (error) {

@@ -96,14 +96,23 @@ export const createSettlementColumns = ({
     sorter: (a, b) => a.settlementNumber.localeCompare(b.settlementNumber),
     width: 170,
     minWidth: 150,
-    render: (settlementNumber: string, record: DriverSettlementView) => (
-      <Link
-        to={routes.resources.settlements.show.replace(":id", encodeURIComponent(record.id))}
-        className="table-number-link"
-      >
-        {displayValue(settlementNumber)}
-      </Link>
-    ),
+    ellipsis: true,
+    render: (settlementNumber: string, record: DriverSettlementView) => {
+      const text = displayValue(settlementNumber);
+      if (text === "—") {
+        return <span className="table-cell-empty">—</span>;
+      }
+      return (
+        <Tooltip title={text}>
+          <Link
+            to={routes.resources.settlements.show.replace(":id", encodeURIComponent(record.id))}
+            className="table-number-link table-cell-ellipsis"
+          >
+            {text}
+          </Link>
+        </Tooltip>
+      );
+    },
   },
   {
     title: t("settlements.driver", "Driver"),
@@ -130,12 +139,17 @@ export const createSettlementColumns = ({
     key: "payPeriodCode",
     width: 160,
     minWidth: 140,
+    ellipsis: true,
     render: (code: string | null | undefined, record: DriverSettlementView) => {
       const text = code || record.payPeriodId;
       if (!text || String(text).trim() === "") {
         return <span className="table-cell-empty">—</span>;
       }
-      return <span className="tabular-nums">{String(text)}</span>;
+      return (
+        <Tooltip title={String(text)}>
+          <span className="tabular-nums table-cell-ellipsis">{String(text)}</span>
+        </Tooltip>
+      );
     },
   },
   {

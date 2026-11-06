@@ -24,14 +24,23 @@ export const tripColumns = createCrudColumns<Trip>(
       sorter: true,
       width: 140,
       minWidth: 120,
-      render: (value: unknown, record: Trip) => (
-        <Link
-          to={routes.resources.trips.show.replace(":id", String(record.id))}
-          className="table-number-link"
-        >
-          {displayValue(value)}
-        </Link>
-      ),
+      ellipsis: true,
+      render: (value: unknown, record: Trip) => {
+        const text = displayValue(value);
+        if (text === "—") {
+          return <span className="table-cell-empty">—</span>;
+        }
+        return (
+          <Tooltip title={text}>
+            <Link
+              to={routes.resources.trips.show.replace(":id", String(record.id))}
+              className="table-number-link table-cell-ellipsis"
+            >
+              {text}
+            </Link>
+          </Tooltip>
+        );
+      },
     },
     {
       dataIndex: "name",
@@ -65,11 +74,17 @@ export const tripColumns = createCrudColumns<Trip>(
       titleKey: "columns.trips.truckNumber",
       width: 160,
       minWidth: 130,
+      ellipsis: true,
       render: (value: unknown) => {
         if (!value || String(value).trim() === "") {
           return <span className="table-cell-empty">—</span>;
         }
-        return <span className="tabular-nums">{String(value)}</span>;
+        const text = String(value);
+        return (
+          <Tooltip title={text}>
+            <span className="tabular-nums table-cell-ellipsis">{text}</span>
+          </Tooltip>
+        );
       },
     },
     {

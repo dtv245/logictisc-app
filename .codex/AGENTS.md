@@ -1,478 +1,327 @@
-# LogisticsX — Quy tắc phát triển Frontend dành cho AI Agent
+# LogisticsX — AGENTS.md
 
-> **Phiên bản:** 1.0 · **Ngày:** 19/10/2026  
-> **Phạm vi:** Admin Portal, TMS Portal, Customer Portal, package frontend dùng chung; áp dụng cho code do lập trình viên và AI tạo/sửa.  
-> **Tài liệu liên quan:** `plan.md`, `CURRENT_UI_UX_FLOW_ANALYSIS(1).md` (nếu có trong workspace).  
-> **Mục tiêu:** Phát triển và cải thiện UI/UX an toàn, nhất quán, dễ bảo trì; không phá nghiệp vụ, bảo mật đa tenant, API contract hoặc các chức năng đang hoạt động.
+**v3.0 · Senior Edition · Performance First · No Git mặc định**
 
-## 0. Nguyên tắc ưu tiên
+Áp dụng cho Admin Portal, TMS Portal, Customer Portal và frontend dùng chung. Mục tiêu: **đúng nghiệp vụ + an toàn đa tenant + giao diện rõ ràng + phản hồi nhanh trên dữ liệu lớn**.
 
-1. **Đọc `AGENTS.md` trước khi sửa code.** Với công việc UI/UX trong kế hoạch, đọc thêm task tương ứng ở `plan.md` và mục liên quan của báo cáo hiện trạng.
-2. **Source code/runtime hiện tại là nguồn sự thật.** Báo cáo phản ánh một thời điểm và có thể đã cũ; xác minh mã nguồn, route, package, quyền và API thực tế trước khi sửa.
-3. Chỉ thay đổi trong phạm vi user yêu cầu và những phụ thuộc trực tiếp. Không tự mở rộng thành refactor toàn dự án hoặc tạo tính năng mới.
-4. **An toàn và đúng nghiệp vụ quan trọng hơn việc giao diện giống video.** Video chỉ là tham chiếu UX, không chứng minh sản phẩm đang có backend tương ứng.
-5. Không tự ý xóa code, ghi đè thay đổi chưa commit, `git reset`, `git clean`, `git stash`, rebase, commit, push hoặc sử dụng GitHub. Chỉ thực hiện những hành động này khi user yêu cầu rõ.
-6. Không tự thay đổi database, backend contract, authentication, permission, state machine, idempotency hay feature flag để cho một nút hoạt động.
-7. Nếu thông tin mâu thuẫn hoặc chưa được xác minh: nêu rõ giả định, đánh dấu `BLOCKED` khi cần và triển khai phần độc lập an toàn.
+Đây là bộ quy tắc điều khiển AI Agent, **không phải bằng chứng** ứng dụng đã được tối ưu. Mọi con số trong file là *mục tiêu*, không phải *kết quả đã đạt*.
 
-### 0.1. Stack hiện tại — phải xác minh lại trong `package.json`
+---
 
-- **Frontend:** React 18, TypeScript, Vite.
-- **Application framework:** Refine core v4, Refine Ant Design adapter v5.
-- **UI:** Ant Design 5, Ant Design Icons, Lucide React.
-- **Style:** SCSS/Sass, CSS variables, Grid/Flex, media/container queries.
-- **Router:** React Router v6; **server state:** TanStack Query qua Refine và hooks trực tiếp; **map state:** Zustand.
-- **API:** Axios, `DataProvider`, các API adapter theo feature.
-- **Map:** Leaflet và MapLibre; **chart:** Recharts.
-- **Locale:** i18next + Ant Design locale `vi`, `en`, `ja`; ngày/giờ dùng dayjs; tiền tệ dùng formatter/Decimal.js hiện có.
-- **Testing:** Vitest, Testing Library, Playwright.
+## 0. Cách đọc file này
 
-**Không cài thư viện mới nếu stack hiện có đáp ứng được.** Đặc biệt không tự thêm Tailwind, React Hook Form, Framer Motion, SignalR hoặc một map provider khác khi dự án chưa dùng hoặc chưa có yêu cầu được phê duyệt.
+- **Thứ tự ưu tiên khi xung đột:** đúng dữ liệu & tiền > an toàn tenant > đúng luồng nghiệp vụ > giao diện rõ, nhất quán > phản hồi nhanh > dễ bảo trì > tối ưu vi mô.
+- Yêu cầu trực tiếp của người dùng trong phiên thắng file này, **trừ khi** vi phạm Mục 2. Khi đó nêu rủi ro và hỏi lại, không tự làm.
+- Không chắc → đọc code hoặc hỏi. **Không đoán** route, API, field, quyền, tên script.
+- Tài liệu chuyên sâu chỉ nạp khi cần, không nạp mọi task:
+  - `docs/PERFORMANCE_PLAYBOOK.md`: danh sách lớn, thuật toán gán/tuyến, render chậm, bundle, cache, benchmark.
+  - Plan/progress UI-UX của dự án (vd. `docs/UI_UX_IMPLEMENTATION_PROGRESS.md`) nếu task thuộc kế hoạch đó.
 
-### 0.2. Nhãn bằng chứng bắt buộc
+---
 
-| Nhãn | Ý nghĩa |
+## 1. Stack và phạm vi (xác minh phiên bản trong `package.json` trước khi dùng API)
+
+- React 18 + TypeScript + Vite; Refine, Ant Design 5, React Router v6.
+- TanStack Query / Refine query hooks; Zustand khi cần; Axios + DataProvider/adapter hiện có.
+- SCSS + CSS variables; thư viện bản đồ **đang có trong dự án** (Mapbox / MapLibre / Leaflet: không tự đổi); Recharts; dayjs; Decimal.js khi liên quan tiền.
+- Vitest, Testing Library, Playwright **chỉ khi** repo có cấu hình/script tương ứng.
+- Tên API của Refine **khác nhau giữa v4 và v5** (vd. `tableQueryResult` vs `tableQuery`): đối chiếu phiên bản thật trước khi viết.
+
+---
+
+## 2. Quy tắc bất khả xâm phạm
+
+1. **Git:** không dùng Git/GitHub mặc định. Không chạy `git status/diff/log/branch`, không đọc `.git`, không commit/push/reset/stash/PR. Chỉ làm đúng thao tác Git khi người dùng yêu cầu trực tiếp. Thiếu Git không phải blocker.
+2. **Phạm vi:** đọc đúng phạm vi, sửa tối thiểu. Kiểm tra file thật, route, hooks, API, types, `package.json`. Không suy đoán tính năng từ tên file/tài liệu/video. Không refactor toàn repo.
+3. **Không phá nghiệp vụ để lấy hiệu năng hoặc đẹp.** Bảo toàn multi-tenant, permission, auth, API contract, idempotency, audit, hóa đơn, thanh toán, quyết toán, payroll, state machine.
+4. **Không che lỗi, không ngụy tạo dữ liệu.** Không bịa KPI/GPS/ETA/điểm AI; không lẫn dữ liệu tenant; không dùng 403 làm empty state; không toast thành công trước khi backend trả outcome; không bỏ validation/test để tăng tốc.
+5. **Không mock trong code production.** Mock/dummy/localStorage không phải nguồn sự thật nghiệp vụ. Mock chỉ nằm trong test.
+6. **Đo trước → tìm nguyên nhân → sửa → đo lại.** Không nói “nhanh hơn” chỉ vì dùng `useMemo`, `Map`, Worker hay Big-O thấp hơn. Chưa đo được → ghi `NOT MEASURED`.
+7. **Không tự thêm** thư viện, skill, plugin, MCP; không đổi bundler; không nâng major version; không bật React Compiler, trừ khi được duyệt.
+8. **Locale:** nội dung UI mặc định tiếng Việt. Không bắt Agent đồng bộ vi/en/ja và không đưa locale vào checklist mọi task. Nếu code đang dùng i18next thì giữ tương thích, không tự xóa hệ thống i18n.
+9. **Lưu trữ phía client:** không lưu token nhạy cảm, payment/payroll/assignment state quan trọng vào `localStorage`. Vẫn dùng local UI state cho form, tab, selection, bộ lọc.
+10. **Không tự đổi** schema, transaction, auth, pricing, quy tắc tài chính.
+11. **Không báo PASS cho thứ chưa chạy.** Ghi rõ `PASS / FAIL / NOT RUN`.
+
+**Dừng và hỏi** khi: đổi API contract, schema, phân quyền, công thức tiền; xóa/ghi đè dữ liệu; mở feature flag; cần cài thư viện; yêu cầu mâu thuẫn với Mục 2.
+
+---
+
+## 3. Lệnh và kiểm chứng
+
+Đọc `package.json` → `scripts` thực tế. **Không bịa script.**
+
+| Việc | Cách xác định | Khi nào chạy |
+|---|---|---|
+| Typecheck | script có sẵn (`tsc --noEmit` hoặc tương đương) | Mọi thay đổi TS |
+| Lint | script `lint` nếu có | Mọi thay đổi |
+| Unit test | Vitest, chỉ file/thư mục liên quan | Thay đổi logic, util, hook |
+| E2E | Playwright, chỉ khi có config | Luồng nghiệp vụ nhiều bước |
+| Build | `vite build` | Thay đổi rộng / trước bàn giao |
+| Đo hiệu năng | `vite build` + `vite preview` | Tuyên bố cải thiện. **Không kết luận từ dev mode** |
+
+- Task nhỏ: chạy **focused validation** trước. Full build/test khi thay đổi rộng hoặc chuẩn bị bàn giao.
+- Task đụng thuật toán/khối lượng dữ liệu: có test tính đúng, edge case, dữ liệu rỗng, 10k bản ghi (khi khả thi), cancel, tenant switch.
+
+---
+
+## 4. Cấu trúc và quy ước code
+
+- **Tổ chức theo loại file ở thư mục global** (`components/`, `hooks/`, `utils/`, `types/`, …). Không tạo feature-folder lồng nhiều cấp. Đọc cây thư mục thực tế trước khi tạo file mới.
+- Hàm dùng lại từ 2 nơi trở lên → `utils/` global (định dạng tiền/ngày, `statusMap`, …). Component dùng lại → `components/` global. Không copy-paste.
+- TypeScript strict: không thêm `any` mới (dùng `unknown` + thu hẹp kiểu); `@ts-ignore` phải có comment lý do.
+- Một component một trách nhiệm. File >300 dòng hoặc hàm >50 dòng / lồng >3 cấp → cân nhắc tách.
+- Comment giải thích **vì sao**, không lặp lại **cái gì**. Không để `console.log`, code chết, TODO không rõ chủ.
+- Giữ tên, kiểu import, cách đặt file nhất quán với thư mục lân cận.
+
+---
+
+## 5. Quy trình cho mọi task
+
+1. **Xác định phạm vi:** portal, route, tenant/role, API, dữ liệu vào, bước nghiệp vụ, acceptance criteria.
+2. **Đọc có mục tiêu:** tìm theo symbol/route trước; đọc đoạn liên quan; không đọc lặp một file.
+3. **Xác định bottleneck:** `NETWORK | CPU | RENDER | DOM | MEMORY | BUNDLE | UX | UNKNOWN`. Thu thập bằng chứng khi có công cụ.
+4. **Chọn thiết kế:** ước lượng n, tần suất chạy, Time/Space, trade-off, cache invalidation. Ưu tiên phương án dễ kiểm chứng.
+5. **Sửa tối thiểu:** giữ API/permission; tái dùng component và token có sẵn trước khi tạo mới.
+6. **Kiểm thử có trọng tâm** (Mục 3).
+7. **Bàn giao** theo mẫu Mục 11. Task thuộc plan UI/UX → đánh dấu hoàn thành ngay trong plan/progress doc (nếu tồn tại).
+
+**Quy mô task:**
+- *Nhỏ* (≤3 file, không đổi contract): làm thẳng.
+- *Vừa* (nhiều file trong một route): nêu kế hoạch 3–5 dòng rồi làm.
+- *Lớn* (nhiều route, thuật toán, tiền, auth): viết plan, chia bước nhỏ có thể kiểm chứng, không làm một mạch.
+
+---
+
+## 6. Tối ưu giao diện
+
+### 6.1 Nguyên tắc
+
+1. **Rõ ràng trước, đẹp sau.** Người điều phối nhìn là hiểu: trạng thái, việc cần làm, bước kế tiếp.
+2. **Giảm tải nhận thức:** ít thứ trên màn hình cùng lúc; nhóm theo ý nghĩa; thông tin quan trọng nhất ở vị trí đầu tiên.
+3. **Nhất quán hơn sáng tạo.** Cùng khái niệm → cùng component, cùng màu, cùng tên gọi, trên mọi portal. Dùng Ant Design 5 và token chung; không tự thêm kiểu mới.
+4. **Một điểm nhấn mỗi màn hình** (thường là nút hành động chính). Cắt trang trí không phục vụ nội dung: gradient, bóng đổ lạ, animation không mang thông tin.
+5. **Giao diện nhanh là một phần của giao diện đẹp.** Mọi thay đổi UI vẫn phải qua checklist hiệu năng ở 6.9.
+
+### 6.2 Design tokens (một nguồn duy nhất)
+
+- Màu, cỡ chữ, bo góc, khoảng cách khai báo **một chỗ**: `ConfigProvider theme` (token + `components`) và CSS variables cho phần ngoài Ant Design. **Cấm hard-code hex/px** trong page.
+- Thang khoảng cách 4/8px; tối đa 2 mức `borderRadius`; thang chữ cố định (tiêu đề trang, tiêu đề section, body, caption).
+- Màu ngữ nghĩa: primary / success / warning / error / info. Màu trạng thái nghiệp vụ (Load, Trip, Invoice, Payment…) nằm trong **một `statusMap` dùng chung**; không tự chọn màu trong từng bảng.
+- Màu không phải tín hiệu duy nhất: trạng thái luôn có chữ trong `Tag`. Tương phản chữ/nền ≥ 4.5:1.
+- Chữ số tiền/số lượng dùng `font-variant-numeric: tabular-nums`, căn phải.
+
+```tsx
+// Ví dụ hình dạng, xác minh tên token theo phiên bản Ant Design đang cài
+<ConfigProvider
+  theme={{
+    token: { colorPrimary: tokens.primary, borderRadius: tokens.radius, fontSize: 14 },
+    components: { Table: { cellPaddingBlock: 8 }, Form: { itemMarginBottom: 16 } },
+  }}
+>
+```
+
+### 6.3 Mẫu màn hình
+
+| Loại | Cấu trúc bắt buộc |
 |---|---|
-| `SOURCE` | Có trong source, chưa chứng minh backend chạy thành công. |
-| `BROWSER-FIXTURE` | Đã kiểm thử giao diện với dữ liệu/adapter giả lập. |
-| `BROWSER-LIVE` | Đã quan sát phiên ứng dụng thật, ghi rõ tenant/role/mode. |
-| `MOCK/STATIC` | Dữ liệu mẫu, fallback, hằng số hoặc mô phỏng. |
-| `GATED` | Có code nhưng tính năng bị capability/feature flag khóa. |
-| `UNROUTED` | Có file page/component nhưng chưa có runtime route. |
-| `NEEDS-LIVE` | Cần quyền, tenant và backend thật để xác minh. |
-| `PROPOSAL` | Giải pháp UX đề xuất, chưa xác nhận là bug. |
+| **List** | Tiêu đề + 1 nút chính → thanh lọc (≤4 bộ lọc hiển thị, phần còn lại trong “Bộ lọc nâng cao”) → bảng → phân trang server. Thanh thao tác hàng loạt chỉ hiện khi có chọn dòng. **Lọc/sắp xếp/trang đồng bộ lên URL** (back/forward và chia sẻ link hoạt động). |
+| **Form (Create/Edit)** | Chia section theo nghĩa; nhãn trên ô nhập; lưới 2 cột ở desktop, 1 cột ở mobile; thanh hành động dính đáy (`Hủy` / `Lưu`). Chi tiết ở 6.6. |
+| **Detail (Show)** | Header: mã + `Tag` trạng thái + hành động chính. Thân: `Descriptions` theo section. Dữ liệu phụ (lịch sử, tài liệu, thanh toán) trong `Tabs`, **chỉ tải khi mở tab**. |
+| **Dashboard** | 4–6 KPI trên cùng, biểu đồ bên dưới. Mỗi widget có query, skeleton, error boundary riêng; widget lỗi không làm sập cả trang. Chưa có dữ liệu → “Chưa có dữ liệu”, **không** điền số giả. |
+| **Bản đồ** | Tải lazy; giới hạn marker, gom cụm theo zoom khi có thật; danh sách bên cạnh đồng bộ với bản đồ; dọn layer/listener khi unmount. |
 
-**Tuyệt đối không coi SOURCE hoặc BROWSER-FIXTURE là bằng chứng end-to-end với backend.**
+- **Drawer** cho tạo/sửa nhanh (<8 trường). **Trang riêng** cho form phức tạp. **Modal** chỉ để xác nhận ngắn. Không lồng modal trong modal.
+
+### 6.4 Năm trạng thái bắt buộc
+
+Mọi màn hình dữ liệu phải xử lý đủ:
+
+1. **Loading:** skeleton **đúng hình dạng** nội dung; `Spin` chỉ cho thao tác cục bộ. Không dùng spinner toàn trang cho lần tải đầu.
+2. **Empty:** nói rõ vì sao trống và gợi ý hành động (“Chưa có chuyến nào. Tạo chuyến đầu tiên”). Phân biệt “chưa có dữ liệu” với “bộ lọc không khớp” (kèm nút xóa bộ lọc).
+3. **Error:** nói chuyện gì xảy ra và cách xử lý, có nút thử lại; **giữ nguyên dữ liệu người dùng đã nhập**.
+4. **403:** thông báo thiếu quyền. **Không** hiển thị như danh sách rỗng.
+5. **Blocked / feature-gated:** nói rõ vì sao chưa dùng được. Không hiển thị nút dẫn tới API chưa sẵn sàng.
+
+### 6.5 Bảng dữ liệu
+
+- Phân trang/lọc/sắp xếp **phía server** cho tập lớn. Page size mặc định 20 hoặc 50.
+- `rowKey` ổn định (ID thật). **Định nghĩa `columns` ngoài component hoặc `useMemo`.** Không tạo component mới trong `render` của cột.
+- Mặc định hiện **≤7–8 cột**; cột phụ cho phép bật/tắt. Cột đầu và cột thao tác `fixed`, kèm `scroll.x`.
+- Số căn phải, chữ căn trái. Chuỗi dài: `ellipsis` + `Tooltip`. Trạng thái dùng `Tag` từ `statusMap`.
+- Thao tác từng dòng: tối đa 2 nút hiện sẵn + menu “Thêm”.
+- Không nhét thứ nặng vào ô: biểu đồ, bản đồ, ảnh lớn.
+- >200 dòng hiển thị cùng lúc: virtualization (`Table virtual` của Ant Design 5, **xác minh phiên bản**; yêu cầu `scroll.x/y` dạng số) và phải giữ sticky header, chọn dòng, focus, a11y.
+- Mật độ: `size="small"` hoặc `middle` cho màn hình vận hành dày dữ liệu; nhất quán trong cùng portal.
+
+### 6.6 Form
+
+**Bố cục (form nhiều trường phải gọn, dễ đọc):**
+- Nhóm trường theo ý nghĩa, mỗi nhóm một `Card`/section có tiêu đề (ví dụ: *Thông tin chung → Địa chỉ → Tài chính*). Không dồn một danh sách phẳng 20 ô.
+- Trường bắt buộc đánh dấu rõ; trường tùy chọn/hiếm dùng gom vào “Thông tin bổ sung” (`Collapse`, mặc định đóng).
+- >12 trường: thêm `Anchor` hoặc `Tabs`/`Steps` theo luồng nghiệp vụ thật (chỉ dùng `Steps` khi dữ liệu thật sự tuần tự).
+- `Form.Item` có `extra`/`tooltip` cho trường dễ nhầm; ô nhập có đơn vị (kg, km, VND/USD) hiển thị rõ.
+
+**Hành vi:**
+- Validate khi blur, `scrollToFirstError`. Thông báo lỗi chỉ cách sửa.
+- Khi gửi: khóa nút + trạng thái loading, chống double-submit; **toast thành công chỉ sau khi backend xác nhận**.
+- Cảnh báo khi rời trang có thay đổi chưa lưu.
+- Dùng schema validation đã có trong dự án; không thêm thư viện mới.
+
+**Hiệu năng form:**
+- Dùng `Form.useWatch(['field'])` **hẹp**; không `useWatch` cả form. `shouldUpdate`/`dependencies` chỉ ở `Form.Item` thật sự phụ thuộc.
+- Form lớn: tách mỗi section thành component riêng.
+- `Select` dữ liệu lớn (khách hàng, xe, tài xế): **tìm kiếm từ server**, `filterOption={false}`, debounce 250–400ms, giới hạn 20–50 kết quả/trang. Không tải toàn bộ master data về client.
+- Giá trị khởi tạo lấy từ query, **không copy sang state thứ hai**.
+- `Form.List` lớn (>50 dòng): chuyển sang bảng chỉnh sửa có phân trang/virtual.
+
+### 6.7 Nội dung chữ (microcopy) và định dạng
+
+- **Nút nói đúng việc sẽ xảy ra:** “Lưu thay đổi”, “Tạo chuyến”, “Duyệt chi”, không “OK/Submit”. Cùng hành động giữ cùng tên xuyên suốt: nút “Duyệt” → toast “Đã duyệt” (sau khi backend xác nhận).
+- Lỗi: nêu nguyên nhân + cách sửa, không xin lỗi chung chung, không để “Đã có lỗi xảy ra”.
+- Viết hoa kiểu câu (sentence case), động từ chủ động, không thừa chữ.
+- **Một khái niệm = một cách gọi.** Thuật ngữ nghiệp vụ lấy từ màn hình/tài liệu đã có; không tự đặt tên mới.
+- **Tiền:** định dạng theo trường `currency` của bản ghi (không hard-code VND), bằng `Intl.NumberFormat`; tính toán bằng Decimal, không float.
+- **Ngày giờ:** dùng dayjs; hiển thị theo định dạng Việt (DD/MM/YYYY, 24 giờ); lưu và truyền theo chuẩn backend; không tự quy đổi múi giờ nếu backend chưa quy định.
+
+### 6.8 Responsive và khả năng truy cập
+
+- Xác định viewport mục tiêu của từng portal; tối thiểu kiểm tra **1440 / 1024 / 768 / 390**. Breakpoint dùng của Ant Design (`xs/sm/md/lg/xl/xxl`), không tự đặt số mới.
+- Nội dung rộng (bảng, mã, sơ đồ) cuộn trong container riêng; trang không cuộn ngang.
+- Bàn phím: thứ tự Tab hợp lý, focus hiển thị rõ, `Esc` đóng modal/drawer, `Enter` gửi form hợp lệ.
+- Nút chỉ có icon phải có `aria-label` + `Tooltip`. Mỗi ô nhập có nhãn.
+- Tôn trọng `prefers-reduced-motion`. Chuyển động chỉ để cho thấy điều gì vừa thay đổi (mở, thu gọn, xác nhận).
+
+### 6.9 Hiệu năng giao diện (INP / LCP / CLS)
+
+**Mục tiêu p75 (khi đo được):** INP ≤ 200ms · LCP ≤ 2.5s · CLS ≤ 0.1. Đây là mục tiêu, không phải kết quả.
+
+**Tải nhanh (LCP, bundle):**
+- Code-split theo route bằng `React.lazy` + `Suspense`. Thư viện nặng (biểu đồ, bản đồ, trình soạn thảo) tải lazy, chỉ khi widget hiển thị.
+- Icon: import theo tên từ `@ant-design/icons`; cấm `import * as Icons`.
+- Không thêm moment/lodash nguyên khối; dùng dayjs, import hàm lẻ.
+- Chỉ tách chunk thủ công (`manualChunks`) **sau khi đo bundle**, với công cụ đã có sẵn trong repo.
+- Ảnh: khai báo kích thước hoặc `aspect-ratio`; `loading="lazy"` cho ảnh ngoài màn hình đầu; không nhúng base64 lớn.
+- Font: tối đa 2 họ, 3–4 độ đậm; `font-display: swap`; **phải có subset tiếng Việt** (latin + vietnamese). Preload font quan trọng nhất.
+- Prefetch dữ liệu khi hover liên kết (`prefetchQuery` với query key có tenant, `staleTime` hợp lý) chỉ cho route hay dùng.
+
+**Không giật layout (CLS):**
+- Chừa chỗ cho skeleton/bảng (`min-height`); không chèn banner làm đẩy nội dung.
+- `scrollbar-gutter: stable` ở vùng cuộn chính.
+- Không đổi kích thước phần tử khi dữ liệu tải xong.
+
+**Phản hồi nhanh (INP):**
+- Ô tìm kiếm: state nhập giữ **cục bộ**; chỉ đẩy lên query sau debounce 250–400ms. Không để mỗi phím re-render cả bảng.
+- Cập nhật hiển thị không khẩn: `useDeferredValue` / `useTransition` (không dùng để giả loading API).
+- Không tính toán nặng trong JSX hay trong handler; tính nặng → backend hoặc Web Worker (có cancel, timeout).
+- Animation chỉ dùng `transform`/`opacity`. Không animation trên hàng bảng; không hiệu ứng làm tăng INP. Màn hình dày dữ liệu có thể tắt motion của Ant Design.
+- Giữ state sát nơi dùng; tách context; Zustand dùng selector. Không copy dữ liệu query sang state; không `useEffect` cho dữ liệu suy diễn.
+- Dọn dẹp listener, observer, timer, layer bản đồ khi unmount.
+- `useMemo` / `useCallback` / `React.memo` **chỉ khi** profiling chứng minh hoặc cần ổn định identity. Tuân Rules of Hooks và StrictMode.
+
+**Cách đo UI:**
+- Build production (`vite build` + `vite preview`), không đo ở dev mode.
+- React Profiler (số lần render, thời gian commit); Chrome Performance với CPU throttle 4×; Lighthouse cho LCP/CLS/TBT.
+- Cùng máy, viewport, dữ liệu; ≥3 lần; so median/percentile. Dữ liệu: nhỏ (100), vừa (1.000), lớn (10.000+ nếu hệ thống hỗ trợ). Không ép tải 10.000 bản ghi về client chỉ để benchmark.
+- Không đo được → `NOT MEASURED` + kế hoạch đo.
+
+### 6.10 Checklist giao diện trước khi bàn giao
+
+- [ ] Dùng component và token chung; không hard-code màu/px.
+- [ ] Đủ 5 trạng thái: loading, empty, error, 403, blocked.
+- [ ] Form: nhóm section, `scrollToFirstError`, chống double-submit, toast sau outcome backend.
+- [ ] Bảng: server pagination/lọc/sắp xếp; `columns` ổn định; ≤8 cột mặc định.
+- [ ] Bộ lọc/trang đồng bộ URL (màn hình danh sách).
+- [ ] Nút/lỗi/empty viết rõ việc, rõ cách xử lý; thuật ngữ nhất quán.
+- [ ] Tiền, ngày định dạng đúng; tiền không dùng float.
+- [ ] Kiểm tra 1440 / 1024 / 768 / 390; bàn phím và focus hoạt động.
+- [ ] Route/thư viện nặng đã lazy; không import cả bộ icon.
+- [ ] Không có layout shift khi dữ liệu tải xong.
+- [ ] Số liệu hiệu năng: có đo hoặc ghi `NOT MEASURED`.
 
 ---
 
-## 1. Quy trình bắt buộc trước và sau khi code
+## 7. Hiệu năng logic, thuật toán, network
 
-Mỗi task tạo/sửa code phải có **Checklist trước khi code** và **Checklist sau khi code** trong câu trả lời hoặc PR. Chỉ đánh dấu `[x]` khi đã thực sự xác minh; chưa rõ hoặc chưa chạy phải dùng `[ ]`.
+### 7.1 Chọn độ phức tạp
 
-### 1.1. Checklist trước khi code
+Ưu tiên **loại bỏ việc không cần làm** trước khi dùng thuật toán phức tạp: giảm request, giảm dữ liệu, giảm DOM, giảm render, giảm vòng lặp. Sau đó mới memo/cache/index/worker (khi có căn cứ).
 
-```md
-## Checklist trước khi code
-- [ ] Xác định portal, feature, resource, route và task ID từ plan.md (nếu có)
-- [ ] Đã kiểm tra `git status`, HEAD và thay đổi chưa commit
-- [ ] Xác định tenant, role, permission, capability và feature flag
-- [ ] Xác định DTO, API contract, data owner, query key và invalidation
-- [ ] Xác định component, hook, locale có thể tái sử dụng
-- [ ] Phân biệt server state / UI state / derived state / subscription
-- [ ] Xác định loading, empty, error, 403, disabled và responsive
-- [ ] Xác định test cần chạy, dữ liệu mẫu hay backend live
-- [ ] Liệt kê điều chưa chắc chắn và blocker (không tự giả định)
+| Tình huống | Không làm | Ưu tiên và điều kiện |
+|---|---|---|
+| Ghép đơn ↔ tài xế/xe/trip theo ID | `find` lặp trong `map`: O(n·m) | `Map<ID, Entity>` dựng một lần: O(n+m) thời gian, O(m) bộ nhớ |
+| Kiểm tra thành viên nhiều lần | `includes` trong vòng lặp | `Set.has`, tạo O(n) |
+| Sắp xếp/lọc khi gõ hoặc render | `sort()`/`filter()` lặp toàn danh sách | Chỉ tính lại khi dữ liệu/thứ tự đổi; tập lớn → sort/filter/paginate phía server |
+| Top-k đơn/tải ưu tiên | Sort toàn bộ chỉ để lấy vài phần tử | k ≪ n: heap O(n log k); dữ liệu ít thì `sort` thường dễ bảo trì hơn |
+| Tìm ID trong tập đã sắp | Quét toàn bộ mỗi lần | Binary search nếu thật sự sorted; nhiều truy vấn ID → map |
+| Duyệt quan hệ/tuyến xe | Lồng vòng lặp không giới hạn | Graph + adjacency list; Dijkstra/A* khi phù hợp; giới hạn node/edge/thời gian |
+| Tối ưu gán xe/tuyến nhiều điểm | Brute force O(n!), subset O(2ⁿ) trên UI | Heuristic có giới hạn vòng lặp, hoặc chạy ở backend/worker; **giải thích chất lượng xấp xỉ** |
+| Xử lý theo sự kiện | Poll/sort/filter toàn hệ thống liên tục | Cập nhật tăng dần theo ID, debounce, cancel, batch, backpressure |
+
+- Không tuyệt đối hóa Big-O: O(n log n) có thể nhanh hơn O(n) khi n nhỏ. Đo bằng dữ liệu thực tế.
+- Bài toán NP-hard (định tuyến, gán xe): **không** chạy trên main thread khi kích thước chưa giới hạn. Dùng heuristic/solver bất đồng bộ, có cancel, timeout, giới hạn bộ nhớ.
+- Với vòng lặp lồng nhau, đệ quy, regex trên input người dùng, ma trận khoảng cách O(n²), hay tạo hàng nghìn DOM: ghi rõ lý do và giới hạn kích thước.
+- Thay đổi logic quan trọng phải nêu **Time, Space, tần suất, quy mô kỳ vọng**.
+
+### 7.2 Network và cache
+
+- Tránh waterfall không phụ thuộc, N+1 theo dòng, overfetch. Truy vấn độc lập chạy song song (có giới hạn concurrency). Dùng batch endpoint nếu đã tồn tại; **không tự tạo contract**.
+- **Query key và cache luôn cô lập theo tenant/user/role.** Đổi tenant → xóa/invalidate toàn bộ cache; chặn kết quả cũ ghi vào tenant mới.
+- Dùng `AbortSignal`/cancel; chống duplicate request và double-submit. Không retry vô hạn; **không auto-retry** lệnh thanh toán/duyệt khi outcome chưa rõ.
+- Mutation invalidate đúng nguồn liên quan. `staleTime`, prefetch, cache size theo đặc tính dữ liệu.
+- Lazy load route/module nặng khi có hiệu quả và kiểm tra bundle trước/sau. Không thêm package chỉ để tiết kiệm vài dòng.
+
+---
+
+## 8. Nghiệp vụ và bảo mật bất khả xâm phạm
+
+- **Load:** giữ vòng đời đơn, route thực tế, feature gating. Không mở edit/GAP khi API chưa sẵn sàng.
+- **Trip / Dispatch / Optimization:** giữ state machine của điểm dừng, quyền gán, bằng chứng tối ưu bất biến (immutable), idempotency. Không bịa điểm AI, ETA, GPS. Quyết định AI dispatch luôn đi qua luồng duyệt có sẵn.
+- **Invoice / Payment / Settlement / Payroll:** chính xác số tiền và làm tròn (Decimal), version chính sách, audit, role người duyệt, trạng thái `pending / conflict / unknown`. **Không tự báo thành công.**
+- **Auth / Tenant:** giữ SSO/session/TenantGuard và permission ở backend; frontend ẩn/hiện UI chỉ là tiện ích, **không thay thế** kiểm quyền. Không để tenant A thấy cache tenant B.
+- **Demo / dormant / feature flag:** ghi nhãn đúng. Code có sẵn ≠ route production đã hoạt động.
+- **UI:** giữ Ant Design 5, token chung; đủ loading/empty/error/403/blocked; keyboard/focus; responsive; không thêm hiệu ứng làm tăng INP.
+
+---
+
+## 9. Quy trình nhiều Agent (worker / reviewer)
+
+Khi chạy nhiều Agent (ví dụ worker triển khai, reviewer kiểm tra):
+
+- **Worker:** làm đúng phạm vi task, cập nhật tiến độ, viết báo cáo theo Mục 11. Không mở rộng phạm vi.
+- **Reviewer:** **chỉ đọc**, không sửa source. Kiểm theo acceptance criteria, quy tắc Mục 2 và Mục 8. Phát hiện ghi theo mức `CRITICAL / HIGH / MEDIUM / LOW`, kèm file/dòng và bằng chứng. Kết thúc bằng đúng một dòng: `STATUS: APPROVED` hoặc `STATUS: CHANGES_REQUESTED`.
+- **Task audit (rà soát chức năng):** worker điều tra một tính năng và ghi **báo cáo Markdown, không sửa source**; reviewer xác minh lại báo cáo.
+- Không báo `APPROVED` nếu có hạng mục `NOT RUN` ảnh hưởng đến kết luận.
+
+---
+
+## 10. Chống suy đoán
+
+- Cái gì chưa thấy trong code thì **chưa tồn tại**: route, hook, endpoint, field, quyền, script.
+- Tìm bằng tên symbol/route trước khi kết luận “chưa có”. Có nhiều ứng viên → nêu rõ và hỏi.
+- Không viết code “cho chạy được” bằng dữ liệu giả hay API giả. Thiếu backend → báo `GAP` và dừng ở ranh giới đó.
+- Không sao chép mẫu từ tài liệu/video khi code thực tế khác: **code thật là nguồn sự thật**.
+
+---
+
+## 11. Định nghĩa hoàn thành và mẫu báo cáo
+
+**Hoàn thành khi:** đúng acceptance criteria · bất biến Mục 2 và Mục 8 còn nguyên · validation liên quan đã chạy (hoặc ghi `NOT RUN` kèm lý do) · checklist 6.10 đạt (nếu có thay đổi UI) · không để mock/debug/code chết · tiến độ plan đã cập nhật (nếu có).
+
+**Mẫu báo cáo (ngắn, có bằng chứng):**
+
 ```
-
-### 1.2. Checklist sau khi code
-
-```md
-## Checklist sau khi code
-- [ ] Chỉ sửa các file trong scope; không ghi đè công việc chưa commit
-- [ ] Không hardcode text UI, tenant, permission, API URL hoặc route đã có constant
-- [ ] Rules of Hooks, dependency, cleanup và StrictMode đều đúng
-- [ ] Query/mutation bảo vệ tenant và permission, tôn trọng feature flag
-- [ ] Mutation có pending/error/conflict, tránh double-submit
-- [ ] Cache/list/detail được invalidate/refetch đúng sau khi ghi thành công
-- [ ] Loading/empty/error/forbidden/disabled được xử lý phù hợp
-- [ ] Các locale đang hỗ trợ có key và bản dịch hợp lệ
-- [ ] Đã kiểm tra keyboard, focus, responsive, contrast/reduced-motion nếu liên quan
-- [ ] Đã chạy lint/typecheck/test/build (chỉ tick khi thật sự chạy)
-- [ ] Báo cáo rõ SOURCE / FIXTURE / LIVE, PASS / FAIL / NOT RUN
-- [ ] Đã cập nhật task/progress và ghi blocker còn tồn tại
-```
-
-**Cấm:** đánh dấu PASS khi mới đọc source, thấy mock toast thành công hoặc chạy dev proxy fallback.
-
----
-
-## 2. Cấu trúc câu trả lời khi viết code
-
-Khi **trả code trong chat**, theo thứ tự:
-
-1. Mục tiêu, portal/feature và task ID.
-2. Checklist trước khi code.
-3. Danh sách file tạo/sửa.
-4. Code đầy đủ hoặc patch/diff chính xác; không dùng `...` thay phần logic quan trọng.
-5. Giải thích hook, luồng dữ liệu, quyền, rủi ro và quyết định kỹ thuật.
-6. Locale keys tạo/sửa.
-7. Checklist sau khi code; lệnh test, kết quả, blocker và bước tiếp theo.
-
-Khi **AI sửa trực tiếp file trong repo**, không cần dán nguyên file dài ra chat; vẫn phải báo file thay đổi, quyết định kỹ thuật và bằng chứng kiểm thử theo các phần trên.
-
----
-
-## 3. Kiến trúc và tổ chức source code
-
-- Đọc cấu trúc hiện có trước khi tự tạo folder. Repo đang dùng `src/pages`, `src/features`, `src/components`, `src/forms`, `src/hooks`, `src/api`, `src/providers`, `src/styles`, `src/locales`.
-- **Không mặc định tồn tại** `src/layouts/` hay `src/services/`; layout thực tế nằm tại `components/AppLayout`, API/service phân tán theo providers và features.
-- Page chỉ composition; hook quản lý data/UI/action; adapter/service giao tiếp API; component chung ưu tiên presentation thuần.
-- Tận dụng Refine, Ant Design và component đang có thay vì tự xây Button, Modal, Form, Table song song.
-- Business logic phức tạp không đặt trong JSX. DTO, Form Values và View Model phải tách đúng ranh giới.
-- File >~250 dòng, JSX lồng sâu, >3–4 Effects là **tín hiệu xem xét** tách, không phải lý do tự động refactor ngoài scope.
-- Không tự suy runtime route từ tên file, comment, locale hoặc registry: đối chiếu `AppRouter`, `foundationResourcePageRoutes`, permission và feature capability.
-
-### 3.1. Comment và tài liệu hóa
-
-- **Mỗi file TS/TSX/hook/service mới** phải có comment đầu file mô tả trách nhiệm và ranh giới dữ liệu.
-- **Mỗi custom hook mới** có JSDoc mô tả nhiệm vụ, tham số quan trọng, giá trị trả về và tenant/cleanup nếu liên quan.
-- Với hook sử dụng trong component, giải thích **vì sao** nếu việc dùng hook không hiển nhiên; nhóm hook cùng mục đích có thể dùng chung một comment ngắn, tránh comment lặp tên.
-- **Mỗi `useEffect`/`useLayoutEffect` mới hoặc sửa** phải có comment mục đích; tài nguyên đăng ký phải có giải thích cleanup.
-- Comment business rule, xử lý xung đột, idempotency, lý do memo hóa và invalidation khó hiểu.
-- Không comment các thao tác hiển nhiên hoặc viết comment sai với code thực tế.
-
-```tsx
-/**
- * LoadListPage
- * Hiển thị Load của tenant hiện tại qua resource/hook của Refine.
- * Không trực tiếp gọi HTTP hoặc giữ bản sao server state trong useState.
- */
-```
-
----
-
-## 4. Rules of Hooks
-
-- Hook chỉ gọi ở top level của React component hoặc custom hook.
-- Không gọi trong `if`, `switch`, `for`, `while`, event handler, callback thường hay utility không phải hook.
-- Custom hook phải bắt đầu bằng `use` và ưu tiên một trách nhiệm chính.
-- Hook lấy dữ liệu phụ thuộc ID/tenant phải được gọi nhất quán, dùng `enabled`/skip theo **API thật của phiên bản hook đã cài**.
-- Không tắt `StrictMode` để tránh Effect chạy hai lần ở development. Setup → cleanup → setup phải an toàn.
-- Không tắt `react-hooks/exhaustive-deps` để tránh stale closure. Ngoại lệ cần lý do bằng văn bản, reviewer và test.
-
-### 4.1. `useState` và derived state
-
-- Chỉ lưu local UI state cần render: tab, modal, selection, filter chưa submit, draft chỉnh sửa.
-- Dữ liệu lấy từ API thuộc Refine/TanStack Query, không copy vào `useState` rồi tự tạo loading/error lifecycle.
-- Không lưu dữ liệu có thể tính từ props hoặc query. Dùng phép tính trực tiếp; `useMemo` khi đủ nặng hoặc cần identity ổn định.
-- Với cập nhật phụ thuộc state cũ, dùng functional update.
-- Draft form là ngoại lệ hợp lệ nếu có chính sách tránh ghi đè thao tác người dùng khi query refetch.
-
-```tsx
-// Danh sách này suy ra từ dữ liệu gốc, không cần một state thứ hai.
-const activeLoads = loads.filter(
-  (load) => load.status === LoadStatus.Dispatched,
-);
-```
-
-### 4.2. `useEffect` và `useLayoutEffect`
-
-- Dùng Effect để đồng bộ hệ thống bên ngoài: DOM, browser API, timer, event listener, observer, map instance, subscription, hoặc một số tình huống đồng bộ Ant Design Form async.
-- Không dùng Effect để sort/filter, tính state suy ra, xử lý click, CRUD fetch thông thường, toast sau mutation hoặc điều hướng sau thao tác người dùng.
-- Dependency phải đầy đủ. Subscription/timer/listener/observer phải cleanup; request thủ công phải xét abort/cancel/stale-result.
-- Callback của Effect **không** được là `async`; đặt async function bên trong khi thật sự cần.
-- `useLayoutEffect` chỉ dùng khi phải đo/đặt DOM **trước khi paint** để tránh nhấp nháy, có comment vì sao `useEffect` không đủ.
-- **Không thực hiện mutation trong mount Effect**: tạo Load, Invoice, Trip, duyệt Payroll, gửi email/payment, xóa dữ liệu...
-
-```tsx
-// Đồng bộ trạng thái kết nối mạng với browser và hủy listener khi unmount.
-useEffect(() => {
-  const onOnline = () => setOnline(true);
-  const onOffline = () => setOnline(false);
-  window.addEventListener('online', onOnline);
-  window.addEventListener('offline', onOffline);
-  return () => {
-    window.removeEventListener('online', onOnline);
-    window.removeEventListener('offline', onOffline);
-  };
-}, []);
-```
-
-### 4.3. `useMemo`, `useCallback`, `useRef`, `useReducer`, `useContext`
-
-- `useMemo`: chỉ dùng khi có lợi ích hiệu năng/identity; comment mục đích cho logic không hiển nhiên. Không memo hóa mọi phép cộng/nối chuỗi.
-- `useCallback`: khi dependency/child memo/subscription cần reference ổn định, không bắt buộc cho mọi handler.
-- `useRef`: DOM/SDK/timer hoặc mutable value không cần render; **không dùng để né dependency** của Effect.
-- `useReducer`: state machine hoặc nhóm state/transition liên quan, không dùng cho boolean đơn lẻ.
-- `useContext`: current user/tenant/theme/locale/capability dùng chung; không biến Context thành kho server-state. Memo hóa object value khi có lợi.
-- `useTransition`, `useDeferredValue`: cho rendering không khẩn cấp nặng; **không** thay thế loading của API mutation và **không** được coi là debounce API.
-
----
-
-## 5. Refine, TanStack Query và API
-
-- CRUD chuẩn ưu tiên `useList`, `useOne`, `useMany`, `useTable`, `useShow`, `useCreate`, `useUpdate`, `useDelete`, `useCustom`, `useCustomMutation` khi tương thích với phiên bản Refine **thực tế**.
-- Component trình bày **không gọi trực tiếp `axios`/`fetch`**. API adapter hoặc DataProvider là nơi giao tiếp mạng; giữ lại các adapter có sẵn.
-- Dùng `enabled`/skip cho truy vấn phụ thuộc tenant, ID hợp lệ, permission hoặc dữ liệu khác.
-- **Custom tenant-scoped query key phải có tenant scope** hoặc dùng key factory đã đảm bảo scope, ví dụ `['loads', tenantId, loadId]`.
-- **Không tự sửa query key nội bộ của Refine** theo một ví dụ chung. Với Refine phải kiểm tra DataProvider/context/cache isolation, key thực tế và cách clear/invalidate khi tenant đổi.
-- Mutation invalidate/refetch đúng các consumer liên quan: list, detail, summary, timeline, báo cáo. **Không** dùng `window.location.reload()` như cách cập nhật cache.
-- Trước khi đổi invalidation, kiểm tra cả Refine query key lẫn custom feature key; không tự đoán tên key.
-- Hỗ trợ AbortSignal/cancellation nếu adapter/query hiện có cho phép; chống stale result và cập nhật nhầm tenant.
-- Không dùng 403 hoặc lỗi network như một empty state thành công.
-
-### 5.1. Quy tắc an toàn cho mutation
-
-- Chỉ ghi dữ liệu từ hành động đã được người dùng/luồng nghiệp vụ cho phép; không ghi vì render/mount.
-- Pending phải chống double-submit; success chỉ hiển thị sau khi biết kết quả thực tế.
-- Phân biệt validation error, 401, 403, conflict, lỗi mạng và **kết quả chưa chắc chắn**.
-- Tôn trọng version/ETag/idempotency và cơ chế frozen command hiện có. **Không tạo idempotency key mới khi kết quả lệnh trước chưa rõ**, nhất là Payment, Payroll, Optimization.
-- 401 tuân theo cơ chế refresh/replay; 403 giữ session và báo không có quyền. Không nuốt lỗi hoặc tự đánh dấu success.
-- Không xóa toàn bộ cache tùy tiện làm mất dữ liệu đúng ngữ cảnh hoặc gây lẫn tenant.
-
----
-
-## 6. Multi-tenant, Auth, Permission và Feature Flags
-
-- Tenant ID chỉ đến từ context/session/contract hiện hành; **không hardcode hoặc tự chọn tenant mặc định**.
-- Query, cache, mutation, local UI state và subscription phải an toàn khi đổi tenant. Không để dữ liệu tenant cũ hiện trên tenant mới.
-- Frontend permission chỉ quyết định UI; backend vẫn phải kiểm quyền.
-- Dùng access-control provider/hook/component sẵn có thay vì rải `permissions.includes('...')` trong JSX.
-- **Không đoán permission string** như `loads.read` khi chưa xác minh role matrix/API. Cần đúng `resource`/`action`/context hiện hành.
-- Route tồn tại **không đồng nghĩa** chức năng được phép. Kiểm tra đồng thời tenant + role + capability + feature flag + backend contract.
-- **Không tự bật** những flag đang khóa, nhất là:
-  - `CORE_VERSIONED_WRITES_RUNTIME_VERIFIED`
-  - `DOCUMENT_UPLOAD_CONTRACT_CONFIRMED`
-  - `BILLING_COMMANDS_RUNTIME_VERIFIED`
-  - `PAYMENT_COMMANDS_RUNTIME_VERIFIED`
-  - Các contract Executive, Map và module dormant khác.
-- Nếu contract chưa rõ, có thể ẩn/vô hiệu hóa CTA với thông báo trung thực, sau đó đánh dấu `BLOCKED`; **không** dựng API/luồng ghi giả.
-- Không tự đổi cơ chế đăng nhập OIDC/Lark, JWT/session, tenant guard hay role matrix khi chỉ làm UI.
-
----
-
-## 7. Router và điều hướng
-
-- Dùng route constants/helper sẵn có; kiểm tra `AppRouter.tsx`, resource registry, `AppSider.tsx`, menu filter quyền và capability trước khi tạo link.
-- Validate route params (UUID nếu contract yêu cầu) trước query và navigation.
-- Không dẫn vào route `UNROUTED` như `/map`, `/load-board` hoặc màn edit `GATED` nếu chưa có đích/runtime hợp lệ.
-- **Không chữa 404 bằng cách mở route/feature flag thiếu contract.** Cần sửa CTA, cung cấp trạng thái unavailable an toàn hoặc chờ xác nhận API.
-- Phân biệt generic View modal với trang chi tiết domain có tab/AI/timeline.
-- Giữ Back/heading/action hợp lý ở mọi tab chi tiết; bảo toàn filter/selection/deep-link khi nghiệp vụ cần.
-- Navigation sau mutation xảy ra trong handler sau **thành công đã xác minh**, không phát sinh ngẫu nhiên từ Effect.
-- Nếu ID trong URL không được dùng để khôi phục đối tượng (ví dụ AI plan alias), không gọi đó là deep link đã hoàn chỉnh.
-
----
-
-## 8. Ant Design Form, Modal và thông báo
-
-- Form phức tạp phải có `Form.useForm<FormValues>()` hoặc convention typed tương đương đang dùng.
-- Không quản lý **cùng một field** bằng cả Ant Design Form và `useState`.
-- `Form.useWatch` chỉ theo dõi field cần thiết. Không watch tất cả chỉ để tiện code.
-- `initialValues` không tự cập nhật theo async query. Đồng bộ `setFieldsValue` khi record identity thay đổi nhưng **không ghi đè dirty draft** khi refetch.
-- Có validation phía client đúng contract, lỗi field từ backend, pending, cancel/discard và focus lỗi phù hợp.
-- Ưu tiên `App.useApp()` để lấy `message`, `notification`, `modal` đúng context/locale/theme.
-- Ưu tiên shared modal frame/confirmation/focus/dirty-form guard đã có trong repo.
-- Không dùng toast thành công để che API không hoạt động, hoặc đóng modal trước khi mutation thực sự thành công nếu cần giữ dữ liệu.
-
----
-
-## 9. TypeScript và business models
-
-- Tránh `any`, ép kiểu `as` chỉ để tắt lỗi, `!` khi chưa validate, `@ts-ignore` không giải thích.
-- Phân biệt DTO, FormValues, ViewModel; validate dữ liệu ngoài ở adapter/boundary; lỗi không chắc kiểu dùng `unknown` rồi normalize.
-- Sử dụng enum/union/discriminated union cho trạng thái có trong contract; không tự thêm status mới để hợp giao diện.
-- Props và hook public cần type/interface rõ, đặc biệt type trả về của custom hook.
-- Logic nghiệp vụ quan trọng nên tách khỏi JSX, có comment giải thích điều kiện và nguồn chính sách.
-- Giữ nguyên state machine Trip Stops, Settlement, Payroll, Payment Attempts, Optimization Accept.
-- Tiền tệ, thuế và tính toán chính xác phải dùng formatter/Decimal.js hoặc quy tắc tài chính có sẵn; không tự tính bằng float tùy tiện.
-
----
-
-## 10. i18n — không hardcode text người dùng
-
-- Mọi text UI phải qua i18next: page/card/modal/table title, button, input label, placeholder, validation, status, toast, tooltip, breadcrumb, empty/error state, confirm, aria-label.
-- Frontend được báo cáo có các locale **`vi`, `en`, `ja`**. Khi sửa text, cập nhật **tất cả locale đang được portal đó đăng ký**, không chỉ `vi/en`.
-- Theo cấu trúc locale **thực tế** trong repo; không tự tạo namespace/folder song song nếu không cần.
-- Locale key có tên rõ nghĩa và theo feature, ví dụ `loads.details.route.title`, không dùng key chung như `title`, `button`.
-- Không ghép câu từ nhiều key; dùng interpolation/pluralization để mỗi ngôn ngữ có thứ tự từ tự nhiên.
-- Enum/status hiển thị phải dịch; không đổi giá trị enum gửi API.
-- Tất cả title **hiển thị cho người dùng** phải dùng `t()`, kể cả `aria-label`. Technical ID, mã máy, brand và API payload không cần dịch nếu có lý do.
-
-```tsx
-const { t } = useTranslation('loads');
-const pageTitle = t('details.title');
-const confirmText = t('delete.confirm', { number: load.number });
+Task / Route / Data scale:
+Bottleneck: [NETWORK | CPU | RENDER | DOM | MEMORY | BUNDLE | UX | UNKNOWN]
+Root cause + evidence:
+Change: [files, thuật toán, Time/Space, trade-off]
+Security/business invariants preserved:
+UI: [trạng thái đã xử lý, viewport đã kiểm tra, component/token tái dùng]
+Before → After: [p50/p95, render, request, bytes, môi trường test] hoặc NOT MEASURED
+Validation: [lint / typecheck / test / browser: PASS | FAIL | NOT RUN]
+Remaining risk / next step:
 ```
 
 ---
 
-## 11. Design System, UI/UX và CSS
-
-- Kiểm tra `styles/_variables.scss`, `global.scss`, `_components.scss`, `AppLayout.scss`, `AppSider.scss`, token Operations và Load redesign trước khi đổi giao diện.
-- Báo cáo ghi global primary xanh nhưng Operations/Load AI dùng tím. **Không tự ý đổi brand color toàn hệ thống**; chỉ làm khi đã có quyết định design token.
-- Nếu triển khai Design System, đồng bộ **Ant Design ConfigProvider theme** với SCSS/CSS variables. `AntdLocaleProvider` cấu hình locale không đồng nghĩa Ant Design đã được theme thống nhất.
-- Dùng semantic colors (`primary`, `success`, `warning`, `error`, `surface`, `text`) thay vì rải HEX. Giữ màu trạng thái nghiệp vụ đúng ý nghĩa.
-- Thống nhất typography, spacing, radius, shadow, border và trạng thái hover/focus/selected/disabled/loading.
-- Không thêm hàng loạt override global làm vỡ CRUD/form và các portal khác.
-- Chỉ hợp nhất những component trùng lặp (ví dụ các `PriorityShipmentCard`) sau khi so sánh prop/data contract và mode live/demo.
-- Video tham chiếu chỉ định hướng layout, hierarchy, micro-interaction; **không** sao chép zoom/3D camera transition của video quảng bá vào app.
-
----
-
-## 12. Operations Dashboard và độ tin cậy dữ liệu
-
-- `/operations` mặc định từng chứa dữ liệu **API pha hằng số/mẫu**; `/operations?demo=1` là preview có nhãn. Luôn kiểm tra lại source hiện hành.
-- Mỗi KPI/panel phải phân biệt rõ: `live`, `sample`, `fallback`, `unavailable`, `loading`, `error` khi có nguy cơ gây hiểu nhầm.
-- **Không** lấp dữ liệu thiếu bằng KPI, vị trí GPS, ETA, tuyến đường hoặc tài xế giả trông như dữ liệu thật.
-- Polling theo chu kỳ hoặc đồng hồ cố định không được gọi là real-time/streaming nếu không có nguồn xác minh.
-- Nút Approve trong demo không được trình bày như mutation backend đã thành công. Khi thiếu callback/contract phải disabled hoặc giữ rõ trạng thái mô phỏng.
-- Trước khi gộp hai `PriorityShipmentCard`, xác minh default data fallback và live data source.
-- Mọi Dashboard CTA phải dẫn đến route đang hoạt động và được phép; không có CTA dẫn đến page dormant.
-
----
-
-## 13. AI Dispatch, GAP và Optimization
-
-- Phân biệt AI command backend thật với free chat mô phỏng, test connection ảo, localStorage config và plan state cục bộ.
-- Không bịa score/đề xuất tài xế/ETA/route hoặc hiển thị chúng như kết quả AI đã được backend xác nhận.
-- Approve/Reject cần permission, pending, mô tả tác động, confirm và kết quả backend thật trước khi cập nhật trạng thái thành công.
-- Giữ nguyên evidence của optimization run, conflict, immutable result và frozen/idempotent mutation.
-- Alias có plan ID/history chưa khôi phục được sau reload thì ghi `BLOCKED`, không tự tuyên bố deep link đã hoạt động.
-- Không tự xây Inbox, live tracking, auto-assign theo video nếu chúng chưa thành requirement có phê duyệt.
-
----
-
-## 14. Map, subscription và realtime
-
-- Ưu tiên Leaflet/MapLibre theo đúng module hiện tại. **Không mặc định dùng Mapbox** chỉ vì ví dụ cũ dùng nó.
-- Instance map, marker, observer, timer, event listener phải khởi tạo và cleanup theo vòng đời component/tenant.
-- Đồng bộ selection list/map/detail bằng nguồn state rõ ràng nếu nghiệp vụ có những vùng này.
-- Location phải có bằng chứng dữ liệu và timestamp phù hợp; không tự coi địa chỉ hoặc mock marker là GPS live.
-- Cung cấp tương tác thay thế bản đồ khi thông tin quan trọng không thể dùng bằng keyboard.
-- **SignalR/WebSocket chỉ áp dụng khi feature thực sự dùng hoặc đã được phê duyệt.** Không tự thêm SignalR chỉ vì bản quy tắc ban đầu có ví dụ.
-- Với sự kiện realtime: kiểm tenant/resource/event ID/version nếu có, chống dữ liệu đến sai thứ tự, unsubscribe khi đổi tenant/resource/unmount.
-
----
-
-## 15. Loading, Error, Empty và Authorization
-
-Screen hoặc panel có dữ liệu phải xử lý trạng thái **phù hợp với nghiệp vụ**:
-
-- Initial loading và background refresh (nếu có).
-- Success có dữ liệu.
-- Empty thật sự, không phải lỗi mạng giả dạng danh sách rỗng.
-- API error có thông báo đã dịch, Retry hợp lý và không lộ stack trace.
-- Unauthorized/Forbidden (401/403) và feature unavailable/disabled.
-- Pending, conflict, outcome chưa rõ với thao tác ghi dữ liệu khi cần.
-
-Không nuốt lỗi bằng `catch {}` vô nghĩa. Không ép tất cả component nhỏ có 6 trạng thái nếu không liên quan; **mỗi screen cần xử lý đầy đủ những trạng thái có thể xảy ra với nó**.
-
----
-
-## 16. Accessibility, responsive và performance
-
-- Kiểm tra những viewport có thay đổi đáng kể: **1440, 1024, 768, 390, 320px**; ghi rõ viewport nào được test thật.
-- Dùng `button`/`a` cho tương tác, không dùng `div onClick` thay nút. Có label, aria-label cho icon button, keyboard Tab/Enter/Space/Escape và focus-visible.
-- Modal phải trap/return focus hợp lý; bảng, drawer, form có thể sử dụng trên mobile, không cắt mất CTA.
-- Mục tiêu WCAG AA: chữ thường ≥4.5:1; chữ lớn ≥3:1; thành phần UI quan trọng ≥3:1. Trạng thái không chỉ biểu thị bằng màu.
-- Vùng chạm mobile ưu tiên khoảng **44×44px** khi có thể.
-- Tôn trọng `prefers-reduced-motion`; chỉ thêm animation hữu ích, ưu tiên CSS transition hiện có.
-- Không dùng `useMemo`/virtualization bừa bãi. Đo vấn đề thực, tối ưu list lớn/map render/query khi cần.
-
----
-
-## 17. Các cảnh báo nghiệp vụ đặc thù LogisticsX
-
-| Module | Quy tắc bắt buộc |
-|---|---|
-| Load | Create/show có code; edit có thể bị GATED. GAP Fill/`focus`/`focusField` phải kiểm cả route và contract. |
-| Trip | Giữ thứ tự transition của Stop và quyền assignment; không tự thêm status picker tùy ý. |
-| Documents | Upload có thể GATED; không toast success download/upload khi chưa xác nhận outcome; kiểm server pagination với local filter. |
-| Notifications | Unread badge preview chưa chắc là tổng toàn hệ thống; không tự bịa API mark-read từng mục. |
-| Optimization | Giữ immutable result/evidence, conflict, retry và frozen-command semantics. |
-| Fleet | Không tạo chart lịch sử/Gantt từ snapshot; CTA bổ sung mileage phải có route hợp lệ. |
-| Invoices/Payments | Tôn trọng read-only/capability, tiền tệ, quyền, audit và idempotency. |
-| Settlements/Payroll | Giữ nguyên state machine, validation, idempotency, reconciliation; không mô phỏng thanh toán thành công. |
-| Auth/Tenant | Không đổi SSO/session/TenantGuard chỉ để sửa UX. |
-| Executive/Map/Load Board | Source dormant không đồng nghĩa được phép bật route production. |
-
----
-
-## 18. Code quality và ESLint
-
-- Tuân theo ESLint/TSConfig **đang được cài**. Không copy nguyên cấu hình ESLint mẫu nếu plugin chưa có hoặc project dùng cấu hình khác.
-- `react-hooks/rules-of-hooks` và `exhaustive-deps` phải đạt; không mặc định suppress.
-- Không `any`, `as any`, `@ts-ignore`, non-null assertion hoặc `eslint-disable` thiếu lý do và kiểm thử.
-- Không để `console.log`/`debugger` trong code production; log lỗi qua cơ chế hiện có và không ghi secret/PII.
-- Không hardcode tenant ID, role, permission, API URL, route khi có constants, status, format ngày/tiền/đơn vị hoặc timeout nghiệp vụ.
-- Không xóa test hoặc sửa snapshot chỉ để làm test PASS mà không xác minh yêu cầu thực tế.
-
----
-
-## 19. Test và nghiệm thu
-
-Trước khi đánh dấu `DONE`:
-
-1. Đọc `package.json`, chỉ chạy script thật sự tồn tại: lint/typecheck/test/build phù hợp.
-2. Viết hoặc cập nhật test cho hook/component/state transition có thay đổi.
-3. Kiểm tra UI bằng Playwright/browser khi có điều kiện, **phân biệt fixture và backend live**.
-4. Kiểm thử success, loading, empty, lỗi API, 403, GATED, tenant switch, mobile, conflict **nếu có thể xảy ra trong luồng đã sửa**.
-5. Kiểm tra `vi/en/ja` khi thay đổi text hoặc component dùng chung.
-6. Ghi rõ lệnh, kết quả `PASS`/`FAIL`/`NOT RUN`, nguyên nhân không chạy và rủi ro còn tồn tại.
-
-Các flow nên có regression: Load create/detail/GAP Edit gating; Operations demo/live; AI approve/reject; Optimization conflict; Documents query/delete/upload gating; Notifications count; Settlement/Payroll state machine; route safety theo role/tenant.
-
----
-
-## 20. Triển khai theo `plan.md`
-
-- Đọc task ID, priority, acceptance criteria, evidence, dependencies của `plan.md` trước khi thực hiện.
-- Kiểm tra task còn đúng với source/runtime không; không sửa một vấn đề đã biến mất.
-- Ưu tiên xác minh baseline và P0 route/data-truth trước các đợt redesign visual lớn, trừ khi user yêu cầu scope khác.
-- Triển khai thay đổi nhỏ, có thể kiểm soát; không tranh thủ refactor module không liên quan.
-- Khi bắt đầu sửa theo plan, tạo/cập nhật `docs/UI_UX_IMPLEMENTATION_PROGRESS.md` với: Task ID, phase, trạng thái, files, test, evidence, blocker, next step.
-- Dùng trạng thái: `BACKLOG`, `VERIFYING`, `READY`, `IN_PROGRESS`, `IN_REVIEW`, `UI_SAFE_DONE`, `INTEGRATION_DONE`, `DONE`, `BLOCKED`, `DEFERRED`.
-- `DONE` chỉ khi đạt acceptance criteria và có test/bằng chứng thích hợp. `UI_SAFE_DONE` khi UI an toàn nhưng backend thật chưa được xác minh.
-- Cập nhật trạng thái trong `plan.md` **theo thực tế**, không xóa ticket chưa xử lý, không tự tuyên bố dự án hoàn thành.
-- Nếu một task thiếu API, permission, contract, môi trường: ghi `BLOCKED`, nêu điều kiện cần xác minh, hoàn thiện UI an toàn nếu có thể rồi chuyển task độc lập tiếp theo.
-- Kết thúc milestone: báo Task IDs, files changed, test cụ thể, kết quả, blocker, task tiếp theo; không tự ước tính % hoàn thành.
-
-### 20.1. Bảo vệ working tree và rollback
-
-- Bắt đầu bằng `git status --short` và kiểm tra branch/HEAD; chỉ đọc/truy vết, không tự thực hiện hành động Git phá hủy.
-- Trước khi sửa file dirty, đọc diff hiện có để tránh ghi đè thay đổi của user.
-- Sửa ít nhất đủ giải quyết task, xem lại diff và chạy focused tests.
-- Thay đổi global theme/layout hoặc nghiệp vụ rủi ro cao phải có kế hoạch rollback rõ ràng.
-- **Không** reset/clean/stash/rebase/commit/push/GitHub nếu chưa được yêu cầu.
-
----
-
-## 21. Checklist bàn giao / Pull Request
-
-```md
-### Architecture
-- [ ] Đúng portal/feature/scope và cấu trúc repo
-- [ ] Tái sử dụng Refine/Ant Design; component không gọi HTTP trực tiếp
-- [ ] Không đổi nghiệp vụ/API contract ngoài phạm vi
-
-### Hooks & Data
-- [ ] Rules of Hooks, dependency, cleanup, StrictMode đúng
-- [ ] Tenant isolation, query key/invalidation đã xác minh
-- [ ] Permission và feature flags đúng runtime
-- [ ] Pending/error/conflict/uncertain outcome được xử lý
-
-### UI & i18n
-- [ ] Locale đầy đủ theo portal (vi/en/ja nếu đang hỗ trợ)
-- [ ] Không hardcode user-facing title, label, toast, aria-label
-- [ ] Design tokens, loading/empty/error/disabled nhất quán
-- [ ] Keyboard/focus/contrast/responsive/reduced-motion phù hợp
-
-### Verification
-- [ ] Lint: PASS / FAIL / NOT RUN (kèm lệnh)
-- [ ] Typecheck: PASS / FAIL / NOT RUN
-- [ ] Unit/component tests: PASS / FAIL / NOT RUN
-- [ ] Build: PASS / FAIL / NOT RUN
-- [ ] Browser fixture: PASS / FAIL / NOT RUN
-- [ ] Backend live/UAT: PASS / FAIL / NOT RUN
-- [ ] `plan.md` và progress cập nhật đúng trạng thái
-- [ ] Không có dữ liệu demo giả danh live; CTA không dẫn sai route
-```
-
----
-
-## 22. Câu hỏi bắt buộc trước khi hoàn thành code
-
-1. Dữ liệu đang xử lý là local UI state, derived state, server state hay subscription?
-2. Hook/Effect có thực sự cần, dependency/cleanup và StrictMode đã đúng chưa?
-3. Thao tác liên quan tenant, role, permission, capability hay feature flag nào?
-4. Route, DTO, API, status và query key đã được xác minh trong repo chưa?
-5. Loading/error/empty/conflict/kết quả không chắc chắn có được hiển thị trung thực không?
-6. User-facing text đã dịch đầy đủ theo locale thực tế chưa?
-7. UI có dùng token/component hiện có và hỗ trợ a11y/responsive phù hợp không?
-8. Kiểm thử đã **thực sự chạy** hay mới dựa vào source/fixture?
-9. Có bảo toàn thay đổi chưa commit, nghiệp vụ và phạm vi user yêu cầu không?
-10. Đã ghi lại tiến độ, bằng chứng và blocker chưa?
-
-> **Quy tắc bất khả xâm phạm:** Không dữ liệu giả danh live · Không rò rỉ tenant · Không bịa API/permission · Không tự bật feature flag · Không báo success khi chưa có outcome · Không thao tác Git phá hủy khi chưa có yêu cầu.
+**Ưu tiên cuối cùng:** đúng dữ liệu và tiền > an toàn tenant > đúng luồng nghiệp vụ > giao diện rõ, nhất quán > phản hồi nhanh > dễ bảo trì > tối ưu vi mô.

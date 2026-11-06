@@ -22,14 +22,21 @@ export function joinTmsApprovals(
     if (load) loadByDecision.set(status.latestDecisionId, load);
   }
   const truckById = new Map(trucks.map((truck) => [truck.id, truck]));
+  const statusByDecisionId = new Map(
+    statuses
+      .filter((status) => Boolean(status.latestDecisionId))
+      .map((status) => [status.latestDecisionId as string, status] as const),
+  );
 
   return suggestions.map((suggestion) => {
     const load = loadByDecision.get(suggestion.decisionId);
     const truck = truckById.get(suggestion.truckId);
+    const aiStatus = statusByDecisionId.get(suggestion.decisionId);
     return {
       suggestion,
       ...(load ? { load } : {}),
       ...(truck ? { truck } : {}),
+      ...(aiStatus?.dispatchStatus ? { dispatchStatus: aiStatus.dispatchStatus } : {}),
     };
   });
 }

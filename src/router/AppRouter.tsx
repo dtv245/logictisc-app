@@ -1,13 +1,12 @@
 import { getResourceCapabilities } from "@/components/resources/resourceCapabilities";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
-import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
 import type { PayslipDownloader } from "@/features/payslips/api/payslip.api";
 /**
  * Khai báo route tree cho auth, tenant guard và resource pages.
  */
 
 import { createElement, lazy, Suspense, type ReactNode } from "react";
-import { Authenticated, CanAccess, useCan } from "@refinedev/core";
+import { Authenticated, CanAccess } from "@refinedev/core";
 import {
   Navigate,
   Outlet,
@@ -43,16 +42,6 @@ const LarkCallbackPage = lazy(() =>
     default: module.LarkCallbackPage,
   })),
 );
-const DashboardPage = lazy(() =>
-  import("@pages/dashboard/DashboardPage").then((module) => ({
-    default: module.DashboardPage,
-  })),
-);
-const OperationsDashboardPage = lazy(() =>
-  import("@pages/dashboard/OperationsDashboardPage").then((module) => ({
-    default: module.OperationsDashboardPage,
-  })),
-);
 const ProfitabilityPage = lazy(() =>
   import("@pages/profitability/ProfitabilityPage").then((module) => ({ default: module.ProfitabilityPage })),
 );
@@ -79,6 +68,16 @@ const TmsDispatchPage = lazy(() =>
 const TmsShipmentDetailPage = lazy(() =>
   import("@pages/tms-flow/ShipmentDetailPage").then((module) => ({
     default: module.ShipmentDetailPage,
+  })),
+);
+const TmsLiveTrackingPage = lazy(() =>
+  import("@pages/tms-flow/LiveTrackingPage").then((module) => ({
+    default: module.LiveTrackingPage,
+  })),
+);
+const AiDispatchPage = lazy(() =>
+  import("@pages/ai-dispatch/AiDispatchPage").then((module) => ({
+    default: module.AiDispatchPage,
   })),
 );
 const SettlementListPage = lazy(() =>
@@ -109,6 +108,7 @@ const ForbiddenPage = lazy(() =>
     default: module.ForbiddenPage,
   })),
 );
+const SettingsPage = lazy(() => import("@pages/settings/SettingsPage").then((module) => ({ default: module.SettingsPage })));
 const NotFoundPage = lazy(() =>
   import("@pages/errors/NotFoundPage").then((module) => ({
     default: module.NotFoundPage,
@@ -140,30 +140,6 @@ export const ResourceAccessBoundary = ({
   </CanAccess>
 );
 
-/**
- * /operations reads /api/reports/**, which the backend keeps inside the payroll
- * report group. Dispatchers land on the TMS workspace instead of hitting a 403.
- */
-const LandingRedirect = () => {
-  const reportsAccess = useCan({
-    resource: "fleet-reports",
-    action: "FLEET_REPORT_VIEW",
-  });
-  const loadsAccess = useCan({ resource: "loads", action: "list" });
-
-  if (reportsAccess.isLoading || loadsAccess.isLoading) {
-    return <FullPageLoader />;
-  }
-  const useTmsLanding =
-    reportsAccess.data?.can !== true && loadsAccess.data?.can === true;
-  return (
-    <Navigate
-      to={useTmsLanding ? routes.tmsFlow.root : routes.operations}
-      replace
-    />
-  );
-};
-
 export const AppRouter = ({
   download,
   diagnosticsState,
@@ -190,11 +166,7 @@ export const AppRouter = ({
             fallback={<Outlet />}
             loading={<FullPageLoader />}
           >
-            {EXECUTIVE_CONTRACT_CONFIRMED ? (
-              <Navigate to={routes.dashboard} replace />
-            ) : (
-              <LandingRedirect />
-            )}
+            <Navigate to={routes.tmsFlow.root} replace />
           </Authenticated>
         }
       >
@@ -212,14 +184,8 @@ export const AppRouter = ({
 
         <Route element={<TenantGuard />}>
           <Route element={<MainLayout />}>
-            {/* Existing auth return targets may still use /dashboard. Redirect
-                without mounting its queries while BE-031 remains unresolved. */}
-            <Route path={routes.dashboard} element={EXECUTIVE_CONTRACT_CONFIRMED ? <DashboardPage /> : <LandingRedirect />} />
-            <Route
-              path={routes.operations}
-              element={<OperationsDashboardPage />}
-            />
-            {/* Real TMS operations flow: loads, trucks and AI decisions. */}
+            <Route path={routes.settings} element={<SettingsPage />} />
+            {/* TMS là màn vận hành duy nhất; /dashboard và /operations cũ đã bỏ. */}
             <Route
               path={routes.tmsFlow.root}
               element={
@@ -234,6 +200,7 @@ export const AppRouter = ({
                 path="approvals"
                 element={<TmsDispatchPage approvalsOnly />}
               />
+              <Route path="live-tracking" element={<TmsLiveTrackingPage />} />
               <Route path="shipments/:shipmentId" element={<TmsShipmentDetailPage />} />
             </Route>
             <Route path={routes.profitability} element={
@@ -241,6 +208,23 @@ export const AppRouter = ({
                 <ProfitabilityPage />
               </ResourceAccessBoundary>
             } />
+            {/* AI Dispatch: chạy phân tích, xem kế hoạch và duyệt quyết định. */}
+            <Route
+              path={routes.aiDispatch}
+              element={
+                <ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch">
+                  <AiDispatchPage />
+                </ResourceAccessBoundary>
+              }
+            />
+            <Route
+              path={routes.aiDispatchShow}
+              element={
+                <ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch">
+                  <AiDispatchPage />
+                </ResourceAccessBoundary>
+              }
+            />
             <Route
               path={routes.resources.settlements.list}
               element={

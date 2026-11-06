@@ -18,6 +18,8 @@ export async function renderFinance(children: ReactNode, request: (options: Cust
   await i18n.use(initReactI18next).init({ lng: "en", resources: { en: { translation: enMessages } }, interpolation: { escapeValue: false } });
   const unused = async (): Promise<never> => { throw new Error("Unexpected CRUD call in finance test"); };
   const provider: DataProvider = { getList: listRequest ?? unused, getOne: unused, create: unused, update: unused, deleteOne: unused, getApiUrl: () => "",
+    // The callback stands in for the HTTP boundary: it returns exactly what the
+    // transport returns, so raw-mode callers still receive the full envelope.
     custom: async <TData extends BaseRecord>(options: CustomParams) => ({ data: await request(options) as TData }) };
   const notification = vi.fn();
   const result = render(<MemoryRouter initialEntries={initialEntries}><I18nextProvider i18n={i18n}><ConfigProvider theme={{ token: { motion: false } }}><AntdApp>

@@ -1,7 +1,8 @@
-/** Presentation metadata and formatters for the TMS screens (literal English copy). */
+/** Metadata and formatters for Vietnamese TMS screens. */
 
 import type {
   TmsAiSuggestionMetric,
+  TmsLoadRiskReason,
   TmsOperationalStatus,
   TmsRiskLevel,
 } from "@/types/tms-flow/tmsFlow.types";
@@ -13,33 +14,34 @@ export const operationalStatusMeta: Record<
   TmsOperationalStatus,
   { label: string; tone: PresentationTone }
 > = {
-  open: { label: "Open", tone: "neutral" },
-  assigned: { label: "Assigned", tone: "processing" },
-  dispatched: { label: "Dispatched", tone: "processing" },
-  in_transit: { label: "In transit", tone: "processing" },
-  delivered: { label: "Delivered", tone: "success" },
-  cancelled: { label: "Cancelled", tone: "neutral" },
+  open: { label: "Mới", tone: "neutral" },
+  assigned: { label: "Đã phân công", tone: "processing" },
+  dispatched: { label: "Đã điều phối", tone: "processing" },
+  in_transit: { label: "Đang vận chuyển", tone: "processing" },
+  delivered: { label: "Đã giao", tone: "success" },
+  cancelled: { label: "Đã hủy", tone: "neutral" },
 };
 
 export const riskMeta: Record<
   TmsRiskLevel,
   { label: string; tone: PresentationTone }
 > = {
-  none: { label: "On plan", tone: "neutral" },
-  at_risk: { label: "At risk", tone: "warning" },
-  delayed: { label: "Delayed", tone: "error" },
+  none: { label: "Đúng kế hoạch", tone: "neutral" },
+  at_risk: { label: "Có rủi ro", tone: "warning" },
+  delayed: { label: "Quá hạn", tone: "error" },
 };
 
-const dateTimeFormat = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  hour: "numeric",
+const dateTimeFormat = new Intl.DateTimeFormat("vi-VN", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
   minute: "2-digit",
 });
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
+const dateFormat = new Intl.DateTimeFormat("vi-VN", {
+  day: "2-digit",
+  month: "2-digit",
   year: "numeric",
 });
 
@@ -60,7 +62,7 @@ export const formatTmsDate = (value?: string | null, fallback = "—"): string =
 };
 
 export const formatTmsDistance = (distance?: number | null): string =>
-  formatDistance(distance, "mi", { locale: "en-US" });
+  formatDistance(distance, "mi", { locale: "vi-VN" });
 
 export const formatTmsMoney = (
   amount?: number | null,
@@ -68,13 +70,13 @@ export const formatTmsMoney = (
 ): string => {
   if (amount == null) return "—";
   try {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: currency || "USD",
       maximumFractionDigits: 2,
     }).format(amount);
   } catch {
-    return `${amount.toLocaleString("en-US")} ${currency ?? ""}`.trim();
+    return `${amount.toLocaleString("vi-VN")} ${currency ?? ""}`.trim();
   }
 };
 
@@ -85,25 +87,46 @@ export const formatTmsPercent = (ratio?: number | null): string =>
 export const describeTmsError = (error: unknown): string =>
   error instanceof Error && error.message
     ? error.message
-    : "The request could not be completed.";
+    : "Không thể hoàn tất yêu cầu.";
 
 export const describeSuggestionMetrics = (
   metrics?: TmsAiSuggestionMetric,
 ): string[] => {
   if (!metrics) return [];
   const rows: string[] = [];
-  if (metrics.deadheadMiles != null) rows.push(`Deadhead ${formatTmsDistance(metrics.deadheadMiles)}`);
+  if (metrics.deadheadMiles != null) rows.push(`Quãng đường rỗng ${formatTmsDistance(metrics.deadheadMiles)}`);
   if (metrics.totalDistanceMiles != null) {
-    rows.push(`Trip ${formatTmsDistance(metrics.totalDistanceMiles)}`);
+    rows.push(`Tổng quãng đường ${formatTmsDistance(metrics.totalDistanceMiles)}`);
   }
   if (metrics.onTimeProbability != null) {
-    rows.push(`On-time ${formatTmsPercent(metrics.onTimeProbability)}`);
+    rows.push(`Đúng khung giờ ${formatTmsPercent(metrics.onTimeProbability)}`);
   }
   if (metrics.expectedMarginRatio != null) {
-    rows.push(`Margin ${formatTmsPercent(metrics.expectedMarginRatio)}`);
+    rows.push(`Biên lợi nhuận ${formatTmsPercent(metrics.expectedMarginRatio)}`);
   }
   if (metrics.hosRemainingHours != null) {
-    rows.push(`HOS ${metrics.hosRemainingHours.toFixed(1)} h`);
+    rows.push(`Giờ lái còn lại ${metrics.hosRemainingHours.toFixed(1)} giờ`);
   }
   return rows;
+};
+
+export const formatTmsRiskReason = (reason: TmsLoadRiskReason): string => {
+  switch (reason.code) {
+    case "OPEN_EXCEPTION": {
+      const detail = [reason.exceptionType, reason.exceptionReason]
+        .filter((part): part is string => Boolean(part && part.trim()))
+        .join(": ");
+      return detail ? `Sự cố chưa xử lý (${detail})` : "Sự cố chưa xử lý";
+    }
+    case "PICKUP_OVERDUE":
+      return reason.dueAt
+        ? `Quá hạn lấy hàng (${formatTmsDateTime(reason.dueAt)})`
+        : "Quá hạn lấy hàng chưa ghi nhận";
+    case "DELIVERY_OVERDUE":
+      return reason.dueAt
+        ? `Quá hạn giao hàng (${formatTmsDateTime(reason.dueAt)})`
+        : "Quá hạn giao hàng chưa hoàn tất";
+    default:
+      return reason.message;
+  }
 };

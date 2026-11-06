@@ -14,17 +14,9 @@ import { AppLayout } from "../../src/components/AppLayout";
 import { LoadShow } from "../../src/pages/loads/show";
 import { LoadList } from "../../src/pages/loads/list";
 import { TripList } from "../../src/pages/trips/list";
-import { OperationsDashboardPage } from "../../src/pages/dashboard/OperationsDashboardPage";
 import type { Load } from "../../src/types/load.types";
 import { canJwtRolesAccess } from "../../src/providers/permissions/roleMatrix";
 import { JWT_ROLES, type JwtRole } from "../../src/types/roles.types";
-import { NAV_ZONES } from "../../src/components/AppSider";
-
-declare global {
-  interface Window {
-    __roleMenuExpectation?: Array<{ key: string; visible: boolean }>;
-  }
-}
 
 // Setup I18n
 const i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });
@@ -217,18 +209,6 @@ const mockAccessControl = {
   }),
 };
 
-window.__roleMenuExpectation = NAV_ZONES.map((zone) => {
-  const items = "items" in zone ? zone.items : [zone];
-  return {
-    key: zone.key,
-    visible: items.some((item) => item.permission
-      ? canJwtRolesAccess([fixtureRole], item.permission.resource, item.permission.action)
-      : item.resource
-        ? canJwtRolesAccess([fixtureRole], item.resource, "list")
-        : true),
-  };
-});
-
 // This fixture demonstrates role-matrix visibility only; it is never live auth or tenant UAT.
 const initialRoute = searchParams.get("route") || "/operations";
 
@@ -261,8 +241,9 @@ root.render(
             >
               <Routes>
                 <Route element={<AppLayout />}>
-                  <Route path="/operations" element={<OperationsDashboardPage />} />
-                  <Route path="/dashboard" element={<OperationsDashboardPage />} />
+                  <Route path="/operations" element={<div data-testid="sider-fixture-content">Fixture điều hướng</div>} />
+                  <Route path="/dashboard" element={<div data-testid="sider-fixture-content">Fixture điều hướng</div>} />
+                  <Route path="/tms" element={<div data-testid="tms-route-placeholder">TMS navigation fixture</div>} />
                   <Route path="/loads" element={<LoadList />} />
                   <Route path="/loads/show/:id" element={<LoadShow />} />
                   <Route path="/trips" element={<TripList />} />

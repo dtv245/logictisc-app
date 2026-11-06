@@ -172,16 +172,18 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
           style={{
             padding: 0,
             textAlign: "left",
-            whiteSpace: "normal",
+            maxWidth: "100%",
             height: "auto",
             fontSize: 14,
             lineHeight: "20px",
             fontWeight: 600,
-            overflowWrap: "anywhere",
             marginBottom: 6,
+            overflow: "hidden",
           }}
         >
-          {doc.fileName}
+          <span className="table-cell-ellipsis" style={{ maxWidth: "100%" }}>
+            {doc.fileName}
+          </span>
         </Button>
       </Tooltip>
 

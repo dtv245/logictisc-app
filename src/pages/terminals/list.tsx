@@ -2,6 +2,7 @@ import { CreateButton } from "@refinedev/antd";
 
 import { ResourceListToolbar } from "@/components/ResourceListToolbar";
 import { TerminalCardGrid } from "@/components/terminals/TerminalCardGrid";
+import { TerminalCreateModal } from "@/components/terminals/TerminalCreateModal";
 import { useTerminalList } from "@/hooks/terminals/useTerminalList";
 
 const TerminalList = () => {
@@ -25,7 +26,21 @@ const TerminalList = () => {
       <ResourceListToolbar
         controls={entityFilters.controls}
         filterValues={entityFilters.value}
-        headerButtons={createAllowed ? <CreateButton /> : null}
+        headerButtons={
+          createAllowed ? (
+            <TerminalCreateModal
+              onCreated={refresh}
+              trigger={(show) => (
+                <CreateButton
+                  onClick={(e) => {
+                    e.preventDefault();
+                    show();
+                  }}
+                />
+              )}
+            />
+          ) : null
+        }
         isFetching={isFetching}
         onFilterChange={entityFilters.setFilter}
         onFilterReset={entityFilters.reset}

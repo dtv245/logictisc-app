@@ -9,7 +9,7 @@
  *   truckNumber, dispatcherName...) nếu có trong record.
  */
 
-import { Descriptions, Space, Tag, Typography } from "antd";
+import { Descriptions, Space, Tag, Tooltip, Typography } from "antd";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { translateOptional } from "@/locales";
@@ -114,11 +114,18 @@ export const ResourceDetailView = ({
         .map(String);
 
       if (parts.length > 0) {
+        const addrText = parts.join(", ");
         items.push({
           key: `${prefix}Address`,
-      label: translateOptional(i18n, (key) => t(key), labelKey, defaultLabel),
+          label: translateOptional(i18n, (key) => t(key), labelKey, defaultLabel),
           span: 2,
-          value: parts.join(", "),
+          value: (
+            <Tooltip title={addrText}>
+              <span className="table-cell-ellipsis" style={{ maxWidth: "100%", verticalAlign: "bottom" }}>
+                {addrText}
+              </span>
+            </Tooltip>
+          ),
         });
       }
       [
@@ -152,11 +159,18 @@ export const ResourceDetailView = ({
       .map(String);
 
     if (parts.length > 0) {
+      const addrText = parts.join(", ");
       items.push({
         key: "address",
         label: translateOptional(i18n, (key) => t(key), "forms.fields.address", "Địa chỉ"),
         span: 2,
-        value: parts.join(", "),
+        value: (
+          <Tooltip title={addrText}>
+            <span className="table-cell-ellipsis" style={{ maxWidth: "100%", verticalAlign: "bottom" }}>
+              {addrText}
+            </span>
+          </Tooltip>
+        ),
       });
     }
     [
@@ -184,11 +198,18 @@ export const ResourceDetailView = ({
       .map(String);
 
     if (parts.length > 0) {
+      const addrText = parts.join(", ");
       items.push({
         key: "addressObject",
         label: translateOptional(i18n, (key) => t(key), "forms.fields.address", "Địa chỉ"),
         span: 2,
-        value: parts.join(", "),
+        value: (
+          <Tooltip title={addrText}>
+            <span className="table-cell-ellipsis" style={{ maxWidth: "100%", verticalAlign: "bottom" }}>
+              {addrText}
+            </span>
+          </Tooltip>
+        ),
       });
     }
     processedKeys.add("address");
@@ -438,18 +459,32 @@ export const ResourceDetailView = ({
       (typeof rawValue === "string" && rawValue.length > 80);
 
     if (typeof rawValue === "object") {
+      const jsonText = JSON.stringify(rawValue);
       items.push({
         key,
         label: getLabel(key),
         span: 2,
-        value: JSON.stringify(rawValue),
+        value: (
+          <Tooltip title={jsonText}>
+            <span className="table-cell-ellipsis" style={{ maxWidth: "100%", verticalAlign: "bottom" }}>
+              {jsonText}
+            </span>
+          </Tooltip>
+        ),
       });
     } else {
+      const strText = String(rawValue);
       items.push({
         key,
         label: getLabel(key),
         span: isLongText ? 2 : 1,
-        value: String(rawValue),
+        value: (
+          <Tooltip title={strText}>
+            <span className="table-cell-ellipsis" style={{ maxWidth: "100%", verticalAlign: "bottom" }}>
+              {strText}
+            </span>
+          </Tooltip>
+        ),
       });
     }
     processedKeys.add(key);

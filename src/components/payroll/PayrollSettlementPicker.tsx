@@ -1,4 +1,4 @@
-import { Alert, Button, Table, Typography } from "antd";
+import { Alert, Button, Table, Tooltip, Typography } from "antd";
 import { useState } from "react";
 import Decimal from "decimal.js";
 import { usePayrollSettlements } from "@/hooks/payroll/usePayrollSettlements";
@@ -33,9 +33,40 @@ export function PayrollSettlementPicker({ payPeriodId, currency, value = [], onC
         onSelectAll: (checked, _rows, changed) => { changed.forEach((row) => checked ? selected.set(row.id, row) : selected.delete(row.id)); onChange?.([...selected.values()]); },
       }}
       columns={[
-        { title: "Quyết toán", dataIndex: "settlementNumber" },
-        { title: "Tài xế", render: (_: unknown, row) => row.driverName || row.driverId },
-        { title: "Kỳ", render: (_: unknown, row) => row.payPeriodCode || row.payPeriodId },
+        {
+          title: "Quyết toán",
+          dataIndex: "settlementNumber",
+          ellipsis: true,
+          render: (val: string) => (
+            <Tooltip title={val}>
+              <span className="table-cell-ellipsis">{val}</span>
+            </Tooltip>
+          ),
+        },
+        {
+          title: "Tài xế",
+          ellipsis: true,
+          render: (_: unknown, row) => {
+            const text = row.driverName || row.driverId;
+            return (
+              <Tooltip title={text}>
+                <span className="table-cell-ellipsis">{text}</span>
+              </Tooltip>
+            );
+          },
+        },
+        {
+          title: "Kỳ",
+          ellipsis: true,
+          render: (_: unknown, row) => {
+            const text = row.payPeriodCode || row.payPeriodId;
+            return (
+              <Tooltip title={text}>
+                <span className="table-cell-ellipsis">{text}</span>
+              </Tooltip>
+            );
+          },
+        },
         { title: "Trạng thái", dataIndex: "status" },
         { title: "Số tiền", render: (_: unknown, row) => `${row.settlementNet} ${row.currency}` },
       ]}

@@ -24,7 +24,7 @@ export const NotFoundPage = () => {
             className="system-status-btn"
             size="large"
             type="primary"
-            onClick={() => go({ to: routes.dashboard, type: "replace" })}
+            onClick={() => go({ to: routes.tmsFlow.root, type: "replace" })}
           >
             {t("common.goDashboard")}
           </Button>

@@ -11,22 +11,19 @@
  * 2. Ghép nối (Children / Compound): truyền `<FilterBar.Item>` hoặc children
  *    cho các màn hình có bộ lọc tuỳ biến.
  */
-import { Button, Col, Input, Row, Select, type ColProps } from "antd";
+import { Button, Col, Row, Select, type ColProps } from "antd";
 import {
   Children,
   isValidElement,
-  useEffect,
-  useRef,
-  useState,
   type CSSProperties,
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { translateOptional } from "@/locales";
 
-import { useDebouncedSearch } from "@hooks/useDebouncedSearch";
 import { EntityPicker } from "./EntityPicker";
 import type { ResourceFilterControl } from "./resources/resourceFilterControls";
+import { SearchField } from "./SearchField";
 
 export interface FilterBarProps {
   /** Danh sách cấu hình control lọc chuẩn (dùng với Refine/resourceFilterControls). */
@@ -63,57 +60,6 @@ export const FilterItem = ({
     {children}
   </Col>
 );
-
-interface SearchFieldProps {
-  control: ResourceFilterControl;
-  onChange: (value: string | undefined) => void;
-  value: string | undefined;
-}
-
-const SearchField = ({ control, onChange, value }: SearchFieldProps) => {
-  const { t } = useTranslation();
-  const applied = value ?? "";
-  const [draft, setDraft] = useState(applied);
-  const debounced = useDebouncedSearch(draft);
-
-  // Điều chỉnh state ngay trong lúc render khi cha đổi giá trị từ bên ngoài
-  const [lastApplied, setLastApplied] = useState(applied);
-  if (applied !== lastApplied) {
-    setLastApplied(applied);
-    setDraft(applied);
-  }
-
-  const appliedRef = useRef(applied);
-  const onChangeRef = useRef(onChange);
-
-  useEffect(() => {
-    appliedRef.current = applied;
-  }, [applied]);
-
-  useEffect(() => {
-    onChangeRef.current = onChange;
-  }, [onChange]);
-
-  useEffect(() => {
-    if (debounced === appliedRef.current) {
-      return;
-    }
-    onChangeRef.current(debounced === "" ? undefined : debounced);
-  }, [debounced]);
-
-  const label = t(control.labelKey);
-
-  return (
-    <Input
-      allowClear
-      aria-label={label}
-      onChange={(event) => setDraft(event.target.value)}
-      placeholder={control.kind === "search" ? t("filters.searchPlaceholder") : label}
-      style={{ width: "100%" }}
-      value={draft}
-    />
-  );
-};
 
 export function FilterBar({
   className,

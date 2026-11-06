@@ -31,6 +31,7 @@ import { translateOptional } from "@/locales";
 import { useDebouncedSearch } from "@hooks/useDebouncedSearch";
 import { EntityPicker } from "./EntityPicker";
 import type { ResourceFilterControl } from "./resources/resourceFilterControls";
+import { SearchField } from "./SearchField";
 
 export interface ResourceListToolbarProps {
   /** Mã định danh resource (ví dụ "trucks", "loads"). */
@@ -174,7 +175,7 @@ export const ResourceListToolbar = ({
     }
 
     return chips;
-  }, [searchControl, filterValues, otherControls, t]);
+  }, [searchControl, filterValues, otherControls, t, i18n]);
 
   // Số lượng bộ lọc non-search đang active (để hiện badge trên nút Mobile Filter)
   const activeOtherCount = useMemo(() => {
@@ -215,12 +216,31 @@ export const ResourceListToolbar = ({
     setMobileFilterOpen(false);
   }, [onFilterReset]);
 
-  // Render các control lọc dạng Select hoặc EntityPicker trên Desktop
+  // Render các control lọc dạng Input / Select / EntityPicker trên Desktop
   const renderFilterControls = useCallback(
     (isVertical = false) => {
       return otherControls.map((control) => {
         const label = t(control.labelKey);
         const currentValue = filterValues[control.field];
+
+        // Filter văn bản (`status`, `type`, `countryCode`…) không phải quan hệ.
+        // Dựng `EntityPicker` cho chúng sẽ gọi `getList` với `resource=""` và
+        // data provider ném `RESOURCE_NOT_CONFIGURED`.
+        if (control.kind === "text") {
+          return (
+            <div
+              className="resource-list-toolbar__picker"
+              key={control.field}
+              style={{ width: isVertical ? "100%" : 170 }}
+            >
+              <SearchField
+                control={control}
+                onChange={(next) => onFilterChange(control.field, next)}
+                value={currentValue}
+              />
+            </div>
+          );
+        }
 
         if (control.kind === "select") {
           return (
@@ -250,6 +270,7 @@ export const ResourceListToolbar = ({
             style={{ width: isVertical ? "100%" : 170 }}
           >
             <EntityPicker
+              infiniteScroll
               onChange={(next) => onFilterChange(control.field, next)}
               placeholder={label}
               resource={control.relationResource ?? ""}
@@ -259,7 +280,7 @@ export const ResourceListToolbar = ({
         );
       });
     },
-    [otherControls, filterValues, onFilterChange, t],
+    [otherControls, filterValues, onFilterChange, t, i18n],
   );
 
   // Render các control lọc dạng dọc bên trong Drawer Mobile
@@ -267,6 +288,26 @@ export const ResourceListToolbar = ({
     return otherControls.map((control) => {
       const label = t(control.labelKey);
       const currentValue = drawerDraftValues[control.field];
+
+      if (control.kind === "text") {
+        return (
+          <div key={control.field} style={{ width: "100%" }}>
+            <div style={{ marginBottom: 6, fontSize: 13, fontWeight: 500 }}>
+              {label}
+            </div>
+            <SearchField
+              control={control}
+              onChange={(next) =>
+                setDrawerDraftValues((prev) => ({
+                  ...prev,
+                  [control.field]: next,
+                }))
+              }
+              value={currentValue}
+            />
+          </div>
+        );
+      }
 
       if (control.kind === "select") {
         return (
@@ -301,6 +342,7 @@ export const ResourceListToolbar = ({
             {label}
           </div>
           <EntityPicker
+            infiniteScroll
             onChange={(next) =>
               setDrawerDraftValues((prev) => ({
                 ...prev,
@@ -314,7 +356,7 @@ export const ResourceListToolbar = ({
         </div>
       );
     });
-  }, [otherControls, drawerDraftValues, t]);
+  }, [otherControls, drawerDraftValues, t, i18n]);
 
   return (
     <div
@@ -423,19 +465,20 @@ export const ResourceListToolbar = ({
           </span>
           <div className="resource-list-toolbar__chips-list">
             {activeChips.map((chip) => (
-              <Tag
-                className="resource-list-toolbar__chip"
-                closable
-                closeIcon={<CloseOutlined aria-label={t("actions.delete")} />}
-                key={chip.field}
-                onClose={(e) => {
-                  e.preventDefault();
-                  onFilterChange(chip.field, undefined);
-                }}
-              >
-                <span className="resource-list-toolbar__chip-key">{chip.label}:</span>
-                <span className="resource-list-toolbar__chip-value">{chip.displayValue}</span>
-              </Tag>
+              <Tooltip key={chip.field} title={`${chip.label}: ${chip.displayValue}`}>
+                <Tag
+                  className="resource-list-toolbar__chip"
+                  closable
+                  closeIcon={<CloseOutlined aria-label={t("actions.delete")} />}
+                  onClose={(e) => {
+                    e.preventDefault();
+                    onFilterChange(chip.field, undefined);
+                  }}
+                >
+                  <span className="resource-list-toolbar__chip-key">{chip.label}:</span>
+                  <span className="resource-list-toolbar__chip-value">{chip.displayValue}</span>
+                </Tag>
+              </Tooltip>
             ))}
 
             {/* Nút Xoá tất cả bộ lọc */}

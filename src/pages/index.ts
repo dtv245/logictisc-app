@@ -2,9 +2,8 @@
  * Tập trung Refine resource registry và route-component mapping.
  */
 
-import { DashboardOutlined } from "@ant-design/icons";
 import type { IResourceItem } from "@refinedev/core";
-import { createElement, type ComponentType } from "react";
+import type { ComponentType } from "react";
 
 import { routes } from "../constants/routes";
 import {
@@ -49,15 +48,9 @@ import DriverCreate from "./drivers/create";
 import DriverEdit from "./drivers/edit";
 import { DriverDirectoryPage } from "./drivers/DriverDirectoryPage";
 import { DriverExpiringPage } from "./drivers/DriverExpiringPage";
-import { DriverPayrollProfilePage, DriverProfilePage, DriverSelfProfilePage } from "./drivers/DriverProfilePage";
+import { DriverPayrollProfilePage, DriverSelfProfilePage } from "./drivers/DriverProfilePage";
+import { DriverDetailPage } from "./drivers/DriverDetailPage";
 import { driverProfileRoutes } from "@/constants/driverProfileRoutes";
-import {
-  ExpenseCreate,
-  ExpenseEdit,
-  ExpenseList,
-  expensesResource,
-  ExpenseShow,
-} from "./expenses";
 import {
   HosEldCreate,
   HosEldEdit,
@@ -188,17 +181,8 @@ const createResourcePageRoutes = (
   },
 ];
 
-const dashboardResource: IResourceItem = {
-  name: "dashboard",
-  list: routes.dashboard,
-  meta: {
-    icon: createElement(DashboardOutlined),
-    label: "Tổng quan",
-  },
-};
-
 export const appResources: IResourceItem[] = [
-  dashboardResource,
+  loadsResource,
   loadsResource,
   trucksResource,
   tripsResource,
@@ -207,7 +191,6 @@ export const appResources: IResourceItem[] = [
   customersResource,
   invoicesResource,
   paymentsResource,
-  expensesResource,
   maintenanceResource,
   hosEldResource,
   accidentsResource,
@@ -231,8 +214,9 @@ export const appResourcePageRoutes: ResourcePageRoute[] = [
     Create: TripCreate, Edit: TripEdit, List: TripList, Show: TripShow,
   }),
   ...createResourcePageRoutes(routes.resources.drivers, {
-    Create: DriverCreate, Edit: DriverEdit, List: DriverDirectoryPage, Show: DriverProfilePage,
+    Create: DriverCreate, Edit: DriverEdit, List: DriverDirectoryPage, Show: DriverDetailPage,
   }),
+  { action: "show", component: DriverDetailPage, path: "/drivers/:id", resource: "drivers" },
   { action: "list", component: DriverExpiringPage, path: driverProfileRoutes.expiring, resource: "drivers" },
   { action: "DRIVER_PAYROLL_PROFILE_VIEW", component: DriverPayrollProfilePage, path: driverProfileRoutes.payrollProfile, resource: "drivers" },
   { action: "DRIVER_PROFILE_SELF_VIEW", component: DriverSelfProfilePage, path: driverProfileRoutes.myProfile, resource: "drivers" },
@@ -244,9 +228,6 @@ export const appResourcePageRoutes: ResourcePageRoute[] = [
   }),
   ...createResourcePageRoutes(routes.resources.payments, {
     Create: PaymentCreate, Edit: PaymentEdit, List: PaymentList, Show: PaymentShow,
-  }),
-  ...createResourcePageRoutes(routes.resources.expenses, {
-    Create: ExpenseCreate, Edit: ExpenseEdit, List: ExpenseList, Show: ExpenseShow,
   }),
   ...createResourcePageRoutes(routes.resources.maintenance, {
     Create: MaintenanceCreate, Edit: MaintenanceEdit, List: MaintenanceList, Show: MaintenanceShow,

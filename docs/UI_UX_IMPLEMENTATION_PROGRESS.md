@@ -279,3 +279,78 @@ Full Vitest và full lint đã từng trả lỗi nên các kết quả tổng t
 - Flaky note: Fleet/sidebar timeout was previously observed only under parallel workers; the full serial suite passes, including Fleet/sidebar role fixtures.
 - Giới hạn: all UI screenshots and route/auth regressions are fixture/mock evidence. Real backend session, tenant isolation UAT and live auth remain `NEEDS-LIVE`.
 - Rollback: revert only the conditional skip and this test-result documentation; do not weaken the bootstrap assertions.
+
+### TMS-NAV-001 — 06/11/2026
+
+- Trạng thái: `UI_SAFE_DONE`; các route production giữ nguyên, năm mục TMS được thêm vào cùng nguồn cấu hình `NAV_ZONES`, có lọc theo quyền và active theo path dài nhất. Thanh điều hướng ngang trong TMS đã bỏ.
+- Bằng chứng: `npm run build` và `npm run lint` exit 0; targeted Vitest cho AppSider/TmsFlowLayout/Optimization 41 test pass, AppResponsiveShell 8 test pass với shell check 320/375/414/768/1024/1440px. Full Vitest hiện 1.493 pass / 9 fail / 1.502; số fail bằng baseline được ghi nhận trước task (9/1.494), các lỗi hiện thấy thuộc page-size assertions payroll/profitability/query serializer. `env -u CI npm run test:e2e -- e2e/tms-navigation.spec.ts e2e/reduced-motion.spec.ts --workers=1 --reporter=line` exit 0, 5/5.
+- Motion: `.app-route-transition` chỉ bọc Outlet và remount theo pathname; enter 280ms opacity/translateY, không có exit; global reduced-motion đặt animation/transition 0.01ms.
+- Ảnh rail theo role: `docs/design/tms-sider-review/` (`BROWSER-FIXTURE`). 25 ảnh năm màn đã lưu ở `docs/design/tms-pages-review/`, tại 320/375/768/1024/1440px. Fixture dùng các page component production với auth/API dữ liệu tổng hợp chỉ trong test.
+- Bằng chứng bổ sung: full `npm run test:e2e -- --workers=1 --reporter=line` — 35 pass / 11 fail / 1 skip trên 47 test; ba spec TMS mới đều pass, gồm refresh/deep link, back/forward, query-only update không remount và overflow check 5×5 viewport. Role matrix/sidebar cũng pass.
+- Giới hạn: đây là browser fixture, không phải authenticated backend/live-data UAT. Full-suite failures còn ở dashboard keyboard (1), pageSize spec cũ kỳ vọng 20 thay vì mặc định hiện tại 10 (4), keyboard overlay fixture thiếu QueryClient/Refine context (5), và Load detail fixture overflow (1). Một số fixture cũ khác vẫn log 401/`Authentication is required`; TMS page fixture mới không phát sinh lỗi auth.
+- Điều bất thường: full suite dùng mặc định `SCREENSHOT_DIR=after`; spec Load đã ghi lại các ảnh 1440/1024/768/390 trong `docs/design/after/` trước khi phát hiện overflow ở 320px. Các file đó vốn đã có thay đổi từ trước; không có bản lưu trước lần chạy này để đối chiếu.
+- File chính: AppSider/AppLayout/TmsFlowLayout/Optimization presentation, locale en/vi, test component và fixture `e2e/tms-navigation.spec.ts`; không đổi route registry, API, auth hoặc business hooks.
+- UX follow-up: bản đồ Điều phối đổi tiêu đề thành “Bản đồ tuyến ước tính”; chú thích nói rõ đường tím là ước tính từ dịch vụ định tuyến A→B, không phải vệt GPS, và chú giải phân biệt A/B với tọa độ xe. `npm run build`, `npm run lint`, `npx vitest run src/pages/tms-flow/DispatchPage.test.tsx` (3/3) và ảnh responsive spec (25 tổ hợp màn/viewport, không tràn ngang) đều pass.
+
+### DISP-001 — 06/11/2026
+
+- Trạng thái: `UI_SAFE_DONE`; URL `?shipment=` là nguồn chọn lô. Nếu lô chưa nằm trong các trang đang tải, dùng Refine `useOne` với resource `loads` và query key có tenant. ID không tồn tại/403 không rơi sang lô khác; lô đã biết nhưng bị lọc có nút bỏ lọc; lỗi khác có nút thử lại. Chọn thẻ vẫn cập nhật query param hiện có.
+- Bằng chứng: `npx vitest run src/hooks/tms-flow/useDispatchSelection.test.tsx src/pages/tms-flow/DispatchPage.test.tsx src/tests/locales/localeKeys.test.ts --reporter=dot` — exit 0, 3 files/14 tests. Coverage gồm 403/404, loading, lô ngoài trang đã tải, bị ẩn bởi filter, retryable error và không dùng fallback khi có ID trên URL.
+- Giới hạn: component/hook test xác nhận wiring và trạng thái, chưa có authenticated backend session để nghiệm thu quyền và tải trực tiếp lô thật; phần này `NEEDS-LIVE`.
+- File chính: `src/hooks/tms-flow/useDispatchSelection.ts` (mới), test hook mới, `src/hooks/tms-flow/useTmsWorkspace.ts`, `src/pages/tms-flow/DispatchPage.tsx`/test, `src/locales/vi.ts`, `src/locales/en.ts`, `plan.md`.
+
+### DISP-002 — 06/11/2026
+
+- Trạng thái: `UI_SAFE_DONE`; banner đã được triển khai và kiểm thử theo thứ tự ưu tiên rủi ro → gợi ý đang chờ → chưa có gợi ý → đã có xe. Theo yêu cầu người dùng kèm ảnh ngày 06/11, banner đã được gỡ khỏi màn Điều phối; component/test vẫn được giữ, nhưng page không render nó.
+- Bằng chứng: `npx vitest run src/hooks/tms-flow/useShipmentNextAction.test.ts src/components/tms-flow/DispatchNextActionBanner.test.tsx src/pages/tms-flow/DispatchPage.test.tsx src/tests/locales/localeKeys.test.ts --reporter=dot` — exit 0, 4 files/13 tests. Kiểm tra thứ tự ưu tiên, bốn loại trạng thái, hành động chính và trạng thái disable.
+- Giới hạn: route chi tiết lô và modal duyệt dùng handler hiện có; chưa có live session để xác minh quyền/API thật (`NEEDS-LIVE`).
+- File chính: hook/component/test mới trong `hooks/tms-flow` và `components/tms-flow`; `DispatchPage.tsx`, `src/styles/tms-flow.scss`, locale vi/en và `plan.md`.
+
+### DISP-003 — 06/11/2026
+
+- Trạng thái: `UI_SAFE_DONE`; khi URL chưa chọn lô, danh sách đã tải được xếp theo rủi ro → chưa có xe → giờ giao gần nhất. Sau phản hồi duyệt/từ chối thành công, handler tìm lô còn việc trong danh sách đang hiển thị, chuyển query `shipment` và có nút quay lại lô vừa xử lý. Không tự chuyển khi modal đang chờ server hoặc khi request lỗi.
+- Ba thẻ tóm tắt đã được triển khai và kiểm thử, nhưng theo yêu cầu người dùng ngày 06/11 đã được gỡ khỏi màn. Component/test vẫn còn trong source nhưng `DispatchPage` không render các thẻ này.
+- Bằng chứng: targeted Vitest `npx vitest run src/hooks/tms-flow/useDispatchSelection.test.tsx src/hooks/tms-flow/useShipmentNextAction.test.ts src/hooks/tms-flow/useTmsWorkspace.test.tsx src/components/tms-flow/DispatchWorkSummary.test.tsx src/components/tms-flow/DispatchNextActionBanner.test.tsx src/components/tms-flow/ApproveSuggestionModal.test.tsx src/pages/tms-flow/DispatchPage.test.tsx src/tests/locales/localeKeys.test.ts --reporter=dot` — exit 0, 8 files/27 tests; `npm run build` exit 0; `npm run lint` exit 0 (0 warning trong lượt cuối).
+- Giới hạn: `resources.ts` được báo cáo không tồn tại; allowlist thật ở `src/pages/resourceRegistry.ts` không cho sắp xếp server-side theo rủi ro, trạng thái có xe hoặc giờ giao. Vì vậy lựa chọn kế tiếp chỉ tối ưu trong queue đang tải/filter hiện hành. Chưa có backend-live để kiểm tra phản hồi duyệt thật (`NEEDS-LIVE`).
+- File chính: `src/hooks/tms-flow/useDispatchSelection.ts`/test, `useTmsQueries.ts`, `useTmsWorkspace.ts`/test, `src/components/tms-flow/DispatchWorkSummary.tsx`/test, `ApproveSuggestionModal.tsx`/test, `src/pages/tms-flow/DispatchPage.tsx`/test, locale vi/en, `src/styles/tms-flow.scss`, `plan.md`.
+
+### DISP-004 — 06/11/2026
+
+- Trạng thái: `UI_SAFE_DONE`; loads, rủi ro, lô chưa có xe, xe, gợi ý AI, trạng thái AI, chi tiết lô và lịch sử lấy dữ liệu theo chu kỳ 30 giây; TanStack Query v4 được cấu hình `refetchIntervalInBackground: false` và refresh ngay khi tab được focus lại. Lô tự chọn được ghi vào query `shipment` để lần refresh không đổi lựa chọn; React Query giữ cache khi refetch lỗi. Màn hình hiện thời điểm `Cập nhật lúc HH:mm`, spinner cập nhật và cảnh báo retry.
+- Bằng chứng: `npx vitest run src/hooks/tms-flow/useTmsQueries.test.tsx src/hooks/tms-flow/useTmsWorkspace.test.tsx src/pages/tms-flow/DispatchPage.test.tsx src/tests/locales/localeKeys.test.ts --reporter=dot` — exit 0, 4 files/10 tests; kiểm tra cấu hình không polling nền, refresh khi quay lại, giữ dữ liệu cũ và pin lựa chọn. `npm run build` exit 0; `npm run lint` exit 0.
+- Giới hạn: test xác minh cấu hình query và hành vi từ component, chưa kiểm tra đổi visibility của trình duyệt thật với backend/tenant đang đăng nhập (`NEEDS-LIVE`).
+- File chính: `src/hooks/tms-flow/useTmsQueries.ts`/test, `useTmsWorkspace.ts`/test, `src/pages/tms-flow/DispatchPage.tsx`/test, locale vi/en, `src/styles/tms-flow.scss`, `plan.md`.
+
+### DISP-005 — 06/11/2026
+
+- Trạng thái: `UI_SAFE_DONE`; trước khi đồng ý dùng xe, hook tải lại gợi ý đang chờ từ API hiện có và so sánh snapshot. Nếu gợi ý đã đổi/hết hiệu lực thì không gửi lệnh cũ; modal giữ ngữ cảnh khi lỗi/conflict. Khóa đồng bộ ngăn gửi hai lần; chỉ đóng/chuyển lô sau khi server trả thành công.
+- Bằng chứng: lần chạy hiện tại `npx vitest run` theo danh sách test TMS — exit 0, 11 files / 41 tests pass; gồm stale snapshot, lỗi API, giữ modal, permission và duplicate submission.
+- Giới hạn: chưa có phiên backend đã xác thực để xác nhận freshness, permission và kết quả mutation thật (`NEEDS-LIVE`).
+
+### DISP-006 — 06/11/2026
+
+- Trạng thái: `UI_SAFE_DONE`; điểm và confidence được diễn giải thành ba mức; lý do được rút gọn còn tối đa ba ý; số liệu gốc nằm trong mục kỹ thuật thu gọn. Từ chối có ba lựa chọn “Xe ở xa”, “Tài xế bận”, “Lý do khác”; chỉ lý do khác mở ô nhập và gửi qua tham số `reason` API hiện có.
+- Ngưỡng score 80/60 chỉ là tạm thời, chưa hiệu chỉnh bằng kết quả vận hành thật và cần được duyệt/điều chỉnh khi có dữ liệu (`NEEDS-LIVE`).
+- Bằng chứng: cùng lần chạy 11 files / 41 tests pass; có test phân nhóm score, dữ liệu thiếu, rút gọn lý do và gửi lý do từ chối.
+
+### DISP-007 — 06/11/2026
+
+- Trạng thái: `UI_SAFE_DONE`; thiếu tọa độ hiển thị tuyến lấy → giao dạng chữ và lý do chưa thể vẽ; lỗi định tuyến có thông điệp riêng; chú thích luôn nêu đây là đường đi tham khảo. Lịch sử mặc định hiện ba sự kiện mới nhất và có thể mở rộng; hàng đợi rỗng dùng thông điệp tiếng Việt.
+- Bằng chứng: cùng lần chạy 11 files / 41 tests pass; có component tests cho tọa độ thiếu, lỗi định tuyến, chú thích và mở rộng timeline. Timeline ở trang khác giữ nguyên thứ tự gốc khi không bật chế độ thu gọn và có test hồi quy.
+- Ghi chú: ba thẻ tóm tắt và banner “Việc tiếp theo” trong ảnh người dùng đã được gỡ khỏi UI; bản sao trước khi gỡ được lưu tại `docs/design/dispatch-screen-backup-2026-11-06.tar.gz`.
+
+### DISP-001..007 — kiểm tra tích hợp cuối — 06/11/2026
+
+- `npm run lint` — exit 0.
+- `npm run build` — exit 2 do lỗi type trong hai file Mapbox ngoài scope DISP: `src/types/tms-flow/mapbox.types.ts` import `RouteEstimate` chưa export và `src/utils/tms-flow/mapbox.ts` import `TmsLoadCardItem` chưa export. Không sửa contract/type ngoài các ticket.
+- `npx vitest run` — exit 1, 252 files: 1.543 pass / 9 fail / 1.552 tests. Các lỗi hiện tại nằm ngoài TMS Dispatch: assertions page size 20 trong khi mặc định hiện tại là 10, query cache Load Documents và suites Payroll/Profitability. Số lỗi bằng baseline đã ghi nhận trước đó (9), nhưng không khẳng định danh sách lỗi giống hệt.
+- Test tập trung Điều phối — exit 0, 11 files / 41 tests pass; gồm lựa chọn URL, auto-next, polling, xác nhận gợi ý, phân mức, lý do từ chối, map fallback, timeline và locale.
+- `git diff --check` — exit 0. Chưa chạy Playwright/live backend trong lượt này.
+
+### DASH-REFRESH-001 — dashboard `/tms` — 06/11/2026
+
+- Trạng thái: `UI_SAFE_DONE`; sửa đúng route người dùng mở. Dashboard có KPI dữ liệu API, phân bố status theo tập đơn đã tải, hàng đợi AI/rủi ro, bản đồ xe, chuyến ưu tiên, timeline và nút refresh. Các trạng thái loading/error/empty giữ rõ ràng; fallback được ghi nhãn, không suy diễn số liệu.
+- Bằng chứng: browser fixture từ component production ở 1440px và 390px — heading/hàng đợi render, `scrollWidth <= viewport` cả hai kích thước, thẻ trạng thái mobile chiếm đủ chiều rộng. Ảnh: `docs/design/tms-dashboard-refresh/after-1440.png`, `after-390.png`; ảnh trước tham chiếu `docs/design/tms-pages-review/overview-1440.png`.
+- Validation trong lượt này: `npm run typecheck` exit 0; `npm run lint` exit 0; `git diff --check` exit 0. Không chạy test/build theo phạm vi xác minh đã chọn. Chưa có authenticated backend-live UAT.
+- File chính: `src/components/tms-flow/TmsDashboardContent.tsx`, component mới `TmsDashboardOverview.tsx` và `TmsDashboardWorkQueue.tsx`, `src/styles/tms-flow.scss`, locale vi/en, `plan.md`.
+- Branch: `codex/tms-dashboard-refresh-2026-11-06`, đang phục vụ trên localhost:5173. Working tree vốn có nhiều chỉnh sửa chưa commit; chúng được giữ nguyên. Không commit/deploy.

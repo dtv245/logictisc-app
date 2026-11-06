@@ -19,8 +19,13 @@ export interface ShipmentCostView {
   currency: string;
   incurredAt?: ISODateTime | null;
   verifiedAt?: ISODateTime | null;
+  verifiedBy?: string | null;
   approvedAt?: ISODateTime | null;
+  approvedBy?: string | null;
   postedAt?: ISODateTime | null;
+  voidedAt?: ISODateTime | null;
+  voidedBy?: string | null;
+  voidReason?: string | null;
   note?: string | null;
   version?: number;
 }

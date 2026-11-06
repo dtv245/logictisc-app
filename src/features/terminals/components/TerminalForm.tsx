@@ -3,10 +3,13 @@ import {
   Form,
   type FormInstance,
   Input,
+  InputNumber,
   Row,
   Select,
+  TimePicker,
   type ButtonProps,
 } from "antd";
+import dayjs from "dayjs";
 import { useEffect } from "react";
 import { FormFooterBar } from "@/forms/FormFooterBar";
 import { FormSection } from "@/forms/FormSection";
@@ -17,25 +20,45 @@ import type {
 } from "@/types/terminal.types";
 import { TERMINAL_TYPE_OPTIONS } from "../config/terminal.constants";
 
+const TIME_FORMAT = "HH:mm:ss";
+
+/** Backend nhận `LocalTime` dạng "HH:mm:ss". */
+const toTimeString = (value: unknown): string | null => {
+  if (value == null || value === "") return null;
+  if (typeof value === "string") return value;
+  if (dayjs.isDayjs(value)) return value.format(TIME_FORMAT);
+  return null;
+};
+
+const toTimeValue = (value: unknown) => {
+  if (typeof value !== "string" || value === "") return null;
+  const parsed = dayjs(`1970-01-01T${value}`);
+  return parsed.isValid() ? parsed : null;
+};
+
 export interface TerminalFormProps {
   form: FormInstance;
+  formId?: string;
   initialValues?: Partial<Terminal>;
   onFinish?: (values: CreateTerminalRequest) => void;
   saveButtonProps?: ButtonProps;
   isEdit?: boolean;
+  isModal?: boolean;
   onCancel?: () => void;
 }
 
 /**
  * TerminalForm — Form quản lý thông tin Bến bãi / Cảng (Terminal).
- * Bố cục 2 cột trên desktop, 1 cột trên mobile; chia 2 nhóm Thông tin chung và Địa chỉ.
+ * Bố cục 2 cột trên desktop, 1 cột trên mobile; chia 3 nhóm Thông tin chung, Địa chỉ và Vị trí & giờ làm việc.
  */
 export const TerminalForm = ({
   form,
+  formId,
   initialValues,
   onFinish,
   saveButtonProps,
   isEdit = false,
+  isModal = false,
   onCancel,
 }: TerminalFormProps) => {
   // Chuẩn hóa initial values cho cả flat fields lẫn nested address object
@@ -54,6 +77,10 @@ export const TerminalForm = ({
         addressState: initialValues.addressState ?? address?.state,
         addressZipCode: initialValues.addressZipCode ?? address?.zipCode,
         addressCountry: initialValues.addressCountry ?? address?.country ?? initialValues.countryCode,
+        latitude: initialValues.latitude,
+        longitude: initialValues.longitude,
+        workingHoursOpen: toTimeValue(initialValues.workingHoursOpen),
+        workingHoursClose: toTimeValue(initialValues.workingHoursClose),
       });
     }
   }, [form, initialValues]);
@@ -80,6 +107,10 @@ export const TerminalForm = ({
       addressState: String(values.addressState ?? "").trim(),
       addressZipCode: String(values.addressZipCode ?? "").trim(),
       addressCountry: String(values.addressCountry ?? "").trim().toUpperCase(),
+      latitude: typeof values.latitude === "number" ? values.latitude : null,
+      longitude: typeof values.longitude === "number" ? values.longitude : null,
+      workingHoursOpen: toTimeString(values.workingHoursOpen),
+      workingHoursClose: toTimeString(values.workingHoursClose),
     };
     onFinish?.(payload);
   };
@@ -87,6 +118,7 @@ export const TerminalForm = ({
   return (
     <Form
       form={form}
+      id={formId}
       layout="vertical"
       validateTrigger="onBlur"
       scrollToFirstError
@@ -252,16 +284,108 @@ export const TerminalForm = ({
             </Col>
           </Row>
         </FormSection>
+
+        {/* Nhóm 3: Vị trí & giờ làm việc */}
+        <FormSection
+          id="operations-info"
+          title="Vị trí & giờ làm việc"
+          description="Tọa độ GPS và khung giờ tiếp nhận phương tiện (tùy chọn)"
+        >
+          <Row gutter={[24, 0]}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label="Vĩ độ (Latitude)"
+                name="latitude"
+                rules={[
+                  {
+                    type: "number",
+                    min: -90,
+                    max: 90,
+                    message: "Vĩ độ phải nằm trong khoảng -90 đến 90",
+                  },
+                ]}
+                extra="Để trống nếu chưa xác định"
+              >
+                <InputNumber
+                  style={{ width: "100%" }}
+                  min={-90}
+                  max={90}
+                  precision={6}
+                  placeholder="Tùy chọn"
+                />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                label="Kinh độ (Longitude)"
+                name="longitude"
+                dependencies={["latitude"]}
+                rules={[
+                  {
+                    type: "number",
+                    min: -180,
+                    max: 180,
+                    message: "Kinh độ phải nằm trong khoảng -180 đến 180",
+                  },
+                  ({ getFieldValue }) => ({
+                    validator: async (_rule, value) => {
+                      const latitude = getFieldValue("latitude");
+                      const hasLatitude = typeof latitude === "number";
+                      const hasLongitude = typeof value === "number";
+                      if (hasLatitude !== hasLongitude) {
+                        throw new Error("Vui lòng nhập đủ cả vĩ độ và kinh độ");
+                      }
+                    },
+                  }),
+                ]}
+                extra="Phải nhập cùng lúc với vĩ độ"
+              >
+                <InputNumber
+                  style={{ width: "100%" }}
+                  min={-180}
+                  max={180}
+                  precision={6}
+                  placeholder="Tùy chọn"
+                />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item label="Giờ mở cửa" name="workingHoursOpen">
+                <TimePicker
+                  style={{ width: "100%" }}
+                  format="HH:mm"
+                  minuteStep={15}
+                  placeholder="Tùy chọn"
+                />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item label="Giờ đóng cửa" name="workingHoursClose">
+                <TimePicker
+                  style={{ width: "100%" }}
+                  format="HH:mm"
+                  minuteStep={15}
+                  placeholder="Tùy chọn"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </FormSection>
       </div>
 
-      <FormFooterBar
-        onCancel={onCancel}
-        saveButtonProps={saveButtonProps}
-        saveText={
-          saveButtonProps?.children ??
-          (isEdit ? "Cập nhật bến bãi" : "Tạo mới bến bãi")
-        }
-      />
+      {!isModal && (
+        <FormFooterBar
+          onCancel={onCancel}
+          saveButtonProps={saveButtonProps}
+          saveText={
+            saveButtonProps?.children ??
+            (isEdit ? "Cập nhật bến bãi" : "Tạo mới bến bãi")
+          }
+        />
+      )}
     </Form>
   );
 };

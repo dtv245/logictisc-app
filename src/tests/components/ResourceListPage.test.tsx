@@ -49,8 +49,15 @@ const state = vi.hoisted(() => ({
 }));
 
 vi.mock("@refinedev/core", () => ({
+  queryKeys: (resource: string) => ({ all: ["data", "default", resource] }),
   useCan: () => ({ data: { can: true } }),
-  useDataProvider: () => () => ({ getOne: vi.fn() }),
+  useDataProvider: () => () => ({
+    getList: vi.fn(async () => ({ data: [], total: 0 })),
+    getOne: vi.fn(),
+  }),
+  // `EntityPicker` bản cuộn vô hạn (dùng trong toolbar) nạp bản ghi đã chọn qua `useOne`
+  // để hiển thị nhãn khi giá trị nằm ngoài các trang đã tải.
+  useOne: () => ({ data: undefined, isLoading: false }),
   useShow: () => ({
     queryResult: state.showQueryResult,
     setShowId: vi.fn(),

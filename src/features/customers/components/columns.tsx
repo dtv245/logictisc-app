@@ -67,11 +67,17 @@ export const customerColumns = createCrudColumns<Customer>(
       titleKey: "columns.customers.phone",
       width: 160,
       minWidth: 140,
+      ellipsis: true,
       render: (value: unknown) => {
         if (!value || String(value).trim() === "") {
           return <span className="table-cell-empty">—</span>;
         }
-        return <span className="tabular-nums">{String(value)}</span>;
+        const text = String(value);
+        return (
+          <Tooltip title={text}>
+            <span className="tabular-nums table-cell-ellipsis">{text}</span>
+          </Tooltip>
+        );
       },
     },
     {

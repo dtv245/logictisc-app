@@ -357,6 +357,7 @@ const FieldRenderer = ({ field, listNamePrefix, dirtyFields }: FieldRendererProp
       <EntityPicker
         disabled={isReadOnly}
         excludeValues={excludeValues}
+        infiniteScroll={field.relationResource === "loads"}
         {...(field.relationLabelField === undefined
           ? {}
           : { labelField: field.relationLabelField })}

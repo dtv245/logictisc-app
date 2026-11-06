@@ -48,7 +48,7 @@ describe("System Error Pages (403 and 404)", () => {
 
       fireEvent.click(dashboardBtn);
       expect(mockGo).toHaveBeenCalledWith({
-        to: routes.dashboard,
+        to: routes.tmsFlow.root,
         type: "replace",
       });
     });
@@ -76,7 +76,7 @@ describe("System Error Pages (403 and 404)", () => {
 
       fireEvent.click(dashboardBtn);
       expect(mockGo).toHaveBeenCalledWith({
-        to: routes.dashboard,
+        to: routes.tmsFlow.root,
         type: "replace",
       });
     });

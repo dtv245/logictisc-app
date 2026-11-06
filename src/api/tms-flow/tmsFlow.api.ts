@@ -10,6 +10,7 @@ import axios from "axios";
 
 import { getAuthHeaders } from "@/api/ai/ai.api";
 import {
+  TMS_LOAD_PAGE_SIZE,
   TMS_MAX_LOAD_PAGES,
   TMS_MAX_TRUCK_PAGES,
 } from "@/constants/tms";
@@ -22,11 +23,14 @@ import type {
   TmsAiSuggestion,
   TmsLoadCollection,
   TmsLoadTimeline,
+  TmsOperationalRiskLoadDto,
   TmsTruckCollection,
 } from "@/types/tms-flow/tmsFlow.types";
 
 export const tmsEndpoints = {
   loads: "/api/loads",
+  dispatchRiskLoads: "/api/loads/dispatch-board/risk",
+  dispatchUnassignedLoads: "/api/loads/dispatch-board/unassigned",
   load: (loadId: string) => `/api/loads/${encodeURIComponent(loadId)}`,
   loadTimeline: (loadId: string) =>
     `/api/loads/${encodeURIComponent(loadId)}/timeline`,
@@ -46,6 +50,18 @@ export const tmsKeys = {
   // Keep pre-live/mock queue cache entries from being rendered after switching
   // dispatch to the real loads endpoint.
   loads: (tenant: string | undefined) => ["tms", tenant ?? "tenant", "loads", "live"] as const,
+  infiniteLoads: (
+    tenant: string | undefined,
+    pageSize: number = TMS_LOAD_PAGE_SIZE,
+  ) => ["tms", tenant ?? "tenant", "loads", "infinite", pageSize] as const,
+  infiniteRiskLoads: (
+    tenant: string | undefined,
+    pageSize: number = 20,
+  ) => ["tms", tenant ?? "tenant", "loads", "dispatch-board-risk", pageSize] as const,
+  infiniteUnassignedLoads: (
+    tenant: string | undefined,
+    pageSize: number = 20,
+  ) => ["tms", tenant ?? "tenant", "loads", "dispatch-board-unassigned", pageSize] as const,
   trucks: (tenant: string | undefined) => ["tms", tenant ?? "tenant", "trucks"] as const,
   pending: (tenant: string | undefined) =>
     ["tms", tenant ?? "tenant", "pending-suggestions"] as const,
@@ -116,13 +132,49 @@ const getPage = async <T>(
       items: Array.isArray(page.items) ? page.items : [],
       totalItems: Number(page.totalItems ?? 0),
       totalPages: Number(page.totalPages ?? 0),
-      currentPage: Number(page.currentPage ?? 1),
-      pageSize: Number(page.pageSize ?? 100),
+      currentPage: Number(page.currentPage ?? params.page ?? 1),
+      pageSize: Number(page.pageSize ?? params.pageSize ?? 100),
     };
   } catch (error) {
     throw toApiError(error);
   }
 };
+
+/** Single page of loads for incremental / infinite scroll on Dispatch. */
+export const fetchLoadsPage = (
+  page: number,
+  pageSize: number = TMS_LOAD_PAGE_SIZE,
+): Promise<PagedResponse<LoadResponse>> =>
+  getPage<LoadResponse>(tmsEndpoints.loads, {
+    page,
+    pageSize,
+  });
+
+/**
+ * Single page of at-risk loads from `GET /api/loads/dispatch-board/risk`
+ * (unresolved exceptions, pickup overdue, or delivery overdue).
+ */
+export const fetchDispatchRiskLoadsPage = (
+  page: number,
+  pageSize: number = 20,
+): Promise<PagedResponse<TmsOperationalRiskLoadDto>> =>
+  getPage<TmsOperationalRiskLoadDto>(tmsEndpoints.dispatchRiskLoads, {
+    page,
+    pageSize,
+  });
+
+/**
+ * Single page of unassigned loads from `GET /api/loads/dispatch-board/unassigned`
+ * (`assigned_truck_id IS NULL`).
+ */
+export const fetchDispatchUnassignedLoadsPage = (
+  page: number,
+  pageSize: number = 20,
+): Promise<PagedResponse<LoadResponse>> =>
+  getPage<LoadResponse>(tmsEndpoints.dispatchUnassignedLoads, {
+    page,
+    pageSize,
+  });
 
 const collectAllPages = async <T>(
   url: string,

@@ -4,6 +4,8 @@ import {
   Collapse,
   Form,
   type FormInstance,
+  type FormItemProps,
+  type FormProps,
   Input,
   InputNumber,
   Row,
@@ -12,23 +14,35 @@ import {
   Switch,
   type ButtonProps,
 } from "antd";
+import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { EntityPicker } from "@/components/EntityPicker";
+import { CustomerQuickCreateLink } from "@/features/customers/components/CustomerQuickCreateLink";
+import { CustomerRouteSuggestion } from "@/features/loads/components/CustomerRouteSuggestion";
+import { LoadSummaryPanel } from "@/features/loads/components/LoadSummaryPanel";
+import { TerminalAddressAutofill } from "@/features/loads/components/TerminalAddressAutofill";
+import { validateDeliveryAfterPickup } from "@/utils/loadSchedule";
 import { AddressFields } from "@/forms/AddressFields";
 import { FormFooterBar } from "@/forms/FormFooterBar";
 import { FormSection } from "@/forms/FormSection";
 
 export interface LoadFormProps {
   form: FormInstance;
+  formId?: string;
   initialValues?: Record<string, unknown>;
   onFinish?: (values: Record<string, unknown>) => void;
+  onFinishFailed?: FormProps["onFinishFailed"];
   saveButtonProps?: ButtonProps;
   isEdit?: boolean;
+  isModal?: boolean;
   onCancel?: () => void;
+  /** Hành động phụ ở góc trái footer (Lưu & tạo tiếp, Lưu & điều xe…). */
+  footerActions?: ReactNode;
 }
 
 const LOAD_STATUS_OPTIONS = [
   { label: "Bản nháp (Draft)", value: "draft" },
+  { label: "Đã gán xe (Assigned)", value: "ASSIGNED" },
   { label: "Đã phân công (Dispatched)", value: "dispatched" },
   { label: "Đã lấy hàng (Picked Up)", value: "picked_up" },
   { label: "Đã giao hàng (Delivered)", value: "delivered" },
@@ -52,14 +66,32 @@ const LOAD_TYPE_OPTIONS = [
  */
 export const LoadForm = ({
   form,
+  formId,
   initialValues,
   onFinish,
+  onFinishFailed,
   saveButtonProps,
   isEdit = false,
+  isModal = false,
   onCancel,
+  footerActions,
 }: LoadFormProps) => {
   const { t } = useTranslation();
   const isHazmat = Form.useWatch("isHazmat", form);
+  const loadNumber = Form.useWatch("number", form);
+  const [customerPickerKey, setCustomerPickerKey] = useState(0);
+
+  const deliveryDateRules: FormItemProps["rules"] = [
+    {
+      validator: async (_rule, value) => {
+        const message = validateDeliveryAfterPickup(
+          form.getFieldValue("requestedPickupDate"),
+          value,
+        );
+        if (message) throw new Error(message);
+      },
+    },
+  ];
 
   const defaultValues = {
     isInProximity: false,
@@ -68,14 +100,9 @@ export const LoadForm = ({
     status: "draft",
     type: "STANDARD",
     source: "MANUAL",
-    distance: 0,
     deliveryCostAmount: 0,
     originAddressCountry: "USA",
     destinationAddressCountry: "USA",
-    originLocationLatitude: 0,
-    originLocationLongitude: 0,
-    destinationLocationLatitude: 0,
-    destinationLocationLongitude: 0,
     ...initialValues,
   };
 
@@ -91,11 +118,13 @@ export const LoadForm = ({
   return (
     <Form
       form={form}
+      id={formId}
       layout="vertical"
       validateTrigger="onBlur"
       scrollToFirstError
       initialValues={defaultValues}
       onFinish={onFinish}
+      onFinishFailed={onFinishFailed}
     >
       {/* Các trường kỹ thuật ẩn */}
       <Form.Item name="isInProximity" hidden>
@@ -110,7 +139,7 @@ export const LoadForm = ({
 
       <Row gutter={[24, 0]}>
         {/* Vùng nội dung form chính */}
-        <Col xs={24} lg={18} xl={19}>
+        <Col xs={24} lg={isModal ? 24 : 18} xl={isModal ? 24 : 19}>
           {/* Section 1: Thông tin chung */}
           <FormSection
             id="general"
@@ -118,6 +147,15 @@ export const LoadForm = ({
             description="Tên đơn hàng, khách hàng đối tác và phân loại nghiệp vụ"
           >
             <Row gutter={[24, 0]}>
+              <Col xs={24} md={12}>
+                <Form.Item label="Mã đơn hàng (Load)">
+                  <Input
+                    disabled
+                    placeholder="Hệ thống tự sinh sau khi lưu"
+                    value={loadNumber ? `#${loadNumber}` : undefined}
+                  />
+                </Form.Item>
+              </Col>
               <Col xs={24} md={12}>
                 <Form.Item
                   label="Tên đơn hàng"
@@ -134,11 +172,19 @@ export const LoadForm = ({
                   rules={[{ required: true, message: "Vui lòng chọn khách hàng" }]}
                 >
                   <EntityPicker
+                    key={customerPickerKey}
                     resource="customers"
                     placeholder="Tìm và chọn khách hàng"
                     labelFormat={(r) => r.name || String(r.id)}
                   />
                 </Form.Item>
+                <CustomerQuickCreateLink
+                  onCreated={(customer) => {
+                    if (!customer.id) return;
+                    form.setFieldValue("customerId", customer.id);
+                    setCustomerPickerKey((current) => current + 1);
+                  }}
+                />
               </Col>
               <Col xs={24} md={12}>
                 <Form.Item
@@ -167,6 +213,7 @@ export const LoadForm = ({
                 </Form.Item>
               </Col>
             </Row>
+            <CustomerRouteSuggestion form={form} />
           </FormSection>
 
           {/* Section 2: Điểm lấy hàng */}
@@ -182,8 +229,15 @@ export const LoadForm = ({
               includeTerminal={true}
               terminalName="originTerminalId"
               terminalLabel="Trạm xuất phát"
+              terminalAllowCreate={true}
               dateFieldName="requestedPickupDate"
               dateLabel="Ngày hẹn lấy hàng"
+            />
+            <TerminalAddressAutofill
+              addressPrefix="originAddress"
+              coordinatePrefix="originLocation"
+              form={form}
+              terminalField="originTerminalId"
             />
           </FormSection>
 
@@ -200,8 +254,17 @@ export const LoadForm = ({
               includeTerminal={true}
               terminalName="destinationTerminalId"
               terminalLabel="Trạm đích"
+              terminalAllowCreate={true}
               dateFieldName="requestedDeliveryDate"
               dateLabel="Ngày hẹn giao hàng"
+              dateRules={deliveryDateRules}
+              dateDependencies={["requestedPickupDate"]}
+            />
+            <TerminalAddressAutofill
+              addressPrefix="destinationAddress"
+              coordinatePrefix="destinationLocation"
+              form={form}
+              terminalField="destinationTerminalId"
             />
           </FormSection>
 
@@ -247,6 +310,46 @@ export const LoadForm = ({
                 </>
               )}
               <Col xs={24} md={12}>
+                <Form.Item
+                  label="Trọng lượng hàng"
+                  name="weightLbs"
+                  rules={[
+                    { type: "number", min: 0.01, message: "Trọng lượng phải lớn hơn 0" },
+                  ]}
+                  extra="Để trống nếu chưa xác định"
+                >
+                  <Space.Compact style={{ width: "100%" }}>
+                    <InputNumber
+                      min={0.01}
+                      precision={2}
+                      style={{ width: "100%" }}
+                      placeholder="Tùy chọn"
+                    />
+                    <span className="ant-input-group-addon">lbs</span>
+                  </Space.Compact>
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Thể tích hàng"
+                  name="volumeCuft"
+                  rules={[
+                    { type: "number", min: 0.01, message: "Thể tích phải lớn hơn 0" },
+                  ]}
+                  extra="Để trống nếu chưa xác định"
+                >
+                  <Space.Compact style={{ width: "100%" }}>
+                    <InputNumber
+                      min={0.01}
+                      precision={2}
+                      style={{ width: "100%" }}
+                      placeholder="Tùy chọn"
+                    />
+                    <span className="ant-input-group-addon">ft³</span>
+                  </Space.Compact>
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
                 <Form.Item label="Container gắn kèm" name="containerId" extra="Chức năng chọn container chưa khả dụng. Bạn có thể tạo đơn hàng mà không chọn container.">
                   <Select disabled placeholder="Chưa hỗ trợ chọn container" />
                 </Form.Item>
@@ -282,7 +385,10 @@ export const LoadForm = ({
                 <Form.Item
                   label="Cự ly vận chuyển"
                   name="distance"
-                  rules={[{ required: true, message: "Vui lòng nhập khoảng cách" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập khoảng cách" },
+                    { type: "number", min: 0.1, message: "Khoảng cách phải lớn hơn 0" },
+                  ]}
                 >
                   <Space.Compact style={{ width: "100%" }}>
                     <InputNumber
@@ -329,6 +435,7 @@ export const LoadForm = ({
               items={[
                 {
                   key: "ext",
+                  forceRender: true,
                   label: <span style={{ color: "#666" }}>▸ Mở rộng thông tin tích hợp nguồn ngoài</span>,
                   children: (
                     <Row gutter={[24, 0]}>
@@ -361,32 +468,38 @@ export const LoadForm = ({
         </Col>
 
         {/* Mục lục Anchor bên phải (cố định trên màn hình lớn) */}
-        <Col xs={0} lg={6} xl={5}>
-          <div
-            style={{
-              position: "sticky",
-              top: 88,
-              padding: "16px",
-              background: "#fff",
-              borderRadius: 8,
-              border: "1px solid #f0f0f0",
-              boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
-            }}
-          >
-            <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>
-              Mục lục biểu mẫu
+        {!isModal && (
+          <Col xs={0} lg={6} xl={5}>
+            <div style={{ position: "sticky", top: 88 }}>
+              <LoadSummaryPanel form={form} />
+              <div
+                style={{
+                  padding: "16px",
+                  background: "#fff",
+                  borderRadius: 8,
+                  border: "1px solid #f0f0f0",
+                  boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+                }}
+              >
+                <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>
+                  Mục lục biểu mẫu
+                </div>
+                <Anchor affix={false} offsetTop={80} items={anchorItems} />
+              </div>
             </div>
-            <Anchor affix={false} offsetTop={80} items={anchorItems} />
-          </div>
-        </Col>
+          </Col>
+        )}
       </Row>
 
       {/* Thanh thao tác dính đáy */}
-      <FormFooterBar
-        onCancel={onCancel}
-        saveButtonProps={{ ...saveButtonProps, onClick: undefined }}
-        saveText={isEdit ? t("actions.save", "Cập nhật đơn hàng") : t("actions.create", "Tạo đơn hàng")}
-      />
+      {!isModal && (
+        <FormFooterBar
+          extra={footerActions}
+          onCancel={onCancel}
+          saveButtonProps={{ ...saveButtonProps, onClick: undefined }}
+          saveText={isEdit ? t("actions.save", "Cập nhật đơn hàng") : t("actions.create", "Tạo đơn hàng")}
+        />
+      )}
     </Form>
   );
 };

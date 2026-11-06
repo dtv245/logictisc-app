@@ -3,6 +3,7 @@
 import type { TruckResponse } from "@/types/truck.dto";
 import type { TmsMapMarker, TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
 import type { NetworkVehiclePoint } from "@/types/dashboard/network-map.types";
+import type { NetworkRouteLine } from "@/types/dashboard/network-map.types";
 
 export const toShipmentMarkers = (
   shipment: TmsShipmentView | undefined,
@@ -28,6 +29,19 @@ export const toShipmentMarkers = (
     });
   }
   return markers;
+};
+
+export const toShipmentRouteLine = (
+  shipment: TmsShipmentView | undefined,
+  coordinates: readonly [number, number][] | null | undefined,
+): NetworkRouteLine[] => {
+  if (!shipment || !coordinates || coordinates.length < 2) return [];
+  return [{
+    id: `${shipment.id}-route`,
+    coordinates: [...coordinates],
+    isHighlighted: true,
+    status: shipment.risk === "delayed" ? "delayed" : "normal",
+  }];
 };
 
 export const toTruckMarker = (

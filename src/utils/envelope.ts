@@ -47,6 +47,36 @@ const readApiError = (value: unknown): BackendApiError | null => {
   };
 };
 
+const isNonNegativeInteger = (value: unknown): value is number =>
+  typeof value === "number" && Number.isInteger(value) && value >= 0;
+
+const isPositiveInteger = (value: unknown): value is number =>
+  typeof value === "number" && Number.isInteger(value) && value >= 1;
+
+/** Reads the one-based `meta.pagination` block; malformed metadata invalidates the envelope. */
+const readPaginationMeta = (value: unknown): ResponseMeta["pagination"] | null => {
+  if (
+    !isRecord(value) ||
+    !isPositiveInteger(value.page) ||
+    !isPositiveInteger(value.size) ||
+    !isNonNegativeInteger(value.total) ||
+    !isNonNegativeInteger(value.totalPages) ||
+    typeof value.hasNext !== "boolean" ||
+    typeof value.hasPrevious !== "boolean"
+  ) {
+    return null;
+  }
+
+  return {
+    page: value.page,
+    size: value.size,
+    total: value.total,
+    totalPages: value.totalPages,
+    hasNext: value.hasNext,
+    hasPrevious: value.hasPrevious,
+  };
+};
+
 const readResponseMeta = (value: unknown): ResponseMeta | null => {
   if (
     !isRecord(value) ||
@@ -57,11 +87,18 @@ const readResponseMeta = (value: unknown): ResponseMeta | null => {
     return null;
   }
 
-  return {
+  const base = {
     timestamp: value.timestamp,
     path: value.path,
     requestId: value.requestId,
   };
+
+  if (value.pagination === undefined || value.pagination === null) {
+    return base;
+  }
+
+  const pagination = readPaginationMeta(value.pagination);
+  return pagination ? { ...base, pagination } : null;
 };
 
 export const readApiResponse = (
@@ -95,12 +132,6 @@ export const readApiResponse = (
     ...(readParams(value.params) ? { params: readParams(value.params) } : {}),
   };
 };
-
-const isNonNegativeInteger = (value: unknown): value is number =>
-  typeof value === "number" && Number.isInteger(value) && value >= 0;
-
-const isPositiveInteger = (value: unknown): value is number =>
-  typeof value === "number" && Number.isInteger(value) && value >= 1;
 
 export const readPagedResponse = <TItem>(
   value: unknown,

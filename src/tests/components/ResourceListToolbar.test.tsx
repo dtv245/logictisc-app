@@ -66,6 +66,19 @@ describe("ResourceListToolbar — Layout & Render", () => {
     expect(screen.getByRole("combobox", { name: "Loại" })).toBeInTheDocument();
   });
 
+  it("filter văn bản render Input thay vì EntityPicker với resource rỗng", () => {
+    // `customers.status` là control `text`; trước đây toolbar dựng `EntityPicker`
+    // cho nó với `resource=""`, khiến dataProvider ném `RESOURCE_NOT_CONFIGURED`.
+    renderToolbar({
+      controls: resolveFilterControls("customers"),
+      resource: "customers",
+      resourceLabel: "Khách hàng",
+    });
+
+    expect(screen.getByRole("textbox", { name: "Trạng thái" })).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Trạng thái" })).toBeNull();
+  });
+
   it("phản ánh trạng thái isFetching trên nút Làm mới và gọi onRefresh khi bấm", () => {
     const { onRefresh } = renderToolbar({ isFetching: true });
 

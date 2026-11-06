@@ -16,10 +16,21 @@ export interface BackendApiError {
 
 export type ErrorParams = Readonly<Record<string, string | number | boolean>>;
 
+/** One-based pagination metadata returned in `meta.pagination` for enveloped list responses. */
+export interface PaginationMeta {
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export interface ResponseMeta {
   timestamp: string;
   path: string;
   requestId: string | null;
+  pagination?: PaginationMeta;
 }
 
 /**

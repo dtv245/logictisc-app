@@ -8,7 +8,7 @@
 
 import { Refine } from "@refinedev/core";
 import routerProvider from "@refinedev/react-router-v6";
-import { App as AntdApp } from "antd";
+import { App as AntdApp, theme as antdTheme } from "antd";
 import type { i18n } from "i18next";
 import { useMemo } from "react";
 import { I18nextProvider, useTranslation } from "react-i18next";
@@ -44,6 +44,69 @@ import { queryRetryDelay } from "@/utils/retryPolicy";
 import { isClientError } from "@/utils/isClientError";
 import { setLogisticsApiClient } from "@/lib/apiClient";
 import { AuthSessionManager } from "./providers/auth/sessionManager";
+import { useEffect, useState, type ReactNode } from "react";
+
+const THEME_STORAGE_KEY = "logistics_theme";
+
+function ThemeProvider({ children }: { children: ReactNode }) {
+  const [dark, setDark] = useState(() => {
+    try { return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark"; }
+    catch { return false; }
+  });
+  const theme = useMemo(() => ({
+    algorithm: dark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+    token: {
+      colorPrimary: dark ? "#a5b4fc" : "#4f46e5",
+      colorPrimaryHover: dark ? "#c7d2fe" : "#4338ca",
+      colorPrimaryActive: dark ? "#818cf8" : "#3730a3",
+      colorPrimaryBg: dark ? "#262b52" : "#eef2ff",
+      colorPrimaryBgHover: dark ? "#303a6e" : "#e0e7ff",
+      colorTextLightSolid: dark ? "#0b1220" : "#ffffff",
+      colorSuccess: dark ? "#34d399" : "#16a34a",
+      colorWarning: dark ? "#fbbf24" : "#d97706",
+      colorError: dark ? "#fb7185" : "#dc2626",
+      colorInfo: dark ? "#38bdf8" : "#0284c7",
+      colorBgLayout: dark ? "#0b1220" : "#f6f8fb",
+      colorBgContainer: dark ? "#111a2e" : "#ffffff",
+      colorBgElevated: dark ? "#172238" : "#ffffff",
+      colorBorder: dark ? "#22304a" : "#e2e8f0",
+      colorBorderSecondary: dark ? "#293852" : "#e8edf5",
+      colorText: dark ? "#f1f5f9" : "#0f172a",
+      colorTextSecondary: dark ? "#cbd5e1" : "#475569",
+      colorTextTertiary: dark ? "#94a3b8" : "#64748b",
+      colorTextQuaternary: dark ? "#64748b" : "#94a3b8",
+      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      borderRadius: 10,
+      borderRadiusLG: 16,
+      borderRadiusSM: 8,
+      controlHeight: 40,
+      motionEaseOut: "cubic-bezier(0.22, 1, 0.36, 1)",
+    },
+    components: {
+      Layout: {
+        bodyBg: dark ? "#0b1220" : "#f6f8fb",
+        headerBg: dark ? "#111a2e" : "#ffffff",
+        siderBg: dark ? "#111a2e" : "#ffffff",
+      },
+      Card: { borderRadiusLG: 16 },
+    },
+  }), [dark]);
+  useEffect(() => {
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    document.documentElement.style.colorScheme = dark ? "dark" : "light";
+    try { window.localStorage.setItem(THEME_STORAGE_KEY, dark ? "dark" : "light"); } catch { /* storage may be disabled */ }
+  }, [dark]);
+  useEffect(() => {
+    const onChange = (event: Event) => setDark((event as CustomEvent<boolean>).detail);
+    window.addEventListener("app-theme-change", onChange);
+    return () => window.removeEventListener("app-theme-change", onChange);
+  }, []);
+  return (
+    <AntdLocaleProvider theme={theme}>
+      <div className="app-theme-root">{children}</div>
+    </AntdLocaleProvider>
+  );
+}
 
 export interface AppProps
   extends Omit<AppBootstrapProps, "renderReady"> {
@@ -57,7 +120,7 @@ export function App({
 }: AppProps) {
   return (
     <I18nextProvider i18n={i18n}>
-      <AntdLocaleProvider>
+      <ThemeProvider>
         <AntdApp>
           <AppBootstrap
             {...(loadConfig ? { loadConfig } : {})}
@@ -67,7 +130,7 @@ export function App({
             )}
           />
         </AntdApp>
-      </AntdLocaleProvider>
+      </ThemeProvider>
     </I18nextProvider>
   );
 }
@@ -103,7 +166,7 @@ export function RuntimeApplication({
       oidc: createBrowserOidcGateway(authSettings),
       lark: createLarkGateway({
         loginUrl: env.larkLoginUrl,
-        callbackUrl: `${state.config.apiBaseUrl}/auth/lark/callback`,
+        callbackUrl: `${state.config.apiBaseUrl.replace(/\/api\/?$/, "").replace(/\/$/, "")}/api/auth/lark/callback`,
       }),
       tokenVerifier: createRemoteJwkAccessTokenVerifier(authSettings),
       refreshSkewSeconds: authSettings.refreshSkewSeconds,

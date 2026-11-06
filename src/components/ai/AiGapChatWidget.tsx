@@ -123,6 +123,7 @@ function AiGapChatWidgetContent() {
   const match =
     matchPath({ path: "/loads/show/:id" }, location.pathname) ||
     matchPath({ path: "/loads/edit/:id" }, location.pathname) ||
+    matchPath({ path: "/tms/shipments/:id" }, location.pathname) ||
     matchPath({ path: "/loads/:id" }, location.pathname);
   const loadId = match?.params?.id || "";
 

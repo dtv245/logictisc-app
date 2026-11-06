@@ -10,7 +10,6 @@ import { isLegacyDraftInvoice } from "@/features/invoices/utils/invoiceMutabilit
 import { getResourceCapabilities } from "@/components/resources/resourceCapabilities";
 import { resourceMutationContracts } from "@/types/handoff.generated";
 import type { ApiResourceDefinition } from "@/types/dataProvider.types";
-import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
 import {
   appResourcePageRoutes,
   appResources,
@@ -105,7 +104,6 @@ export const foundationApiResources = {
 // Đây là allowlist chung cho cả Refine navigation và router. Resource chỉ có
 // UI nhưng backend chưa hỗ trợ sẽ không vô tình xuất hiện trong runtime mới.
 const supportedNames = new Set([
-  ...(EXECUTIVE_CONTRACT_CONFIRMED ? ["dashboard"] : []),
   ...Object.keys(foundationApiResources),
 ]);
 const readOnlyResourceNames = new Set(["documents", "notifications"]);

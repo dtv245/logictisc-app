@@ -338,7 +338,13 @@ export function DriverProfileSection({ definition, driverId, self = false, canEd
     setSensitiveError(undefined);
   };
 
-  const valueCell = (key: string, row: ProfileRow) => formatFieldValue(key, row[key], definition, i18n.language, t);
+  const valueCell = (key: string, row: ProfileRow) => {
+    if (key === "licenseNumber") {
+      const value = stringValue(row[key]);
+      return value ? `****${value.slice(-4)}` : "—";
+    }
+    return formatFieldValue(key, row[key], definition, i18n.language, t);
+  };
   const columns: ColumnsType<ProfileRow> = [
     ...definition.columns.map((key) => ({
       title: key === "expiryStatus" ? t("driverProfile.fields.expiryStatus") : fieldName({ key }, t),

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Space, Switch, Tag, Tooltip } from "antd";
 import { CloseCircleOutlined, WarningOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
+import { DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { BaseTable } from "@/table/BaseTable";
 import type { FleetCoverage, FleetDecimal } from "@/types/fleetReport.dto";
 import { formatSecondsToHoursMinutes } from "../utils/fleetDuration";
@@ -236,7 +237,7 @@ export function FleetHealthTable({ coverage, truckMap }: FleetHealthTableProps) 
           tableProps={{
             dataSource: filteredCoverage,
             pagination: {
-              pageSize: 20,
+              pageSize: DEFAULT_LIST_PAGE_SIZE,
               showSizeChanger: true,
               pageSizeOptions: ["10", "20", "50", "100"],
             },

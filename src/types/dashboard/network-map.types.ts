@@ -16,6 +16,7 @@ export interface NetworkRouteLine {
   id: string;
   coordinates: [number, number][];
   isProposed?: boolean;
+  isHighlighted?: boolean;
   status?: "normal" | "delayed";
 }
 
@@ -30,6 +31,7 @@ export interface NetworkMapMarker {
 export interface NetworkRouteMapProps {
   vehicles: readonly NetworkVehiclePoint[];
   routes: readonly NetworkRouteLine[];
+  highlightedVehicleId?: string;
   /** Optional points such as a load's pickup/delivery or the assigned truck. */
   markers?: readonly NetworkMapMarker[];
   locale?: ShipmentCardLocale;

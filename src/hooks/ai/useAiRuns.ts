@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { aiQueryKeys, fetchAiRuns } from "@/api/ai/ai.api";
 import type { AiRunPage } from "@/api/ai/ai.types";
+import { DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 
 export interface UseAiRunsOptions {
@@ -11,7 +12,7 @@ export interface UseAiRunsOptions {
   pageSize?: number;
 }
 
-export function useAiRuns({ loadId, canViewRuns = false, page = 0, pageSize = 20 }: UseAiRunsOptions = {}) {
+export function useAiRuns({ loadId, canViewRuns = false, page = 0, pageSize = DEFAULT_LIST_PAGE_SIZE }: UseAiRunsOptions = {}) {
   const { tenant } = useCurrentTenant();
   const queryClient = useQueryClient();
   const queryKey = aiQueryKeys.runs(tenant?.tenantKey, loadId, page, pageSize);

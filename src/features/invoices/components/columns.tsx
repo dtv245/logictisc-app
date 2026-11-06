@@ -161,17 +161,21 @@ export const invoiceColumns = createCrudColumns<Invoice>(
       sorter: true,
       width: 140,
       minWidth: 120,
+      ellipsis: true,
       render: (value: unknown, record: Invoice) => {
         if (value === null || value === undefined || String(value).trim() === "") {
           return <span className="table-cell-empty">—</span>;
         }
+        const text = displayValue(value);
         return (
-          <Link
-            to={routes.resources.invoices.show.replace(":id", String(record.id))}
-            className="table-number-link"
-          >
-            {displayValue(value)}
-          </Link>
+          <Tooltip title={text}>
+            <Link
+              to={routes.resources.invoices.show.replace(":id", String(record.id))}
+              className="table-number-link table-cell-ellipsis"
+            >
+              {text}
+            </Link>
+          </Tooltip>
         );
       },
     },

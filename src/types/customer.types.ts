@@ -48,5 +48,7 @@ export interface CustomerFormValues {
   notes?: string;
   taxId?: string;
   isVatExempt: boolean;
+  paymentTermsDays?: number;
+  defaultCurrency?: string;
   address?: OptionalAddress;
 }

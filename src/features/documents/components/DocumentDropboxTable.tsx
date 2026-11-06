@@ -71,26 +71,36 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
                 style: { fontSize: 20, color: visual.color },
               })}
             </div>
-            <div>
-              <Button
-                type="link"
-                onClick={() => onPreview(record)}
-                style={{
-                  display: "block",
-                  height: "auto",
-                  padding: 0,
-                  fontWeight: 600,
-                  textAlign: "left",
-                  whiteSpace: "normal",
-                  overflowWrap: "anywhere",
-                }}
-              >
-                {fileName}
-              </Button>
+            <div style={{ minWidth: 0, maxWidth: 260 }}>
+              <Tooltip title={fileName} placement="topLeft">
+                <Button
+                  type="link"
+                  onClick={() => onPreview(record)}
+                  style={{
+                    display: "block",
+                    maxWidth: "100%",
+                    height: "auto",
+                    padding: 0,
+                    fontWeight: 600,
+                    textAlign: "left",
+                    overflow: "hidden",
+                  }}
+                >
+                  <span className="table-cell-ellipsis" style={{ maxWidth: "100%" }}>
+                    {fileName}
+                  </span>
+                </Button>
+              </Tooltip>
               {record.originalFileName && record.originalFileName !== fileName && (
-                <Text type="secondary" style={{ fontSize: 11 }}>
-                  {record.originalFileName}
-                </Text>
+                <Tooltip title={record.originalFileName} placement="topLeft">
+                  <Text
+                    type="secondary"
+                    className="table-cell-ellipsis"
+                    style={{ fontSize: 11, display: "block", maxWidth: "100%" }}
+                  >
+                    {record.originalFileName}
+                  </Text>
+                </Tooltip>
               )}
             </div>
           </Space>

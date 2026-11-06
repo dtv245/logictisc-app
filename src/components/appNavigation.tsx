@@ -2,9 +2,10 @@
 /**
  * Điểm đến cấp ứng dụng và cấu trúc phân vùng điều hướng (Taskbar Sider Navigation).
  *
- * `useMenu` chỉ dựng mục từ `<Refine resources>`, nên hai màn hình dashboard —
- * vốn không phải CRUD resource — sẽ không bao giờ tự xuất hiện trong Select
- * điều hướng. Khai báo tường minh ở đây thay vì nhồi chúng thành resource giả.
+ * `useMenu` chỉ dựng mục từ `<Refine resources>`, nên các màn cấp ứng dụng
+ * (TMS, lương, quyết toán) — vốn không phải CRUD resource — sẽ không bao giờ
+ * tự xuất hiện trong Select điều hướng. Khai báo tường minh ở đây thay vì
+ * nhồi chúng thành resource giả.
  *
  * Cung cấp:
  * 1. `APP_NAV_ITEMS` & `visibleAppNavItems` cho Header dropdown.
@@ -13,15 +14,12 @@
 
 import {
   BankOutlined,
-  CarOutlined,
-  DashboardOutlined,
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import type { AccessResource } from "@/types/roles.types";
 
 import { routes } from "@constants/routes";
-import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
 
 export interface AppNavItem {
   icon: React.ReactNode;
@@ -46,22 +44,6 @@ export const APP_NAV_ITEMS: readonly AppNavItem[] = [
     labelKey: "payroll.title",
     route: routes.payroll,
     permission: { resource: "payroll", action: "PAYROLL_VIEW" },
-  },
-  ...(EXECUTIVE_CONTRACT_CONFIRMED
-    ? [
-        {
-          icon: <DashboardOutlined />,
-          key: "app:dashboard",
-          labelKey: "dashboard.navExecutive",
-          route: routes.dashboard,
-        },
-      ]
-    : []),
-  {
-    icon: <CarOutlined />,
-    key: "app:operations",
-    labelKey: "dashboard.navOperations",
-    route: routes.operations,
   },
   {
     icon: <BankOutlined />,

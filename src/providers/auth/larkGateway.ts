@@ -1,39 +1,30 @@
 /**
- * Lark OAuth gateway — điều phối hai pha redirect/callback với backend.
+ * Lark OAuth gateway — backend ký state, frontend ràng buộc state với tab
+ * đăng nhập bằng sessionStorage và đối chiếu state trước khi gọi callback.
  *
- * Backend chịu trách nhiệm toàn bộ luồng OAuth phía Lark (App ID, App Secret,
- * xác minh token Lark, ánh xạ user/tenant/role) và trả về access token nội bộ
- * sau khi callback hoàn tất. Frontend chỉ cần:
- *   1. Redirect tới backend login URL (phase 1).
- *   2. Gửi URL callback lên backend để đổi lấy JWT (phase 2).
+ * Backend giữ App ID/Secret, xác minh Lark identity và phát hành JWT nội bộ.
+ * Frontend lấy authorization URL, ràng buộc state trong sessionStorage, rồi
+ * gửi callback bằng POST JSON sau khi xác minh state trong tab hiện tại.
  */
 
 import { normalizeLocalReturnTo } from "./oidcGateway";
+import type { LarkAuthLoginResponse } from "../../types/auth.types";
 import type { OidcUserSnapshot } from "../../types/authSession.types";
 
 const LARK_STATE_KEY = "lark_auth_state";
 
-/**
- * Cấu trúc state nhúng vào URL redirect để khôi phục đường dẫn sau callback.
- * Được serialize thành base64url và truyền qua query-param `state`.
- */
-interface LarkAuthState {
-  readonly returnTo: string;
-}
+const getAuthorizationData = (value: unknown): { authorizationUrl: string } | null => {
+  if (typeof value !== "object" || value === null) return null;
+  const envelope = value as { data?: unknown };
+  const candidate = (envelope.data ?? value) as { authorizationUrl?: unknown };
+  return typeof candidate.authorizationUrl === "string"
+    ? { authorizationUrl: candidate.authorizationUrl }
+    : null;
+};
 
-const encodeLarkState = (state: LarkAuthState): string =>
-  btoa(JSON.stringify(state));
-
-const decodeLarkState = (encoded: string): LarkAuthState => {
-  const decoded = JSON.parse(atob(encoded)) as unknown;
-  if (
-    typeof decoded !== "object" ||
-    decoded === null ||
-    typeof (decoded as Record<string, unknown>)["returnTo"] !== "string"
-  ) {
-    return { returnTo: "/" };
-  }
-  return { returnTo: normalizeLocalReturnTo((decoded as { returnTo: unknown })["returnTo"]) };
+const getLoginResponseData = (value: unknown): unknown => {
+  if (typeof value !== "object" || value === null || !("data" in value)) return value;
+  return (value as { data: unknown }).data;
 };
 
 /**
@@ -48,6 +39,8 @@ export interface LarkCallbackResponse {
   readonly tokenType: "Bearer";
   readonly expiresIn: number;
   readonly subject: string;
+  readonly tenantId: string;
+  readonly roles: readonly string[];
   readonly name?: string;
   readonly email?: string;
   readonly picture?: string;
@@ -73,22 +66,21 @@ export const isLarkCallbackResponse = (
     typeof candidate.expiresIn === "number" &&
     candidate.expiresIn > 0 &&
     typeof candidate.subject === "string" &&
-    candidate.subject.trim().length > 0
+    candidate.subject.trim().length > 0 &&
+    typeof candidate.tenantId === "string" &&
+    candidate.tenantId.trim().length > 0 &&
+    Array.isArray(candidate.roles) &&
+    candidate.roles.every((role) => typeof role === "string")
   );
 };
 
 export interface LarkGatewayOptions {
   /**
-   * URL backend khởi tạo Lark OAuth redirect (ví dụ:
-   * `https://api.example.com/auth/lark/login`). Backend nhận thêm query param
-   * `state` chứa encoded returnTo.
+   * URL login backend hiện có. Gateway đổi suffix `/login` thành `/authorize`
+   * để lấy authorization URL có state do backend ký.
    */
   readonly loginUrl: string;
-  /**
-   * URL backend xử lý Lark OAuth callback (ví dụ:
-   * `https://api.example.com/auth/lark/callback`). Frontend forward toàn bộ
-   * query string của trang callback này.
-   */
+  /** URL POST backend xử lý callback theo DTO LarkCallbackRequest. */
   readonly callbackUrl: string;
   /**
    * Adapter để thực hiện HTTP call tới backend. Mặc định dùng `fetch`
@@ -111,11 +103,12 @@ export interface LarkGatewayOptions {
 
 export interface LarkLoginResult {
   readonly user: OidcUserSnapshot;
+  readonly auth: LarkAuthLoginResponse;
   readonly returnTo: string;
 }
 
 export interface LarkGateway {
-  startLogin: (returnTo: string) => void;
+  startLogin: (returnTo: string) => Promise<void>;
   completeLogin: () => Promise<LarkLoginResult>;
 }
 
@@ -131,42 +124,55 @@ export const createLarkGateway = (options: LarkGatewayOptions): LarkGateway => {
     options.redirect ?? ((url: string) => { window.location.href = url; });
 
   return {
-    startLogin: (returnTo: string) => {
+    startLogin: async (returnTo: string) => {
       const normalizedReturnTo = normalizeLocalReturnTo(returnTo);
-      const state: LarkAuthState = { returnTo: normalizedReturnTo };
-      const encodedState = encodeLarkState(state);
+      storage.removeItem(LARK_STATE_KEY);
+      const authorizeUrl = new URL(options.loginUrl);
+      authorizeUrl.pathname = authorizeUrl.pathname.replace(/\/login\/?$/, "/authorize");
+      authorizeUrl.search = "";
+      authorizeUrl.searchParams.set("returnTo", normalizedReturnTo);
 
-      // Lưu state vào sessionStorage để đối chiếu sau callback phòng CSRF.
-      storage.setItem(LARK_STATE_KEY, encodedState);
+      const response = await fetchImpl(authorizeUrl.toString(), {
+        method: "GET",
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) throw new Error(`LARK_AUTHORIZE_HTTP_${response.status}`);
+      const authorizeData = getAuthorizationData(await response.json());
+      if (!authorizeData) throw new Error("LARK_AUTHORIZE_INVALID_RESPONSE");
 
-      const loginUrl = new URL(options.loginUrl);
-      loginUrl.searchParams.set("state", encodedState);
-      doRedirect(loginUrl.toString());
+      const larkAuthorizationUrl = new URL(authorizeData.authorizationUrl);
+      const backendState = larkAuthorizationUrl.searchParams.get("state");
+      if (!backendState) throw new Error("LARK_AUTHORIZE_STATE_MISSING");
+      storage.setItem(LARK_STATE_KEY, backendState);
+      doRedirect(larkAuthorizationUrl.toString());
     },
 
     completeLogin: async (): Promise<LarkLoginResult> => {
       const currentHref = getHref();
-      const callbackUrlObj = new URL(options.callbackUrl);
-
-      // Forward toàn bộ query params của trang callback (code, state, error…)
-      // lên backend để backend tự xử lý xác minh và token exchange.
       const currentUrl = new URL(currentHref);
-      for (const [key, value] of currentUrl.searchParams.entries()) {
-        callbackUrlObj.searchParams.set(key, value);
-      }
 
       // Xác minh state để ngăn CSRF: nếu state không khớp, từ chối callback.
       const incomingState = currentUrl.searchParams.get("state") ?? "";
       const storedState = storage.getItem(LARK_STATE_KEY) ?? "";
-      storage.removeItem(LARK_STATE_KEY);
-
       if (!incomingState || !storedState || incomingState !== storedState) {
+        storage.removeItem(LARK_STATE_KEY);
         throw new Error("LARK_CALLBACK_STATE_MISMATCH");
       }
+      // Consume the browser binding before the network call. If the request
+      // outcome is unknown, the user starts a fresh OAuth transaction.
+      storage.removeItem(LARK_STATE_KEY);
 
-      const response = await fetchImpl(callbackUrlObj.toString(), {
-        method: "GET",
-        headers: { Accept: "application/json" },
+      const response = await fetchImpl(options.callbackUrl, {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: currentUrl.searchParams.get("code"),
+          state: incomingState,
+          error: currentUrl.searchParams.get("error"),
+          errorDescription:
+            currentUrl.searchParams.get("error_description") ??
+            currentUrl.searchParams.get("errorDescription"),
+        }),
       });
 
       if (!response.ok) {
@@ -187,14 +193,14 @@ export const createLarkGateway = (options: LarkGatewayOptions): LarkGateway => {
         throw new Error(errorMessage);
       }
 
-      const data: unknown = await response.json();
+      const data: unknown = getLoginResponseData(await response.json());
 
       if (!isLarkCallbackResponse(data)) {
         throw new Error("LARK_CALLBACK_INVALID_RESPONSE");
       }
 
       const returnTo = normalizeLocalReturnTo(
-        data.returnTo ?? decodeLarkState(storedState).returnTo,
+        data.returnTo ?? "/",
       );
 
       const expiresAt =
@@ -211,7 +217,17 @@ export const createLarkGateway = (options: LarkGatewayOptions): LarkGateway => {
         },
       };
 
-      return { user, returnTo };
+      const auth: LarkAuthLoginResponse = {
+        accessToken: data.accessToken,
+        tokenType: data.tokenType,
+        expiresIn: data.expiresIn,
+        subject: data.subject,
+        email: data.email ?? "",
+        tenantId: data.tenantId,
+        roles: [...data.roles],
+      };
+
+      return { user, auth, returnTo };
     },
   };
 };

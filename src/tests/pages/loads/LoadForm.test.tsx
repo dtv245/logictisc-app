@@ -1,7 +1,15 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { Form } from "antd";
 import { LoadForm } from "@/features/loads/components/LoadForm";
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
+
+const renderWithQuery = (ui: React.ReactElement) =>
+  render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 
 // Mock EntityPicker
 vi.mock("@/components/EntityPicker", () => ({
@@ -31,7 +39,7 @@ const Harness = ({ isEdit = false, onCancel }: { isEdit?: boolean; onCancel?: ()
 
 describe("LoadForm — Tuân thủ bộ quy tắc giao diện", () => {
   it("hiển thị đầy đủ 6 phân nhóm nghiệp vụ (Card sections) và mục lục", () => {
-    render(<Harness />);
+    renderWithQuery(<Harness />);
 
     // Kiểm tra 6 nhóm nghiệp vụ
     expect(screen.getByText("Thông tin chung")).toBeInTheDocument();
@@ -46,7 +54,7 @@ describe("LoadForm — Tuân thủ bộ quy tắc giao diện", () => {
   });
 
   it("chỉ hiển thị ô nhập Hazmat khi bật công tắc hàng nguy hiểm", () => {
-    render(<Harness />);
+    renderWithQuery(<Harness />);
 
     // Mặc định Hazmat class và UN number không hiện diện
     expect(screen.queryByLabelText(/Hazmat Class/i)).not.toBeInTheDocument();
@@ -63,7 +71,7 @@ describe("LoadForm — Tuân thủ bộ quy tắc giao diện", () => {
   });
 
   it("tái sử dụng AddressFields cho cả điểm lấy hàng và điểm giao hàng", () => {
-    render(<Harness />);
+    renderWithQuery(<Harness />);
 
     const addressInputs = screen.getAllByPlaceholderText("Ví dụ: 123 Main Street");
     expect(addressInputs).toHaveLength(2); // 1 cho origin, 1 cho destination
@@ -74,7 +82,7 @@ describe("LoadForm — Tuân thủ bộ quy tắc giao diện", () => {
 
   it("thanh thao tác dính đáy có 1 nút primary và nút Hủy tách biệt", () => {
     const handleCancel = vi.fn();
-    render(<Harness isEdit={false} onCancel={handleCancel} />);
+    renderWithQuery(<Harness isEdit={false} onCancel={handleCancel} />);
 
     const createButton = screen.getByRole("button", { name: "Tạo đơn hàng" });
     expect(createButton).toHaveClass("ant-btn-primary");

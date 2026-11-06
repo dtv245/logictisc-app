@@ -25,6 +25,12 @@ export interface CreateTerminalRequest {
   addressState: string;
   addressZipCode: string;
   addressCountry: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  /** Local time, serialized as "HH:mm:ss". */
+  workingHoursOpen?: string | null;
+  /** Local time, serialized as "HH:mm:ss". */
+  workingHoursClose?: string | null;
 }
 
 /**
@@ -49,6 +55,10 @@ export interface TerminalResponse {
   addressState: string;
   addressZipCode: string;
   addressCountry: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  workingHoursOpen?: string | null;
+  workingHoursClose?: string | null;
   createdAt: ISODateTime;
   lastModifiedAt?: ISODateTime | null;
 }

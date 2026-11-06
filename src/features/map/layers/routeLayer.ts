@@ -1,5 +1,22 @@
 import { PathLayer, type PickingInfo } from "deck.gl";
-import type { RouteData } from "../types";
+import type { LngLat, RouteData } from "../types";
+
+export function createHighlightedRouteLayer(coordinates: LngLat[]) {
+  return new PathLayer<{ coordinates: LngLat[] }>({
+    id: "selected-load-route-layer",
+    data: [{ coordinates }],
+    pickable: false,
+    widthScale: 1,
+    widthMinPixels: 5,
+    widthMaxPixels: 8,
+    capRounded: true,
+    jointRounded: true,
+    opacity: 0.95,
+    getPath: (route) => route.coordinates,
+    getColor: [124, 58, 237],
+    getWidth: 5,
+  });
+}
 
 export interface RouteLayerOptions {
   onHoverRoute?: (route: RouteData | null, coords?: { x: number; y: number } | null) => void;

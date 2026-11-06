@@ -43,11 +43,12 @@ const FormHarness = ({
 };
 
 describe("TerminalForm Component", () => {
-  it("hiển thị đầy đủ 2 phân nhóm: Thông tin chung và Địa chỉ", () => {
+  it("hiển thị đầy đủ 3 phân nhóm: Thông tin chung, Địa chỉ và Vị trí & giờ làm việc", () => {
     render(<FormHarness />);
 
     expect(screen.getByText("Thông tin chung")).toBeInTheDocument();
     expect(screen.getByText("Địa chỉ bến bãi")).toBeInTheDocument();
+    expect(screen.getByText("Vị trí & giờ làm việc")).toBeInTheDocument();
     expect(screen.getByLabelText("Tên cảng / bến bãi")).toBeInTheDocument();
     expect(screen.getByLabelText("Mã UN/LOCODE (Code)")).toBeInTheDocument();
     expect(screen.getByLabelText("Mã quốc gia (Country Code)")).toBeInTheDocument();
@@ -169,6 +170,10 @@ describe("TerminalForm Component", () => {
         addressState: "SG",
         addressZipCode: "700000",
         addressCountry: "VN",
+        latitude: null,
+        longitude: null,
+        workingHoursOpen: null,
+        workingHoursClose: null,
       });
     });
   });

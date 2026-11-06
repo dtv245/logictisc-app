@@ -36,6 +36,10 @@ export interface Terminal {
   addressState?: string;
   addressZipCode?: string;
   addressCountry?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  workingHoursOpen?: string | null;
+  workingHoursClose?: string | null;
   createdAt: ISODateTime;
   createdBy?: string | null;
   lastModifiedAt?: ISODateTime | null;

@@ -20,16 +20,17 @@ import { normalizeJwtRoles } from "@providers/permissions/jwtRoles";
 /** Các route cấp ứng dụng (không phải resource) mà router thật sự khai báo. */
 const APP_ROUTES: readonly string[] = [
   routes.callback,
-  routes.dashboard,
   routes.diagnostics,
   routes.forbidden,
   routes.login,
-  routes.operations,
   routes.profile,
   routes.profitability,
   routes.payroll,
   routes.myPayslips,
   routes.selectTenant,
+  routes.tmsFlow.root,
+  routes.tmsFlow.dispatch,
+  routes.tmsFlow.approvals,
   routes.resources.settlements.list,
   routes.resources.settlements.policies,
 ];
@@ -64,8 +65,8 @@ describe("điều hướng cấp ứng dụng", () => {
       expect(targets).not.toContain(routes.optimization);
       expect(targets).not.toContain(routes.fleetReport);
       expect(targets.includes(routes.resources.settlements.policies)).toBe(finance);
-      expect(targets).not.toContain(routes.dashboard);
-      expect(targets).toContain(routes.operations);
+      expect(targets).not.toContain("/dashboard");
+      expect(targets).not.toContain("/operations");
       expect(targets.includes(routes.myPayslips)).toBe(authority !== "UNKNOWN");
     },
   );
@@ -85,11 +86,11 @@ describe("điều hướng cấp ứng dụng", () => {
     expect(new Set(targets).size).toBe(targets.length);
   });
 
-  it("keeps Operations enabled while the Executive contract is blocked", () => {
+  it("does not expose the removed dashboard and operations screens", () => {
     const targets = APP_NAV_ITEMS.map((item) => item.route);
 
-    expect(targets).not.toContain(routes.dashboard);
-    expect(targets).toContain(routes.operations);
+    expect(targets).not.toContain("/dashboard");
+    expect(targets).not.toContain("/operations");
   });
 
   it("nhãn menu dịch được ở cả vi và en", () => {

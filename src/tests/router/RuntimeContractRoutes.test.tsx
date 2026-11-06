@@ -6,23 +6,22 @@ import { I18nextProvider } from "react-i18next";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { routes } from "@/constants/routes";
 import { initializeAppI18n } from "@/locales";
-import { createFoundationResources, foundationResourcePageRoutes } from "@/pages/resourceRegistry";
+import { createFoundationResources, foundationApiResources, foundationResourcePageRoutes } from "@/pages/resourceRegistry";
 import { createAccessControlProvider } from "@/providers/accessControlProvider";
 import { normalizeJwtRoles } from "@/providers/permissions/jwtRoles";
 import { AppRouter } from "@/router/AppRouter";
 
-const { executiveMounted } = vi.hoisted(() => ({ executiveMounted: vi.fn() }));
+const { tmsMounted } = vi.hoisted(() => ({ tmsMounted: vi.fn() }));
 vi.mock("@components", async (importOriginal) => ({
   ...await importOriginal<typeof import("@components")>(),
   AppLayout: () => <Outlet />,
 }));
 vi.mock("@router/ProtectedRoute", () => ({ ProtectedRoute: () => <Outlet /> }));
 vi.mock("@router/TenantGuard", () => ({ TenantGuard: () => <Outlet /> }));
-vi.mock("@pages/dashboard/DashboardPage", () => ({ DashboardPage: () => {
-  executiveMounted();
-  return <h1>Executive requests would mount</h1>;
+vi.mock("@pages/tms-flow/OperationsDashboardPage", () => ({ OperationsDashboardPage: () => {
+  tmsMounted();
+  return <h1>TMS runtime</h1>;
 } }));
-vi.mock("@pages/dashboard/OperationsDashboardPage", () => ({ OperationsDashboardPage: () => <h1>Operations runtime</h1> }));
 
 const authProvider: AuthProvider = {
   check: async () => ({ authenticated: true }),
@@ -35,12 +34,39 @@ function CurrentPath() {
   const { pathname } = useLocation();
   return <output aria-label="Current path">{pathname}</output>;
 }
+function DriverRouteTestPage() {
+  return <h1>Driver route mounted</h1>;
+}
 
 describe("current runtime route availability", () => {
-  beforeEach(() => executiveMounted.mockClear());
+  beforeEach(() => tmsMounted.mockClear());
 
-  it.each([routes.dashboard, routes.login, routes.operations])(
-    "reaches Operations without mounting blocked Executive queries from %s", async (entry) => {
+  it("keeps the driver directory and detail routes in the runtime allowlist", () => {
+    expect(foundationApiResources.drivers.collectionPath).toBe("/api/drivers");
+    expect(foundationResourcePageRoutes.map(({ path }) => path)).toContain(routes.resources.drivers.list);
+    expect(foundationResourcePageRoutes.map(({ path }) => path)).toContain("/drivers/:id");
+  });
+
+  it("matches /drivers inside the authenticated tenant route tree", async () => {
+    const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
+    render(
+      <MemoryRouter initialEntries={[routes.resources.drivers.list]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <I18nextProvider i18n={i18n}>
+          <Refine
+            authProvider={authProvider}
+            accessControlProvider={createAccessControlProvider({ getJwtRoles: async () => normalizeJwtRoles(null, ["DISPATCHER"]) })}
+            options={{ reactQuery: { clientConfig: { defaultOptions: { queries: { retry: false } } } } }}
+          >
+            <AppRouter resourcePageRoutes={[{ action: "list", component: DriverRouteTestPage, path: routes.resources.drivers.list, resource: "drivers" }]} />
+          </Refine>
+        </I18nextProvider>
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole("heading", { name: "Driver route mounted" })).toBeInTheDocument();
+  });
+
+  it.each([routes.login, routes.tmsFlow.root])(
+    "reaches TMS from %s", async (entry) => {
       const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
       render(<MemoryRouter initialEntries={[entry]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <I18nextProvider i18n={i18n}>
@@ -50,9 +76,9 @@ describe("current runtime route availability", () => {
         </Refine>
         </I18nextProvider>
       </MemoryRouter>);
-      expect(await screen.findByRole("heading", { name: "Operations runtime" })).toBeInTheDocument();
-      expect(screen.getByLabelText("Current path")).toHaveTextContent(routes.operations);
-      expect(executiveMounted).not.toHaveBeenCalled();
+      expect(await screen.findByRole("heading", { name: "TMS runtime" })).toBeInTheDocument();
+      expect(tmsMounted).toHaveBeenCalled();
+      expect(screen.getByLabelText("Current path")).toHaveTextContent(routes.tmsFlow.root);
     },
   );
 
@@ -77,7 +103,7 @@ describe("current runtime route availability", () => {
     expect(documents?.edit).toBeUndefined();
   });
 
-  it("returns not found for the removed AI Dispatch route", async () => {
+  it("mounts the AI Dispatch page for a DISPATCHER with AI_DISPATCH_VIEW", async () => {
     const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
     render(
       <MemoryRouter initialEntries={[routes.aiDispatch]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -93,7 +119,8 @@ describe("current runtime route availability", () => {
         </I18nextProvider>
       </MemoryRouter>,
     );
-    expect(await screen.findByText(i18n.t("errors.notFound"))).toBeInTheDocument();
+    expect(await screen.findByText(i18n.t("aiDispatch.title"))).toBeInTheDocument();
+    expect(screen.queryByText(i18n.t("errors.notFound"))).not.toBeInTheDocument();
     expect(screen.getByLabelText("Current path")).toHaveTextContent(routes.aiDispatch);
   });
 });

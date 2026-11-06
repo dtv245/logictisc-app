@@ -22,7 +22,7 @@ interface MapEngine {
 const mapLabelKeys = ["canvas", "loading", "initError", "retry", "tilesError", "reloadTiles", "fitVehicles", "showProposed", "attribution"] as const;
 const emptyMarkers: readonly NetworkMapMarker[] = [];
 
-export function NetworkRouteMap({ vehicles, routes, markers = emptyMarkers, locale }: NetworkRouteMapProps): ReactElement {
+export function NetworkRouteMap({ vehicles, routes, markers = emptyMarkers, highlightedVehicleId, locale }: NetworkRouteMapProps): ReactElement {
   const { i18n } = useTranslation();
   const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
   const text = createLocaleLabels(i18n.getFixedT(activeLocale), "dashboard.opsView.panels.map", mapLabelKeys);
@@ -87,27 +87,39 @@ export function NetworkRouteMap({ vehicles, routes, markers = emptyMarkers, loca
     const { leaflet, map, overlays } = engine;
     overlays.clearLayers();
     const bounds = leaflet.latLngBounds([]);
+    const highlightedBounds = leaflet.latLngBounds([]);
     routes.forEach((route) => {
       const positions: [number, number][] = route.coordinates.map(([longitude, latitude]) => [latitude, longitude]);
       if (!route.isProposed || showProposed) leaflet.polyline(positions, {
-        color: route.isProposed ? "#8150ff" : route.status === "delayed" ? "#ff5466" : "#343630",
-        weight: 3,
-        opacity: .85,
+        color: route.isProposed || route.isHighlighted
+          ? "#8150ff"
+          : route.status === "delayed"
+            ? "#ff5466"
+            : "#343630",
+        weight: route.isHighlighted ? 5 : 3,
+        opacity: route.isHighlighted ? .95 : .85,
         ...(route.isProposed ? { dashArray: "6 6" } : {}),
       }).addTo(overlays);
-      positions.forEach((position) => bounds.extend(position));
+      positions.forEach((position) => {
+        bounds.extend(position);
+        if (highlightedVehicleId) highlightedBounds.extend(position);
+      });
     });
     vehicles.forEach((vehicle) => {
       const position: [number, number] = [vehicle.latitude, vehicle.longitude];
       const icon = document.createElement("span");
       icon.className = `dashboard-network-map__vehicle dashboard-network-map__vehicle--${vehicle.status}`;
+      const isHighlighted = vehicle.id === highlightedVehicleId;
+      if (isHighlighted) icon.classList.add("is-highlighted");
       if (vehicle.avatarUrl) {
         const avatar = document.createElement("img");
         avatar.src = vehicle.avatarUrl;
         avatar.alt = "";
         icon.append(avatar);
       } else icon.textContent = vehicle.status === "delayed" ? "!" : "▰";
-      const marker = leaflet.marker(position, { icon: leaflet.divIcon({ html: icon, className: "dashboard-network-map__marker", iconSize: [20, 20], iconAnchor: [10, 10] }), title: vehicle.plate }).addTo(overlays);
+      const markerSize = isHighlighted ? 28 : 20;
+      const marker = leaflet.marker(position, { icon: leaflet.divIcon({ html: icon, className: "dashboard-network-map__marker", iconSize: [markerSize, markerSize], iconAnchor: [markerSize / 2, markerSize / 2] }), title: vehicle.plate }).addTo(overlays);
+      if (isHighlighted) marker.setZIndexOffset(1000);
       const label = document.createElement("span");
       label.className = "dashboard-network-map__vehicle-label";
       const title = document.createElement("strong");
@@ -120,6 +132,7 @@ export function NetworkRouteMap({ vehicles, routes, markers = emptyMarkers, loca
       }
       marker.bindTooltip(label, { permanent: vehicle.delayMinutes != null, direction: "right", offset: [10, 0], className: "dashboard-network-map__tooltip" });
       bounds.extend(position);
+      if (isHighlighted) highlightedBounds.extend(position);
     });
     markers.forEach((point) => {
       const position: [number, number] = [point.latitude, point.longitude];
@@ -144,10 +157,14 @@ export function NetworkRouteMap({ vehicles, routes, markers = emptyMarkers, loca
         className: "dashboard-network-map__tooltip",
       });
       bounds.extend(position);
+      if (highlightedVehicleId) highlightedBounds.extend(position);
     });
-    boundsRef.current = bounds;
-    if (bounds.isValid()) map.fitBounds(bounds, { padding: [28, 28], maxZoom: 13, animate: false });
-  }, [engine, error, vehicles, routes, markers, showProposed]);
+    const focusBounds = highlightedVehicleId && highlightedBounds.isValid()
+      ? highlightedBounds
+      : bounds;
+    boundsRef.current = focusBounds;
+    if (focusBounds.isValid()) map.fitBounds(focusBounds, { padding: [28, 28], maxZoom: 13, animate: false });
+  }, [engine, error, vehicles, routes, markers, highlightedVehicleId, showProposed]);
 
   const retry = (): void => {
     setEngine(undefined);

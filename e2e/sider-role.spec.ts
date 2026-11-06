@@ -1,43 +1,49 @@
 import { expect, test } from "@playwright/test";
+import fs from "node:fs";
 import path from "node:path";
 import { expectNoRawTranslationKeys } from "./fixtures/assertNoRawTranslationKeys";
 import { JWT_ROLES } from "../src/types/roles.types";
+import { canJwtRolesAccess } from "../src/providers/permissions/roleMatrix";
 
 const screenshotPath = (file: string) =>
-  path.join(process.cwd(), "docs/design/shell-001", file);
+  path.join(process.cwd(), "docs/design/shell-001-followup", file);
 
 test("renders and captures each distinct role-matrix sider variant", async ({ page }) => {
+  fs.mkdirSync(path.dirname(screenshotPath("placeholder.png")), { recursive: true });
   const capturedMenus = new Set<string>();
   for (const role of JWT_ROLES) {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/e2e/fixtures/sider-role-fixture.html?role=${role}&route=%2Foperations`);
     await expect(page.locator(".app-sider")).toBeVisible();
-    await expect(page.getByLabel("Trung tâm điều hành")).toBeVisible();
+    await expect(page.getByLabel("Trung tâm điều hành")).toHaveCount(0);
 
-    if (role === "ADMIN") {
-      await expect(page.getByLabel("Đơn hàng (Loads)")).toBeVisible();
-      await expect(page.getByLabel("Nhân viên")).toBeVisible();
-      await expect(page.getByLabel("Hồ sơ & tài liệu")).toBeVisible();
-    } else if (role === "DRIVER") {
-      await expect(page.getByLabel("Bến bãi (Terminals)")).toBeVisible();
-      await expect(page.getByLabel("Đơn hàng (Loads)")).toHaveCount(0);
-      await expect(page.getByLabel("Nhân viên")).toHaveCount(0);
-      await expect(page.getByLabel("Hồ sơ & tài liệu")).toHaveCount(0);
+    const canListLoads = canJwtRolesAccess([role], "loads", "list");
+    const tmsItems = [
+      ["Tổng quan", canListLoads],
+      ["Điều phối", canListLoads],
+      ["Duyệt AI", canListLoads && canJwtRolesAccess([role], "ai-dispatch", "AI_DISPATCH_VIEW")],
+      ["Theo dõi xe", canListLoads],
+      ["Tối ưu tuyến", canJwtRolesAccess([role], "optimization", "OPTIMIZATION_VIEW")],
+    ] as const;
+
+    for (const [label, isAllowed] of tmsItems) {
+      const item = page.getByLabel(label, { exact: true });
+      if (isAllowed) await expect(item, `${role}: ${label} should be visible`).toBeVisible();
+      else await expect(item, `${role}: ${label} should be hidden`).toHaveCount(0);
     }
 
-    const expectedMenus = await page.evaluate(() => (window as Window & { __roleMenuExpectation?: Array<{ key: string; visible: boolean }> }).__roleMenuExpectation ?? []);
-    for (const item of expectedMenus) {
-      const selector = `[data-menu-id$="${item.key}"]`;
-      if (item.visible) await expect(page.locator(selector), `${role}: ${item.key} should be visible`).toHaveCount(1);
-      else await expect(page.locator(selector), `${role}: ${item.key} should be hidden`).toHaveCount(0);
-    }
+    await expect(page.getByTestId("sider-fixture-content")).toBeVisible();
 
     await expectNoRawTranslationKeys(page);
-    const menuSignature = await page.locator(".app-sider [data-menu-id]").evaluateAll((elements) =>
-      elements.map((element) => element.getAttribute("data-menu-id")).filter(Boolean).sort().join("|"),
+    const accessibleMenuSignature = await page.locator(".app-sider__menu [role='menuitem']").evaluateAll((elements) =>
+      elements.map((element) => {
+        const labelledChild = element.querySelector<HTMLElement>("[aria-label]")?.getAttribute("aria-label");
+        return element.getAttribute("aria-label") ?? element.getAttribute("title") ?? labelledChild ?? element.textContent?.trim() ?? "";
+      }).filter(Boolean).sort().join("|"),
     );
-    if (!capturedMenus.has(menuSignature)) {
-      capturedMenus.add(menuSignature);
+    const signature = accessibleMenuSignature;
+    if (!capturedMenus.has(signature)) {
+      capturedMenus.add(signature);
       await page.screenshot({ path: screenshotPath(`${role.toLowerCase()}-1440.png`), fullPage: true });
     }
   }

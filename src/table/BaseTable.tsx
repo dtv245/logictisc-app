@@ -70,14 +70,14 @@ export interface BaseTableProps<TData extends BaseRecord> {
 const TABLE_THEME = {
   components: {
     Table: {
-      headerBg: "#ffffff",
-      headerColor: "#24292b",
+      headerBg: "var(--color-bg-container)",
+      headerColor: "var(--color-text)",
       headerSplitColor: "transparent",
       headerBorderRadius: 12,
       borderColor: "transparent",
-      rowHoverBg: "#ece9e3",
-      rowSelectedBg: "#ece8d8",
-      rowSelectedHoverBg: "#e3ddc6",
+      rowHoverBg: "var(--color-bg-hover)",
+      rowSelectedBg: "var(--color-primary-light)",
+      rowSelectedHoverBg: "var(--color-primary-light-hover)",
       cellPaddingBlock: 12,
       cellPaddingInline: 16,
       fontSize: 13,

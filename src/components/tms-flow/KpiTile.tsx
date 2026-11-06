@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export interface KpiTileProps {
-  label: string;
+  label: ReactNode;
   value: ReactNode;
   hint?: string;
   tone?: "default" | "warning" | "danger" | "positive";

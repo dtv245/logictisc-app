@@ -2,7 +2,7 @@ import { Alert, Button, Space, Table, Tabs, Tag, Tooltip, Typography } from "ant
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createListPaginationConfig } from "@/constants/pagination";
+import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { ConfirmActionModal } from "@/components/ConfirmActionModal";
 import { EmptyState } from "@/components/EmptyState";
 import { financialAmount } from "@formatters/financialDisplay";
@@ -332,7 +332,7 @@ export function OptimizationCandidateTable({
                 <Table
                   rowKey="id"
                   dataSource={feasibleCandidates}
-                  pagination={{ pageSize: 20, responsive: true, ...createListPaginationConfig(t) }}
+                  pagination={{ pageSize: DEFAULT_LIST_PAGE_SIZE, responsive: true, ...createListPaginationConfig(t) }}
                   scroll={{ x: 1540 }}
                   locale={{ emptyText: <EmptyState /> }}
                   rowClassName={(record) => (record.rank === 1 ? "rank-one-highlight" : "")}
@@ -355,7 +355,7 @@ export function OptimizationCandidateTable({
                 <Table
                   rowKey="id"
                   dataSource={infeasibleCandidates}
-                  pagination={{ pageSize: 20, responsive: true, ...createListPaginationConfig(t) }}
+                  pagination={{ pageSize: DEFAULT_LIST_PAGE_SIZE, responsive: true, ...createListPaginationConfig(t) }}
                   scroll={{ x: 1510 }}
                   locale={{ emptyText: <EmptyState /> }}
                   columns={infeasibleColumns}

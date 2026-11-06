@@ -211,4 +211,11 @@ describe("useLocalizedColumns — cột trạng thái", () => {
 
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
+
+  it("bọc giá trị text dài và enum thường trong span có class table-cell-ellipsis", async () => {
+    await renderStatusCell("delivered", plainEnumColumns);
+
+    const cellSpan = screen.getByText("Delivered");
+    expect(cellSpan).toHaveClass("table-cell-ellipsis");
+  });
 });

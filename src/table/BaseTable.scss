@@ -1,13 +1,13 @@
-/** Bảng dạng danh sách: khung trắng bo tròn, từng hàng nền kem và cách nhau. */
+/** Bảng dạng danh sách: bề mặt sáng, hàng tách nhau nhẹ và hỗ trợ cả hai theme. */
 @use "@/styles/variables" as v;
 @use "@/styles/mixins" as m;
 
 .base-table-wrapper {
-  --base-table-row-bg: #f4f2ef;
-  --base-table-row-hover-bg: #ece9e3;
-  --base-table-row-selected-bg: #ece8d8;
-  --base-table-row-selected-hover-bg: #e3ddc6;
-  --base-table-text: #24292b;
+  --base-table-row-bg: var(--color-bg-subtle);
+  --base-table-row-hover-bg: var(--color-bg-hover);
+  --base-table-row-selected-bg: var(--color-primary-light);
+  --base-table-row-selected-hover-bg: var(--color-primary-light-hover);
+  --base-table-text: var(--color-text);
 
   width: 100%;
   max-width: 100%;
@@ -16,9 +16,9 @@
   flex-direction: column;
   box-sizing: border-box;
   padding: 8px 20px 16px;
-  background: #fff;
-  border-radius: 28px;
-  border: 1px solid #f0eeea;
+  background: var(--color-bg-container);
+  border-radius: 16px;
+  border: 1px solid var(--color-border-secondary);
   overflow: hidden;
   transition: min-height v.$transition-base;
 
@@ -49,7 +49,7 @@
 
     .ant-table-body {
       scrollbar-width: thin;
-      scrollbar-color: #c8c1b6 transparent;
+      scrollbar-color: var(--color-border-dark) transparent;
     }
   }
 
@@ -79,7 +79,7 @@
       width: 100%;
       min-width: 0;
       font-size: v.$font-size-sm;
-      background: #fff;
+      background: var(--color-bg-container);
 
       // Tạo khoảng cách giữa hàng, giữ cấu trúc bảng đo và cột cố định của Ant Design.
       table {
@@ -92,7 +92,7 @@
         position: sticky;
         top: 0;
         z-index: 2;
-        background: #fff;
+        background: var(--color-bg-container);
         color: var(--base-table-text);
         font-weight: v.$font-weight-semibold;
         font-size: v.$font-size-sm;
@@ -161,16 +161,16 @@
 
       // Cột cố định đổ bóng nhẹ khi cuộn ngang
       .ant-table-cell-fix-right {
-        box-shadow: -4px 0 8px -2px rgba(36, 41, 43, 0.04);
+        box-shadow: var(--shadow-xs);
       }
 
       .ant-table-cell-fix-left {
-        box-shadow: 4px 0 8px -2px rgba(36, 41, 43, 0.04);
+        box-shadow: var(--shadow-xs);
       }
 
       .ant-table-thead .ant-table-cell-fix-right,
       .ant-table-thead .ant-table-cell-fix-left {
-        background: #fff;
+        background: var(--color-bg-container);
       }
     }
 
@@ -203,7 +203,7 @@
   // Responsive dưới 768px: cuộn ngang mượt mà
   @media (max-width: v.$breakpoint-md) {
     padding: 4px 12px 12px;
-    border-radius: 20px;
+    border-radius: 12px;
 
     .ant-table-wrapper {
       .ant-table-content {

@@ -30,8 +30,14 @@ export function PageHeader({ description, extra, id, title }: PageHeaderProps) {
   const titleId = id ?? generatedId;
 
   return (
-    <Flex align="start" gap="middle" justify="space-between" wrap>
-      <div>
+    <Flex
+      align="center"
+      className={extra ? "page-header" : "page-header page-header--empty"}
+      gap="small"
+      justify="flex-end"
+      wrap
+    >
+      <div className="page-header__heading">
         <Typography.Title id={titleId} level={2}>
           {title}
         </Typography.Title>

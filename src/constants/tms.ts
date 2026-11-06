@@ -3,6 +3,9 @@
 /** Loads due within this many hours are shown as "at risk" across every screen. */
 export const TMS_RISK_WINDOW_HOURS = 4;
 
+/** Page size for incremental/infinite load fetching on Dispatch. */
+export const TMS_LOAD_PAGE_SIZE = 10;
+
 /** Safety cap for the client-side aggregation fallback (100 rows per page). */
 export const TMS_MAX_LOAD_PAGES = 10;
 

@@ -60,7 +60,7 @@ export const useSwitchTenant = (): UseSwitchTenantResult => {
       // khi nhận forceReauthentication.
       await login.mutateAsync({
         mode: "redirect",
-        returnTo: routes.dashboard,
+        returnTo: routes.tmsFlow.root,
         forceReauthentication: true,
       });
     },

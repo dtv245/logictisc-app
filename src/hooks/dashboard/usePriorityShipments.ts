@@ -1,5 +1,6 @@
 import { useCan, useList } from "@refinedev/core";
 import { useTranslation } from "react-i18next";
+import { DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { resolveSupportedLocale, translateOptional } from "@/locales";
 import type { ApiError } from "@/types/api.types";
 import type { Load } from "@/types/load.types";
@@ -23,7 +24,7 @@ export function usePriorityShipments(): {
   const query = useList<Load, ApiError>({
     resource: "loads",
     filters: [{ field: "status", operator: "eq", value: "in_transit" }],
-    pagination: { current: 1, pageSize: 20 },
+    pagination: { current: 1, pageSize: DEFAULT_LIST_PAGE_SIZE },
     queryOptions: { enabled: canRead, staleTime: 30_000, retry: false },
   });
   const shipments: PriorityShipment[] = canRead && !query.isError

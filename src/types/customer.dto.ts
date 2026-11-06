@@ -12,6 +12,12 @@ export interface CustomerResponse {
   name: string;
   notes?: string | null;
   phone?: string | null;
+  /** Số ngày được nợ kể từ ngày phát hành hóa đơn; null = chưa thỏa thuận. */
+  paymentTermsDays?: number | null;
+  /** Mã tiền tệ mặc định (ISO 4217, 3 chữ cái). */
+  defaultCurrency?: string | null;
+  /** ISO timestamp returned by the CustomerView API when available. */
+  createdAt?: string | null;
   status: string;
   taxId?: string | null;
 }

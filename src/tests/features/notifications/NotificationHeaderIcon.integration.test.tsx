@@ -18,7 +18,7 @@ describe("notification header integration", () => {
     const observe = vi.fn(); const request = vi.fn(async () => 2);
     await renderFinance(<NotificationHeaderIcon />, request, { role: "DRIVER", listRequest: listProvider(() => [item], observe) });
     fireEvent.click(await screen.findByRole("button", { name: "Notifications" })); expect(await screen.findByRole("button", { name: "Recent shipment (Unread)" })).toBeInTheDocument();
-    expect(observe).toHaveBeenCalledWith(expect.objectContaining({ resource: "notifications", pagination: expect.objectContaining({ current: 1, pageSize: 5 }) }));
+    expect(observe).toHaveBeenCalledWith(expect.objectContaining({ resource: "notifications", pagination: expect.objectContaining({ current: 1, pageSize: 10 }) }));
     expect(screen.queryByText("42")).not.toBeInTheDocument(); fireEvent.click(screen.getByRole("button", { name: "Recent shipment (Unread)" }));
     fireEvent.click(screen.getByRole("button", { name: "Notifications" })); expect(await screen.findByRole("button", { name: "Recent shipment (Unread)" })).toBeInTheDocument(); expect(request).not.toHaveBeenCalled();
   });
@@ -50,5 +50,60 @@ describe("notification header integration", () => {
     expect(await screen.findByText("Notification access denied")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
     expect(screen.queryByText("No notifications")).not.toBeInTheDocument();
+  });
+
+  it("loads 10 notifications initially, fetches next page on scroll, and displays severity hierarchy", async () => {
+    const observe = vi.fn();
+    const pagedList: DataProvider["getList"] = async <TData extends BaseRecord>(params: GetListParams) => {
+      observe(params);
+      const page = params.pagination?.current ?? 1;
+      const items: Notification[] = Array.from({ length: 10 }, (_, idx) => {
+        const num = (page - 1) * 10 + idx + 1;
+        return {
+          id: `notice-page-${page}-${num}`,
+          title: num === 1 ? "Lô hàng #1001 quá hạn giao hàng" : `Thông báo vận hành #${num}`,
+          message: num === 1 ? "Cần điều phối gấp" : "Chi tiết thông báo",
+          isRead: false,
+          createdDate: "2026-10-05T08:00:00Z",
+        };
+      });
+      return { data: items as unknown as TData[], total: 25 };
+    };
+
+    await renderFinance(<NotificationHeaderIcon />, async () => 0, {
+      role: "OWNER",
+      listRequest: pagedList,
+    });
+
+    fireEvent.click(await screen.findByRole("button", { name: "Notifications" }));
+    expect(
+      await screen.findByRole("button", {
+        name: "Lô hàng #1001 quá hạn giao hàng (Unread)",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByTestId("notification-popup-item-notice-page-1-1"),
+    ).toHaveAttribute("data-severity", "critical");
+    expect(screen.getAllByText("Khẩn cấp").length).toBeGreaterThanOrEqual(1);
+
+    const popupList = screen.getByTestId("notification-popup-list");
+    Object.defineProperty(popupList, "scrollHeight", { value: 900, configurable: true });
+    Object.defineProperty(popupList, "clientHeight", { value: 400, configurable: true });
+    Object.defineProperty(popupList, "scrollTop", { value: 460, configurable: true });
+
+    fireEvent.scroll(popupList);
+
+    expect(
+      await screen.findByRole("button", {
+        name: "Thông báo vận hành #11 (Unread)",
+      }),
+    ).toBeInTheDocument();
+    expect(observe).toHaveBeenCalledWith(
+      expect.objectContaining({
+        resource: "notifications",
+        pagination: expect.objectContaining({ current: 2, pageSize: 10 }),
+      }),
+    );
   });
 });

@@ -32,6 +32,12 @@ describe("backend finance endpoint authorization parity", () => {
     }
     expect(canJwtRolesAccess(roles, "accessorials", "ACCESSORIAL_APPROVE"))
       .toBe(["ADMIN", "ACCOUNTANT"].includes(authority));
+    // Cost verification, approval and voiding are accounting commands; payroll roles
+    // may read and create costs but must not finalize them.
+    for (const action of ["COST_VERIFY", "COST_APPROVE", "COST_VOID"]) {
+      expect(canJwtRolesAccess(roles, "shipment-costs", action))
+        .toBe(["ADMIN", "ACCOUNTANT"].includes(authority));
+    }
     expect(canJwtRolesAccess(roles, "payroll", "list")).toBe(false);
     expect(canJwtRolesAccess(roles, "shipment-costs", "COST_POST")).toBe(false);
     expect(canJwtRolesAccess(roles, "settlements", "SETTLEMENT_REJECT")).toBe(false);

@@ -343,10 +343,10 @@
 }
 
 .resource-list-card {
-  background: #fff;
-  border: 1px solid #f0eeea;
-  border-radius: 28px;
-  box-shadow: none;
+  background: var(--color-bg-container);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: v.$radius-xl;
+  box-shadow: var(--shadow-card);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -359,22 +359,67 @@
   }
 }
 
+// PageHeader — ẩn trực quan khối tiêu đề/mô tả để tiết kiệm diện tích chiều dọc,
+// vẫn giữ nguyên DOM heading (id + aria-labelledby) cho trình đọc màn hình,
+// chỉ hiển thị gọn cụm nút thao tác `extra` ở góc phải khi có.
+.page-header {
+  position: relative;
+  min-height: 0;
+
+  &__heading {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  &--empty {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+.ant-space-item:has(> .page-header--empty) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px !important;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 // Resource List Toolbar
 .resource-list-toolbar {
-  padding: v.$spacing-md v.$spacing-lg;
+  padding: v.$spacing-sm v.$spacing-lg;
   border-bottom: 0;
-  background: #fff;
+  background: var(--color-bg-container);
   display: flex;
   flex-direction: column;
   gap: v.$spacing-sm;
+  position: relative;
 
   &__main {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: v.$spacing-md;
     flex-wrap: nowrap;
-    min-height: 40px;
+    min-height: 36px;
 
     @include m.respond-to("mobile") {
       flex-direction: column;
@@ -384,15 +429,15 @@
   }
 
   &__left {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-xs;
-    flex-shrink: 0;
-
-    @include m.respond-to("mobile") {
-      justify-content: space-between;
-      width: 100%;
-    }
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   &__title {
@@ -420,13 +465,18 @@
     align-items: center;
     gap: v.$spacing-xs;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    width: 100%;
+    justify-content: flex-start;
 
     @include m.respond-to("mobile") {
       width: 100%;
       justify-content: space-between;
       gap: v.$spacing-xs;
     }
+  }
+
+  &__primary-action {
+    margin-inline-start: auto;
   }
 
   &__search-wrapper {
@@ -600,9 +650,12 @@
 
   &__chip-key {
     color: v.$color-text-secondary;
+    flex-shrink: 0;
   }
 
   &__chip-value {
+    @include m.text-truncate;
+    max-width: 220px;
     font-weight: v.$font-weight-medium;
     color: v.$color-text;
   }
@@ -1378,7 +1431,7 @@
   min-height: 320px;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border-dark);
 }
 
 .optimization-map-legend {
@@ -1386,12 +1439,12 @@
   bottom: 12px;
   left: 12px;
   z-index: 10;
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in srgb, var(--color-bg-container) 95%, transparent);
   padding: 8px 12px;
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
   font-size: 12px;
-  color: #1e293b;
+  color: var(--color-text);
   max-width: min(320px, calc(100% - 24px));
   backdrop-filter: blur(4px);
 

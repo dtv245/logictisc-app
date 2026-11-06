@@ -79,7 +79,7 @@ Dự án hiện có tổng cộng **33 features**. Toàn bộ mã nguồn đã �
 | 9 | `dvir` | Có | — | — | — | — | `types.ts` | — | `dvir.resource.ts` | — |
 | 10 | `employees` | Có | — | — | — | — | Dùng shared | — | `employees.resource.ts` | — |
 | 11 | `executive` | Có | Có | Có | Có | Có | `types.ts` | — | — | — |
-| 12 | `expenses` | Có | — | — | — | — | `types.ts` | — | `expenses.resource.ts` | — |
+| 12 | `expenses` | Đã gỡ cùng route `/expenses` (không có API CRUD) | — | — | — | — | — | — | — | — |
 | 13 | `fleet` | Có | Có | — | Có | — | Dùng shared | — | — | — |
 | 14 | `hos-eld` | Có | — | — | — | — | `types.ts` | — | `hos-eld.resource.ts` | — |
 | 15 | `invoices` | Có | Có | — | Có | — | Dùng shared | — | `invoices.resource.ts` | — |

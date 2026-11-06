@@ -1,10 +1,13 @@
 import { Tooltip } from "antd";
 import { ArrowRight, Clock, MapPin, Truck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { StatusTag } from "@/components/StatusTag";
 import type { TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
+import { formatTmsOverdueDuration, getTmsOverdue } from "@/utils/tms-flow/overdue";
 import {
   formatTmsDateTime,
+  formatTmsRiskReason,
   operationalStatusMeta,
   riskMeta,
 } from "@/utils/tms-flow/presentation";
@@ -24,11 +27,35 @@ export function ShipmentCard({
   onSelect,
   compact = false,
 }: ShipmentCardProps) {
+  const { t } = useTranslation();
   const status = operationalStatusMeta[shipment.status];
   const risk = riskMeta[shipment.risk];
   const customerLabel = `${shipment.name} · ${shipment.customerName}`;
   const laneLabel = `${shipment.originCity} → ${shipment.destinationCity}`;
-  const truckLabel = truckNumber ?? shipment.assignedTruckNumber ?? "Chưa phân công";
+  const truckLabel = truckNumber ?? shipment.assignedTruckNumber ?? t("tmsDispatch.queue.noTruck");
+  const overdue = getTmsOverdue(shipment.raw);
+  const overdueReasonLabels = overdue.reasons.map((reason) => {
+    const duration = formatTmsOverdueDuration(reason.overdueMilliseconds);
+    return t("tmsDashboard.overdueReason", {
+      phase: t(reason.kind === "pickup" ? "tmsDashboard.pickupPhase" : "tmsDashboard.deliveryPhase"),
+      amount: duration.amount,
+      unit: t(duration.unit === "days" ? "tmsDashboard.dayUnit" : "tmsDashboard.hourUnit"),
+    });
+  });
+  const terminal = shipment.status === "delivered" || shipment.status === "cancelled";
+  const serverRiskReasons = shipment.riskReasons ?? [];
+  const riskReasonLabels = [
+    ...overdueReasonLabels,
+    ...serverRiskReasons
+      .filter((reason) =>
+        !terminal &&
+        !((reason.code === "PICKUP_OVERDUE" && overdue.reasons.some((item) => item.kind === "pickup")) ||
+          (reason.code === "DELIVERY_OVERDUE" && overdue.reasons.some((item) => item.kind === "delivery"))) &&
+        !(terminal && (reason.code === "PICKUP_OVERDUE" || reason.code === "DELIVERY_OVERDUE")),
+      )
+      .map(formatTmsRiskReason),
+  ];
+  const riskSummary = riskReasonLabels.join(" · ");
 
   return (
     <button
@@ -43,7 +70,15 @@ export function ShipmentCard({
         <span className="tms-shipment-card__tags">
           <StatusTag label={status.label} tone={status.tone} />
           {shipment.risk !== "none" ? (
-            <StatusTag label={risk.label} tone={risk.tone} />
+            riskSummary ? (
+              <Tooltip title={riskSummary}>
+                <span>
+                  <StatusTag label={risk.label} tone={risk.tone} />
+                </span>
+              </Tooltip>
+            ) : (
+              <StatusTag label={risk.label} tone={risk.tone} />
+            )
           ) : null}
         </span>
       </span>
@@ -63,18 +98,28 @@ export function ShipmentCard({
       <span className="tms-shipment-card__meta">
         <span>
           <Clock size={13} aria-hidden="true" />
-          Giao {formatTmsDateTime(shipment.requestedDeliveryDate)}
+          {t("tmsDispatch.queue.deliveryPrefix")} {formatTmsDateTime(shipment.requestedDeliveryDate)}
         </span>
         <Tooltip title={truckLabel}>
           <span className="tms-shipment-card__eta table-cell-ellipsis">
             {truckLabel}
           </span>
         </Tooltip>
+        {riskSummary ? (
+          <Tooltip title={riskSummary}>
+            <span
+              className="tms-shipment-card__eta table-cell-ellipsis"
+              data-testid={`shipment-card-risk-reason-${shipment.id}`}
+            >
+              {riskSummary}
+            </span>
+          </Tooltip>
+        ) : null}
       </span>
       {!compact && shipment.assignedTruckNumber ? (
-        <Tooltip title={`Xe ${shipment.assignedTruckNumber}`}>
+        <Tooltip title={`${t("tmsDispatch.queue.truckPrefix")} ${shipment.assignedTruckNumber}`}>
           <span className="tms-shipment-card__driver table-cell-ellipsis">
-            <Truck size={13} aria-hidden="true" /> Xe {shipment.assignedTruckNumber}
+            <Truck size={13} aria-hidden="true" /> {t("tmsDispatch.queue.truckPrefix")} {shipment.assignedTruckNumber}
           </span>
         </Tooltip>
       ) : null}

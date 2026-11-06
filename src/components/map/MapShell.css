@@ -1,0 +1,351 @@
+.map-shell {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #edf2f7;
+}
+
+.map-shell__map {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map-shell__overlay {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.map-shell__top {
+  position: absolute;
+  z-index: 3;
+  inset: 16px 16px auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.map-shell__top-content,
+.map-shell__mobile-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  pointer-events: auto;
+}
+
+.map-shell__panel {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid rgb(203 213 225 / 74%);
+  border-radius: 16px;
+  background: rgb(255 255 255 / 86%);
+  box-shadow: 0 12px 36px rgb(15 23 42 / 16%);
+  -webkit-backdrop-filter: blur(16px) saturate(145%);
+  backdrop-filter: blur(16px) saturate(145%);
+  pointer-events: auto;
+  scrollbar-width: thin;
+}
+
+.map-shell__panel .tms-panel {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.map-shell__panel--left,
+.map-shell__panel--right {
+  top: 84px;
+  bottom: 16px;
+  width: min(360px, calc(100% - 32px));
+}
+
+.map-shell__panel--left {
+  left: 16px;
+}
+
+.map-shell__panel--right {
+  right: 16px;
+}
+
+.map-shell__panel--bottom {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  max-height: min(34vh, 300px);
+}
+
+.map-shell__collapse,
+.map-shell__reopen,
+.map-shell__bottom-toggle {
+  min-width: 40px;
+  min-height: 40px;
+  pointer-events: auto;
+}
+
+.map-shell__collapse {
+  align-self: flex-end;
+  margin: -4px -4px 0 0;
+}
+
+.map-shell__reopen {
+  position: absolute;
+  z-index: 4;
+  top: 90px;
+}
+
+.map-shell__reopen--left {
+  left: 16px;
+}
+
+.map-shell__reopen--right {
+  right: 16px;
+}
+
+.map-shell__bottom {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.map-shell__bottom-toggle {
+  align-self: flex-end;
+  border: 1px solid rgb(203 213 225 / 74%);
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 6px 20px rgb(15 23 42 / 14%);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.map-shell__bottom .map-shell__panel--bottom {
+  width: min(760px, 100%);
+}
+
+.map-shell__fallback {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  color: #334155;
+  background: #f8fafc;
+  text-align: center;
+  pointer-events: none;
+}
+
+.map-shell__fallback p {
+  max-width: 520px;
+  margin: 0;
+  font-size: 16px;
+}
+
+.map-shell__fallback-icon {
+  color: #475569;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.map-shell__fallback-route {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(760px, 100%);
+  overflow-wrap: anywhere;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.map-shell__fallback-route p {
+  margin: 0;
+}
+
+.map-shell__dispatch-status,
+.map-shell__route-summary,
+.map-shell__no-vehicles,
+.map-shell__legend {
+  position: absolute;
+  z-index: 3;
+  pointer-events: auto;
+  border: 1px solid rgb(203 213 225 / 76%);
+  border-radius: 12px;
+  color: #0f172a;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 14%);
+  -webkit-backdrop-filter: blur(14px) saturate(145%);
+  backdrop-filter: blur(14px) saturate(145%);
+}
+
+.map-shell__dispatch-status {
+  top: 82px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: min(460px, calc(100% - 32px));
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  transform: translateX(-50%);
+}
+
+.map-shell__dispatch-status strong {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.map-shell__route-summary {
+  right: 50%;
+  bottom: 16px;
+  padding: 8px 12px;
+  font-size: 13px;
+  transform: translateX(50%);
+}
+
+.map-shell__legend {
+  top: 138px;
+  left: 50%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 5px 14px;
+  max-width: min(640px, calc(100% - 32px));
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  transform: translateX(-50%);
+}
+
+.map-shell__legend b {
+  font-weight: 700;
+}
+
+.map-shell__legend-route {
+  flex-basis: 100%;
+  color: #475569;
+  text-align: center;
+}
+
+.map-shell__no-vehicles {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.tms-live-tracking__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.tms-live-tracking__left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.map-shell .mapboxgl-ctrl-bottom-right {
+  z-index: 2;
+}
+
+@media (max-width: 1199.98px) {
+  .map-shell__top {
+    inset: 12px 12px auto;
+  }
+
+  .map-shell__panel--bottom {
+    max-height: 30vh;
+  }
+
+  .map-shell__dispatch-status {
+    top: 72px;
+  }
+
+  .map-shell__route-summary {
+    right: 50%;
+    bottom: 12px;
+    transform: translateX(50%);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .map-shell__top {
+    inset: 12px 12px auto 64px;
+  }
+
+  .map-shell__top-content {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .map-shell__mobile-controls {
+    flex: 0 0 auto;
+  }
+
+  .map-shell__bottom {
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+  }
+
+  .map-shell__panel--bottom {
+    max-height: 28vh;
+  }
+
+  .map-shell__legend {
+    top: 128px;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    gap: 4px 8px;
+    max-width: calc(100% - 16px);
+    font-size: 11px;
+    transform: translateX(-50%);
+  }
+
+  .map-shell__route-summary {
+    right: 50%;
+    bottom: 76px;
+    max-width: calc(100% - 16px);
+    transform: translateX(50%);
+  }
+
+  .map-shell__dispatch-status {
+    top: 64px;
+  }
+}

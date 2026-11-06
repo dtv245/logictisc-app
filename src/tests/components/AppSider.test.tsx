@@ -7,7 +7,6 @@ import { NAV_ZONES } from "@components/appNavigation";
 import { canJwtRolesAccess } from "@/providers/permissions/roleMatrix";
 import { JWT_ROLES, type JwtRole } from "@/types/roles.types";
 import { foundationResourcePageRoutes } from "@/pages/resourceRegistry";
-import { EXECUTIVE_CONTRACT_CONFIRMED } from "@/features/executive/config/executive.contract";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import { driverProfileRoutes } from "@/constants/driverProfileRoutes";
 import { routes } from "@/constants/routes";
@@ -78,7 +77,7 @@ beforeEach(() => {
   mockCanFn.mockImplementation(async () => ({ can: true }));
 });
 
-const renderSider = (initialRoute = "/operations", collapsed = false) => {
+const renderSider = (initialRoute = "/tms", collapsed = false) => {
   return render(
     <MemoryRouter initialEntries={[initialRoute]}>
       <I18nextProvider i18n={i18n}>
@@ -102,7 +101,11 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
 
     // Các mục runtime có thể nhận biết bằng tên truy cập của Menu.
     await waitFor(() => {
-      expect(screen.getByLabelText("Trung tâm điều hành")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tổng quan")).toBeInTheDocument();
+      expect(screen.getByLabelText("Điều phối")).toBeInTheDocument();
+      expect(screen.getByLabelText("Duyệt AI")).toBeInTheDocument();
+      expect(screen.getByLabelText("Theo dõi xe")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tối ưu tuyến")).toBeInTheDocument();
       expect(screen.getByLabelText("Đơn hàng (Loads)")).toBeInTheDocument();
       expect(screen.getByLabelText("Bến bãi (Terminals)")).toBeInTheDocument();
       expect(screen.getByLabelText("Khách hàng")).toBeInTheDocument();
@@ -119,7 +122,11 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     );
 
     expect(routesInNavigation).toContain(routes.tmsFlow.dispatch);
-    expect(routesInNavigation).not.toContain(routes.resources.loads.list);
+    expect(routesInNavigation).toContain(routes.tmsFlow.root);
+    expect(routesInNavigation).toContain(routes.tmsFlow.approvals);
+    expect(routesInNavigation).toContain(routes.tmsFlow.liveTracking);
+    expect(routesInNavigation).toContain(routes.optimization);
+    expect(routesInNavigation).toContain(routes.resources.loads.list);
     expect(routesInNavigation).toContain(routes.resources.trips.list);
     expect(routesInNavigation).not.toContain(routes.resources.loadBoard.list);
     expect(routesInNavigation).not.toContain(routes.resources.accidents.list);
@@ -128,17 +135,16 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     expect(routesInNavigation).not.toContain(routes.resources.hosEld.list);
     expect(routesInNavigation).not.toContain(routes.resources.dvir.list);
     expect(routesInNavigation).not.toContain(routes.resources.products.list);
-    expect(routesInNavigation).not.toContain(routes.resources.expenses.list);
+    expect(routesInNavigation.some((route) => route.startsWith("/expenses"))).toBe(false);
   });
 
   it("mọi mục điều hướng hiện tại đều có route được AppRouter mount", () => {
     const mountedRoutes = new Set([
       ...foundationResourcePageRoutes.map(({ path }) => path),
-      routes.operations,
       routes.tmsFlow.root,
       routes.tmsFlow.dispatch,
       routes.tmsFlow.approvals,
-      ...(EXECUTIVE_CONTRACT_CONFIRMED ? [routes.dashboard] : []),
+      routes.tmsFlow.liveTracking,
       routes.aiDispatch,
       routes.optimization,
       routes.fleetReport,
@@ -159,16 +165,45 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
   });
 
   it("highlight route hiện tại mà sidebar vẫn thu gọn", async () => {
-    const { container } = renderSider("/operations");
+    const { container } = renderSider("/tms");
 
-    await screen.findByLabelText("Trung tâm điều hành");
-    expect(container.querySelector('[data-menu-id$="app:operations"]')).toHaveClass("app-sider__zone--active");
+    await screen.findByLabelText("Tổng quan");
+    const activeItem = container.querySelector('[data-menu-id$="app:tms-dashboard"]');
+    expect(activeItem).toHaveClass("ant-menu-item-selected");
+    expect(activeItem).not.toHaveClass("app-sider__zone--active");
+    expect(screen.getByLabelText("Tổng quan")).toHaveAttribute("aria-current", "page");
     expect(container.querySelector(".app-sider")).toHaveClass("ant-layout-sider-collapsed");
     expect(container.querySelector(".app-sider")).toHaveStyle({ width: "64px" });
   });
 
+  it.each([
+    ["/tms", "app:tms-dashboard", "Tổng quan"],
+    [routes.tmsFlow.dispatch, "app:tms-dispatch", "Điều phối"],
+    [routes.tmsFlow.approvals, "app:tms-approvals", "Duyệt AI"],
+    [routes.tmsFlow.liveTracking, "app:tms-live-tracking", "Theo dõi xe"],
+    [routes.optimization, "app:optimization", "Tối ưu tuyến"],
+  ])("chọn đúng mục %s khi mở route trực tiếp", async (path, key, label) => {
+    const { container } = renderSider(path);
+    const item = await screen.findByLabelText(label);
+    expect(item).toHaveAttribute("aria-current", "page");
+    expect(container.querySelector(`[data-menu-id$="${key}"]`)).toHaveClass(
+      "ant-menu-item-selected",
+    );
+  });
+
+  it("chỉ hiển thị Duyệt AI khi người dùng có cả quyền TMS cha và quyền AI", async () => {
+    mockCanFn.mockImplementation(async (permission?: { resource?: string }) => ({
+      can: permission?.resource !== "loads",
+    }));
+
+    renderSider(routes.tmsFlow.approvals);
+    await screen.findByLabelText("Tối ưu tuyến");
+    expect(screen.queryByLabelText("Duyệt AI")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("AI điều phối")).toBeInTheDocument();
+  });
+
   it("thông báo nằm trong app-sider__notifications, avatar mở menu tài khoản và không còn nút đăng xuất riêng ngoài rail", async () => {
-    const { container } = renderSider("/operations", true);
+    const { container } = renderSider("/tms", true);
     expect(container.querySelector(".app-sider .app-sider__content--compact")).toBeInTheDocument();
     expect(container.querySelector(".anticon-menu-unfold")).not.toBeInTheDocument();
     expect(container.querySelector(".app-header button")).not.toBeInTheDocument();
@@ -194,9 +229,9 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
   });
 
   it("không còn bất kỳ phần tử app-sider__group nào và chỉ có 1 Menu cho các khu vực chính", async () => {
-    const { container } = renderSider("/operations");
+    const { container } = renderSider("/tms");
     await waitFor(() => {
-      expect(screen.getByLabelText("Trung tâm điều hành")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tổng quan")).toBeInTheDocument();
     });
 
     // Hoàn toàn không còn class thẻ nhóm .app-sider__group
@@ -211,13 +246,14 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
   it("đánh dấu khu vực chứa route hiện tại kể cả route con như /loads/edit/:id", async () => {
     renderSider("/loads/edit/48291");
     await screen.findByLabelText("Đơn hàng (Loads)");
-    expect(document.querySelector('[data-menu-id$="res:loads"]')).toHaveClass("app-sider__zone--active");
+    expect(document.querySelector('[data-menu-id$="res:loads"]')).toHaveClass("ant-menu-item-selected");
+    expect(screen.getByLabelText("Đơn hàng (Loads)")).toHaveAttribute("aria-current", "page");
   });
 
   it("mỗi icon khu vực có tên truy cập (aria-label) cho trợ năng", async () => {
-    const { container } = renderSider("/operations");
+    const { container } = renderSider("/tms");
     await waitFor(() => {
-      expect(screen.getByLabelText("Trung tâm điều hành")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tổng quan")).toBeInTheDocument();
     });
 
     const iconWrappers = container.querySelectorAll(".app-sider__icon-wrapper");
@@ -230,7 +266,7 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
 
   it("nút agent AI chỉ render khi tính năng khả dụng và khi nhấp dispatch CustomEvent 'toggle-ai-gap-chat'", async () => {
     const dispatchSpy = vi.spyOn(window, "dispatchEvent");
-    const { container, rerender } = renderSider("/operations");
+    const { container, rerender } = renderSider("/tms");
 
     await waitFor(() => {
       const aiBtn = container.querySelector('[data-testid="app-sider-ai-agent-button"]');
@@ -247,7 +283,7 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     mockAiFeaturesState.isError = true;
 
     rerender(
-      <MemoryRouter initialEntries={["/operations"]}>
+      <MemoryRouter initialEntries={["/tms"]}>
         <I18nextProvider i18n={i18n}>
           <ThemedLayoutContextProvider initialSiderCollapsed={false}>
             <AppSider />
@@ -270,9 +306,9 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
       return { can: true };
     });
 
-    renderSider("/operations");
+    renderSider("/tms");
     await waitFor(() => {
-      expect(screen.getByLabelText("Trung tâm điều hành")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tổng quan")).toBeInTheDocument();
     });
 
     expect(screen.queryByText("Quản trị")).toBeNull();
@@ -283,17 +319,23 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
   it.each(JWT_ROLES)("applies role-matrix visibility to every rail zone for %s", async (role: JwtRole) => {
     mockCanFn.mockImplementation(async (permission?: { resource?: string; action?: string }) => ({ can: canJwtRolesAccess([role], permission?.resource, permission?.action || "list") }));
     const { container } = renderSider();
-    await screen.findByLabelText("Trung tâm điều hành");
+    await waitFor(() => {
+      expect(container.querySelectorAll(".ant-menu-item, .ant-menu-submenu").length).toBeGreaterThan(0);
+    });
     await waitFor(() => {
       for (const zone of NAV_ZONES) {
         const items = "items" in zone ? zone.items : [zone];
         const expectedVisible = items.some((item) => {
-          if (item.permission) {
-            return canJwtRolesAccess([role], item.permission.resource, item.permission.action);
+          const requiredPermissions = [
+            ...(item.permission ? [item.permission] : []),
+            ...(item.permissions ?? []),
+          ];
+          if (requiredPermissions.length > 0) {
+            return requiredPermissions.every((permission) =>
+              canJwtRolesAccess([role], permission.resource, permission.action),
+            );
           }
-          return item.resource
-            ? canJwtRolesAccess([role], item.resource, "list")
-            : true;
+          return item.resource ? canJwtRolesAccess([role], item.resource, "list") : true;
         });
         const node = container.querySelector(`[data-menu-id$="${zone.key}"]`);
         expect(Boolean(node), `${role}: ${zone.key}`).toBe(expectedVisible);
@@ -310,5 +352,60 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     expect(await screen.findByLabelText("Khách hàng")).toBeInTheDocument();
     expect(screen.getByLabelText("Tài xế")).toBeInTheDocument();
     expect(screen.queryByLabelText("Hồ sơ & tài liệu")).not.toBeInTheDocument();
+  });
+
+  it("xếp chức năng chính phía trên, chức năng phụ phía dưới và gom các mục tràn kèm số lượng + clone icon khi chiều cao rail giới hạn", async () => {
+    // Năm màn TMS nằm liền nhau ở đầu sidebar, theo thứ tự điều hướng yêu cầu.
+    const primaryKeys = NAV_ZONES.slice(0, 9).map((z) => z.key);
+    const secondaryKeys = NAV_ZONES.slice(9).map((z) => z.key);
+    expect(primaryKeys).toEqual([
+      "app:tms-dashboard",
+      "app:tms-dispatch",
+      "app:tms-approvals",
+      "app:tms-live-tracking",
+      "app:optimization",
+      "res:loads",
+      "res:trips",
+      "res:trucks",
+      "res:drivers",
+    ]);
+    expect(secondaryKeys).toEqual([
+      "res:customers",
+      "zone:finance",
+      "zone:payroll",
+      "res:terminals",
+      "app:ai-dispatch",
+      "app:driver-expiring",
+      "app:my-driver-profile",
+      "res:documents",
+    ]);
+
+    // Giả lập chiều cao thực tế của thanh sider (700px) và đang ở route phụ /documents
+    const clientHeightSpy = vi
+      .spyOn(HTMLElement.prototype, "clientHeight", "get")
+      .mockImplementation(function (this: HTMLElement) {
+        if (this.classList?.contains("app-sider__content")) {
+          return 700;
+        }
+        return 0;
+      });
+
+    try {
+      const { container } = renderSider("/documents");
+      await waitFor(() => {
+        expect(screen.getByTestId("app-sider-overflow-count")).toBeInTheDocument();
+      });
+
+      const badge = screen.getByTestId("app-sider-overflow-count");
+      expect(badge.textContent).toMatch(/^\+\d+$/);
+
+      // Vì /documents nằm trong nhóm chức năng phụ bị ẩn, nút overflow được đánh dấu aria-current="page"
+      const overflowWrapper = container.querySelector(
+        ".app-sider__icon-wrapper--overflow",
+      );
+      expect(overflowWrapper).toHaveAttribute("aria-current", "page");
+    } finally {
+      clientHeightSpy.mockRestore();
+    }
   });
 });

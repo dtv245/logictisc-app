@@ -4,7 +4,7 @@
  */
 import { AppLayout } from "@components/AppLayout";
 import { initializeAppI18n } from "@locales";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { i18n as I18nInstance } from "i18next";
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
@@ -50,13 +50,13 @@ const setViewport = (width: number) => {
 afterEach(() => setViewport(1200));
 
 const renderShell = () => render(
-  <MemoryRouter initialEntries={["/operations"]}>
+  <MemoryRouter initialEntries={["/tms"]}>
     <I18nextProvider i18n={i18n}><AppLayout /></I18nextProvider>
   </MemoryRouter>,
 );
 
 describe("Shell với sidebar chứa thông báo và tài khoản", () => {
-  it.each([375, 414, 768, 1024, 1440])("giữ menu, thông báo và tài khoản ở sidebar tại %ipx", async (width) => {
+  it.each([320, 375, 414, 768, 1024, 1440])("giữ menu, thông báo và tài khoản ở sidebar tại %ipx", async (width) => {
     setViewport(width);
     const { container } = renderShell();
     const sider = container.querySelector(".app-sider") as HTMLElement;
@@ -67,11 +67,28 @@ describe("Shell với sidebar chứa thông báo và tài khoản", () => {
     expect(within(sider).getByRole("navigation", { name: "Thanh điều hướng" })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "Thông báo" })).toHaveLength(1);
     expect(within(sider).getByRole("button", { name: "Thông báo" })).toBeInTheDocument();
-    expect(await within(sider).findByLabelText("Trung tâm điều hành")).toBeInTheDocument();
+    expect(await within(sider).findByLabelText("Tổng quan")).toBeInTheDocument();
+    expect(within(sider).getByLabelText("Điều phối")).toBeInTheDocument();
+    expect(within(sider).getByLabelText("Duyệt AI")).toBeInTheDocument();
+    expect(within(sider).getByLabelText("Theo dõi xe")).toBeInTheDocument();
+    expect(within(sider).getByLabelText("Tối ưu tuyến")).toBeInTheDocument();
 
     fireEvent.click(within(sider).getByRole("button", { name: "Menu tài khoản" }));
     fireEvent.click(await screen.findByText("Đổi công ty"));
     expect(actions.switchTenant).toHaveBeenCalledTimes(1);
+  });
+
+  it("mở drawer mobile từ nút điều hướng và đóng lại sau khi chọn route", async () => {
+    setViewport(375);
+    renderShell();
+
+    const trigger = screen.getByRole("button", { name: "Thanh điều hướng" });
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(trigger);
+
+    const drawer = await screen.findByRole("dialog");
+    fireEvent.click(within(drawer).getByLabelText("Theo dõi xe"));
+    await waitFor(() => expect(trigger).toHaveAttribute("aria-expanded", "false"));
   });
 
   it("thao tác đăng xuất từ menu tài khoản ở sidebar tiếp tục gọi thao tác đăng xuất hiện có", async () => {

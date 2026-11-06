@@ -20,7 +20,7 @@ describe("priority shipments through the real Refine data provider", () => {
           config, status: 200, statusText: "OK", headers: new AxiosHeaders(),
           data: { success: true, code: "OK", message: "OK", data: {
             items: [{ id: "load-integration", number: 42, name: "Shipment", status: "in_transit", originAddressCity: "Hà Nội", destinationAddressCity: "Hải Phòng" }],
-            totalItems: 1, totalPages: 1, currentPage: 1, pageSize: 20,
+            totalItems: 1, totalPages: 1, currentPage: 1, pageSize: 10,
           }, errors: [], meta: { timestamp: "2026-10-16T00:00:00Z", path: "/api/loads", requestId: null } },
         };
       },
@@ -35,7 +35,7 @@ describe("priority shipments through the real Refine data provider", () => {
     await waitFor(() => expect(result.current.shipments).toHaveLength(1));
     expect(result.current.error).toBeUndefined();
     expect(result.current.shipments[0].reference).toBe("#42");
-    expect(requests).toHaveBeenCalledWith(expect.objectContaining({ url: "/api/loads", params: { page: 1, pageSize: 20, status: "in_transit" } }));
+    expect(requests).toHaveBeenCalledWith(expect.objectContaining({ url: "/api/loads", params: { page: 1, pageSize: 10, status: "in_transit" } }));
     result.current.retry();
     await waitFor(() => expect(requests).toHaveBeenCalledTimes(2));
   });

@@ -144,7 +144,12 @@ export const documentColumns = createCrudColumns<Document>(
         if (!value || String(value).trim() === "") {
           return <span className="table-cell-empty">—</span>;
         }
-        return <span className="table-mono-cell">{String(value)}</span>;
+        const text = String(value);
+        return (
+          <Tooltip title={text}>
+            <span className="table-mono-cell table-cell-ellipsis">{text}</span>
+          </Tooltip>
+        );
       },
     },
   ],

@@ -8,12 +8,15 @@
 import { TMS_RISK_WINDOW_HOURS } from "@/constants/tms";
 import type { LoadResponse } from "@/types/load.dto";
 import type {
+  TmsLoadRiskReason,
+  TmsOperationalRiskLoadDto,
   TmsOperationsSummary,
   TmsQueueCounts,
   TmsQueueFilter,
   TmsRiskLevel,
   TmsShipmentView,
 } from "@/types/tms-flow/tmsFlow.types";
+import { getTmsOverdue } from "@/utils/tms-flow/overdue";
 
 const parseTime = (value?: string | null): number | undefined => {
   if (!value) return undefined;
@@ -55,17 +58,46 @@ export const deriveRisk = (
   riskWindowHours: number = TMS_RISK_WINDOW_HOURS,
 ): TmsRiskLevel => {
   if (isTerminalLoad(load)) return "none";
+  if (getTmsOverdue(load, now).reasons.length > 0) return "delayed";
   const dueAt = parseTime(load.requestedDeliveryDate);
   if (dueAt === undefined) return "none";
-  if (dueAt < now) return "delayed";
   if (dueAt <= now + riskWindowHours * 3_600_000) return "at_risk";
   return "none";
+};
+
+export const deriveOperationalRiskLevel = (
+  load: LoadResponse,
+  riskReasons?: readonly TmsLoadRiskReason[],
+  now: number = Date.now(),
+  riskWindowHours: number = TMS_RISK_WINDOW_HOURS,
+): TmsRiskLevel => {
+  const baseRisk = deriveRisk(load, now, riskWindowHours);
+  if (!riskReasons || riskReasons.length === 0) {
+    return baseRisk;
+  }
+  const applicableRiskReasons = isTerminalLoad(load)
+    ? riskReasons.filter(
+        (reason) => reason.code !== "DELIVERY_OVERDUE" && reason.code !== "PICKUP_OVERDUE",
+      )
+    : riskReasons;
+  if (applicableRiskReasons.length === 0) return baseRisk;
+  if (
+    baseRisk === "delayed" ||
+    applicableRiskReasons.some(
+      (reason) =>
+        reason.code === "DELIVERY_OVERDUE" || reason.code === "PICKUP_OVERDUE",
+    )
+  ) {
+    return "delayed";
+  }
+  return "at_risk";
 };
 
 export const toTmsShipment = (
   load: LoadResponse,
   now: number = Date.now(),
   riskWindowHours: number = TMS_RISK_WINDOW_HOURS,
+  riskReasons?: readonly TmsLoadRiskReason[],
 ): TmsShipmentView => ({
   id: load.id,
   number: load.number,
@@ -73,7 +105,10 @@ export const toTmsShipment = (
   customerName: load.customerName ?? "—",
   rawStatus: load.status,
   status: deriveOperationalStatus(load),
-  risk: deriveRisk(load, now, riskWindowHours),
+  risk: deriveOperationalRiskLevel(load, riskReasons, now, riskWindowHours),
+  ...(riskReasons && riskReasons.length > 0
+    ? { riskReasons: [...riskReasons] }
+    : {}),
   originCity: load.originAddressCity ?? "—",
   destinationCity: load.destinationAddressCity ?? "—",
   originAddress: addressLine(
@@ -115,6 +150,13 @@ export const toTmsShipment = (
   raw: load,
 });
 
+export const toTmsRiskShipment = (
+  item: TmsOperationalRiskLoadDto,
+  now: number = Date.now(),
+  riskWindowHours: number = TMS_RISK_WINDOW_HOURS,
+): TmsShipmentView =>
+  toTmsShipment(item.load, now, riskWindowHours, item.riskReasons);
+
 const riskRank = (risk: TmsRiskLevel): number =>
   risk === "delayed" ? 0 : risk === "at_risk" ? 1 : 2;
 
@@ -155,11 +197,22 @@ export const selectTmsQueue = (
   approvalLoadIds: ReadonlySet<string>,
 ): TmsShipmentView[] => {
   const filtered = shipments.filter((shipment) => {
-    if (shipment.status === "delivered" || shipment.status === "cancelled") return false;
+    if (shipment.status === "cancelled") return false;
+    const hasServerRiskReasons = Boolean(
+      shipment.riskReasons && shipment.riskReasons.length > 0,
+    );
+    if (
+      shipment.status === "delivered" &&
+      !(filter === "at-risk" && hasServerRiskReasons)
+    ) {
+      return false;
+    }
     if (!matchesTmsQuery(shipment, query)) return false;
-    if (filter === "at-risk") return shipment.risk !== "none";
+    if (filter === "at-risk") return shipment.risk !== "none" || hasServerRiskReasons;
     if (filter === "unassigned") return !shipment.assignedTruckId;
-    if (filter === "approvals") return approvalLoadIds.has(shipment.id);
+    if (filter === "approvals" || filter === "ai-pending") return approvalLoadIds.has(shipment.id);
+    if (filter === "overdue") return getTmsOverdue(shipment.raw).reasons.length > 0;
+    if (filter === "in-transit") return shipment.status === "in_transit";
     return true;
   });
   return sortTmsQueue(filtered);

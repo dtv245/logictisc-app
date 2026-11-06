@@ -36,12 +36,16 @@ import {
   riskMeta,
 } from "@/utils/tms-flow/presentation";
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export function ShipmentDetailPage() {
   const navigate = useNavigate();
   const { shipmentId } = useParams<{ shipmentId: string }>();
-  const loadQuery = useTmsLoad(shipmentId);
+  const isValidShipmentId = UUID_PATTERN.test(shipmentId ?? "");
+  const apiShipmentId = isValidShipmentId ? shipmentId : undefined;
+  const loadQuery = useTmsLoad(apiShipmentId);
   const workspace = useTmsWorkspace();
-  const timeline = useTmsTimeline(shipmentId);
+  const timeline = useTmsTimeline(apiShipmentId);
   const aiFeatures = useAiFeatures();
   const [reviewOpen, setReviewOpen] = useState(false);
 
@@ -67,7 +71,7 @@ export function ShipmentDetailPage() {
     ...(assignedMarker ? [assignedMarker] : []),
   ];
 
-  if (loadQuery.isLoading) {
+  if (isValidShipmentId && loadQuery.isLoading) {
     return (
       <div className="tms-page tms-flow--centered" aria-busy="true">
         <Spin size="large" />

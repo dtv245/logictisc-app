@@ -1,10 +1,11 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useEffect, useRef, useState } from "react";
 import Map, {
   NavigationControl,
   ScaleControl,
   Marker,
   Popup,
 } from "react-map-gl/maplibre";
+import type { MapRef } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Crosshair, MapPin } from "lucide-react";
 
@@ -12,10 +13,10 @@ import { useMapStore } from "../store/mapStore";
 import { DeckOverlay } from "./DeckOverlay";
 import { createDeliveryPointsLayer } from "../layers/deliveryPointsLayer";
 import { createH3HexLayer } from "../layers/h3HexLayer";
-import { createRouteLayer } from "../layers/routeLayer";
+import { createHighlightedRouteLayer, createRouteLayer } from "../layers/routeLayer";
 import { createZoneLayer } from "../layers/zoneLayer";
 import { aggregatePointsByH3 } from "../lib/h3";
-import type { DeliveryPoint, DeliveryZone, H3Cluster, RouteData } from "../types";
+import type { DeliveryPoint, DeliveryZone, H3Cluster, LngLat, RouteData } from "../types";
 import { STATUS_CONFIGS, VEHICLE_CONFIGS } from "../types";
 
 // URL vector map style miễn phí từ biến môi trường (fallback OpenFreeMap Liberty)
@@ -27,6 +28,7 @@ export interface MapViewProps {
   points?: DeliveryPoint[];
   zones?: DeliveryZone[];
   routes?: RouteData[];
+  highlightedRouteCoordinates?: LngLat[];
   style?: React.CSSProperties;
 }
 
@@ -34,8 +36,11 @@ export const MapView: React.FC<MapViewProps> = ({
   points = [],
   zones = [],
   routes = [],
+  highlightedRouteCoordinates,
   style,
 }) => {
+  const mapRef = useRef<MapRef>(null);
+  const [mapReady, setMapReady] = useState(false);
   // Store state
   const viewport = useMapStore((s) => s.viewport);
   const setViewport = useMapStore((s) => s.setViewport);
@@ -144,6 +149,10 @@ export const MapView: React.FC<MapViewProps> = ({
       list.push(createRouteLayer(filteredRoutes));
     }
 
+    if (highlightedRouteCoordinates && highlightedRouteCoordinates.length > 1) {
+      list.push(createHighlightedRouteLayer(highlightedRouteCoordinates));
+    }
+
     // Điểm giao hàng (nằm trên cùng)
     if (pointsEnabled && filteredPoints.length > 0) {
       list.push(
@@ -163,12 +172,26 @@ export const MapView: React.FC<MapViewProps> = ({
     h3Clusters,
     routesEnabled,
     filteredRoutes,
+    highlightedRouteCoordinates,
     pointsEnabled,
     filteredPoints,
     selectedPoint?.id,
     handlePointHover,
     handlePointClick,
   ]);
+
+  useEffect(() => {
+    if (!mapReady || !highlightedRouteCoordinates || highlightedRouteCoordinates.length < 2) return;
+    const longitudes = highlightedRouteCoordinates.map(([longitude]) => longitude);
+    const latitudes = highlightedRouteCoordinates.map(([, latitude]) => latitude);
+    mapRef.current?.fitBounds(
+      [
+        [Math.min(...longitudes), Math.min(...latitudes)],
+        [Math.max(...longitudes), Math.max(...latitudes)],
+      ],
+      { padding: 72, duration: 650, maxZoom: 13 },
+    );
+  }, [mapReady, highlightedRouteCoordinates]);
 
   return (
     <div
@@ -181,6 +204,7 @@ export const MapView: React.FC<MapViewProps> = ({
       }}
     >
       <Map
+        ref={mapRef}
         longitude={viewport.longitude}
         latitude={viewport.latitude}
         zoom={viewport.zoom}
@@ -190,6 +214,7 @@ export const MapView: React.FC<MapViewProps> = ({
         mapStyle={DEFAULT_MAP_STYLE}
         style={{ width: "100%", height: "100%" }}
         attributionControl={true}
+        onLoad={() => setMapReady(true)}
       >
         {/* Lớp Deck.gl Overlay gắn qua IControl */}
         <DeckOverlay layers={layers} />
