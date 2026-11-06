@@ -3,7 +3,7 @@
  */
 
 import type { AuditableEntity, GeoLocation } from "./common.types";
-import type { Load } from "./load.types";
+import type { Load } from "@/types/loads/load.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.
 export type DocumentOwnerType =

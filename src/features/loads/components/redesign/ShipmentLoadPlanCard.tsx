@@ -3,7 +3,7 @@ import { Alert, Tag } from "antd";
 import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { formatDistance } from "@/utils/distance";
 
 export interface ShipmentLoadPlanCardProps {

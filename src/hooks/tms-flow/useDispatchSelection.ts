@@ -3,7 +3,7 @@ import { useMemo } from "react";
 
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import type { ApiError } from "@/types/api.types";
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import type {
   TmsQueueFilter,
   TmsShipmentView,

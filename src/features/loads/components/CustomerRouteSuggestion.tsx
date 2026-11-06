@@ -1,7 +1,7 @@
 import { useList } from "@refinedev/core";
 import { Alert, Button, Form, Tooltip, type FormInstance } from "antd";
 
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { isUsableCoordinate } from "@/utils/routeEstimate";
 
 /** Các field địa chỉ có thể tái sử dụng từ đơn gần nhất của cùng khách hàng. */

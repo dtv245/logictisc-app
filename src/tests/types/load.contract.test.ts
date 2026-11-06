@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Load } from "@/types/load.types";
-import type { LoadResponse } from "@/types/load.dto";
+import type { Load } from "@/types/loads/load.types";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import { formatDateTime, formatDateOnly } from "@formatters/dateTime";
 
 describe("Load contract and timestamp normalization", () => {

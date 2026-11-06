@@ -3,7 +3,7 @@
  */
 
 import type { AuditableEntity } from "@/types/common.types";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import type { Trip } from "@/types/trips/trip.types";
 import type { Truck } from "@/types/trucks/truck.types";
 

@@ -3,7 +3,7 @@
  */
 
 import type { Employee } from "@/types/employees/employee.types";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 
 /** Hội thoại giữa các nhân viên hoặc liên quan đến một chuyến hàng. */
 export interface Conversation {

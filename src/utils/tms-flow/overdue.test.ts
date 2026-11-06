@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { formatTmsOverdueDuration, getTmsOverdue } from "@/utils/tms-flow/overdue";
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 
 const NOW = Date.parse("2026-11-06T12:00:00.000Z");
 const makeLoad = (overrides: Partial<LoadResponse> = {}): LoadResponse => ({

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import type { TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
 import {
   countTmsRiskQueue,

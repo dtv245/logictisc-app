@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { applyBackendFieldErrors, type FormFieldName } from "@/forms/backendFieldErrors";
 import { normalizeHttpError, type ApiHttpError } from "@/utils/httpError";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 
 type Values = { requestedPickupBusinessDate: string; reasonCode: string; reason: string; source: string };
 const isField = (name: FormFieldName): name is keyof Values => typeof name === "string" && ["requestedPickupBusinessDate", "reasonCode", "reason", "source"].includes(name);

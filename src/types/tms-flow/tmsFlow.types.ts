@@ -5,7 +5,7 @@
  */
 
 import type { EmployeeResponse } from "@/types/employees/employee.dto";
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import type { TruckResponse } from "@/types/trucks/truck.dto";
 
 export type TmsOperationalStatus =

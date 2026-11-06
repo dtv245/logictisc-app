@@ -6,7 +6,7 @@
  */
 
 import { TMS_RISK_WINDOW_HOURS } from "@/constants/tms";
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import type {
   TmsLoadRiskReason,
   TmsOperationalRiskLoadDto,

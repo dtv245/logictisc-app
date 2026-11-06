@@ -3,7 +3,7 @@ import { UserOutlined } from "@ant-design/icons";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import { formatTimeOnly, formatDateOnly } from "@/formatters/dateTime";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { formatDistance } from "@/utils/distance";
 import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
 import { useLoadAiDispatch } from "@/hooks/ai/useLoadAiDispatch";

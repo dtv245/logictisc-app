@@ -1,5 +1,5 @@
-import type { GeoLocation } from "./common.types";
-import type { ISODateTime } from "./api.types";
+import type { GeoLocation } from "@/types/common.types";
+import type { ISODateTime } from "@/types/api.types";
 
 export type LoadType = string;
 /** CORE status/type are open strings in the verified transport schema. Consequential transitions use explicit known states. */

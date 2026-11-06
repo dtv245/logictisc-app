@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import type { TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
 
 const mocks = vi.hoisted(() => ({

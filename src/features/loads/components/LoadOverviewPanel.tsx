@@ -5,7 +5,7 @@ import { RobotOutlined, ArrowRightOutlined, CheckCircleOutlined } from "@ant-des
 import { useTranslation } from "react-i18next";
 
 import { formatDateTime } from "@/formatters/dateTime";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { formatDistance } from "@/utils/distance";
 import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
 import { useLoadAiDispatch } from "@/hooks/ai/useLoadAiDispatch";

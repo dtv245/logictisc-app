@@ -4,7 +4,7 @@ import { Tooltip } from "antd";
 import { routes } from "@constants/routes";
 import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { LoadAiOverviewCell } from "@/components/ai/LoadAiOverviewCell";
 
 export const loadColumns = createCrudColumns<Load>(

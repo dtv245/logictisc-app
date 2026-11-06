@@ -9,7 +9,7 @@ import type {
   Money,
   OptionalAddress,
 } from "@/types/common.types";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import type { Truck } from "@/types/trucks/truck.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.

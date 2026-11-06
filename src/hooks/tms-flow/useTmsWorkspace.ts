@@ -3,7 +3,7 @@
 
 import { useMemo } from "react";
 
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import type {
   TmsLoadCollection,
   TmsShipmentView,

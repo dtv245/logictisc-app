@@ -1,6 +1,6 @@
 import React from "react";
 import "./ShipmentDetail.scss";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { ShipmentHeroCard } from "./ShipmentHeroCard";
 import { ShipmentLoadPlanCard } from "./ShipmentLoadPlanCard";
 import { ShipmentDocumentsCard } from "./ShipmentDocumentsCard";

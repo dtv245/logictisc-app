@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useTmsWorkspace } from "@/hooks/tms-flow/useTmsWorkspace";
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import type { TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
 import { NotificationList } from "./list";
 

@@ -1,7 +1,7 @@
 import type { Money } from "@/types/common.types";
 import type { Customer } from "@/types/customers/customer.types";
 import type { Employee } from "@/types/employees/employee.types";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import type { InvoiceResponse, InvoiceLineItemType } from "./invoice.dto";
 
 export type Invoice = InvoiceResponse & {

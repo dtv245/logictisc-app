@@ -5,7 +5,7 @@ import { ShipmentLoadPlanCard } from "@/features/loads/components/redesign/Shipm
 import { ShipmentDocumentsCard } from "@/features/loads/components/redesign/ShipmentDocumentsCard";
 import { ShipmentAgentCard } from "@/features/loads/components/redesign/ShipmentAgentCard";
 import { ShipmentDetailView } from "@/features/loads/components/redesign/ShipmentDetailView";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 
 vi.mock("@refinedev/core", () => ({
   useCan: () => ({ data: { can: true } }),

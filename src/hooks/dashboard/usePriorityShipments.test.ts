@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { usePriorityShipments } from "@/hooks/dashboard/usePriorityShipments";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 
 const mocks = vi.hoisted(() => ({ access: vi.fn(), list: vi.fn(), refetch: vi.fn(), accessRefetch: vi.fn() }));
 vi.mock("@refinedev/core", () => ({ useCan: mocks.access, useList: mocks.list }));

@@ -19,7 +19,7 @@ import type { i18n as I18nInstance } from "i18next";
 import { initializeAppI18n } from "@locales";
 import { useLocalizedColumns } from "@/hooks/useLocalizedColumns";
 import { loadColumns } from "@features/loads/components/columns";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

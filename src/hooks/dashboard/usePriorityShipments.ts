@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { resolveSupportedLocale, translateOptional } from "@/locales";
 import type { ApiError } from "@/types/api.types";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import type { PriorityShipment, ShipmentCardLocale } from "@/types/dashboard/priority-shipment.types";
 import { adaptLiveLoadToPriorityShipment } from "@/features/dashboard/priorityShipmentAdapters";
 

@@ -3,7 +3,7 @@ import { FilePdfOutlined, CheckCircleFilled, ClockCircleFilled } from "@ant-desi
 import { useList } from "@refinedev/core";
 import { Alert, Button, Spin, Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import type { DocumentDto } from "@/types/document.dto";
 import { formatDateOnly } from "@/formatters/dateTime";
 

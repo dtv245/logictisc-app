@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LoadShow } from "@/pages/loads/show";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { ApiHttpError } from "@/utils/httpError";
 
 const mockRefetch = vi.fn();

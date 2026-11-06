@@ -3,7 +3,7 @@ import { Button, Card, Descriptions, Empty, Space, Tag, Typography } from "antd"
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 
 export interface LoadTripPanelProps {
   load: Load;

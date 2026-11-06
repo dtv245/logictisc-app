@@ -1,4 +1,4 @@
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 
 export type TmsOverdueKind = "pickup" | "delivery";
 

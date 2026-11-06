@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useTmsTimeline } from "@/hooks/tms-flow/useTmsQueries";
 import { useTmsWorkspace } from "@/hooks/tms-flow/useTmsWorkspace";
 import { useMapboxRoute } from "@/hooks/tms-flow/useMapboxRoute";
-import type { LoadResponse } from "@/types/load.dto";
+import type { LoadResponse } from "@/types/loads/load.dto";
 import type { TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
 import { DispatchPage } from "./DispatchPage";
 

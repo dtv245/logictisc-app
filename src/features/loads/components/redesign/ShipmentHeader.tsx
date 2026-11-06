@@ -2,7 +2,7 @@ import React from "react";
 import { ArrowLeftOutlined, PhoneOutlined } from "@ant-design/icons";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { useTranslation } from "react-i18next";
 
 export interface ShipmentHeaderProps {

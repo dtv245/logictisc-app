@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ShipmentHeader } from "@/features/loads/components/redesign/ShipmentHeader";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { setTestLocale } from "@/tests/testLocale";
 
 describe("Load detail locale switching", () => {

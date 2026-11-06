@@ -2,7 +2,7 @@
 import { CreateButton } from "@refinedev/antd";
 import { ResourceListPage } from "@/components/ResourceListPage";
 import { LoadCreateModal } from "@/components/loads/LoadCreateModal";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 import { loadColumns } from "@features/loads/components/columns";
 
 export const LoadList = () => (

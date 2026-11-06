@@ -16,7 +16,7 @@ import { LoadAiPanel } from "@/components/ai/LoadAiPanel";
 import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
 import { ShipmentHeader } from "@/features/loads/components/redesign/ShipmentHeader";
 import type { ApiError } from "@/types/api.types";
-import type { Load } from "@/types/load.types";
+import type { Load } from "@/types/loads/load.types";
 
 
 export const LoadShow = () => {
