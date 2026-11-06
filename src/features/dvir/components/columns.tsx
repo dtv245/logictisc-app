@@ -10,7 +10,7 @@ import {
   type StatusStyleConfig,
   type StatusTone,
 } from "@components/StatusTag";
-import type { DvirReport } from "../types";
+import type { DvirReport } from "@/types/dvir/dvir.types";
 
 /**
  * Ánh xạ trạng thái kết quả kiểm tra xe sang StatusTone / StyleConfig:
