@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 import { expectNoRawTranslationKeys } from "./fixtures/assertNoRawTranslationKeys";
-import { JWT_ROLES } from "../src/types/roles.types";
+import { JWT_ROLES } from "../src/types/roles/roles.types";
 import { canJwtRolesAccess } from "../src/providers/permissions/roleMatrix";
 
 const screenshotPath = (file: string) =>

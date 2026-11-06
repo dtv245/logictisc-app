@@ -11,7 +11,7 @@ import {
   type AccessResource,
   type JwtRole,
   type RoleMatrixRule,
-} from "../../types/roles.types";
+} from "@/types/roles/roles.types";
 
 const READ_ACTIONS = ["list", "show", "read"] as const;
 const WRITE_ACTIONS = ["create", "edit", "update", "delete"] as const;

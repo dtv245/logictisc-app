@@ -5,7 +5,7 @@
  * replay một request sau 401 vẫn thuộc trách nhiệm interceptor.
  */
 
-import type { JwtRole } from "../../types/roles.types";
+import type { JwtRole } from "@/types/roles/roles.types";
 import type { LarkAuthLoginResponse } from "../../types/auth.types";
 import { normalizeJwtRoles } from "../permissions/jwtRoles";
 import { setActiveAccessToken } from "./activeToken";

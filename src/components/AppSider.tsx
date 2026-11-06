@@ -59,7 +59,7 @@ import { useLogoutUser } from "@/hooks/useLogoutUser";
 import { useSwitchTenant } from "@/hooks/useSwitchTenant";
 import { NotificationHeaderIcon } from "@features/notifications/components/NotificationHeaderIcon";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
-import type { AccessResource } from "@/types/roles.types";
+import type { AccessResource } from "@/types/roles/roles.types";
 import { routes } from "@constants/routes";
 import { driverProfileRoutes } from "@/constants/driverProfileRoutes";
 import { AppTitle } from "./AppTitle";

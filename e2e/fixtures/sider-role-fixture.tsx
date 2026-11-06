@@ -16,7 +16,7 @@ import { LoadList } from "../../src/pages/loads/list";
 import { TripList } from "../../src/pages/trips/list";
 import type { Load } from "../../src/types/load.types";
 import { canJwtRolesAccess } from "../../src/providers/permissions/roleMatrix";
-import { JWT_ROLES, type JwtRole } from "../../src/types/roles.types";
+import { JWT_ROLES, type JwtRole } from "../../src/types/roles/roles.types";
 
 // Setup I18n
 const i18n = await initializeAppI18n({ locale: "vi", fallbackLocale: "en" });

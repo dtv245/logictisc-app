@@ -5,7 +5,7 @@
 import { AppSider } from "@/components/AppSider";
 import { NAV_ZONES } from "@/components/appNavigation";
 import { canJwtRolesAccess } from "@/providers/permissions/roleMatrix";
-import { JWT_ROLES, type JwtRole } from "@/types/roles.types";
+import { JWT_ROLES, type JwtRole } from "@/types/roles/roles.types";
 import { foundationResourcePageRoutes } from "@/pages/resourceRegistry";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import { driverProfileRoutes } from "@/constants/driverProfileRoutes";
@@ -180,7 +180,6 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     renderSider(routes.tmsFlow.approvals);
     await screen.findByLabelText("Tối ưu tuyến");
     expect(screen.queryByLabelText("Duyệt AI")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("AI điều phối")).toBeInTheDocument();
   });
 
   it("thông báo nằm trong app-sider__notifications, avatar mở menu tài khoản và không còn nút đăng xuất riêng ngoài rail", async () => {

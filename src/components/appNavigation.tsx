@@ -17,7 +17,7 @@ import {
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import type { AccessResource } from "@/types/roles.types";
+import type { AccessResource } from "@/types/roles/roles.types";
 
 import { routes } from "@constants/routes";
 

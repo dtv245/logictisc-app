@@ -5,8 +5,8 @@
  * Việc tách type giúp UI không vô tình dùng role nghiệp vụ để cấp quyền route.
  */
 
-import type { JwtRole } from "../../types/roles.types";
-import { JWT_ROLES } from "../../types/roles.types";
+import type { JwtRole } from "@/types/roles/roles.types";
+import { JWT_ROLES } from "@/types/roles/roles.types";
 
 export type { JwtRole };
 export { JWT_ROLES };

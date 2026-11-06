@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import path from "node:path";
 
 import { canJwtRolesAccess } from "../src/providers/permissions/roleMatrix";
-import { JWT_ROLES } from "../src/types/roles.types";
+import { JWT_ROLES } from "../src/types/roles/roles.types";
 
 const screenshotPath = (file: string) =>
   path.join(process.cwd(), "docs/design/tms-sider-review", file);

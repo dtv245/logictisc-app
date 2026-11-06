@@ -1,7 +1,7 @@
 /** Primary contracts: known authenticated authorities, immutable snapshot projection and no unsafe PDF paths. */
 import { describe, expect, it, vi } from "vitest";
 import { canJwtRolesAccess } from "@/providers/permissions/roleMatrix";
-import { JWT_ROLES } from "@/types/roles.types";
+import { JWT_ROLES } from "@/types/roles/roles.types";
 import { readPayslipSnapshot } from "@/features/payslips/utils/payslip.snapshot";
 import { downloadPayslipPdf, type PayslipDownloader } from "@/features/payslips/api/payslip.api";
 import { payslipSnapshot } from "@/tests/fixtures/payslip";

@@ -3,7 +3,7 @@
  */
 
 import type { Tenant } from "./tenant.types";
-import type { JwtRole } from "./roles.types";
+import type { JwtRole } from "@/types/roles/roles.types";
 
 export interface CurrentUser {
   id: string;

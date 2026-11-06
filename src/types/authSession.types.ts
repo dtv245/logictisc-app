@@ -5,7 +5,7 @@
  * thuộc implementation cụ thể trong `core/config`.
  */
 
-import type { JwtRole } from "./roles.types";
+import type { JwtRole } from "@/types/roles/roles.types";
 
 export const LOGISTICS_API_AUDIENCE = "logisticsx.api" as const;
 
