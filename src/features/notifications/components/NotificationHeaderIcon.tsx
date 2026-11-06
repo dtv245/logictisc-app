@@ -52,7 +52,7 @@ import {
   type NotificationSeverity,
 } from "@/utils/notifications/notificationTriage";
 import { formatTmsDateTime } from "@/utils/tms-flow/presentation";
-import type { Notification } from "../types";
+import type { Notification } from "@/types/notifications/notifications.types";
 import { playNotificationSound } from "../utils/notificationSound";
 import { NotificationMarkAllRead } from "./NotificationMarkAllRead";
 

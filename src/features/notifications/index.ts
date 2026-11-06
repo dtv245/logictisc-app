@@ -2,5 +2,5 @@ export { NotificationHeaderIcon } from "./components/NotificationHeaderIcon";
 export { notificationColumns } from "./components/columns";
 export { notificationsResource } from "./notifications.resource";
 export { playNotificationSound } from "./utils/notificationSound";
-export * from "./types";
+export * from "@/types/notifications/notifications.types";
 
