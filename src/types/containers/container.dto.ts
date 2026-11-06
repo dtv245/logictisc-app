@@ -1,4 +1,4 @@
-import type { ISODateTime } from "./api.types";
+import type { ISODateTime } from "@/types/api.types";
 
 export type ContainerIsoType = "20GP" | "20HC" | "40GP" | "40HC" | "45HC";
 

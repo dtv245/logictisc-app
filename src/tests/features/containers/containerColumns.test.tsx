@@ -14,7 +14,7 @@ import {
   containerColumns,
   containerStatusMap,
 } from "@features/containers/components/columns";
-import type { Container } from "@/types/container.types";
+import type { Container } from "@/types/containers/container.types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

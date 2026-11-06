@@ -7,7 +7,7 @@ import { useCustom } from "@refinedev/core";
 import { StatusTag } from "@/components/StatusTag";
 import type { StatusTone } from "@/components/StatusTag";
 import type { ApiError } from "@/types/api.types";
-import type { Container } from "@/types/container.types";
+import type { Container } from "@/types/containers/container.types";
 import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
 

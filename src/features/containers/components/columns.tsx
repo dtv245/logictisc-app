@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { routes } from "@constants/routes";
 import { createCrudColumns } from "@components/crudColumns";
 import type { StatusTone } from "@components/StatusTag";
-import type { Container } from "@/types/container.types";
+import type { Container } from "@/types/containers/container.types";
 
 export const containerStatusMap: Record<string, StatusTone> = {
   empty: "neutral",

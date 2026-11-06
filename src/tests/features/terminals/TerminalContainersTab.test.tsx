@@ -3,7 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as refineCore from "@refinedev/core";
 import { TerminalContainersTab } from "@/features/terminals/components/TerminalContainersTab";
-import type { Container } from "@/types/container.types";
+import type { Container } from "@/types/containers/container.types";
 
 vi.mock("@refinedev/core", () => ({
   useCustom: vi.fn(),

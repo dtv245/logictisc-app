@@ -2,7 +2,7 @@ import type { GeoLocation } from "./common.types";
 import type { Customer } from "./customer.types";
 import type { Employee } from "./employee.types";
 import type { Truck } from "./truck.types";
-import type { Container } from "./container.types";
+import type { Container } from "@/types/containers/container.types";
 import type { Terminal } from "./terminal.types";
 import type { ISODateTime } from "./api.types";
 import type {

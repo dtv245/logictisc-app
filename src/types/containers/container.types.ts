@@ -1,6 +1,6 @@
-import type { ContainerIsoType, ContainerStatus } from "./container.dto";
-import type { Terminal } from "./terminal.types";
-import type { ISODateTime } from "./api.types";
+import type { ContainerIsoType, ContainerStatus } from "@/types/containers/container.dto";
+import type { Terminal } from "@/types/terminal.types";
+import type { ISODateTime } from "@/types/api.types";
 
 export interface Container {
   id: string;
