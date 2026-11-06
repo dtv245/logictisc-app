@@ -44,7 +44,6 @@ describe("useAiFeatures", () => {
     vi.spyOn(aiApi, "fetchAiFeatures").mockResolvedValueOnce({
       enabled: true,
       dryRun: false,
-      gapDetection: true,
       dispatchOptimization: true,
     });
 
@@ -58,6 +57,6 @@ describe("useAiFeatures", () => {
 
     expect(result.current.enabled).toBe(true);
     expect(result.current.dryRun).toBe(false);
-    expect(result.current.data?.gapDetection).toBe(true);
+    expect(result.current.data?.dispatchOptimization).toBe(true);
   });
 });

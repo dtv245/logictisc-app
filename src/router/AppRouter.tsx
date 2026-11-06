@@ -75,11 +75,6 @@ const TmsLiveTrackingPage = lazy(() =>
     default: module.LiveTrackingPage,
   })),
 );
-const AiDispatchPage = lazy(() =>
-  import("@pages/ai-dispatch/AiDispatchPage").then((module) => ({
-    default: module.AiDispatchPage,
-  })),
-);
 const SettlementListPage = lazy(() =>
   import("@pages/settlements/SettlementList").then((module) => ({
     default: module.SettlementList,
@@ -208,23 +203,6 @@ export const AppRouter = ({
                 <ProfitabilityPage />
               </ResourceAccessBoundary>
             } />
-            {/* AI Dispatch: chạy phân tích, xem kế hoạch và duyệt quyết định. */}
-            <Route
-              path={routes.aiDispatch}
-              element={
-                <ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch">
-                  <AiDispatchPage />
-                </ResourceAccessBoundary>
-              }
-            />
-            <Route
-              path={routes.aiDispatchShow}
-              element={
-                <ResourceAccessBoundary action="AI_DISPATCH_VIEW" resource="ai-dispatch">
-                  <AiDispatchPage />
-                </ResourceAccessBoundary>
-              }
-            />
             <Route
               path={routes.resources.settlements.list}
               element={

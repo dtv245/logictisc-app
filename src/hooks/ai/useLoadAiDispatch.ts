@@ -75,7 +75,6 @@ export function useLoadAiDispatch({ loadId, enabled = true }: UseLoadAiDispatchO
         latestRunSummary: result.summary ?? current?.latestRunSummary ?? null,
       }));
       void queryClient.invalidateQueries(queryKey);
-      void queryClient.invalidateQueries(aiQueryKeys.loadGaps(tenant?.tenantKey, loadId));
       void queryClient.invalidateQueries(aiQueryKeys.overview(tenant?.tenantKey, [loadId]));
     },
   });

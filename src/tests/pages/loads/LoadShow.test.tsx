@@ -72,19 +72,6 @@ vi.mock("@/hooks/ai/useAiFeatures", () => ({
   useAiFeatures: () => ({ enabled: true, dryRun: false, data: undefined }),
 }));
 
-vi.mock("@/hooks/ai/useLoadAiGaps", () => ({
-  useLoadAiGaps: () => ({
-    blockingGaps: [],
-    warningGaps: [],
-    aiState: "idle",
-    refetch: vi.fn(),
-    retryAfterSeconds: null,
-    isRerunning: false,
-    rerunAi: vi.fn(),
-    dismissGap: vi.fn(),
-  }),
-}));
-
 vi.mock("@/hooks/ai/useLoadAiDispatch", () => ({
   useLoadAiDispatch: () => ({
     dispatchState: "not_started",

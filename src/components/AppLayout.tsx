@@ -10,7 +10,6 @@ import { Outlet, useLocation } from "react-router-dom";
 
 import { AppSider } from "./AppSider";
 import { AppTitle } from "./AppTitle";
-import { AiGapChatWidget } from "@/components/ai/AiGapChatWidget";
 import "./AppLayout.scss";
 
 export const AppLayout = () => {
@@ -29,7 +28,6 @@ export const AppLayout = () => {
           <div className="app-route-transition" key={pathname}>
             <Outlet />
           </div>
-          <AiGapChatWidget />
         </main>
       </ThemedLayoutV2>
     </div>

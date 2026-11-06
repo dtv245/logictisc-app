@@ -5,33 +5,19 @@ import type {
   AiDispatchCandidate,
   AiDispatchRunResult,
   AiFeatures,
-  AiGap,
-  AiGapSeverity,
-  AiGapStatus,
   AiRun,
   AiRunPage,
   DecisionStatus,
-  DismissGapPayload,
   DispatchState,
   LoadAiDispatchResponse,
-  LoadAiGapsResponse,
   LoadAiOverviewItem,
   RejectDispatchPayload,
 } from "./ai.types";
-import { getFieldMapping } from "./fieldKeyMapping";
 
 export const aiEndpoints = {
   // Features / Config
   features: "/api/ai/features",
   config: "/api/ai/config",
-
-  // Gaps (Backend: GET /api/ai/gaps?loadId=..., POST /api/ai/gaps/{id}/dismiss, POST /api/ai/gaps/check)
-  gaps: (loadId: string) => `/api/ai/gaps?loadId=${encodeURIComponent(loadId)}`,
-  checkGaps: "/api/ai/gaps/check",
-  dismissGap: (_loadId: string, gapId: string) =>
-    `/api/ai/gaps/${encodeURIComponent(gapId)}/dismiss`,
-  answerGap: (_loadId: string, gapId: string) =>
-    `/api/ai/gaps/${encodeURIComponent(gapId)}/answer`,
 
   // Dispatch (Backend: POST /api/ai/dispatch/runs, POST /api/ai/dispatch/decisions/{id}/approve|reject)
   dispatchRuns: "/api/ai/dispatch/runs",
@@ -49,12 +35,9 @@ export const aiEndpoints = {
   // Load Status, Overview & Runs
   loadStatus: (loadId: string) => `/api/ai/loads/${encodeURIComponent(loadId)}/status`,
   loadsOverview: "/api/ai/loads/overview",
-  rerunLoad: (loadId: string) => `/api/ai/loads/${encodeURIComponent(loadId)}/rerun`,
   runs: "/api/ai/runs",
 
   // Fallback aliases
-  loadGaps: (loadId: string) => `/api/ai/gaps?loadId=${encodeURIComponent(loadId)}`,
-  rerunGaps: (loadId: string) => `/api/ai/loads/${encodeURIComponent(loadId)}/rerun`,
   loadDispatch: (loadId: string) => `/api/ai/loads/${encodeURIComponent(loadId)}/status`,
   approveSuggestion: (decisionId: string) =>
     `/api/ai/dispatch/decisions/${encodeURIComponent(decisionId)}/approve`,
@@ -102,8 +85,6 @@ export function getAuthHeaders(): Record<string, string> {
 export const aiQueryKeys = {
   all: ["ai"] as const,
   features: (tenant?: string) => ["ai", tenant, "features"] as const,
-  loadGaps: (tenant: string | undefined, loadId: string) =>
-    ["ai", tenant, "loads", loadId, "gaps"] as const,
   loadDispatch: (tenant: string | undefined, loadId: string) =>
     ["ai", tenant, "loads", loadId, "dispatch"] as const,
   overview: (tenant: string | undefined, loadIds: string[]) =>
@@ -113,140 +94,32 @@ export const aiQueryKeys = {
 };
 
 export async function fetchAiFeatures(): Promise<AiFeatures> {
-  if (
-    typeof window !== "undefined" &&
-    window.localStorage?.getItem("logistics_force_ai_gap") === "true"
-  ) {
-    return {
-      enabled: true,
-      dryRun: false,
-      gapDetection: true,
-      gapEnabled: true,
-      dispatchOptimization: true,
-      dispatchEnabled: true,
-    };
-  }
-
   try {
     const res = await axios.get(aiEndpoints.features, { headers: getAuthHeaders() });
     const data = res.data?.data ?? res.data;
     return {
-      enabled: Boolean(data?.gapDetection ?? data?.gapEnabled ?? data?.enabled ?? false),
+      enabled: Boolean(data?.dispatchOptimization ?? data?.dispatchEnabled ?? data?.enabled ?? false),
       dryRun: Boolean(data?.dryRun ?? false),
-      gapDetection: data?.gapDetection,
-      gapEnabled: data?.gapEnabled,
       dispatchOptimization: data?.dispatchOptimization,
       dispatchEnabled: data?.dispatchEnabled,
       autonomousModeLocked: data?.autonomousModeLocked,
       llmProvider: data?.llmProvider,
       activeModel: data?.activeModel,
       maxTokens: data?.maxTokens,
-      cooldownMinutes: data?.cooldownMinutes,
-      maxAsks: data?.maxAsks,
     };
   } catch {
     return {
       enabled: false,
       dryRun: false,
-      gapDetection: false,
-      gapEnabled: false,
       dispatchOptimization: false,
       dispatchEnabled: false,
     };
   }
 }
 
-export async function fetchLoadAiGaps(loadId: string): Promise<LoadAiGapsResponse> {
-    const res = await axios.get(aiEndpoints.gaps(loadId), { headers: getAuthHeaders() });
-    const envelopeData = res.data?.data ?? res.data;
-    const rawGaps = Array.isArray(envelopeData?.gaps)
-      ? envelopeData.gaps
-      : Array.isArray(envelopeData)
-      ? envelopeData
-      : [];
-
-    const normalizedGaps: AiGap[] = (rawGaps as Array<Record<string, unknown>>).map((g) => {
-      const fieldName = String(g.fieldName ?? g.fieldKey ?? "");
-      // AiGapView của backend không có fieldLabel; lấy nhãn tiếng Việt từ mapping
-      // form để câu hỏi dễ đọc, fallback về fieldName khi chưa có mapping.
-      const mapping = getFieldMapping(fieldName);
-      return {
-        id: String(g.id),
-        loadId: String(g.loadId ?? loadId),
-        ruleCode: typeof g.ruleCode === "string" ? g.ruleCode : undefined,
-        fieldName,
-        fieldKey: String(g.fieldKey ?? g.fieldName ?? ""),
-        fieldLabel: String(g.fieldLabel ?? mapping?.label ?? fieldName),
-        question: String(g.questionNatural ?? g.questionTemplate ?? g.question ?? ""),
-        questionNatural: typeof g.questionNatural === "string" ? g.questionNatural : undefined,
-        questionTemplate: typeof g.questionTemplate === "string" ? g.questionTemplate : undefined,
-        severity: String(g.severity ?? "warning").toLowerCase() as AiGapSeverity,
-        status: String(g.status ?? "open").toLowerCase() as AiGapStatus,
-        proposedValue: typeof g.proposedValue === "string" ? g.proposedValue : null,
-        askCount: Number(g.askCount) || 1,
-        maxAsks: Number(g.maxAsks) || 3,
-        lastAskedAt: String(g.lastAskedAt ?? g.createdAt ?? ""),
-        dismissReason: typeof g.dismissReason === "string" ? g.dismissReason : null,
-      };
-    });
-
-    // AiGapView.Summary không trả aiState/nextRunAt/capabilities. Trạng thái chạy
-    // nền do FE tự theo dõi sau khi gọi rerun; capabilities suy ra từ feature flag
-    // trong hook (backend vẫn là nơi kiểm quyền cuối cùng).
-    return {
-      loadId,
-      aiState: "idle",
-      nextRunAt: null,
-      gaps: normalizedGaps,
-    };
-}
-
-export async function dismissAiGap(loadId: string, gapId: string, payload: DismissGapPayload) {
-  const res = await axios.post(aiEndpoints.dismissGap(loadId, gapId), { reason: payload.reason }, { headers: getAuthHeaders() });
-  return res.data?.data ?? res.data;
-}
-
-export type AiRerunTarget = "gap" | "dispatch" | "both";
-
-export async function rerunAiAnalysis(
-  loadId: string,
-  target: AiRerunTarget = "gap",
-) {
-  try {
-    const res = await axios.post(
-      aiEndpoints.rerunLoad(loadId),
-      { target },
-      { headers: getAuthHeaders() },
-    );
-    return res.data?.data ?? res.data;
-  } catch (err: unknown) {
-    const axiosErr = err as {
-      response?: {
-        status?: number;
-        data?: { retryAfterSeconds?: number };
-        headers?: Record<string, string>;
-      };
-    };
-    if (axiosErr?.response?.status === 429) {
-      const retryAfter =
-        Number(axiosErr?.response?.data?.retryAfterSeconds) ||
-        Number(axiosErr?.response?.headers?.["retry-after"]) ||
-        30;
-      const error = Object.assign(new Error("RATE_LIMITED"), {
-        code: "RATE_LIMITED",
-        retryAfterSeconds: retryAfter,
-      });
-      throw error;
-    }
-    throw err;
-  }
-}
-
 interface BackendLoadStatusView {
   loadId?: string;
-  gapStatus?: string;
   blockingGapsCount?: number;
-  warningGapsCount?: number;
   dispatchStatus?: string;
   latestSessionId?: string | null;
   latestDecisionId?: string | null;
@@ -437,7 +310,6 @@ export async function fetchLoadsAiOverview(
       if (item?.loadId) {
         const id = String(item.loadId);
         const blocking = Number(item.blockingGapsCount ?? item.blockingGaps) || 0;
-        const warning = Number(item.warningGapsCount ?? item.warningGaps) || 0;
         const dispatchStatus = String(item.dispatchStatus ?? "").toUpperCase();
         const latestRunResultCode = typeof item.latestRunResultCode === "string"
           ? item.latestRunResultCode
@@ -455,10 +327,6 @@ export async function fetchLoadsAiOverview(
                   : "not_started";
         map[id] = {
           loadId: id,
-          blockingGaps: blocking,
-          blockingGapsCount: blocking,
-          warningGaps: warning,
-          warningGapsCount: warning,
           dispatchState,
           dispatchStatus: typeof item.dispatchStatus === "string" ? item.dispatchStatus : undefined,
           latestRunStatus: typeof item.latestRunStatus === "string" ? item.latestRunStatus : null,

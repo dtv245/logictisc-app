@@ -5,7 +5,6 @@ import { ShipmentHeroCard } from "./ShipmentHeroCard";
 import { ShipmentLoadPlanCard } from "./ShipmentLoadPlanCard";
 import { ShipmentDocumentsCard } from "./ShipmentDocumentsCard";
 import { ShipmentAgentCard } from "./ShipmentAgentCard";
-import { ShipmentGapsCard } from "./ShipmentGapsCard";
 import { ShipmentTimelineCard } from "./ShipmentTimelineCard";
 
 export interface ShipmentDetailViewProps {
@@ -35,9 +34,6 @@ export const ShipmentDetailView: React.FC<ShipmentDetailViewProps> = ({ load }) 
         <div className="shipment-layout__side">
           {/* AI Route Agent / Dispatch Card */}
           <ShipmentAgentCard loadId={loadId} />
-
-          {/* AI Gaps Checklist Card */}
-          <ShipmentGapsCard loadId={loadId} />
 
           {/* Shipment Timeline Card */}
           <ShipmentTimelineCard loadId={loadId} />

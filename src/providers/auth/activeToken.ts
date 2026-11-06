@@ -1,5 +1,5 @@
 /**
- * Shared token bridge so non-Refine HTTP clients (such as AI Gap and Dispatch API transports)
+ * Shared token bridge so non-Refine HTTP clients (such as AI Dispatch API transports)
  * can access the active authentication Bearer token without coupling to React hook context.
  */
 

@@ -57,7 +57,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@hooks/useCurrentUser";
 import { useLogoutUser } from "@hooks/useLogoutUser";
 import { useSwitchTenant } from "@hooks/useSwitchTenant";
-import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
 import { NotificationHeaderIcon } from "@features/notifications/components/NotificationHeaderIcon";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import type { AccessResource } from "@/types/roles.types";
@@ -65,8 +64,6 @@ import { routes } from "@constants/routes";
 import { driverProfileRoutes } from "@/constants/driverProfileRoutes";
 import { AppTitle } from "./AppTitle";
 import {
-  AiAgentNavIcon,
-  AiDispatchNavIcon,
   CustomersNavIcon,
   DocumentsNavIcon,
   DriverExpiringNavIcon,
@@ -306,13 +303,6 @@ export const NAV_ZONES: readonly NavZone[] = [
     sectionKey: "cargo",
   },
   {
-    icon: <AiDispatchNavIcon />,
-    key: "app:ai-dispatch",
-    labelKey: "navigation.items.ai-dispatch",
-    route: routes.aiDispatch,
-    permission: { resource: "ai-dispatch", action: "AI_DISPATCH_VIEW" },
-  },
-  {
     icon: <DriverExpiringNavIcon />,
     key: "app:driver-expiring",
     labelKey: "navigation.items.driver-expiring",
@@ -457,15 +447,6 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
   const { logoutUser, isLoading: isLoggingOut } = useLogoutUser();
   const tenantSwitch = useSwitchTenant();
 
-  // Kiểm tra cờ tính năng AI GAP để hiển thị nút AI agent ở footer
-  const aiFeatures = useAiFeatures();
-  const isAiAvailable = useMemo(() => {
-    const devForce =
-      typeof window !== "undefined" &&
-      window.localStorage?.getItem("logistics_force_ai_gap") === "true";
-    return Boolean(aiFeatures.enabled || devForce || (import.meta.env.DEV && !aiFeatures.isError));
-  }, [aiFeatures.enabled, aiFeatures.isError]);
-
   const [allowedKeys, setAllowedKeys] = useState<ReadonlySet<string>>(
     new Set(),
   );
@@ -591,8 +572,8 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
         // Trong môi trường test JSDOM không đo layout thực tế -> hiển thị đầy đủ trên rail
         setMaxRailSlots((prev) => (prev === Infinity ? prev : Infinity));
       } else {
-        // Trừ chiều cao cố định của padding dọc (24px), logo (48px), chuông (48px), footer (108px/60px)
-        const fixedChromeHeight = 24 + 48 + 48 + (isAiAvailable ? 108 : 60);
+        // Trừ chiều cao cố định của padding dọc (24px), logo (48px), chuông (48px), footer (60px)
+        const fixedChromeHeight = 24 + 48 + 48 + 60;
         const availableHeight = Math.max(0, contentHeight - fixedChromeHeight);
         const fitSlots = Math.floor((availableHeight + 4) / 48);
         // Ưu tiên 9 chức năng chính + 1 nút gom chức năng phụ (+N) khi danh sách dài hơn
@@ -618,7 +599,7 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
             ? "bottom"
             : "none";
     setScrollMask((prev) => (prev === nextMask ? prev : nextMask));
-  }, [isAiAvailable]);
+  }, []);
 
   useEffect(() => {
     updateScrollMask();
@@ -871,36 +852,8 @@ export const AppSider: FC<RefineThemedLayoutV2SiderProps> = ({
         <NotificationHeaderIcon placement="rightTop" />
       </div>
 
-      {/* 4. Cụm tiện ích ghim ở đáy: nút AI Agent, Avatar tài khoản */}
+      {/* 4. Avatar tài khoản và tiện ích tài khoản ghim ở đáy */}
       <div className="app-sider__footer">
-        {isAiAvailable && (
-          <Tooltip
-            placement="right"
-            mouseEnterDelay={TOOLTIP_ENTER_DELAY}
-            title={t("navigation.aiAssistant")}
-          >
-            <button
-              type="button"
-              className="app-sider__ai-agent-btn"
-              data-testid="app-sider-ai-agent-button"
-              aria-label={t("navigation.openAiAssistant")}
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent("toggle-ai-gap-chat"));
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  window.dispatchEvent(new CustomEvent("toggle-ai-gap-chat"));
-                }
-              }}
-            >
-              <span className="app-sider__ai-agent-orb" aria-hidden="true">
-                <AiAgentNavIcon />
-              </span>
-            </button>
-          </Tooltip>
-        )}
-
         <Dropdown
           overlayClassName="app-sider-account-dropdown"
           placement="topLeft"

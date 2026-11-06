@@ -83,7 +83,7 @@ describe("hợp đồng khoá locale", () => {
 
   it("các key Operations panels và copy Load/AI mới có parity ở cả ba locale", () => {
     const panelPaths = [enMessages, viMessages, jaMessages].map((messages) => flatten(messages.dashboard.opsView.panels).sort());
-    const loadKeys = ["aiAnalysisLabel", "gapsTitle", "gapCount", "accurate", "loadInformationComplete", "required", "fillOnForm", "supplement", "dismiss", "dismissReason", "loadEditingUnavailable", "sourceLabel", "customerFallback", "back", "breadcrumb", "loadLabel", "callDriver", "truckAlt", "riskCount"];
+    const loadKeys = ["aiAnalysisLabel", "sourceLabel", "customerFallback", "back", "breadcrumb", "loadLabel", "callDriver", "truckAlt", "riskCount"];
     const loadValues = [enMessages, viMessages, jaMessages].map((messages) => loadKeys.map((key) => (messages.loads.redesign as Record<string, unknown>)[key]));
     const aiHelp = [enMessages, viMessages, jaMessages].map((messages) => messages.aiDispatch.customProviderApiKeyHelp);
     const aiPlaceholder = [enMessages, viMessages, jaMessages].map((messages) => messages.aiDispatch.apiKeyOptionalPlaceholder);

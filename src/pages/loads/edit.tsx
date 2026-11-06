@@ -5,9 +5,8 @@
 
 import { Edit, useForm } from "@refinedev/antd";
 import type { BaseRecord } from "@refinedev/core";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { applyBackendFieldErrors, hasBackendFieldErrors } from "@/forms/backendFieldErrors";
 import type { ApiError } from "@/types/api.types";
 import { routes } from "@constants/routes";
@@ -17,7 +16,6 @@ import { createApiErrorNotification } from "@/utils/apiErrorNotification";
 
 export const LoadEdit = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useTranslation();
 
   const { form, formProps, saveButtonProps, queryResult } = useForm<
@@ -45,26 +43,6 @@ export const LoadEdit = () => {
 
   const loadData = queryResult?.data?.data as Record<string, unknown> | undefined;
   const contract = useResourceEditContract("loads", form, loadData);
-
-  // Tự động cuộn và focus vào trường dữ liệu được chỉ định từ AI GAP widget
-  useEffect(() => {
-    const focusField = new URLSearchParams(location.search).get("focusField");
-    if (focusField && !queryResult?.isLoading) {
-      const timer = setTimeout(() => {
-        const target =
-          document.getElementById(focusField) ||
-          document.querySelector(`[name="${focusField}"]`) ||
-          document.querySelector(`input[id*="${focusField}"]`);
-        if (target) {
-          target.scrollIntoView({ block: "center" });
-          if ("focus" in target && typeof (target as HTMLElement).focus === "function") {
-            (target as HTMLElement).focus();
-          }
-        }
-      }, 350);
-      return () => clearTimeout(timer);
-    }
-  }, [location.search, queryResult?.isLoading]);
 
   return (
     <Edit

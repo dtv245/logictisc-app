@@ -55,9 +55,6 @@ export const AiRunHistoryDrawer = ({
         if (val === "DISPATCH_RECOMMENDATION") {
           return <Tag color="blue">Gợi ý điều phối</Tag>;
         }
-        if (val === "GAP_DETECTION") {
-          return <Tag color="orange">Quét thông tin thiếu</Tag>;
-        }
         return <Tag>{val}</Tag>;
       },
     },

@@ -12,11 +12,7 @@ vi.mock("axios", () => ({
   },
 }));
 
-import {
-  fetchLoadAiDispatch,
-  fetchLoadAiGaps,
-  rerunAiAnalysis,
-} from "./ai.api";
+import { fetchLoadAiDispatch } from "./ai.api";
 
 const envelope = (data: unknown) => ({ data: { data } });
 
@@ -24,18 +20,6 @@ describe("AI API adapters", () => {
   beforeEach(() => {
     axiosMock.get.mockReset();
     axiosMock.post.mockReset();
-  });
-
-  it("sends the backend-required target when rerunning gap analysis", async () => {
-    axiosMock.post.mockResolvedValue(envelope({ loadId: "load-1", target: "gap" }));
-
-    await rerunAiAnalysis("load-1");
-
-    expect(axiosMock.post).toHaveBeenCalledWith(
-      "/api/ai/loads/load-1/rerun",
-      { target: "gap" },
-      expect.objectContaining({ headers: expect.any(Object) }),
-    );
   });
 
   it("maps LoadStatusView and reads suggestions from the latest session detail", async () => {
@@ -174,43 +158,4 @@ describe("AI API adapters", () => {
     expect(result.suggestions[2].rank).toBe(0);
   });
 
-  it("reads AiGapView.Summary without fabricating capabilities", async () => {
-    axiosMock.get.mockResolvedValueOnce(
-      envelope({
-        loadId: "load-1",
-        loadNumber: 10,
-        hasBlockingGaps: true,
-        blockingCount: 1,
-        warningCount: 0,
-        gaps: [
-          {
-            id: "gap-1",
-            loadId: "load-1",
-            ruleCode: "MISSING_PICKUP_DATE",
-            fieldName: "requestedPickupDate",
-            severity: "BLOCKING",
-            status: "OPEN",
-            questionTemplate: "Khi nào lấy hàng?",
-            askCount: 1,
-            maxAsks: 3,
-            lastAskedAt: "2026-01-01T00:00:00Z",
-          },
-        ],
-      }),
-    );
-
-    const result = await fetchLoadAiGaps("load-1");
-
-    expect(result.aiState).toBe("idle");
-    expect(result.capabilities).toBeUndefined();
-    expect(result.gaps).toHaveLength(1);
-    expect(result.gaps[0]).toMatchObject({
-      id: "gap-1",
-      fieldName: "requestedPickupDate",
-      fieldLabel: "Ngày hẹn lấy hàng",
-      severity: "blocking",
-      status: "open",
-      question: "Khi nào lấy hàng?",
-    });
-  });
 });

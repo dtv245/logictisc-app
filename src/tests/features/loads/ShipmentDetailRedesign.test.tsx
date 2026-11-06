@@ -36,14 +36,6 @@ vi.mock("@/hooks/ai/useAiFeatures", () => ({
   useAiFeatures: () => ({ enabled: true, dryRun: false }),
 }));
 
-vi.mock("@/hooks/ai/useLoadAiGaps", () => ({
-  useLoadAiGaps: () => ({
-    blockingGaps: [],
-    warningGaps: [],
-    dismissGap: vi.fn(),
-  }),
-}));
-
 vi.mock("@/hooks/ai/useLoadAiDispatch", () => ({
   useLoadAiDispatch: () => ({
     dispatchState: "ready",

@@ -29,8 +29,6 @@ export const routes = {
   payrollReconciliation: "/payroll/reconciliation",
   myPayslips: "/profile/payslips",
   payslipShow: "/payslips/:id",
-  aiDispatch: "/ai-dispatch",
-  aiDispatchShow: "/ai-dispatch/:id",
   // Real TMS operations flow backed by the loads and AI dispatch APIs.
   tmsFlow: {
     root: "/tms",

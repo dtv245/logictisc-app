@@ -1,18 +1,14 @@
-// TEMP: API types v0 contract for AI Gap and AI Dispatch. Replace with generated types when OpenAPI is ready.
+// TEMP: API types v0 contract for AI features. Replace with generated types when OpenAPI is ready.
 
 export interface AiFeatures {
   enabled: boolean;
   dryRun: boolean;
-  gapDetection?: boolean;
-  gapEnabled?: boolean;
   dispatchOptimization?: boolean;
   dispatchEnabled?: boolean;
   autonomousModeLocked?: boolean;
   llmProvider?: string;
   activeModel?: string;
   maxTokens?: number;
-  cooldownMinutes?: number;
-  maxAsks?: number;
 }
 
 export interface AiCapabilities {
@@ -20,52 +16,6 @@ export interface AiCapabilities {
   canApprove?: boolean;
   canReject?: boolean;
   canViewRuns?: boolean;
-}
-
-export type AiGapSeverity = "BLOCKING" | "WARNING" | "blocking" | "warning";
-
-export type AiGapStatus =
-  | "OPEN"
-  | "RESOLVED"
-  | "DISMISSED"
-  | "NEEDS_HUMAN"
-  | "open"
-  | "resolved"
-  | "dismissed"
-  | "needs_human";
-
-export interface AiGap {
-  id: string;
-  loadId: string;
-  ruleCode?: string;
-  severity: AiGapSeverity;
-  status: AiGapStatus;
-  fieldName?: string;
-  fieldKey?: string;
-  fieldLabel?: string;
-  questionNatural?: string;
-  questionTemplate?: string;
-  question?: string;
-  proposedValue?: string | null;
-  askCount: number;
-  maxAsks: number;
-  lastAskedAt?: string | null;
-  resolvedAt?: string | null;
-  dismissedAt?: string | null;
-  assignedTo?: string | null;
-  dismissReason?: string | null;
-  createdAt?: string;
-}
-
-export type AiState = "debouncing" | "running" | "idle" | "disabled" | "error";
-
-export interface LoadAiGapsResponse {
-  loadId: string;
-  aiState: AiState;
-  nextRunAt?: string | null;
-  /** Backend hiện chưa trả capabilities cho gaps; hook tự suy ra từ /api/ai/features. */
-  capabilities?: AiCapabilities;
-  gaps: AiGap[];
 }
 
 export type DispatchState =
@@ -159,10 +109,6 @@ export interface LoadAiDispatchResponse {
 
 export interface LoadAiOverviewItem {
   loadId: string;
-  blockingGaps: number;
-  blockingGapsCount?: number;
-  warningGaps: number;
-  warningGapsCount?: number;
   dispatchState: DispatchState;
   dispatchStatus?: string;
   latestRunStatus?: string | null;
@@ -202,10 +148,6 @@ export interface AiRunPage {
   pageSize: number;
 }
 
-export interface DismissGapPayload {
-  reason: string;
-}
-
 export interface RejectDispatchPayload {
   reason: string;
   substituteDriverId?: string;
@@ -213,10 +155,6 @@ export interface RejectDispatchPayload {
 
 export const AI_ERROR_CODES = {
   BLOCKED_BY_GAP: "BLOCKED_BY_GAP",
-  GAP_NOT_FOUND: "GAP_NOT_FOUND",
-  CANNOT_DISMISS_BLOCKING_GAP: "CANNOT_DISMISS_BLOCKING_GAP",
-  GAP_CANNOT_DISMISS_BLOCKING: "GAP_CANNOT_DISMISS_BLOCKING",
-  GAP_ALREADY_RESOLVED: "GAP_ALREADY_RESOLVED",
   AI_DISPATCH_DISABLED: "AI_DISPATCH_DISABLED",
   AUTONOMOUS_MODE_LOCKED: "AUTONOMOUS_MODE_LOCKED",
   DECISION_NOT_PENDING: "DECISION_NOT_PENDING",

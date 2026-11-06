@@ -103,24 +103,21 @@ describe("current runtime route availability", () => {
     expect(documents?.edit).toBeUndefined();
   });
 
-  it("mounts the AI Dispatch page for a DISPATCHER with AI_DISPATCH_VIEW", async () => {
+  it("does not mount the removed standalone AI Dispatch page", async () => {
     const i18n = await initializeAppI18n({ locale: "en", fallbackLocale: "en" });
     render(
-      <MemoryRouter initialEntries={[routes.aiDispatch]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MemoryRouter initialEntries={["/ai-dispatch"]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <I18nextProvider i18n={i18n}>
           <Refine
             authProvider={authProvider}
             accessControlProvider={createAccessControlProvider({ getJwtRoles: async () => normalizeJwtRoles(null, ["DISPATCHER"]) })}
             options={{ reactQuery: { clientConfig: { defaultOptions: { queries: { retry: false } } } } }}
           >
-            <CurrentPath />
             <AppRouter resourcePageRoutes={foundationResourcePageRoutes} />
           </Refine>
         </I18nextProvider>
       </MemoryRouter>,
     );
-    expect(await screen.findByText(i18n.t("aiDispatch.title"))).toBeInTheDocument();
-    expect(screen.queryByText(i18n.t("errors.notFound"))).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Current path")).toHaveTextContent(routes.aiDispatch);
+    expect(await screen.findByText(i18n.t("errors.notFound"))).toBeInTheDocument();
   });
 });

@@ -22,7 +22,6 @@ $sider-item-gap: 4px;
 $sider-icon-size: 20px;
 $sider-logo-size: 40px;
 $sider-logo-radius: 12px;
-$sider-ai-orb-size: 34px;
 $sider-avatar-size: 32px;
 $sider-indicator-width: 3px;
 $sider-indicator-height: 20px;
@@ -538,64 +537,6 @@ html[data-theme="dark"] {
     box-sizing: border-box;
   }
 
-  // Nút Trợ lý AI: vùng bấm chuẩn 44×44px bo 12px, bên trong giữ vòng tròn nền tối viền tím
-  .app-sider__ai-agent-btn {
-    width: $sider-hit-size;
-    height: $sider-hit-size;
-    padding: 0;
-    margin: 0;
-    margin-inline: auto;
-    border-radius: $sider-item-radius;
-    border: 0;
-    background: transparent;
-    color: var(--color-text-inverse, #ffffff);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    cursor: pointer;
-    position: relative;
-    box-sizing: border-box;
-    transition: background-color $sider-transition-duration $sider-transition-easing;
-
-    .app-sider__ai-agent-orb {
-      width: $sider-ai-orb-size;
-      height: $sider-ai-orb-size;
-      border-radius: 50%;
-      background: #18181b;
-      border: 2px solid var(--color-primary, #4f46e5);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      box-shadow: 0 0 10px rgb(var(--color-primary-rgb, 79 70 229) / 30%);
-      transition:
-        transform $sider-transition-duration $sider-transition-easing,
-        box-shadow $sider-transition-duration $sider-transition-easing;
-    }
-
-    svg {
-      width: $sider-icon-size;
-      height: $sider-icon-size;
-      flex-shrink: 0;
-      display: block;
-      color: currentColor;
-    }
-
-    &:hover {
-      background: var(--sider-hover-bg);
-
-      .app-sider__ai-agent-orb {
-        box-shadow: 0 0 14px rgb(var(--color-primary-rgb, 79 70 229) / 50%);
-      }
-    }
-
-    &:active {
-      background: var(--sider-open-bg);
-    }
-  }
-
   // Nút Avatar tài khoản: vùng bấm 44×44px bo 12px, chứa Avatar tròn 32px ở chính giữa
   .app-sider__account.ant-btn {
     display: flex;
@@ -645,7 +586,6 @@ html[data-theme="dark"] {
 .app-sider__content .ant-menu-item:focus-visible,
 .app-sider__content .ant-menu-submenu-title:focus-visible,
 .app-sider__content .app-sider__notification-btn:focus-visible,
-.app-sider__content .app-sider__ai-agent-btn:focus-visible,
 .app-sider__content .app-sider__account:focus-visible,
 .app-sider-popup.ant-menu-submenu-popup .ant-menu-item:focus-visible {
   outline: 2px solid var(--sider-focus-ring) !important;
@@ -905,8 +845,6 @@ html[data-theme="dark"] {
   .app-sider__content .ant-menu-item,
   .app-sider__content .ant-menu-submenu-title,
   .app-sider__content .app-sider__notification-btn,
-  .app-sider__content .app-sider__ai-agent-btn,
-  .app-sider__content .app-sider__ai-agent-orb,
   .app-sider__content .app-sider__account,
   .app-sider-popup.ant-menu-submenu-popup .ant-menu-item {
     animation-duration: 0.01ms !important;
@@ -914,10 +852,4 @@ html[data-theme="dark"] {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-// Khi ứng dụng có thanh Sider, ẩn button tròn nổi ở góc dưới phải để không choáng chỗ.
-// Lý do dùng !important: ghi đè inline/widget display của container AI GAP nổi.
-body:has(.app-sider) [data-testid="ai-gap-chat-container"] {
-  display: none !important;
 }

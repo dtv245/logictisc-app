@@ -11,7 +11,6 @@ import {
   BadgeDollarSign,
   Banknote,
   Bell,
-  Bot,
   Box,
   Building2,
   Calculator,
@@ -41,7 +40,6 @@ import {
   Send,
   Settings,
   ShoppingBag,
-  Sparkles,
   TrendingUp,
   Truck,
   UserCog,
@@ -79,7 +77,6 @@ export const MoreNavIcon = createIcon(Ellipsis);
 
 // 2. Icon Tiện ích & Hồ sơ
 export const NotificationNavIcon = createIcon(Bell);
-export const AiAgentNavIcon = createIcon(Sparkles);
 export const SettingsNavIcon = createIcon(Settings);
 export const LogoutNavIcon = createIcon(LogOut);
 export const SwitchTenantNavIcon = createIcon(Repeat2);
@@ -91,7 +88,6 @@ export const OperationsDashboardIcon = createIcon(LayoutDashboard);
 export const TmsFlowNavIcon = createIcon(Workflow);
 export const TmsDispatchNavIcon = createIcon(Route);
 export const TmsApprovalsNavIcon = createIcon(ClipboardCheck);
-export const AiDispatchNavIcon = createIcon(Bot);
 export const OptimizationNavIcon = createIcon(Rocket);
 
 // Nhóm Vận tải (Transport)

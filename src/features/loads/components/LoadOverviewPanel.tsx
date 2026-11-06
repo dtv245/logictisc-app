@@ -1,14 +1,13 @@
 import { PickupBusinessDateForm } from "./PickupBusinessDateForm";
 import { PICKUP_BUSINESS_DATE_RUNTIME_VERIFIED } from "../api/pickupBusinessDate.api";
 import { Button, Card, Descriptions, Flex, Space, Tag, Typography } from "antd";
-import { RobotOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { RobotOutlined, ArrowRightOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 
 import { formatDateTime } from "@/formatters/dateTime";
 import type { Load } from "@/types/load.types";
 import { formatDistance } from "@/utils/distance";
 import { useAiFeatures } from "@/hooks/ai/useAiFeatures";
-import { useLoadAiGaps } from "@/hooks/ai/useLoadAiGaps";
 import { useLoadAiDispatch } from "@/hooks/ai/useLoadAiDispatch";
 
 export interface LoadOverviewPanelProps {
@@ -33,7 +32,6 @@ export const LoadOverviewPanel = ({ load, onOpenAiTab }: LoadOverviewPanelProps)
   const { t } = useTranslation();
   const loadId = load?.id ? String(load.id) : "";
   const { enabled: isAiEnabled } = useAiFeatures();
-  const { blockingGaps, warningGaps } = useLoadAiGaps({ loadId, enabled: isAiEnabled });
   const { dispatchState, suggestions } = useLoadAiDispatch({ loadId, enabled: isAiEnabled });
 
   return (
@@ -43,8 +41,8 @@ export const LoadOverviewPanel = ({ load, onOpenAiTab }: LoadOverviewPanelProps)
           size="small"
           style={{
             marginBottom: 16,
-            borderColor: blockingGaps.length > 0 ? "#ffa39e" : "#d3adf7",
-            backgroundColor: blockingGaps.length > 0 ? "#fff2f0" : "#faf5ff",
+            borderColor: "#d3adf7",
+            backgroundColor: "#faf5ff",
           }}
           data-testid="load-overview-ai-card"
         >
@@ -52,23 +50,14 @@ export const LoadOverviewPanel = ({ load, onOpenAiTab }: LoadOverviewPanelProps)
             <Space align="center">
               <RobotOutlined style={{ fontSize: 18, color: "#722ed1" }} />
               <Typography.Text strong>Trợ lý AI LogisticsX:</Typography.Text>
-              {blockingGaps.length > 0 ? (
-                <Tag color="error" icon={<ExclamationCircleOutlined />}>
-                  {blockingGaps.length} thông tin chặn cần xử lý
-                </Tag>
-              ) : (
-                <Tag color="success" icon={<CheckCircleOutlined />}>
-                  Đầy đủ thông tin
-                </Tag>
-              )}
-              {warningGaps.length > 0 && (
-                <Tag color="warning">{warningGaps.length} cảnh báo</Tag>
-              )}
               {dispatchState === "ready" && suggestions.length > 0 && (
                 <Tag color="blue">Có {suggestions.length} đề xuất ghép xe tối ưu</Tag>
               )}
               {dispatchState === "blocked_by_gap" && (
-                <Tag color="default">Chưa thể điều phối</Tag>
+                <Tag color="default">Chưa đủ dữ liệu để điều phối</Tag>
+              )}
+              {dispatchState === "assigned" && (
+                <Tag color="success" icon={<CheckCircleOutlined />}>Đã có xe được gán</Tag>
               )}
             </Space>
 

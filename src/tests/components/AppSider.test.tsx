@@ -18,21 +18,6 @@ import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mockAiFeaturesState = {
-  enabled: true,
-  isEffectiveEnabled: true,
-  isError: false,
-};
-
-vi.mock("@/hooks/ai/useAiFeatures", () => ({
-  useAiFeatures: () => ({
-    enabled: mockAiFeaturesState.enabled,
-    isEffectiveEnabled: mockAiFeaturesState.isEffectiveEnabled,
-    isLoading: false,
-    isError: mockAiFeaturesState.isError,
-  }),
-}));
-
 vi.mock("@hooks/useCurrentUser", () => ({
   useCurrentUser: () => ({
     data: { name: "Admin User", email: "admin@logisticsx.com" },
@@ -71,9 +56,6 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  mockAiFeaturesState.enabled = true;
-  mockAiFeaturesState.isEffectiveEnabled = true;
-  mockAiFeaturesState.isError = false;
   mockCanFn.mockImplementation(async () => ({ can: true }));
 });
 
@@ -145,7 +127,6 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
       routes.tmsFlow.dispatch,
       routes.tmsFlow.approvals,
       routes.tmsFlow.liveTracking,
-      routes.aiDispatch,
       routes.optimization,
       routes.fleetReport,
       routes.profitability,
@@ -264,39 +245,6 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
     });
   });
 
-  it("nút agent AI chỉ render khi tính năng khả dụng và khi nhấp dispatch CustomEvent 'toggle-ai-gap-chat'", async () => {
-    const dispatchSpy = vi.spyOn(window, "dispatchEvent");
-    const { container, rerender } = renderSider("/tms");
-
-    await waitFor(() => {
-      const aiBtn = container.querySelector('[data-testid="app-sider-ai-agent-button"]');
-      expect(aiBtn).toBeInTheDocument();
-    });
-
-    const aiButton = screen.getByTestId("app-sider-ai-agent-button");
-    fireEvent.click(aiButton);
-    expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "toggle-ai-gap-chat" }));
-
-    // Khi tính năng AI tắt và không ở dev: nút không được render
-    mockAiFeaturesState.enabled = false;
-    mockAiFeaturesState.isEffectiveEnabled = false;
-    mockAiFeaturesState.isError = true;
-
-    rerender(
-      <MemoryRouter initialEntries={["/tms"]}>
-        <I18nextProvider i18n={i18n}>
-          <ThemedLayoutContextProvider initialSiderCollapsed={false}>
-            <AppSider />
-          </ThemedLayoutContextProvider>
-        </I18nextProvider>
-      </MemoryRouter>,
-    );
-
-    // Nút không hiển thị khi tính năng bị vô hiệu hoá
-    expect(screen.queryByTestId("app-sider-ai-agent-button")).toBeNull();
-    dispatchSpy.mockRestore();
-  });
-
   it("khu vực bị từ chối quyền truy cập sẽ tự động ẩn khỏi thanh điều hướng", async () => {
     mockCanFn.mockImplementation(async (perm?: { resource?: string }) => {
       // Chặn toàn bộ quyền truy cập vào khu vực admin (drivers, documents)
@@ -374,7 +322,6 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
       "zone:finance",
       "zone:payroll",
       "res:terminals",
-      "app:ai-dispatch",
       "app:driver-expiring",
       "app:my-driver-profile",
       "res:documents",

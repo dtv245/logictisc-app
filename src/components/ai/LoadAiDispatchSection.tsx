@@ -38,17 +38,12 @@ const { Text, Paragraph, Title } = Typography;
 
 export interface LoadAiDispatchSectionProps {
   loadId: string;
-  onScrollToGaps?: () => void;
 }
 
-export const LoadAiDispatchSection = ({
-  loadId,
-  onScrollToGaps,
-}: LoadAiDispatchSectionProps) => {
+export const LoadAiDispatchSection = ({ loadId }: LoadAiDispatchSectionProps) => {
   const { message } = App.useApp();
   const {
     dispatchState,
-    blockingGapCount,
     rankingSource,
     expiresAt,
     isExpired,
@@ -93,18 +88,6 @@ export const LoadAiDispatchSection = ({
     } catch (err) {
       const detail = (err as { message?: string })?.message;
       message.error(detail || "Không thể khởi chạy AI điều phối.");
-    }
-  };
-
-  // Xử lý cuộn tới khu vực Gap
-  const handleScrollToGaps = () => {
-    if (onScrollToGaps) {
-      onScrollToGaps();
-      return;
-    }
-    const element = document.getElementById("ai-gaps-section");
-    if (element) {
-      element.scrollIntoView({ block: "start" });
     }
   };
 
@@ -318,22 +301,10 @@ export const LoadAiDispatchSection = ({
 
         {dispatchState === "blocked_by_gap" && (
           <Alert
-            message={
-              <Space>
-                <ExclamationCircleOutlined style={{ color: "#ff4d4f" }} />
-                <Text strong>
-                  Chưa thể đề xuất điều phối: Còn {blockingGapCount} thông tin chặn cần hoàn thiện
-                </Text>
-              </Space>
-            }
-            description="Đơn hàng đang thiếu các trường dữ liệu quan trọng ảnh hưởng đến tính an toàn và khả thi của chuyến hàng. Vui lòng hoàn tất tại mục AI Hỏi bên trên."
+            message="Chưa thể đề xuất điều phối vì Load thiếu dữ liệu bắt buộc"
+            description="Bổ sung thông tin cần thiết cho Load rồi chạy lại điều phối."
             type="warning"
-            showIcon={false}
-            action={
-              <Button type="primary" size="small" onClick={handleScrollToGaps} data-testid="link-to-gaps-btn">
-                Xem thông tin chặn ({blockingGapCount})
-              </Button>
-            }
+            showIcon
           />
         )}
 
