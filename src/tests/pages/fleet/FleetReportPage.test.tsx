@@ -5,7 +5,7 @@ import { FleetReportPage } from "@/pages/fleet/FleetReportPage";
 import { renderFinance } from "@/tests/fixtures/FinanceTestHarness";
 import { fleetReport, fleetPolicyId, fleetTruckId, otherFleetTruckId } from "@/tests/fixtures/fleet";
 import { ApiHttpError } from "@/utils/httpError";
-import type { Truck } from "@/types/truck.types";
+import type { Truck } from "@/types/trucks/truck.types";
 
 const session = vi.hoisted(() => ({ tenantKey: "tenant-finance" }));
 vi.mock("@/hooks/useCurrentTenant", () => ({

@@ -1,26 +1,7 @@
-/**
- * Chứa các kiểu dữ liệu xe tải và lịch sử bảo trì.
- */
+import type { AuditableEntity } from "@/types/common.types";
+import type { Employee } from "@/types/employee.types";
+import type { Truck } from "@/types/trucks/truck.types";
 
-import type {
-  AuditableEntity,
-} from "./common.types";
-import type { Employee } from "./employee.types";
-
-export type TruckType =
-  | "SEMI_TRUCK"
-  | "FLATBED"
-  | "BOX_TRUCK"
-  | "TANKER"
-  | "REEFER";
-
-export type TruckStatus =
-  | "available"
-  | "in_use"
-  | "maintenance"
-  | "out_of_service";
-
-// TODO: xác nhận lại danh sách giá trị enum với backend.
 export type MaintenanceType =
   | "inspection"
   | "oil_change"
@@ -28,34 +9,7 @@ export type MaintenanceType =
   | "repair"
   | "tire_service";
 
-// TODO: xác nhận lại danh sách giá trị enum với backend.
 export type MaintenanceIntervalType = "mileage" | "days" | "engine_hours";
-
-/** Xe tải được tenant quản lý và phân công vận chuyển. */
-/** Flat TruckView projection from the verified handoff; UI presentation does not add wire fields. */
-export interface Truck {
-  adrEquipmentAllowedClasses?: string | null;
-  adrEquipmentIsAdrCertified?: boolean | null;
-  currentLocationLatitude?: number | null;
-  currentLocationLongitude?: number | null;
-  id: string;
-  isHazmatPlacarded: boolean;
-  licensePlate?: string | null;
-  licensePlateState?: string | null;
-  mainDriverId?: string | null;
-  mainDriverName?: string | null;
-  make?: string | null;
-  model?: string | null;
-  number: string;
-  secondaryDriverId?: string | null;
-  secondaryDriverName?: string | null;
-  status: string;
-  type: string;
-  vehicleCapacity: number;
-  version?: number | null;
-  vin?: string | null;
-  year?: number | null;
-}
 
 /** Quy tắc xác định thời điểm bảo trì tiếp theo của xe tải. */
 export interface MaintenanceSchedule extends AuditableEntity {
@@ -113,12 +67,6 @@ export interface MaintenancePart {
   totalCost: number;
 }
 
-/** Xe tải kèm tài xế chính và tài xế phụ. */
-export interface TruckWithRelations extends Truck {
-  mainDriver?: Employee | null;
-  secondaryDriver?: Employee | null;
-}
-
 /** Bản ghi bảo trì kèm xe, lịch bảo trì, người thực hiện và linh kiện. */
 export interface MaintenanceRecordWithRelations extends MaintenanceRecord {
   truck?: Truck;
@@ -126,5 +74,3 @@ export interface MaintenanceRecordWithRelations extends MaintenanceRecord {
   performedBy?: Employee | null;
   parts?: MaintenancePart[];
 }
-
-export type { CreateTruckRequest, UpdateTruckRequest } from "./handoff.generated";

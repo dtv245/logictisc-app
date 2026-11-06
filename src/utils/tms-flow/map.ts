@@ -1,6 +1,6 @@
 /** Real map points for the TMS screens: load endpoints and truck positions. */
 
-import type { TruckResponse } from "@/types/truck.dto";
+import type { TruckResponse } from "@/types/trucks/truck.dto";
 import type { TmsMapMarker, TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
 import type { NetworkVehiclePoint } from "@/types/dashboard/network-map.types";
 import type { NetworkRouteLine } from "@/types/dashboard/network-map.types";

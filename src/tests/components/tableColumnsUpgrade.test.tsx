@@ -20,7 +20,7 @@ import { StatusTag, defaultStatusStyles } from "@/components/StatusTag";
 import { ActionButtons } from "@/components/ActionButtons";
 import { useLocalizedColumns } from "@/hooks/useLocalizedColumns";
 import { truckColumns } from "@features/trucks/components/columns";
-import type { Truck } from "@/types/truck.types";
+import type { Truck } from "@/types/trucks/truck.types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

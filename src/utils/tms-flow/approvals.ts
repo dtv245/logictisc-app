@@ -1,6 +1,6 @@
 /** Joins pending AI decisions to the load they belong to. */
 
-import type { TruckResponse } from "@/types/truck.dto";
+import type { TruckResponse } from "@/types/trucks/truck.dto";
 import type {
   TmsAiLoadStatus,
   TmsAiSuggestion,

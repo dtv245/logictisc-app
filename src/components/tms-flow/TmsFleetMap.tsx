@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { FlowPanel } from "@/components/tms-flow/FlowPanel";
 import { TmsFlowMap } from "@/components/tms-flow/TmsFlowMap";
 import type { TmsTruckCollection, TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
-import type { TruckResponse } from "@/types/truck.dto";
+import type { TruckResponse } from "@/types/trucks/truck.dto";
 import { selectDashboardAttentionTrucks } from "@/utils/tms-flow/fleet";
 import { isValidCoordinatePair } from "@/utils/tms-flow/mapbox";
 

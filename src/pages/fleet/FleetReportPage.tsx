@@ -26,7 +26,7 @@ import { isUuid } from "@/utils/uuid";
 import type { ApiHttpError } from "@/utils/httpError";
 import type { PagedResponse } from "@/types/api.types";
 import type { FleetReport, FleetReportQuery } from "@/types/fleetReport.dto";
-import type { Truck } from "@/types/truck.types";
+import type { Truck } from "@/types/trucks/truck.types";
 import { fleetReportApi, fleetReportKey } from "@/features/fleet/api/fleetReport.api";
 import { FleetKpiGrid } from "@/features/fleet/components/FleetKpiGrid";
 import { FleetHealthTable } from "@/features/fleet/components/FleetHealthTable";
@@ -355,7 +355,7 @@ export function FleetReportPage({ policies: propPolicies, trucks: propTrucks }: 
                             type="link"
                             size="small"
                             onClick={handleSelectAllTrucks}
-                            style={{ padding: 0, height: "auto" }}
+                            style={{ padding: "2px 8px", height: "auto", minHeight: 24 }}
                           >
                             {t("fleet.selectAllTrucks")}
                           </Button>

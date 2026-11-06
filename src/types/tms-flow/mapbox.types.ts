@@ -1,4 +1,4 @@
-import type { TruckStatus } from "@/types/truck.types";
+import type { TruckStatus } from "@/types/trucks/truck.types";
 
 export type MapboxLngLat = [number, number];
 

@@ -1,6 +1,6 @@
 import type { Address, GeoLocation } from "./common.types";
 import type { Load } from "./load.types";
-import type { Truck } from "./truck.types";
+import type { Truck } from "@/types/trucks/truck.types";
 import type { TripResponse, TripStopType } from "./trip.dto";
 import type { ISODateTime } from "./api.types";
 

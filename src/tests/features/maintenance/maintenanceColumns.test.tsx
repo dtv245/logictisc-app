@@ -28,7 +28,7 @@ import {
   formatOdometer,
   formatMaintenanceCost,
 } from "@features/maintenance/components/columns";
-import type { MaintenanceRecord } from "@/types/truck.types";
+import type { MaintenanceRecord } from "@/types/trucks/truck.types";
 
 const queryClient = new QueryClient({
   defaultOptions: {

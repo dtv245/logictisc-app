@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
 import type { ApiError } from "@/types/api.types";
-import type { Truck } from "@/types/truck.types";
+import type { Truck } from "@/types/trucks/truck.types";
 
 export const TruckShow = () => {
   const { t } = useTranslation();

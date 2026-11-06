@@ -1,5 +1,5 @@
 import type { TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
-import type { TruckResponse } from "@/types/truck.dto";
+import type { TruckResponse } from "@/types/trucks/truck.dto";
 import { isValidCoordinatePair } from "@/utils/tms-flow/mapbox";
 
 export const selectDashboardAttentionTrucks = (

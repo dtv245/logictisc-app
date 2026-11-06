@@ -6,7 +6,7 @@ import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
 import { formatDateOnly } from "@formatters/dateTime";
 import { formatMoney } from "@formatters/money";
-import type { MaintenanceRecord } from "@/types/truck.types";
+import type { MaintenanceRecord } from "@/types/trucks/truck.types";
 
 /**
  * Kiểm tra xem ngày hẹn / ngày đến hạn có bị quá hạn so với ngày tham chiếu hay không.

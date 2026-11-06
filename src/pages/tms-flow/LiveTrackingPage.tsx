@@ -12,7 +12,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { routes } from "@/constants/routes";
 import { useTmsWorkspace } from "@/hooks/tms-flow/useTmsWorkspace";
 import { useRouteEstimate } from "@/hooks/useRouteEstimate";
-import type { TruckResponse } from "@/types/truck.dto";
+import type { TruckResponse } from "@/types/trucks/truck.dto";
 import type { TmsShipmentView } from "@/types/tms-flow/tmsFlow.types";
 import type { DispatchMapVehicleInput } from "@/types/tms-flow/mapbox.types";
 import { toShipmentRouteLine } from "@/utils/tms-flow/map";

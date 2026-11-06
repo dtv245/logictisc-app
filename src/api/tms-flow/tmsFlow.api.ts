@@ -17,7 +17,7 @@ import {
 import type { EmployeeResponse } from "@/types/employee.dto";
 import type { LoadResponse } from "@/types/load.dto";
 import type { PagedResponse } from "@/types/api.types";
-import type { TruckResponse } from "@/types/truck.dto";
+import type { TruckResponse } from "@/types/trucks/truck.dto";
 import type {
   TmsAiLoadStatus,
   TmsAiSuggestion,

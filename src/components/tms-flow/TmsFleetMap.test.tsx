@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { TmsFleetMap } from "@/components/tms-flow/TmsFleetMap";
 import { selectDashboardAttentionTrucks } from "@/utils/tms-flow/fleet";
-import type { TruckResponse } from "@/types/truck.dto";
+import type { TruckResponse } from "@/types/trucks/truck.dto";
 import type { TmsShipmentView, TmsTruckCollection } from "@/types/tms-flow/tmsFlow.types";
 
 vi.mock("@/components/tms-flow/TmsFlowMap", () => ({
