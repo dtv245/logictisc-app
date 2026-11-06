@@ -15,4 +15,4 @@ export type {
   Product,
   ProductFormValues,
   ProductSearchValues,
-} from "@/features/products/types";
+} from "@/types/products/products.types";

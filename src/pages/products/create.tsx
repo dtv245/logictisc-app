@@ -6,7 +6,7 @@ import { Create, useForm } from "@refinedev/antd";
 
 import type { ApiError } from "@/types/api.types";
 import { ProductForm } from "@features/products/components/form";
-import type { Product, ProductFormValues } from "@/features/products/types";
+import type { Product, ProductFormValues } from "@/types/products/products.types";
 
 export const ProductCreate = () => {
   // useForm kết nối validation, mutation và redirect với Product resource.
