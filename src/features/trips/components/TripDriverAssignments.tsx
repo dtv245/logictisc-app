@@ -24,7 +24,7 @@ import { formatDistance } from "@/utils/distance";
 import type {
   AssignDriverPayload,
   TripDriverAssignment,
-} from "../types";
+} from "@/types/trips/trips.types";
 import { TRIP_ASSIGNMENT_TYPES } from "../api/tripExecution.api";
 import { useTripDriverAssignments } from "../hooks/useTripDriverAssignments";
 

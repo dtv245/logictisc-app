@@ -2,7 +2,7 @@ import { Alert, Button, Card, Empty, Space, Spin, Tag, Timeline, Typography } fr
 import { useTranslation } from "react-i18next";
 
 import { formatDateTime } from "@/formatters/dateTime";
-import type { TripStopExecution } from "../types";
+import type { TripStopExecution } from "@/types/trips/trips.types";
 import { TripStopActions } from "./TripStopActions";
 import { useTripStopActions } from "../hooks/useTripStopActions";
 

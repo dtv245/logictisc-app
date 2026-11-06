@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as refineCore from "@refinedev/core";
 import { useTripStopActions } from "@/features/trips/hooks/useTripStopActions";
-import type { TripStopExecution } from "@/features/trips/types";
+import type { TripStopExecution } from "@/types/trips/trips.types";
 
 vi.mock("@refinedev/core", () => ({
   useCan: vi.fn(),
