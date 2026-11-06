@@ -3,7 +3,7 @@ import { useCan, useCustomMutation, useNotification } from "@refinedev/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { AccessorialChargeView } from "@/types/accessorial.types";
+import type { AccessorialChargeView } from "@/types/accessorials/accessorial.types";
 import type { ApiHttpError } from "@/utils/httpError";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 

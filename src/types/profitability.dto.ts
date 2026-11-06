@@ -1,5 +1,5 @@
 import type { ShipmentCostView } from "./shipmentCost.types";
-import type { AccessorialChargeView } from "./accessorial.types";
+import type { AccessorialChargeView } from "@/types/accessorials/accessorial.types";
 
 export type FinancialDecimal = number | string;
 export type MetricAvailability = "AVAILABLE" | "PARTIAL" | "UNAVAILABLE" | "NOT_APPLICABLE";

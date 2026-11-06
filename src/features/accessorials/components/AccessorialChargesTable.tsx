@@ -12,7 +12,7 @@ import { formatDateTime } from "@/formatters/dateTime";
 import { financialAmount } from "@formatters/financialDisplay";
 import { financialQueryKeys } from "@/features/profitability";
 import { ApiHttpError } from "@/utils/httpError";
-import type { AccessorialChargeView } from "@/types/accessorial.types";
+import type { AccessorialChargeView } from "@/types/accessorials/accessorial.types";
 import { useAccessorialApproval } from "../hooks/useAccessorialApproval";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 
