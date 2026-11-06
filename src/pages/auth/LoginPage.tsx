@@ -14,7 +14,7 @@ import {
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { useLarkLogin } from "@hooks/useLarkLogin";
+import { useLarkLogin } from "@/hooks/useLarkLogin";
 
 const SsoLogin = ({ returnTo }: { returnTo?: string }) => {
   const { t } = useTranslation();

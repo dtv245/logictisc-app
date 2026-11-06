@@ -340,7 +340,7 @@ export const TruckList = () => {
       <Drawer
         open={Boolean(selected)}
         onClose={handleCloseDrawer}
-        width={460}
+        width="min(100vw, 460px)"
         title={selected ? `Chi tiết xe — ${selected.licensePlate ?? selected.number}` : null}
         footer={selected ? (
           <div className={styles.drawerFooter}>

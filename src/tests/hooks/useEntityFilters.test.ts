@@ -12,7 +12,7 @@
  */
 
 import type { CrudFilter } from "@refinedev/core";
-import { useEntityFilters } from "@hooks/useEntityFilters";
+import { useEntityFilters } from "@/hooks/useEntityFilters";
 import { act, renderHook } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";

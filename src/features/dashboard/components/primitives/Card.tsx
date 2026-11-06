@@ -1,7 +1,7 @@
 import React from "react";
 import "./primitives.scss";
 
-export interface OpsCardProps {
+export interface OpsCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   variant?: "default" | "ai";
   padding?: string | number;
   title?: React.ReactNode;
@@ -19,6 +19,7 @@ export const OpsCard: React.FC<OpsCardProps> = ({
   children,
   className = "",
   style,
+  ...rest
 }) => {
   const customStyle: React.CSSProperties = {
     ...(padding !== undefined ? { padding } : {}),
@@ -29,6 +30,7 @@ export const OpsCard: React.FC<OpsCardProps> = ({
     <div
       className={`ops-card ${variant === "ai" ? "ops-card--ai" : ""} ${className}`}
       style={customStyle}
+      {...rest}
     >
       {(title || extra) && (
         <div className="ops-card__header">

@@ -180,7 +180,11 @@ export const CustomerForm = ({
             {
               key: "address",
               forceRender: true,
-              label: <span style={{ color: "#666" }}>▸ Chi tiết địa chỉ trụ sở & ghi chú</span>,
+              label: (
+                <span style={{ color: "var(--color-text-secondary, #475569)" }}>
+                  ▸ Chi tiết địa chỉ trụ sở & ghi chú
+                </span>
+              ),
               children: (
                 <>
                   <AddressFields prefix="address" includeCoordinates={false} required={false} />

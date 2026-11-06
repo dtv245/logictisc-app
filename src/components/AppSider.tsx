@@ -54,9 +54,9 @@ import {
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { useCurrentUser } from "@hooks/useCurrentUser";
-import { useLogoutUser } from "@hooks/useLogoutUser";
-import { useSwitchTenant } from "@hooks/useSwitchTenant";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useLogoutUser } from "@/hooks/useLogoutUser";
+import { useSwitchTenant } from "@/hooks/useSwitchTenant";
 import { NotificationHeaderIcon } from "@features/notifications/components/NotificationHeaderIcon";
 import { PAYROLL_RECONCILIATION_CONTRACT_CONFIRMED } from "@/features/payroll/api/payroll.api";
 import type { AccessResource } from "@/types/roles.types";

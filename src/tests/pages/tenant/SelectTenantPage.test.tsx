@@ -6,8 +6,8 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SelectTenantPage } from "@pages/tenant/SelectTenantPage";
-import * as tenantListHook from "@hooks/useTenantList";
-import * as switchTenantHook from "@hooks/useSwitchTenant";
+import * as tenantListHook from "@/hooks/useTenantList";
+import * as switchTenantHook from "@/hooks/useSwitchTenant";
 
 const mockSwitchTenant = vi.fn().mockResolvedValue(undefined);
 

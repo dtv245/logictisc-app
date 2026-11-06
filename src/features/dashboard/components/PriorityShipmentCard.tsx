@@ -104,7 +104,11 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
   };
 
   return (
-    <OpsCard className={`ops-priority-shipment-card ${className}`}>
+    <OpsCard
+      aria-labelledby="ops-priority-heading"
+      className={`ops-priority-shipment-card ${className}`}
+      role="region"
+    >
       {/* 1. Priority Header */}
       <div className="ops-priority-header">
         <div className="ops-priority-header__left">
@@ -117,7 +121,7 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
             )}
           </div>
           <div className="ops-priority-header__title-row">
-            <h2 className="ops-priority-header__title">
+            <h2 id="ops-priority-heading" className="ops-priority-header__title">
               {currentShipment.origin} → {currentShipment.destination}
             </h2>
             {currentShipment.status && <span className="ops-priority-risk"><AlertTriangle size={12} /> {currentShipment.status.label}</span>}
@@ -137,12 +141,14 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
             <Space size={4}>
               <Button
                 aria-label={text.previous}
+                className="ops-priority-switcher-btn"
                 icon={<ChevronLeft size={16} />}
                 onClick={handlePrev}
                 size="small"
               />
               <Button
                 aria-label={text.next}
+                className="ops-priority-switcher-btn"
                 icon={<ChevronRight size={16} />}
                 onClick={handleNext}
                 size="small"
@@ -161,8 +167,15 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
       {/* 3. Truck Stage (Telemetry Callouts Grid) */}
       <div className="ops-priority-truck-stage">
         <div className="ops-priority-truck-stage__visual">
-            <img className="ops-priority-truck-image" src={truckReference} alt={text.truckAlt} />
-          
+          <img
+            alt={text.truckAlt}
+            className="ops-priority-truck-image"
+            decoding="async"
+            height={240}
+            loading="eager"
+            src={truckReference}
+            width={480}
+          />
         </div>
 
         <div className="ops-priority-truck-stage__telemetry">

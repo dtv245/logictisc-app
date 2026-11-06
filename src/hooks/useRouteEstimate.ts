@@ -10,7 +10,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { useDebouncedSearch } from "@hooks/useDebouncedSearch";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import {
   buildOsrmRouteUrl,
   coordinatesDiffer,

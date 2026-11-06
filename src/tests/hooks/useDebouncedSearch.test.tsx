@@ -6,7 +6,7 @@
  * đầu (nếu không, bảng sẽ bắn một query rỗng rồi mới bắn query thật).
  */
 
-import { useDebouncedSearch } from "@hooks/useDebouncedSearch";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 

@@ -28,7 +28,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { translateOptional } from "@/locales";
 
-import { useDebouncedSearch } from "@hooks/useDebouncedSearch";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { EntityPicker } from "./EntityPicker";
 import type { ResourceFilterControl } from "./resources/resourceFilterControls";
 import { SearchField } from "./SearchField";

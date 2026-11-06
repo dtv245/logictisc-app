@@ -20,6 +20,8 @@ import {
 import type { CSSProperties, MouseEvent } from "react";
 import { formatDateOnly } from "@/formatters/dateTime";
 import type { DriverDirectoryItem } from "@/types/drivers/driver-profile.types";
+import { StatusTag, type StatusTone } from "@/components/StatusTag";
+import { statusTone } from "@/components/statusTone";
 import "./DriverDirectoryList.scss";
 
 export interface DriverDirectoryPagination {
@@ -55,21 +57,11 @@ const nameHash = (value: string): number => {
   return hash;
 };
 
-const statusColor = (status: string): string => {
-  switch (status.trim().toLowerCase()) {
-    case "active":
-    case "đang làm việc":
-      return "success";
-    case "inactive":
-    case "terminated":
-    case "nghỉ việc":
-      return "default";
-    case "suspended":
-    case "suspended_pending_review":
-      return "warning";
-    default:
-      return "processing";
-  }
+const getDriverStatusTone = (status: string): StatusTone => {
+  const normalized = status.trim().toLowerCase();
+  if (normalized === "đang làm việc") return "success";
+  if (normalized === "nghỉ việc") return "neutral";
+  return statusTone(status);
 };
 
 const driverAddress = (driver: DriverDirectoryItem): string =>
@@ -174,7 +166,10 @@ const DriverItem = ({ driver, locale, onOpenProfile }: DriverItemProps) => {
             <Tooltip title={fullName}>
               <Typography.Text className="driver-directory-name" ellipsis strong>{fullName}</Typography.Text>
             </Tooltip>
-            <Tag color={statusColor(driver.status)}>{driver.status?.trim() || emptyValue}</Tag>
+            <StatusTag
+              tone={getDriverStatusTone(driver.status)}
+              label={driver.status?.trim() || emptyValue}
+            />
             {driver.roleName?.trim() && <Tag>{driver.roleName}</Tag>}
           </Space>
         )}

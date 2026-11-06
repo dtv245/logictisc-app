@@ -8,8 +8,8 @@
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { useCurrentTenant } from "@hooks/useCurrentTenant";
-import { useTenantList } from "@hooks/useTenantList";
+import { useCurrentTenant } from "@/hooks/useCurrentTenant";
+import { useTenantList } from "@/hooks/useTenantList";
 import type { CurrentUser } from "@/types/auth.types";
 
 // ---------------------------------------------------------------------------
@@ -24,7 +24,7 @@ vi.mock("@hooks/useCurrentUser", () => ({
   useCurrentUser: vi.fn(),
 }));
 
-import { useCurrentUser } from "@hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const setCurrentUser = (data: CurrentUser | undefined) => {
   vi.mocked(useCurrentUser).mockReturnValue({

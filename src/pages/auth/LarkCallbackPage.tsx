@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { routes } from "@constants/routes";
-import { useLarkLogin } from "@hooks/useLarkLogin";
+import { useLarkLogin } from "@/hooks/useLarkLogin";
 
 export const LarkCallbackPage = () => {
   const { t } = useTranslation();

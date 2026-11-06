@@ -6,8 +6,8 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { LoginPage } from "@pages/auth/LoginPage";
-import * as larkHook from "@hooks/useLarkLogin";
-import type { UseLarkLoginResult } from "@hooks/useLarkLogin";
+import * as larkHook from "@/hooks/useLarkLogin";
+import type { UseLarkLoginResult } from "@/hooks/useLarkLogin";
 
 const mockStartLogin = vi.fn();
 

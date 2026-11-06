@@ -5,7 +5,7 @@
 
 import { Show } from "@refinedev/antd";
 import { useShow } from "@refinedev/core";
-import { Alert, Button, Card, Descriptions, Space, Tag, Typography } from "antd";
+import { Alert, Button, Card, Descriptions, Space, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import { StatusTag } from "@/components/StatusTag";
 import { statusTone } from "@/components/statusTone";
@@ -62,7 +62,7 @@ export const CustomerShow = () => {
             {customer.name}
           </Typography.Title>
           <StatusTag label={customer.status} tone={statusTone(customer.status)} />
-          {customer.isVatExempt && <Tag color="blue">Miễn thuế VAT</Tag>}
+          {customer.isVatExempt && <StatusTag label="Miễn thuế VAT" tone="processing" />}
         </Space>
       }
     >
@@ -84,7 +84,7 @@ export const CustomerShow = () => {
           <Descriptions.Item label="Email liên hệ">{customer.email || "—"}</Descriptions.Item>
           <Descriptions.Item label="Số điện thoại">{customer.phone || "—"}</Descriptions.Item>
           <Descriptions.Item label="Miễn thuế VAT">
-            {customer.isVatExempt ? <Tag color="green">Có</Tag> : <Tag color="default">Không</Tag>}
+            {customer.isVatExempt ? <StatusTag label="Có" tone="success" /> : <StatusTag label="Không" tone="neutral" />}
           </Descriptions.Item>
 
           <Descriptions.Item label="Địa chỉ trụ sở" span={3}>

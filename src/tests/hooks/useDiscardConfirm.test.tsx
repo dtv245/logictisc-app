@@ -12,7 +12,7 @@
  */
 
 import { AntdLocaleProvider } from "@components/AntdLocaleProvider";
-import { useDiscardConfirm } from "@hooks/useDiscardConfirm";
+import { useDiscardConfirm } from "@/hooks/useDiscardConfirm";
 import { initializeAppI18n } from "@locales";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { App as AntdApp } from "antd";

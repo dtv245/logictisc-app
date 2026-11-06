@@ -62,14 +62,20 @@ export const ShipmentHeader: React.FC<ShipmentHeaderProps> = ({ load, driverPhon
         )}
 
         {load.assignedTruckNumber && (
-          <div className="shipment-header__pill-btn">
-            🚛 {load.assignedTruckNumber}
+          <div
+            className="shipment-header__pill-btn"
+            aria-label={t("loads.redesign.assignedTruck", { number: load.assignedTruckNumber })}
+          >
+            <span aria-hidden="true">🚛</span> {load.assignedTruckNumber}
           </div>
         )}
 
         {load.deliveryCostAmount != null && load.deliveryCostCurrency && (
-          <div className="shipment-header__pill-btn shipment-header__pill-btn--success">
-            💰 {Number(load.deliveryCostAmount).toLocaleString()} {load.deliveryCostCurrency}
+          <div
+            className="shipment-header__pill-btn shipment-header__pill-btn--success"
+            aria-label={`${t("loads.redesign.deliveryCost", { defaultValue: "Cước vận chuyển" })}: ${Number(load.deliveryCostAmount).toLocaleString()} ${load.deliveryCostCurrency}`}
+          >
+            <span aria-hidden="true">💰</span> {Number(load.deliveryCostAmount).toLocaleString()} {load.deliveryCostCurrency}
           </div>
         )}
       </div>

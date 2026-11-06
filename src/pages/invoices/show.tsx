@@ -8,13 +8,15 @@
  */
 import { Show } from "@refinedev/antd";
 import { useCustom, useShow } from "@refinedev/core";
-import { Alert, Button, Descriptions, Empty, Table, Tag } from "antd";
+import { Alert, Button, Descriptions, Empty, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { isLegacyDraftInvoice } from "@/features/invoices/utils/invoiceMutability";
 import { formatMoney } from "@formatters/money";
+import { StatusTag } from "@/components/StatusTag";
+import { statusTone } from "@/components/statusTone";
 import type { ApiError, PagedResponse } from "@/types/api.types";
 import type { Invoice, InvoiceLineDetail } from "@/types/invoice.types";
 import type { PaymentResponse } from "@/types/payment.dto";
@@ -126,7 +128,12 @@ const InvoiceDetailBody = ({
         dataIndex: "status",
         title: t("invoiceDetail.paymentStatus"),
         width: 160,
-        render: (value: unknown) => <Tag>{text(value)}</Tag>,
+        render: (value: unknown) => (
+          <StatusTag
+            label={text(value)}
+            tone={statusTone(String(value ?? ""))}
+          />
+        ),
       },
       {
         dataIndex: "amountAmount",
@@ -167,7 +174,10 @@ const InvoiceDetailBody = ({
         {text(invoice.type)}
       </Descriptions.Item>
       <Descriptions.Item label={t("columns.invoices.status")}>
-        <Tag>{text(invoice.status)}</Tag>
+        <StatusTag
+          label={text(invoice.status)}
+          tone={statusTone(invoice.status)}
+        />
       </Descriptions.Item>
       <Descriptions.Item label={t("columns.invoices.customerName")}>
         {text(invoice.customerName)}
@@ -191,7 +201,16 @@ const InvoiceDetailBody = ({
         {money(invoice.taxTotalAmount, invoice.taxTotalCurrency, locale)}
       </Descriptions.Item>
       <Descriptions.Item label={t("invoiceDetail.total")}>
-        {money(invoice.totalAmount, invoice.totalCurrency, locale)}
+        <span
+          className="tabular-nums"
+          style={{
+            fontWeight: 700,
+            fontSize: 16,
+            color: "var(--color-primary, #1677ff)",
+          }}
+        >
+          {money(invoice.totalAmount, invoice.totalCurrency, locale)}
+        </span>
       </Descriptions.Item>
       <Descriptions.Item label={t("columns.invoices.dueDate")}>
         {text(invoice.dueDate)}
@@ -228,6 +247,7 @@ const InvoiceDetailBody = ({
             locale={{ emptyText: t("invoiceDetail.noLines") }}
             pagination={false}
             rowKey="id"
+            scroll={{ x: 600 }}
             size="small"
           />
         )}
@@ -253,6 +273,7 @@ const InvoiceDetailBody = ({
             locale={{ emptyText: t("invoiceDetail.noPayments") }}
             pagination={false}
             rowKey="id"
+            scroll={{ x: 600 }}
             size="small"
           />
         )}

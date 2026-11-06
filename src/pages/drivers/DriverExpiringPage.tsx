@@ -1,13 +1,14 @@
 import { useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Alert, Button, InputNumber, Select, Space, Spin, Table, Tag } from "antd";
+import { Alert, Button, InputNumber, Select, Space, Spin, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { driverProfileApi } from "@/api/drivers/driver-profile.api";
 import { routes } from "@/constants/routes";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ForbiddenState, QueryErrorState } from "@/components/ErrorStates";
+import { StatusTag } from "@/components/StatusTag";
 import { useDriverProfileRequest } from "@/hooks/drivers/useDriverProfileRequest";
 import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
@@ -65,7 +66,17 @@ export function DriverExpiringPage() {
     { title: t("driverProfile.expiring.type"), dataIndex: "type", width: 190, render: (value: DriverExpiringType) => t(`driverProfile.expiring.types.${value}`) },
     { title: t("driverProfile.fields.expiryDate"), dataIndex: "expiryDate", width: 150, render: (value: string) => formatDateOnly(value, { locale: i18n.language, timeZone: "Asia/Ho_Chi_Minh" }) },
     { title: t("driverProfile.expiring.daysRemaining"), dataIndex: "daysUntilExpiry", width: 140, render: (value: number) => value < 0 ? t("driverProfile.expiring.daysOverdue", { count: Math.abs(value) }) : t("driverProfile.expiring.days", { count: value }) },
-    { title: t("driverProfile.fields.expiryStatus"), dataIndex: "expiryStatus", width: 150, render: (value: string) => <Tag color={value === "EXPIRED" ? "red" : value === "EXPIRING_SOON" ? "orange" : "green"}>{t(`driverProfile.expiryStatuses.${value}`)}</Tag> },
+    {
+      title: t("driverProfile.fields.expiryStatus"),
+      dataIndex: "expiryStatus",
+      width: 150,
+      render: (value: string) => (
+        <StatusTag
+          tone={value === "EXPIRED" ? "error" : value === "EXPIRING_SOON" ? "warning" : "success"}
+          label={t(`driverProfile.expiryStatuses.${value}`)}
+        />
+      ),
+    },
     { title: t("common.actions"), key: "actions", width: 140, fixed: "right", render: (_value, row) => <Button onClick={() => navigate(routes.resources.drivers.show.replace(":id", encodeURIComponent(row.driverId)))}>{t("driverProfile.actions.openProfile")}</Button> },
   ];
 

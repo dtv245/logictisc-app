@@ -4,7 +4,7 @@
 
 import { Navigate, Outlet } from "react-router-dom";
 
-import { useCurrentUser } from "@hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { FullPageLoader } from "./FullPageLoader";
 import { routes } from "@constants/routes";
 

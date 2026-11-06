@@ -5,24 +5,13 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { formatDateTime } from "@/formatters/dateTime";
+import { StatusTag } from "@/components/StatusTag";
+import { statusTone } from "@/components/statusTone";
 import { TripDriverAssignments } from "@/features/trips/components/TripDriverAssignments";
 import { TripMileageSummary } from "@/features/trips/components/TripMileageSummary";
 import { TripStopsTimeline } from "@/features/trips/components/TripStopsTimeline";
 import type { ApiError } from "@/types/api.types";
 import type { Trip } from "@/types/trip.types";
-
-const getStatusColor = (status?: string): string => {
-  switch ((status || "").toLowerCase()) {
-    case "completed":
-      return "green";
-    case "dispatched":
-      return "blue";
-    case "cancelled":
-      return "red";
-    default:
-      return "default";
-  }
-};
 
 export const TripShow = () => {
   const { t } = useTranslation();
@@ -86,7 +75,7 @@ export const TripShow = () => {
               <TextField value={trip.name} />
             </Descriptions.Item>
             <Descriptions.Item label={t("trips.fields.status", "Status")}>
-              <Tag color={getStatusColor(trip.status)}>{trip.status}</Tag>
+              <StatusTag label={trip.status} tone={statusTone(trip.status)} />
             </Descriptions.Item>
             <Descriptions.Item label={t("trips.fields.truckNumber", "Truck")}>
               <TextField value={trip.truckNumber || trip.truckId || "—"} />
@@ -154,12 +143,10 @@ export const TripShow = () => {
           <Typography.Title level={4} style={{ margin: 0 }}>
             {trip.name || t("resources.trips", "Trip")} #{trip.number}
           </Typography.Title>
-          <Tag color={getStatusColor(trip.status)} style={{ fontSize: 13 }}>
-            {trip.status}
-          </Tag>
+          <StatusTag label={trip.status} tone={statusTone(trip.status)} />
           {trip.truckNumber && (
-            <Tag color="cyan">
-              🚛 {trip.truckNumber}
+            <Tag color="cyan" aria-label={`Xe: ${trip.truckNumber}`}>
+              <span aria-hidden="true">🚛</span> {trip.truckNumber}
             </Tag>
           )}
         </Space>

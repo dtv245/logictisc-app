@@ -13,7 +13,7 @@ import { Input } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useDebouncedSearch } from "@hooks/useDebouncedSearch";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import type { ResourceFilterControl } from "./resources/resourceFilterControls";
 
 export interface SearchFieldProps {

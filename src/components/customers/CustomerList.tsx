@@ -20,7 +20,6 @@ import {
   Select,
   Skeleton,
   Space,
-  Tag,
   Tooltip,
   Typography,
   theme,
@@ -29,6 +28,8 @@ import {
 import { useEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import type { Customer } from "@/types/customers/customer.types";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import { StatusTag, type StatusTone } from "@/components/StatusTag";
+import { statusTone } from "@/components/statusTone";
 import "./CustomerList.scss";
 
 const EMPTY_VALUE = "—";
@@ -94,29 +95,18 @@ export const CustomerAvatar = ({ name }: { name: string }) => {
   );
 };
 
-const statusColor = (status: string): string => {
-  switch (status.trim().toLowerCase()) {
-    case "active":
-    case "đang hoạt động":
-      return "success";
-    case "inactive":
-    case "suspended":
-    case "không hoạt động":
-      return "default";
-    case "pending":
-    case "chờ duyệt":
-      return "warning";
-    case "blocked":
-    case "disabled":
-      return "error";
-    default:
-      return "processing";
-  }
+const getCustomerStatusTone = (status: string): StatusTone => {
+  const normalized = status.trim().toLowerCase();
+  if (normalized === "đang hoạt động") return "success";
+  if (normalized === "không hoạt động") return "neutral";
+  if (normalized === "chờ duyệt") return "warning";
+  return statusTone(status);
 };
 
 export const CustomerStatusTag = ({ status }: { status?: string | null }) => {
   const value = status?.trim();
-  return <Tag color={value ? statusColor(value) : "default"}>{value || EMPTY_VALUE}</Tag>;
+  if (!value) return <StatusTag label={EMPTY_VALUE} tone="neutral" />;
+  return <StatusTag label={value} tone={getCustomerStatusTone(value)} />;
 };
 
 const formatAddress = (customer: Pick<
@@ -203,7 +193,7 @@ const CustomerItem = ({ customer, onView, onEdit, onDelete, canEdit, canDelete, 
       />
     </Dropdown>
   ) : (
-    <Space size={4} wrap onClick={stopRowClick}>
+    <Space size={8} wrap onClick={stopRowClick}>
       <Button size="small" onClick={() => onView(customer)}>Xem</Button>
       {canEdit && <Button size="small" onClick={() => onEdit(customer)}>Sửa</Button>}
       {canDelete && (
@@ -238,7 +228,6 @@ const CustomerItem = ({ customer, onView, onEdit, onDelete, canEdit, canDelete, 
           onView(customer);
         }
       }}
-      role="link"
       style={rowStyle}
       tabIndex={0}
     >
@@ -285,7 +274,7 @@ const CustomerItem = ({ customer, onView, onEdit, onDelete, canEdit, canDelete, 
               </Typography.Text>
             </Tooltip>
             <CustomerStatusTag status={customer.status} />
-            {customer.isVatExempt && <Tag color="purple">Miễn VAT</Tag>}
+            {customer.isVatExempt && <StatusTag label="Miễn VAT" tone="processing" />}
           </Space>
         }
       />

@@ -10,8 +10,8 @@ import {
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useCurrentUser } from "@hooks/useCurrentUser";
-import { useCurrentTenant } from "@hooks/useCurrentTenant";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import { routes } from "@constants/routes";
 import { Pill } from "./primitives";
 import "./DashboardHeader.scss";

@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { translateOptional } from "@/locales";
 
 import type { ApiError } from "@/types/api.types";
-import { useEntityFilters } from "@hooks/useEntityFilters";
+import { useEntityFilters } from "@/hooks/useEntityFilters";
 import { BaseTable } from "@table";
 import { resolveAsyncState } from "@utils/asyncStateModel";
 import { AsyncStateView } from "./AsyncState";
@@ -24,7 +24,7 @@ import {
   isEditableResourceName,
   resourceFormDefinitions,
 } from "./resources/resourceForms";
-import { useLocalizedColumns } from "@hooks/useLocalizedColumns";
+import { useLocalizedColumns } from "@/hooks/useLocalizedColumns";
 import { DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE, normalizePage, normalizePageSize } from "@/utils/querySerializer";
 import { TableDataContext } from "./TableDataContext";
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";

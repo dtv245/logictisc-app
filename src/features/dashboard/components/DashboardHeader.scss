@@ -101,12 +101,26 @@
   }
 
   .ops-icon-btn {
+    position: relative;
     width: 36px;
     height: 36px;
     border-radius: 50%;
     border: 1px solid #e4e2e8;
     color: var(--color-text);
     background: var(--color-bg-container);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 44px;
+      min-height: 44px;
+    }
   }
 }
 

@@ -12,9 +12,9 @@ import { DiagnosticsPage, type ReadyBootstrapState } from "@pages/diagnostics/Di
 import { ForbiddenPage } from "@pages/errors/ForbiddenPage";
 import { NotFoundPage } from "@pages/errors/NotFoundPage";
 
-import * as larkHook from "@hooks/useLarkLogin";
-import * as tenantListHook from "@hooks/useTenantList";
-import * as switchTenantHook from "@hooks/useSwitchTenant";
+import * as larkHook from "@/hooks/useLarkLogin";
+import * as tenantListHook from "@/hooks/useTenantList";
+import * as switchTenantHook from "@/hooks/useSwitchTenant";
 
 vi.mock("@refinedev/core", () => ({
   useLogin: () => ({

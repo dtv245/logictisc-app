@@ -6,8 +6,8 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LarkCallbackPage } from "@pages/auth/LarkCallbackPage";
-import * as larkHook from "@hooks/useLarkLogin";
-import type { UseLarkLoginResult } from "@hooks/useLarkLogin";
+import * as larkHook from "@/hooks/useLarkLogin";
+import type { UseLarkLoginResult } from "@/hooks/useLarkLogin";
 
 let i18n: Awaited<ReturnType<typeof initializeAppI18n>>;
 
