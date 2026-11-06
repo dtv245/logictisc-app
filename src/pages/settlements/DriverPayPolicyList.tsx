@@ -37,7 +37,7 @@ import {
   PAY_METHODS,
   type DriverPayPolicyRequest,
   type DriverPayPolicyView,
-} from "@/types/driverPayPolicy.dto";
+} from "@/types/drivers/driverPayPolicy.dto";
 import "./Settlements.scss";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";

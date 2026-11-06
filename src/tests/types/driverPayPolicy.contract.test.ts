@@ -7,7 +7,7 @@ import {
   percentToRatio,
   ratioToPercent,
   REVENUE_BASES,
-} from "@/types/driverPayPolicy.dto";
+} from "@/types/drivers/driverPayPolicy.dto";
 
 describe("driverPayPolicy contract & utilities", () => {
   describe("percentage conversion convention", () => {

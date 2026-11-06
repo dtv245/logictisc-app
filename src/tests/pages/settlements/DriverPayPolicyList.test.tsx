@@ -7,7 +7,7 @@ import { MemoryRouter } from "react-router-dom";
 import { setTestLocale } from "@/tests/testLocale";
 
 import { DriverPayPolicyList } from "@/pages/settlements/DriverPayPolicyList";
-import type { DriverPayPolicyView } from "@/types/driverPayPolicy.dto";
+import type { DriverPayPolicyView } from "@/types/drivers/driverPayPolicy.dto";
 
 const mockUseDriverPayPolicies = vi.fn();
 const mockUseDriverPayPolicyMutations = vi.fn();

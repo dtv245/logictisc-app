@@ -26,7 +26,7 @@ import {
   type DriverPayPolicyFormValues,
   type DriverPayPolicyRequest,
   type DriverPayPolicyView,
-} from "@/types/driverPayPolicy.dto";
+} from "@/types/drivers/driverPayPolicy.dto";
 
 const { Title, Text } = Typography;
 

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setTestLocale } from "@/tests/testLocale";
 
 import { DriverPayPolicyForm } from "@/features/settlements/components/DriverPayPolicyForm";
-import type { DriverPayPolicyView } from "@/types/driverPayPolicy.dto";
+import type { DriverPayPolicyView } from "@/types/drivers/driverPayPolicy.dto";
 
 describe("DriverPayPolicyForm", () => {
   beforeEach(async () => {

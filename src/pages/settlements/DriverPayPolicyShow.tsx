@@ -27,7 +27,7 @@ import { DriverPayPolicyVersionHistory } from "@/features/settlements/components
 import {
   formatPercentDisplay,
   type DriverPayPolicyRequest,
-} from "@/types/driverPayPolicy.dto";
+} from "@/types/drivers/driverPayPolicy.dto";
 import "./Settlements.scss";
 
 const { Text } = Typography;

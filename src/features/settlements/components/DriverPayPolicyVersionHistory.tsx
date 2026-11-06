@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import {
   formatPercentDisplay,
   type DriverPayPolicyView,
-} from "@/types/driverPayPolicy.dto";
+} from "@/types/drivers/driverPayPolicy.dto";
 
 const { Text } = Typography;
 

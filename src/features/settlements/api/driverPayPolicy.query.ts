@@ -7,7 +7,7 @@ import type { ApiError } from "@/types/api.types";
 import type {
   DriverPayPolicyRequest,
   DriverPayPolicyView,
-} from "@/types/driverPayPolicy.dto";
+} from "@/types/drivers/driverPayPolicy.dto";
 import { DRIVER_PAY_POLICY_ENDPOINTS } from "./driverPayPolicy.api";
 
 export const DRIVER_PAY_POLICIES_QUERY_KEY = ["driver-pay-policies"];
