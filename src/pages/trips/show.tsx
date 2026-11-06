@@ -11,7 +11,7 @@ import { TripDriverAssignments } from "@/features/trips/components/TripDriverAss
 import { TripMileageSummary } from "@/features/trips/components/TripMileageSummary";
 import { TripStopsTimeline } from "@/features/trips/components/TripStopsTimeline";
 import type { ApiError } from "@/types/api.types";
-import type { Trip } from "@/types/trip.types";
+import type { Trip } from "@/types/trips/trip.types";
 
 export const TripShow = () => {
   const { t } = useTranslation();

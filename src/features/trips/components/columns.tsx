@@ -5,7 +5,7 @@ import { routes } from "@constants/routes";
 import { createCrudColumns } from "@/components/crudColumns";
 import { displayValue } from "@formatters/display";
 import type { StatusTone } from "@/components/StatusTag";
-import type { Trip } from "@/types/trip.types";
+import type { Trip } from "@/types/trips/trip.types";
 import { formatDistance } from "@/utils/distance";
 
 export const tripStatusMap: Record<string, StatusTone> = {

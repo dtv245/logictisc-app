@@ -1,5 +1,5 @@
-import type { Address, GeoLocation } from "./common.types";
-import type { ISODateTime } from "./api.types";
+import type { Address, GeoLocation } from "@/types/common.types";
+import type { ISODateTime } from "@/types/api.types";
 
 /** Open CORE vocabulary follows the verified schema; commands still reject unknown state. */
 export type TripStatus = string;

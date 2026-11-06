@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Trip } from "@/types/trip.types";
-import type { TripResponse } from "@/types/trip.dto";
+import type { Trip } from "@/types/trips/trip.types";
+import type { TripResponse } from "@/types/trips/trip.dto";
 import { formatDateTime } from "@formatters/dateTime";
 
 describe("Trip contract and timestamp normalization", () => {

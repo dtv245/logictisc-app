@@ -4,7 +4,7 @@
 
 import type { AuditableEntity, GeoLocation } from "@/types/common.types";
 import type { Employee } from "@/types/employees/employee.types";
-import type { Trip } from "@/types/trip.types";
+import type { Trip } from "@/types/trips/trip.types";
 import type { Truck } from "@/types/trucks/truck.types";
 
 // TODO: xác nhận lại danh sách giá trị enum với backend.

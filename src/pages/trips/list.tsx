@@ -2,7 +2,7 @@
 import { CreateButton } from "@refinedev/antd";
 import { ResourceListPage } from "@/components/ResourceListPage";
 import { TripCreateModal } from "@/components/trips/TripCreateModal";
-import type { Trip } from "@/types/trip.types";
+import type { Trip } from "@/types/trips/trip.types";
 import { tripColumns } from "@features/trips/components/columns";
 
 export const TripList = () => (

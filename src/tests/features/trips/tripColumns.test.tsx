@@ -11,7 +11,7 @@ import type { i18n as I18nInstance } from "i18next";
 import { initializeAppI18n } from "@locales";
 import { useLocalizedColumns } from "@/hooks/useLocalizedColumns";
 import { tripColumns, tripStatusMap } from "@features/trips/components/columns";
-import type { Trip } from "@/types/trip.types";
+import type { Trip } from "@/types/trips/trip.types";
 
 const queryClient = new QueryClient({
   defaultOptions: {
