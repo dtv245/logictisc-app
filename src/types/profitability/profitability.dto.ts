@@ -1,4 +1,4 @@
-import type { ShipmentCostView } from "@/types/shipmentCost.types";
+import type { ShipmentCostView } from "@/types/shipment-costs/shipmentCost.types";
 import type { AccessorialChargeView } from "@/types/accessorials/accessorial.types";
 
 export type FinancialDecimal = number | string;

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { formatDateTime } from "@formatters/dateTime";
 import type { AccessorialChargeView } from "@/types/accessorials/accessorial.types";
 import type { LoadTimelineResponse } from "@/types/loads/loads.types";
-import type { ShipmentCostView } from "@/types/shipmentCost.types";
+import type { ShipmentCostView } from "@/types/shipment-costs/shipmentCost.types";
 
 describe("Load Timeline and Costs contract tests", () => {
   it("verifies LoadTimelineResponse and LoadEventView contracts with ISO timestamps", () => {

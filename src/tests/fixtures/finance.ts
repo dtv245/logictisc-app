@@ -1,6 +1,6 @@
 /** Contract fixtures deliberately disagree with row totals to catch browser aggregation. */
 import type { LoadProfitabilityReportDto, ProfitabilityMetricDto, LoadFinancialSummaryDto } from "@/types/profitability/profitability.dto";
-import type { ShipmentCostView } from "@/types/shipmentCost.types";
+import type { ShipmentCostView } from "@/types/shipment-costs/shipmentCost.types";
 import type { AccessorialChargeView } from "@/types/accessorials/accessorial.types";
 
 export const loadId = "11111111-1111-4111-8111-111111111111";

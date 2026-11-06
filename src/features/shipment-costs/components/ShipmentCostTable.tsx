@@ -18,7 +18,7 @@ import type { ApiResponse } from "@/types/api.types";
 import { RAW_RESPONSE_META } from "@/types/apiClient.types";
 import type { ApiHttpError } from "@/utils/httpError";
 import { readApiResponse } from "@/utils/envelope";
-import type { ShipmentCostView } from "@/types/shipmentCost.types";
+import type { ShipmentCostView } from "@/types/shipment-costs/shipmentCost.types";
 
 export const ShipmentCostTable = ({ loadId }: { loadId: string }) => {
   const { t, i18n } = useTranslation();

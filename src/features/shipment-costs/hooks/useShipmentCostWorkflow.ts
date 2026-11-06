@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { financialQueryKeys } from "@/features/profitability";
 import { useCurrentTenant } from "@/hooks/useCurrentTenant";
 import type { ApiHttpError } from "@/utils/httpError";
-import type { ShipmentCostView } from "@/types/shipmentCost.types";
+import type { ShipmentCostView } from "@/types/shipment-costs/shipmentCost.types";
 
 export type ShipmentCostCommand = "verify" | "approve" | "void";
 
