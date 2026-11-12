@@ -1,4 +1,4 @@
-import { Alert, Button, Input } from "antd";
+import { Alert, Button, Input, Spin } from "antd";
 import { ArrowRight, MapPin, Search, Truck as TruckIcon } from "lucide-react";
 import { memo, useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -293,8 +293,16 @@ export function LiveTrackingPage() {
             <Button onClick={() => void workspace.trucks.refetch()} loading={workspace.trucks.isFetching}>
               Làm mới vị trí
             </Button>
-            <span className="tms-refresh-state">{locatedTrucks.length} xe · vị trí theo tọa độ đã ghi nhận</span>
-            {locatedTrucks.length === 0 ? (
+            {workspace.trucks.isLoading ? (
+              <span className="tms-refresh-state" role="status" aria-live="polite">
+                <Spin size="small" aria-hidden="true" /> Đang tải vị trí xe…
+              </span>
+            ) : (
+              <span className="tms-refresh-state">
+                {locatedTrucks.length} xe · vị trí theo tọa độ đã ghi nhận
+              </span>
+            )}
+            {!workspace.trucks.isLoading && locatedTrucks.length === 0 ? (
               <span className="map-shell__no-vehicles" role="status">
                 <MapPin size={16} aria-hidden="true" /> Chưa có vị trí xe nào
               </span>
@@ -303,6 +311,19 @@ export function LiveTrackingPage() {
         )}
         left={(
           <div className="tms-live-tracking__left">
+            {workspace.loads.error ? (
+              <Alert
+                action={
+                  <Button onClick={() => void workspace.loads.refetch()} size="small">
+                    Thử lại
+                  </Button>
+                }
+                description={describeTmsError(workspace.loads.error)}
+                message="Không tải được thông tin lô hàng"
+                showIcon
+                type="warning"
+              />
+            ) : null}
             {workspace.trucksError ? (
               <Alert
                 action={<Button onClick={() => void workspace.trucks.refetch()} size="small">Thử lại</Button>}
@@ -343,6 +364,11 @@ export function LiveTrackingPage() {
             ))}
           </div>
           <div className="tms-live-tracking__vehicles">
+            {workspace.trucks.isLoading ? (
+              <p className="tms-empty" role="status" aria-live="polite">
+                <Spin size="small" aria-hidden="true" /> Đang tải vị trí xe…
+              </p>
+            ) : null}
             {filteredVehicles.map(({ truck, load }) => (
               <LiveVehicleItem
                 isSelected={selectedTruck?.id === truck.id}
@@ -352,7 +378,7 @@ export function LiveTrackingPage() {
                 truck={truck}
               />
             ))}
-            {filteredVehicles.length === 0 ? (
+            {!workspace.trucks.isLoading && filteredVehicles.length === 0 ? (
               <p className="tms-empty">
                 {locatedTrucks.length === 0
                   ? "Chưa có xe nào có tọa độ vị trí. Bản đồ sẽ hiển thị xe khi dữ liệu vị trí được ghi nhận."
@@ -402,7 +428,13 @@ export function LiveTrackingPage() {
                   </Button>
                 </div>
               ) : (
-                <p className="tms-empty">Chưa có lô hàng đang hoạt động được liên kết với xe này.</p>
+                <p className="tms-empty">
+                  {workspace.loads.isLoading
+                    ? "Đang tải thông tin lô hàng…"
+                    : workspace.loads.error
+                    ? "Chưa tải được thông tin lô hàng. Hãy thử lại để kiểm tra chuyến đang chạy."
+                    : "Chưa có lô hàng đang hoạt động được liên kết với xe này."}
+                </p>
               )}
               <p className="tms-live-detail__note">
                 {routeLines.length > 0

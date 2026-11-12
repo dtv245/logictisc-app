@@ -21,6 +21,7 @@ import { CustomerQuickCreateLink } from "@/features/customers/components/Custome
 import { CustomerRouteSuggestion } from "@/features/loads/components/CustomerRouteSuggestion";
 import { LoadSummaryPanel } from "@/features/loads/components/LoadSummaryPanel";
 import { TerminalAddressAutofill } from "@/features/loads/components/TerminalAddressAutofill";
+import { TerminalSelect } from "@/features/terminals/components/TerminalSelect";
 import { validateDeliveryAfterPickup } from "@/utils/loadSchedule";
 import { AddressFields } from "@/forms/AddressFields";
 import { FormFooterBar } from "@/forms/FormFooterBar";
@@ -80,6 +81,7 @@ export const LoadForm = ({
   const isHazmat = Form.useWatch("isHazmat", form);
   const loadNumber = Form.useWatch("number", form);
   const [customerPickerKey, setCustomerPickerKey] = useState(0);
+  const isStandaloneCreate = !isEdit && !isModal;
 
   const deliveryDateRules: FormItemProps["rules"] = [
     {
@@ -138,6 +140,48 @@ export const LoadForm = ({
       </Form.Item>
 
       <Row gutter={[24, 0]}>
+        {!isModal && (
+          <Col xs={24} lg={0}>
+            <nav
+              aria-label="Điều hướng biểu mẫu"
+              style={{
+                marginBottom: 16,
+                padding: 16,
+                background: "#fff",
+                border: "1px solid #f0f0f0",
+                borderRadius: 8,
+              }}
+            >
+              <label
+                htmlFor="load-form-section-navigation"
+                style={{ display: "block", fontWeight: 600, marginBottom: 8 }}
+              >
+                Chuyển nhanh đến nhóm thông tin
+              </label>
+              <Select
+                id="load-form-section-navigation"
+                aria-label="Chọn nhóm thông tin"
+                placeholder="Chọn một nhóm"
+                options={anchorItems.map(({ key, title }) => ({ value: key, label: title }))}
+                onChange={(sectionId: string) => {
+                  const section = document.getElementById(sectionId);
+                  if (!section) return;
+
+                  const reduceMotion = window.matchMedia(
+                    "(prefers-reduced-motion: reduce)",
+                  ).matches;
+                  section.scrollIntoView({
+                    behavior: reduceMotion ? "auto" : "smooth",
+                    block: "start",
+                  });
+                  window.history.replaceState(null, "", `#${sectionId}`);
+                }}
+                style={{ width: "100%" }}
+              />
+            </nav>
+          </Col>
+        )}
+
         {/* Vùng nội dung form chính */}
         <Col xs={24} lg={isModal ? 24 : 18} xl={isModal ? 24 : 19}>
           {/* Section 1: Thông tin chung */}
@@ -222,11 +266,23 @@ export const LoadForm = ({
             title="Điểm lấy hàng (Origin)"
             description="Địa chỉ nơi nhận hàng, trạm xuất phát và ngày hẹn lấy hàng"
           >
+            {isStandaloneCreate && (
+              <Form.Item
+                label="Chọn trạm lấy hàng có sẵn (tùy chọn)"
+                name="originTerminalId"
+                extra="Chọn trạm để tự điền địa chỉ và tọa độ GPS bên dưới. Bạn vẫn có thể chỉnh sửa các trường sau khi điền."
+              >
+                <TerminalSelect
+                  allowCreate
+                  placeholder="Tìm trạm lấy hàng theo tên hoặc mã"
+                />
+              </Form.Item>
+            )}
             <AddressFields
               prefix="originAddress"
               coordinatePrefix="originLocation"
               includeCoordinates={true}
-              includeTerminal={true}
+              includeTerminal={!isStandaloneCreate}
               terminalName="originTerminalId"
               terminalLabel="Trạm xuất phát"
               terminalAllowCreate={true}
@@ -247,11 +303,23 @@ export const LoadForm = ({
             title="Điểm giao hàng (Destination)"
             description="Địa chỉ nơi giao hàng, trạm đích và ngày hẹn giao hàng"
           >
+            {isStandaloneCreate && (
+              <Form.Item
+                label="Chọn trạm giao hàng có sẵn (tùy chọn)"
+                name="destinationTerminalId"
+                extra="Chọn trạm để tự điền địa chỉ và tọa độ GPS bên dưới. Bạn vẫn có thể chỉnh sửa các trường sau khi điền."
+              >
+                <TerminalSelect
+                  allowCreate
+                  placeholder="Tìm trạm giao hàng theo tên hoặc mã"
+                />
+              </Form.Item>
+            )}
             <AddressFields
               prefix="destinationAddress"
               coordinatePrefix="destinationLocation"
               includeCoordinates={true}
-              includeTerminal={true}
+              includeTerminal={!isStandaloneCreate}
               terminalName="destinationTerminalId"
               terminalLabel="Trạm đích"
               terminalAllowCreate={true}
@@ -350,8 +418,12 @@ export const LoadForm = ({
                 </Form.Item>
               </Col>
               <Col xs={24} md={12}>
-                <Form.Item label="Container gắn kèm" name="containerId" extra="Chức năng chọn container chưa khả dụng. Bạn có thể tạo đơn hàng mà không chọn container.">
-                  <Select disabled placeholder="Chưa hỗ trợ chọn container" />
+                <Form.Item
+                  label="Container gắn kèm"
+                  name="containerId"
+                  extra="Backend chưa cung cấp API danh sách container cho biểu mẫu. Hãy để trống mục này."
+                >
+                  <Select disabled placeholder="Danh sách container chưa khả dụng" />
                 </Form.Item>
               </Col>
             </Row>

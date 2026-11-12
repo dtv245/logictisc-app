@@ -452,7 +452,7 @@ export function DriverProfileSection({ definition, driverId, self = false, canEd
         title={t(formMode === "create" ? "driverProfile.actions.add" : "actions.edit")}
         onCancel={() => setFormOpen(false)}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
         width={720}
       >
         <FormModalBody
@@ -471,7 +471,7 @@ export function DriverProfileSection({ definition, driverId, self = false, canEd
           setDetailError(undefined);
         }}
         width={Math.min(560, typeof window === "undefined" ? 560 : window.innerWidth - 24)}
-        destroyOnClose
+        destroyOnHidden
       >
         {detailLoading ? <Spin /> : null}
         {getErrorStatus(detailError) === 403 ? <ForbiddenState /> : null}
@@ -519,7 +519,7 @@ function FormModalBody({ fields, form, loading, mode, onCancel, onFinish, error,
 function FormModal(props: FormBodyProps & { open: boolean }) {
   const { form, fields, loading, mode, open, t, onCancel, onFinish, error } = props;
   return (
-    <Modal open={open} title={t(mode === "create" ? "driverProfile.actions.add" : "actions.edit")} onCancel={onCancel} footer={null} destroyOnClose width={720}>
+    <Modal open={open} title={t(mode === "create" ? "driverProfile.actions.add" : "actions.edit")} onCancel={onCancel} footer={null} destroyOnHidden width={720}>
       <FormModalBody form={form} fields={fields} loading={loading} mode={mode} t={t} onCancel={onCancel} onFinish={onFinish} error={error} />
     </Modal>
   );
@@ -551,7 +551,7 @@ function SensitiveDrawer({
   onClose: () => void;
 }) {
   return (
-    <Drawer open={open} title={t("driverProfile.actions.sensitiveTitle")} onClose={onClose} width={Math.min(480, typeof window === "undefined" ? 480 : window.innerWidth - 24)} destroyOnClose>
+    <Drawer open={open} title={t("driverProfile.actions.sensitiveTitle")} onClose={onClose} width={Math.min(480, typeof window === "undefined" ? 480 : window.innerWidth - 24)} destroyOnHidden>
       <Alert type="warning" showIcon message={t("driverProfile.sensitiveNotice")} style={{ marginBottom: 16 }} />
       {loading ? <Spin /> : null}
       {getErrorStatus(error) === 403 ? <ForbiddenState /> : null}

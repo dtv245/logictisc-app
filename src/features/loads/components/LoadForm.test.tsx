@@ -21,9 +21,9 @@ function Harness() {
 }
 
 describe("LoadForm container", () => {
-  it("giải thích tính năng chưa khả dụng và không tải resource container", () => {
+  it("giải thích tính năng chưa khả dụng và không gọi resource container", () => {
     renderWithQuery(<Harness />);
-    expect(screen.getByText(/Chức năng chọn container chưa khả dụng/)).toBeInTheDocument();
+    expect(screen.getByText(/Backend chưa cung cấp API danh sách container/)).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Container gắn kèm" })).toBeDisabled();
     expect(screen.queryByTestId("picker-containers")).not.toBeInTheDocument();
   });
