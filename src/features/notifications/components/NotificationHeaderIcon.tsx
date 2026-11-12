@@ -395,18 +395,16 @@ export const NotificationHeaderIcon = ({
             const { notification: item } = triaged;
             const palette = POPUP_SEVERITY_STYLES[triaged.severity];
             return (
-              <div
+              <article
                 key={item.id}
                 data-testid={`notification-popup-item-${item.id}`}
                 data-severity={triaged.severity}
-                onClick={() => handleNotificationClick(triaged.targetHref)}
                 style={{
                   padding: "10px 12px",
                   background: item.isRead ? palette.readBg : palette.unreadBg,
                   border: "1px solid #e2e8f0",
                   borderLeft: `4px solid ${palette.borderColor}`,
                   borderRadius: 8,
-                  cursor: "pointer",
                   transition: "border-color 0.15s ease",
                 }}
               >
@@ -459,10 +457,7 @@ export const NotificationHeaderIcon = ({
                     )}
                     <Button
                       type="link"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleNotificationClick(triaged.targetHref);
-                      }}
+                      onClick={() => handleNotificationClick(triaged.targetHref)}
                       aria-label={`${item.title} (${t(item.isRead ? "notifications.read" : "notifications.unread")})`}
                       style={{
                         whiteSpace: "normal",
@@ -509,7 +504,11 @@ export const NotificationHeaderIcon = ({
                   >
                     {triaged.screenLabel}
                   </span>
-                  <span
+                  <Button
+                    type="link"
+                    size="small"
+                    aria-label={`${triaged.actionLabel}: ${item.title}`}
+                    onClick={() => handleNotificationClick(triaged.targetHref)}
                     style={{
                       color: palette.actionColor,
                       fontWeight: 600,
@@ -517,12 +516,13 @@ export const NotificationHeaderIcon = ({
                       alignItems: "center",
                       gap: 4,
                       flexShrink: 0,
+                      paddingInline: 0,
                     }}
                   >
                     {triaged.actionLabel} <ArrowRightOutlined />
-                  </span>
+                  </Button>
                 </Flex>
-              </div>
+              </article>
             );
           })}
 

@@ -17,11 +17,10 @@ import {
   ThunderboltOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
-import { Button, Empty, Input, Pagination, Spin, Tag } from "antd";
+import { Alert, Button, Empty, Input, Pagination, Spin, Tag } from "antd";
 import {
   useMemo,
   useState,
-  type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
 } from "react";
@@ -122,6 +121,10 @@ export const NotificationList = () => {
     [tableQueryResult.data?.data],
   );
   const totalCount = tableQueryResult.data?.total ?? rawNotifications.length;
+  const isInitialLoading =
+    tableQueryResult.isLoading && rawNotifications.length === 0;
+  const hasInitialLoadError =
+    tableQueryResult.isError && rawNotifications.length === 0;
 
   const triagedItems = useMemo<readonly TriagedNotification[]>(() => {
     const context = {
@@ -199,16 +202,6 @@ export const NotificationList = () => {
     navigate(href);
   };
 
-  const handleCardKeyDown = (
-    event: KeyboardEvent<HTMLElement>,
-    href: string,
-  ) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      navigate(href);
-    }
-  };
-
   const handleSecondaryClick = (
     event: MouseEvent<HTMLElement>,
     href: string,
@@ -250,11 +243,12 @@ export const NotificationList = () => {
       <div className="notification-center__kpis" role="region" aria-label="Tổng quan mức độ quan trọng">
         <button
           type="button"
+          aria-pressed={filterMode === "all"}
           className={`notification-center__kpi ${filterMode === "all" ? "is-active" : ""}`}
           onClick={() => setFilterMode("all")}
         >
           <span className="notification-center__kpi-top">
-            <span>Tổng thông báo trang này</span>
+            <span>Thông báo trên trang này</span>
             <BellOutlined />
           </span>
           <strong className="notification-center__kpi-value">{counts.all}</strong>
@@ -265,13 +259,14 @@ export const NotificationList = () => {
 
         <button
           type="button"
+          aria-pressed={filterMode === "critical"}
           className={`notification-center__kpi notification-center__kpi--critical ${filterMode === "critical" ? "is-active" : ""}`}
           onClick={() =>
             setFilterMode((prev) => (prev === "critical" ? "all" : "critical"))
           }
         >
           <span className="notification-center__kpi-top">
-            <span>Khẩn cấp (Cần xử lý ngay)</span>
+            <span>Khẩn cấp trên trang này</span>
             <StatusTag label="Khẩn cấp" tone="error" />
           </span>
           <strong className="notification-center__kpi-value">
@@ -284,32 +279,34 @@ export const NotificationList = () => {
 
         <button
           type="button"
+          aria-pressed={filterMode === "high"}
           className={`notification-center__kpi notification-center__kpi--high ${filterMode === "high" ? "is-active" : ""}`}
           onClick={() =>
             setFilterMode((prev) => (prev === "high" ? "all" : "high"))
           }
         >
           <span className="notification-center__kpi-top">
-            <span>Quan trọng & Cảnh báo</span>
+            <span>Quan trọng trên trang này</span>
             <StatusTag label="Quan trọng" tone="warning" />
           </span>
           <strong className="notification-center__kpi-value">
-            {counts.high + counts.medium}
+            {counts.high}
           </strong>
           <span className="notification-center__kpi-hint">
-            {counts.high} quan trọng · {counts.medium} cần xử lý
+            {counts.medium} thông báo cần xử lý trên trang này
           </span>
         </button>
 
         <button
           type="button"
+          aria-pressed={filterMode === "unread"}
           className={`notification-center__kpi notification-center__kpi--unread ${filterMode === "unread" ? "is-active" : ""}`}
           onClick={() =>
             setFilterMode((prev) => (prev === "unread" ? "all" : "unread"))
           }
         >
           <span className="notification-center__kpi-top">
-            <span>Chưa đọc</span>
+            <span>Chưa đọc trên trang này</span>
             <ClockCircleOutlined />
           </span>
           <strong className="notification-center__kpi-value">
@@ -328,6 +325,7 @@ export const NotificationList = () => {
               className="notification-center__filters"
               role="group"
               aria-label="Lọc theo mức độ quan trọng"
+              aria-describedby="notification-center-scope-note"
             >
               {FILTER_OPTIONS.map((option) => {
                 const count = counts[option.key];
@@ -350,19 +348,50 @@ export const NotificationList = () => {
             <Input
               allowClear
               prefix={<SearchOutlined />}
-              placeholder="Tìm theo tiêu đề, mã lô #1001, khách hàng..."
+              placeholder="Tìm trong trang này theo tiêu đề, mã lô #1001, khách hàng..."
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
               className="notification-center__search"
               aria-label="Tìm kiếm thông báo"
+              aria-describedby="notification-center-scope-note"
             />
           </div>
 
-          {tableQueryResult.isLoading ? (
+          <p
+            id="notification-center-scope-note"
+            className="notification-center__scope-note"
+          >
+            Bộ lọc và tìm kiếm áp dụng cho trang {current}; tổng số toàn hệ
+            thống: {totalCount} thông báo.
+          </p>
+
+          {tableQueryResult.isError ? (
+            <Alert
+              type="error"
+              showIcon
+              message={
+                rawNotifications.length === 0
+                  ? "Không thể tải danh sách thông báo"
+                  : "Không thể làm mới danh sách thông báo"
+              }
+              description="Kiểm tra kết nối rồi thử lại."
+              action={
+                <Button
+                  disabled={tableQueryResult.isFetching}
+                  onClick={() => void tableQueryResult.refetch()}
+                  size="small"
+                >
+                  Thử lại
+                </Button>
+              }
+            />
+          ) : null}
+
+          {isInitialLoading ? (
             <div style={{ padding: "48px 0", textAlign: "center" }}>
               <Spin tip="Đang tải danh sách thông báo..." />
             </div>
-          ) : visibleItems.length === 0 ? (
+          ) : hasInitialLoadError ? null : visibleItems.length === 0 ? (
             <Empty
               description={
                 rawNotifications.length === 0
@@ -392,14 +421,8 @@ export const NotificationList = () => {
                 return (
                   <article
                     key={notification.id}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`${item.severityLabel}: ${notification.title}. ${item.actionLabel}`}
                     className={`notification-card notification-card--${item.severity} ${!notification.isRead ? "is-unread" : ""}`}
                     onClick={() => handleOpenTarget(item.targetHref)}
-                    onKeyDown={(event) =>
-                      handleCardKeyDown(event, item.targetHref)
-                    }
                   >
                     <div className="notification-card__top">
                       <div className="notification-card__badges">
@@ -494,24 +517,27 @@ export const NotificationList = () => {
             </div>
           )}
 
-          <div className="notification-center__pagination">
-            <span className="notification-center__subtitle">
-              Hiển thị {visibleItems.length} / {rawNotifications.length} thông báo trên trang {current}
-            </span>
-            <Pagination
-              current={current}
-              pageSize={pageSize}
-              total={totalCount}
-              showSizeChanger
-              pageSizeOptions={[...LIST_PAGE_SIZE_OPTIONS]}
-              onChange={(nextPage, nextPageSize) => {
-                if (nextPageSize && nextPageSize !== pageSize) {
-                  setPageSize(nextPageSize);
-                }
-                setCurrent(nextPage);
-              }}
-            />
-          </div>
+          {!isInitialLoading && !hasInitialLoadError ? (
+            <div className="notification-center__pagination">
+              <span className="notification-center__subtitle">
+                Hiển thị {visibleItems.length} / {rawNotifications.length}{" "}
+                thông báo trên trang {current}
+              </span>
+              <Pagination
+                current={current}
+                pageSize={pageSize}
+                total={totalCount}
+                showSizeChanger
+                pageSizeOptions={[...LIST_PAGE_SIZE_OPTIONS]}
+                onChange={(nextPage, nextPageSize) => {
+                  if (nextPageSize && nextPageSize !== pageSize) {
+                    setPageSize(nextPageSize);
+                  }
+                  setCurrent(nextPage);
+                }}
+              />
+            </div>
+          ) : null}
         </div>
 
         <aside

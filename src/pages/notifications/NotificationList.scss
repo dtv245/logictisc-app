@@ -153,6 +153,13 @@
     flex-wrap: wrap;
   }
 
+  &__scope-note {
+    margin: -4px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--color-text-secondary, #475569);
+  }
+
   &__filters {
     display: flex;
     align-items: center;
@@ -193,7 +200,7 @@
   }
 
   &__search {
-    min-width: 260px;
+    min-width: 0;
     max-width: 360px;
     flex: 1 1 260px;
   }
@@ -212,6 +219,14 @@
     flex-wrap: wrap;
     padding-top: 8px;
     border-top: 1px solid var(--color-border-secondary, #e2e8f0);
+  }
+}
+
+@media (max-width: 520px) {
+  .notification-center__search {
+    width: 100%;
+    max-width: none;
+    flex-basis: 100%;
   }
 }
 

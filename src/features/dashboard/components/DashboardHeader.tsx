@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Input, Modal, Space, Tooltip } from "antd";
 import {
   Bell,
@@ -23,7 +23,7 @@ export interface DashboardHeaderProps {
   className?: string;
 }
 
-export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+export const DashboardHeader: React.FC<DashboardHeaderProps> = memo(({
   monitoringCount,
   approvalsCount,
   className = "",
@@ -61,35 +61,41 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     return () => window.removeEventListener("keydown", closeOnEscape, true);
   }, [searchOpen]);
 
-  const now = dayjs();
-  const hour = now.hour();
-  let greeting = t("dashboard.opsView.greeting.morning");
-  if (hour >= 12 && hour < 18) {
-    greeting = t("dashboard.opsView.greeting.afternoon");
-  } else if (hour >= 18) {
-    greeting = t("dashboard.opsView.greeting.evening");
-  }
+  const { greeting, dateFormatted } = useMemo(() => {
+    const now = dayjs();
+    const hour = now.hour();
+    let g = t("dashboard.opsView.greeting.morning");
+    if (hour >= 12 && hour < 18) {
+      g = t("dashboard.opsView.greeting.afternoon");
+    } else if (hour >= 18) {
+      g = t("dashboard.opsView.greeting.evening");
+    }
+    const df = new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language || "vi", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(now.toDate());
+    return { greeting: g, dateFormatted: df };
+  }, [i18n.language, i18n.resolvedLanguage, t]);
 
   const userName = currentUser.data?.name || t("dashboard.opsView.greeting.nameFallback");
-  const dateFormatted = new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language || "vi", {
-    weekday: "long",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(now.toDate());
 
-  const handleSearch = (val: string) => {
-    const search = val.trim();
-    if (!search) return;
-    setSearchOpen(false);
-    const query = new URLSearchParams({
-      current: "1",
-      "filters[0][field]": "search",
-      "filters[0][operator]": "contains",
-      "filters[0][value]": search,
-    });
-    navigate(`${routes.resources.loads.list}?${query.toString()}`);
-  };
+  const handleSearch = useCallback(
+    (val: string) => {
+      const search = val.trim();
+      if (!search) return;
+      setSearchOpen(false);
+      const query = new URLSearchParams({
+        current: "1",
+        "filters[0][field]": "search",
+        "filters[0][operator]": "contains",
+        "filters[0][value]": search,
+      });
+      navigate(`${routes.resources.loads.list}?${query.toString()}`);
+    },
+    [navigate],
+  );
 
   return (
     <header className={`ops-dashboard-header ${className}`}>
@@ -191,4 +197,4 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       </Modal>
     </header>
   );
-};
+});

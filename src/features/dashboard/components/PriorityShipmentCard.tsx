@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import truckReference from "@/assets/dashboard/priority-truck.png";
 import { Button, Space } from "antd";
@@ -31,7 +31,7 @@ export interface PriorityShipmentCardProps {
 
 const priorityLabelKeys = ["title", "unavailableHint", "window", "eta", "detour", "noDetour", "route", "driver", "speed", "reefer", "fuel", "load", "pallets", "set", "previous", "next", "truckAlt", "riskCount", "late", "ahead", "onTime", "etaPrefix"] as const;
 
-export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
+export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = memo(({
   shipments = [],
   isLoading = false,
   isUnavailable = false,
@@ -43,8 +43,11 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
 }) => {
   const { i18n } = useTranslation();
   const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
-  const fixedT = i18n.getFixedT(activeLocale);
-  const text = createLocaleLabels(fixedT, "dashboard.opsView.panels.priority", priorityLabelKeys);
+  const fixedT = useMemo(() => i18n.getFixedT(activeLocale), [i18n, activeLocale]);
+  const text = useMemo(
+    () => createLocaleLabels(fixedT, "dashboard.opsView.panels.priority", priorityLabelKeys),
+    [fixedT],
+  );
   const list = shipments;
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -258,4 +261,4 @@ export const PriorityShipmentCard: React.FC<PriorityShipmentCardProps> = ({
       </div>
     </OpsCard>
   );
-};
+});

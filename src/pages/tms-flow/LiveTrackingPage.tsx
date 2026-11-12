@@ -1,6 +1,6 @@
-import { Alert, Button, Input, Spin } from "antd";
+import { Alert, Button, Input } from "antd";
 import { ArrowRight, MapPin, Search, Truck as TruckIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { DispatchMapLayers } from "@/components/map/DispatchMapLayers";
@@ -39,17 +39,69 @@ const equipmentLabel = (type: TruckResponse["type"]): string => {
   }
 };
 
-const activeLoadForTruck = (
+const buildActiveLoadsByTruck = (
   shipments: readonly TmsShipmentView[],
-  truckId: string,
-): TmsShipmentView | undefined =>
-  shipments
-    .filter((shipment) => shipment.assignedTruckId === truckId && shipment.status !== "delivered" && shipment.status !== "cancelled")
-    .sort((left, right) => {
-      const leftPriority = left.status === "in_transit" ? 0 : 1;
-      const rightPriority = right.status === "in_transit" ? 0 : 1;
-      return leftPriority - rightPriority;
-    })[0];
+): Map<string, TmsShipmentView> => {
+  const map = new Map<string, TmsShipmentView>();
+  for (const shipment of shipments) {
+    const truckId = shipment.assignedTruckId;
+    if (!truckId || shipment.status === "delivered" || shipment.status === "cancelled") {
+      continue;
+    }
+    const existing = map.get(truckId);
+    if (!existing) {
+      map.set(truckId, shipment);
+    } else if (existing.status !== "in_transit" && shipment.status === "in_transit") {
+      map.set(truckId, shipment);
+    }
+  }
+  return map;
+};
+
+interface LiveVehicleItemProps {
+  truck: TruckResponse;
+  load?: TmsShipmentView;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+}
+
+const LiveVehicleItem = memo(function LiveVehicleItem({
+  truck,
+  load,
+  isSelected,
+  onSelect,
+}: LiveVehicleItemProps) {
+  const handleClick = useCallback(() => onSelect(truck.id), [onSelect, truck.id]);
+  const statusTone =
+    truck.status === "in_use"
+      ? "processing"
+      : truck.status === "available"
+      ? "success"
+      : "neutral";
+
+  return (
+    <button
+      aria-pressed={isSelected}
+      className={`tms-live-vehicle${isSelected ? " is-selected" : ""}`}
+      key={truck.id}
+      onClick={handleClick}
+      type="button"
+    >
+      <span className="tms-live-vehicle__icon"><TruckIcon size={17} aria-hidden="true" /></span>
+      <span className="tms-live-vehicle__content">
+        <strong>{truck.number}</strong>
+        <small>{truck.mainDriverName ?? "Chưa có tên tài xế"}</small>
+        <span className="tms-live-vehicle__meta">
+          {load ? `#${load.number} · ${load.originCity} → ${load.destinationCity}` : "Chưa có lô hàng đang chạy được liên kết"}
+        </span>
+        {load?.risk && load.risk !== "none" ? (
+          <span className="tms-live-vehicle__risk">{riskMeta[load.risk].label}</span>
+        ) : null}
+      </span>
+      <StatusTag label={truckStatusLabel(truck.status)} tone={statusTone} />
+    </button>
+  );
+});
 
 interface LiveTrackingMapContentProps {
   vehicles: readonly DispatchMapVehicleInput[];
@@ -61,7 +113,7 @@ interface LiveTrackingMapContentProps {
   onVehicleSelect: (id: string) => void;
 }
 
-function LiveTrackingMapContent({
+const LiveTrackingMapContent = memo(function LiveTrackingMapContent({
   vehicles,
   load,
   routeCoordinates,
@@ -101,13 +153,14 @@ function LiveTrackingMapContent({
       vehicles={vehicles}
     />
   );
-}
+});
 
 export function LiveTrackingPage() {
   const navigate = useNavigate();
   const workspace = useTmsWorkspace();
   const [filter, setFilter] = useState<TrackingFilter>("all");
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
   const [selectedTruckId, setSelectedTruckId] = useState<string>();
 
   const locatedTrucks = useMemo(
@@ -116,43 +169,75 @@ export function LiveTrackingPage() {
     ),
     [workspace.trucks.data?.items],
   );
-  const trucksWithLoads = useMemo(
-    () => locatedTrucks.map((truck) => ({ truck, load: activeLoadForTruck(workspace.shipments, truck.id) })),
-    [locatedTrucks, workspace.shipments],
-  );
-  const filteredVehicles = trucksWithLoads.filter(({ truck, load }) => {
-    const matchesFilter = filter === "all"
-      || (filter === "moving" && truck.status === "in_use")
-      || (filter === "available" && truck.status === "available")
-      || (filter === "risk" && load?.risk !== undefined && load.risk !== "none");
-    const search = query.trim().toLocaleLowerCase("vi-VN");
-    const matchesSearch = !search || [
-      truck.number,
-      truck.licensePlate ?? "",
-      truck.mainDriverName ?? "",
-      load?.number.toString() ?? "",
-      load?.customerName ?? "",
-      load?.originCity ?? "",
-      load?.destinationCity ?? "",
-    ].some((value) => value.toLocaleLowerCase("vi-VN").includes(search));
-    return matchesFilter && matchesSearch;
-  });
 
-  const selected = filteredVehicles.find(({ truck }) => truck.id === selectedTruckId)
-    ?? trucksWithLoads.find(({ truck }) => truck.id === selectedTruckId)
-    ?? filteredVehicles[0];
+  const activeLoadsByTruck = useMemo(
+    () => buildActiveLoadsByTruck(workspace.shipments),
+    [workspace.shipments],
+  );
+
+  const trucksWithLoads = useMemo(
+    () => locatedTrucks.map((truck) => ({ truck, load: activeLoadsByTruck.get(truck.id) })),
+    [locatedTrucks, activeLoadsByTruck],
+  );
+
+  const filteredVehicles = useMemo(() => {
+    const search = deferredQuery.trim().toLocaleLowerCase("vi-VN");
+    return trucksWithLoads.filter(({ truck, load }) => {
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "moving" && truck.status === "in_use") ||
+        (filter === "available" && truck.status === "available") ||
+        (filter === "risk" && load?.risk !== undefined && load.risk !== "none");
+      if (!matchesFilter) return false;
+      if (!search) return true;
+      return [
+        truck.number,
+        truck.licensePlate ?? "",
+        truck.mainDriverName ?? "",
+        load?.number.toString() ?? "",
+        load?.customerName ?? "",
+        load?.originCity ?? "",
+        load?.destinationCity ?? "",
+      ].some((value) => value.toLocaleLowerCase("vi-VN").includes(search));
+    });
+  }, [trucksWithLoads, filter, deferredQuery]);
+
+  const selected = useMemo(
+    () =>
+      filteredVehicles.find(({ truck }) => truck.id === selectedTruckId) ??
+      trucksWithLoads.find(({ truck }) => truck.id === selectedTruckId) ??
+      filteredVehicles[0],
+    [filteredVehicles, trucksWithLoads, selectedTruckId],
+  );
   const selectedTruck = selected?.truck;
   const selectedLoad = selected?.load;
-  const routeQuery = useRouteEstimate(
-    selectedLoad?.originLatitude != null && selectedLoad.originLongitude != null
-      ? { latitude: selectedLoad.originLatitude, longitude: selectedLoad.originLongitude }
-      : null,
-    selectedLoad?.destinationLatitude != null && selectedLoad.destinationLongitude != null
-      ? { latitude: selectedLoad.destinationLatitude, longitude: selectedLoad.destinationLongitude }
-      : null,
-    { includeGeometry: true },
+
+  const routeOrigin = useMemo(
+    () =>
+      selectedLoad?.originLatitude != null && selectedLoad.originLongitude != null
+        ? { latitude: selectedLoad.originLatitude, longitude: selectedLoad.originLongitude }
+        : null,
+    [selectedLoad],
   );
-  const routeLines = toShipmentRouteLine(selectedLoad, routeQuery.estimate?.coordinates);
+  const routeDestination = useMemo(
+    () =>
+      selectedLoad?.destinationLatitude != null && selectedLoad.destinationLongitude != null
+        ? { latitude: selectedLoad.destinationLatitude, longitude: selectedLoad.destinationLongitude }
+        : null,
+    [selectedLoad],
+  );
+  const routeOptions = useMemo(() => ({ includeGeometry: true }), []);
+  const routeQuery = useRouteEstimate(routeOrigin, routeDestination, routeOptions);
+
+  const routeLines = useMemo(
+    () => toShipmentRouteLine(selectedLoad, routeQuery.estimate?.coordinates),
+    [selectedLoad, routeQuery.estimate?.coordinates],
+  );
+  const activeRouteCoordinates = useMemo(
+    () => routeLines[0]?.coordinates ?? [],
+    [routeLines],
+  );
+
   const mapVehicles = useMemo<DispatchMapVehicleInput[]>(
     () => locatedTrucks.map((truck) => ({
       id: truck.id,
@@ -165,43 +250,38 @@ export function LiveTrackingPage() {
     })),
     [locatedTrucks],
   );
-  const handleMapVehicleSelect = (id: string) => {
-    if (!filteredVehicles.some(({ truck }) => truck.id === id)) {
-      setFilter("all");
-      setQuery("");
-    }
+
+  const handleSelectTruck = useCallback((id: string) => {
     setSelectedTruckId(id);
-  };
+  }, []);
 
-  if (workspace.isLoading) {
-    return (
-      <div className="tms-page tms-flow--centered" aria-busy="true">
-        <Spin size="large" />
-        <p className="tms-muted">Đang tải vị trí xe…</p>
-      </div>
-    );
-  }
+  const handleMapVehicleSelect = useCallback(
+    (id: string) => {
+      if (!filteredVehicles.some(({ truck }) => truck.id === id)) {
+        setFilter("all");
+        setQuery("");
+      }
+      setSelectedTruckId(id);
+    },
+    [filteredVehicles],
+  );
 
-  if (workspace.error) {
-    return (
-      <div className="tms-page">
-        <Alert
-          action={<Button onClick={() => void workspace.loads.refetch()}>Thử lại</Button>}
-          description={describeTmsError(workspace.error)}
-          message="Không tải được dữ liệu theo dõi"
-          showIcon
-          type="error"
-        />
-      </div>
-    );
-  }
-
-  const counts = {
-    all: trucksWithLoads.length,
-    moving: trucksWithLoads.filter(({ truck }) => truck.status === "in_use").length,
-    risk: trucksWithLoads.filter(({ load }) => load?.risk !== undefined && load.risk !== "none").length,
-    available: trucksWithLoads.filter(({ truck }) => truck.status === "available").length,
-  };
+  const counts = useMemo(() => {
+    let moving = 0;
+    let risk = 0;
+    let available = 0;
+    for (const { truck, load } of trucksWithLoads) {
+      if (truck.status === "in_use") moving += 1;
+      if (truck.status === "available") available += 1;
+      if (load?.risk !== undefined && load.risk !== "none") risk += 1;
+    }
+    return {
+      all: trucksWithLoads.length,
+      moving,
+      risk,
+      available,
+    };
+  }, [trucksWithLoads]);
 
   return (
     <div className="tms-page tms-map-page" data-testid="live-tracking-map-page">
@@ -263,32 +343,15 @@ export function LiveTrackingPage() {
             ))}
           </div>
           <div className="tms-live-tracking__vehicles">
-            {filteredVehicles.map(({ truck, load }) => {
-              const isSelected = selectedTruck?.id === truck.id;
-              const statusTone = truck.status === "in_use" ? "processing" : truck.status === "available" ? "success" : "neutral";
-              return (
-                <button
-                  aria-pressed={isSelected}
-                  className={`tms-live-vehicle${isSelected ? " is-selected" : ""}`}
-                  key={truck.id}
-                  onClick={() => setSelectedTruckId(truck.id)}
-                  type="button"
-                >
-                  <span className="tms-live-vehicle__icon"><TruckIcon size={17} aria-hidden="true" /></span>
-                  <span className="tms-live-vehicle__content">
-                    <strong>{truck.number}</strong>
-                    <small>{truck.mainDriverName ?? "Chưa có tên tài xế"}</small>
-                    <span className="tms-live-vehicle__meta">
-                      {load ? `#${load.number} · ${load.originCity} → ${load.destinationCity}` : "Chưa có lô hàng đang chạy được liên kết"}
-                    </span>
-                    {load?.risk && load.risk !== "none" ? (
-                      <span className="tms-live-vehicle__risk">{riskMeta[load.risk].label}</span>
-                    ) : null}
-                  </span>
-                  <StatusTag label={truckStatusLabel(truck.status)} tone={statusTone} />
-                </button>
-              );
-            })}
+            {filteredVehicles.map(({ truck, load }) => (
+              <LiveVehicleItem
+                isSelected={selectedTruck?.id === truck.id}
+                key={truck.id}
+                load={load}
+                onSelect={handleSelectTruck}
+                truck={truck}
+              />
+            ))}
             {filteredVehicles.length === 0 ? (
               <p className="tms-empty">
                 {locatedTrucks.length === 0
@@ -356,7 +419,7 @@ export function LiveTrackingPage() {
         <LiveTrackingMapContent
           load={selectedLoad}
           onVehicleSelect={handleMapVehicleSelect}
-          routeCoordinates={routeLines[0]?.coordinates ?? []}
+          routeCoordinates={activeRouteCoordinates}
           routeError={routeQuery.isError}
           routeLoading={routeQuery.isLoading}
           selectedTruck={selectedTruck}

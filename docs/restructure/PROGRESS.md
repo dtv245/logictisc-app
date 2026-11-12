@@ -23,6 +23,7 @@ Agent cập nhật cuối mỗi phiên. Mục [DUYỆT] do người dùng đánh
 | Domain | Số file | Trạng thái |
 |---|---|---|
 | accidents | 3 | done |
+| containers | 2 | done |
 
 ## Quyết định đã duyệt
 ## Vấn đề mở

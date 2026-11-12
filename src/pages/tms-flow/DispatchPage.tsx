@@ -6,7 +6,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import {
+  memo,
   useCallback,
+  useDeferredValue,
   useEffect,
   useMemo,
   useRef,
@@ -130,6 +132,28 @@ function DispatchMapFallback({ load }: { load?: DispatchLoadStopSource | null })
   );
 }
 
+interface DispatchQueueItemProps {
+  shipment: TmsShipmentView;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+}
+
+const DispatchQueueItem = memo(function DispatchQueueItem({
+  shipment,
+  isSelected,
+  onSelect,
+}: DispatchQueueItemProps) {
+  const handleClick = useCallback(() => onSelect(shipment.id), [onSelect, shipment.id]);
+  return (
+    <ShipmentCard
+      compact
+      onSelect={handleClick}
+      selected={isSelected}
+      shipment={shipment}
+    />
+  );
+});
+
 export interface DispatchPageProps {
   /** `/tms/approvals` renders the same workspace locked to pending decisions. */
   approvalsOnly?: boolean;
@@ -155,6 +179,7 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
     searchParams.get("filter") && !VALID_FILTERS.includes(searchParams.get("filter") as TmsQueueFilter),
   );
   const query = searchParams.get("q") ?? "";
+  const deferredQuery = useDeferredValue(query);
   const shipmentParam = searchParams.get("shipment");
   const decisionParam = searchParams.get("decision");
   const loadParam = searchParams.get("load");
@@ -179,21 +204,46 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
     unassignedLoads,
     unassignedShipments,
   } = workspace;
-  const fallbackCounts = selectTmsCounts(shipments, approvals.length);
-  const counts: TmsQueueCounts = {
-    all: collection?.totalItems ?? fallbackCounts.all,
-    atRisk: riskCollection?.totalItems ?? fallbackCounts.atRisk,
-    unassigned: unassignedCollection?.totalItems ?? fallbackCounts.unassigned,
-    approvals: approvals.length,
-  };
-  const queue =
-    (filter === "at-risk" || filter === "overdue") && riskShipments !== undefined
-      ? selectTmsQueue(riskShipments, filter, query, approvalIds)
-      : filter === "unassigned" && unassignedShipments !== undefined
-      ? unassignedShipments.filter((shipment) => matchesTmsQuery(shipment, query))
-      : filter === "ai-pending"
-        ? selectTmsQueue(workspace.allKnownShipments ?? shipments, filter, query, approvalIds)
-        : selectTmsQueue(shipments, filter, query, approvalIds);
+  const fallbackCounts = useMemo(
+    () => selectTmsCounts(shipments, approvals.length),
+    [shipments, approvals.length],
+  );
+  const counts: TmsQueueCounts = useMemo(
+    () => ({
+      all: collection?.totalItems ?? fallbackCounts.all,
+      atRisk: riskCollection?.totalItems ?? fallbackCounts.atRisk,
+      unassigned: unassignedCollection?.totalItems ?? fallbackCounts.unassigned,
+      approvals: approvals.length,
+    }),
+    [
+      collection?.totalItems,
+      fallbackCounts,
+      riskCollection?.totalItems,
+      unassignedCollection?.totalItems,
+      approvals.length,
+    ],
+  );
+  const queue = useMemo(() => {
+    if ((filter === "at-risk" || filter === "overdue") && riskShipments !== undefined) {
+      return selectTmsQueue(riskShipments, filter, deferredQuery, approvalIds);
+    }
+    if (filter === "unassigned" && unassignedShipments !== undefined) {
+      return unassignedShipments.filter((shipment) => matchesTmsQuery(shipment, deferredQuery));
+    }
+    if (filter === "ai-pending") {
+      return selectTmsQueue(workspace.allKnownShipments ?? shipments, filter, deferredQuery, approvalIds);
+    }
+    return selectTmsQueue(shipments, filter, deferredQuery, approvalIds);
+  }, [
+    filter,
+    deferredQuery,
+    riskShipments,
+    unassignedShipments,
+    approvalIds,
+    workspace.allKnownShipments,
+    shipments,
+  ]);
+
   const defaultShipment = useMemo(
     () => selectMostUrgentDispatchShipment(queue),
     [queue],
@@ -204,7 +254,7 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
     knownShipments: workspace.allKnownShipments ?? [],
     defaultShipment,
     filter,
-    query,
+    query: deferredQuery,
     approvalLoadIds: approvalIds,
   });
   const selected = selection.status === "selected" ? selection.shipment : undefined;
@@ -268,16 +318,20 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
 
   // Explicit decision/load params never fall back to another pending decision:
   // doing so silently reviews the wrong load. Only the bare route picks the first.
-  const selectedApproval = decisionParam
-    ? approvals.find(
-        (item) => item.suggestion.decisionId === decisionParam,
-      )
-    : loadParam
-    ? approvals.find((item) => item.load?.id === loadParam)
-    : approvals[0];
+  const selectedApproval = useMemo(() => {
+    if (decisionParam) {
+      return approvals.find((item) => item.suggestion.decisionId === decisionParam);
+    }
+    if (loadParam) {
+      return approvals.find((item) => item.load?.id === loadParam);
+    }
+    return approvals[0];
+  }, [approvals, decisionParam, loadParam]);
+
   const selectedDecision = approvalsOnly ? selectedApproval : undefined;
-  const selectedApprovals = approvals.filter((approval) =>
-    selectedDecisionIds.has(approval.suggestion.decisionId),
+  const selectedApprovals = useMemo(
+    () => approvals.filter((approval) => selectedDecisionIds.has(approval.suggestion.decisionId)),
+    [approvals, selectedDecisionIds],
   );
   const selectedLoad = approvalsOnly ? selectedDecision?.load : selected;
   const shipmentRoute = useMapboxRoute(
@@ -289,9 +343,10 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
       : null,
     { enabled: Boolean(selectedLoad) },
   );
-  const focusApprovals = selected
-    ? approvals.filter((item) => item.load?.id === selected.id)
-    : [];
+  const focusApprovals = useMemo(
+    () => (selected ? approvals.filter((item) => item.load?.id === selected.id) : []),
+    [approvals, selected],
+  );
   const selectedTruck = workspace.trucks.data?.items.find(
     (truck) => truck.id === selectedLoad?.assignedTruckId,
   );
@@ -323,13 +378,15 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
         collapsible={collapsible}
       />
     );
-  const truckItems = trucks.data?.items ?? [];
-  const locatedTrucks = truckItems
-    .filter(
-      (truck) =>
-        truck.currentLocationLatitude != null &&
-        truck.currentLocationLongitude != null,
-    );
+  const locatedTrucks = useMemo(
+    () =>
+      (trucks.data?.items ?? []).filter(
+        (truck) =>
+          truck.currentLocationLatitude != null &&
+          truck.currentLocationLongitude != null,
+      ),
+    [trucks.data?.items],
+  );
 
   const updateParam = useCallback(
     (key: string, value: string | undefined) => {
@@ -339,6 +396,13 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
       setSearchParams(next, { replace: true });
     },
     [searchParams, setSearchParams],
+  );
+
+  const handleShipmentSelect = useCallback(
+    (id: string) => {
+      updateParam("shipment", id);
+    },
+    [updateParam],
   );
 
   const setFilter = (value: TmsQueueFilter) => {
@@ -745,11 +809,10 @@ export function DispatchPage({ approvalsOnly = false }: DispatchPageProps) {
                 onWheel={handleQueueWheel}
               >
                 {queue.map((shipment) => (
-                  <ShipmentCard
-                    compact
+                  <DispatchQueueItem
+                    isSelected={selected?.id === shipment.id}
                     key={shipment.id}
-                    onSelect={() => updateParam("shipment", shipment.id)}
-                    selected={selected?.id === shipment.id}
+                    onSelect={handleShipmentSelect}
                     shipment={shipment}
                   />
                 ))}

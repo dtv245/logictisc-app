@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import type { ReactElement } from "react";
 import { Navigation } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -31,10 +31,13 @@ export interface NetworkMiniMapProps {
 
 const mapLabelKeys = ["srLabel", "live", "lastKnown", "noPositions", "onRoad", "vehicles", "openFullMap", "mapStatus", "empty"] as const;
 
-export function NetworkMiniMap({ vehicles = EMPTY_VEHICLES, routes = EMPTY_ROUTES, isLive = false, isLoading = false, error, onRetry, onOpenFullMap, className = "", locale, onRoadCount }: NetworkMiniMapProps): ReactElement {
+export const NetworkMiniMap = memo(function NetworkMiniMap({ vehicles = EMPTY_VEHICLES, routes = EMPTY_ROUTES, isLive = false, isLoading = false, error, onRetry, onOpenFullMap, className = "", locale, onRoadCount }: NetworkMiniMapProps): ReactElement {
   const { i18n } = useTranslation();
   const activeLocale = resolveSupportedLocale(locale ?? i18n.resolvedLanguage);
-  const text = createLocaleLabels(i18n.getFixedT(activeLocale), "dashboard.opsView.panels.map", mapLabelKeys);
+  const text = useMemo(
+    () => createLocaleLabels(i18n.getFixedT(activeLocale), "dashboard.opsView.panels.map", mapLabelKeys),
+    [i18n, activeLocale],
+  );
   const vehicleList = useMemo(() => vehicles.filter((vehicle) => validPosition(vehicle.longitude, vehicle.latitude)), [vehicles]);
   const routeList = useMemo(() => routes.filter((route) => route.coordinates.length >= 2 && route.coordinates.every(([longitude, latitude]) => validPosition(longitude, latitude))), [routes]);
   const hasPositions = vehicleList.length > 0 || routeList.length > 0;
@@ -74,6 +77,6 @@ export function NetworkMiniMap({ vehicles = EMPTY_VEHICLES, routes = EMPTY_ROUTE
       </div>
     </OpsCard>
   );
-}
+});
 
 export default NetworkMiniMap;

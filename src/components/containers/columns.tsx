@@ -1,6 +1,6 @@
 /** Định nghĩa columns cho Container resource với chuẩn UX/a11y và Design Tokens. */
 import { Link } from "react-router-dom";
-import { routes } from "@constants/routes";
+import { routes } from "@/constants/routes";
 import { createCrudColumns } from "@/components/crudColumns";
 import type { StatusTone } from "@/components/StatusTag";
 import type { Container } from "@/types/containers/container.types";

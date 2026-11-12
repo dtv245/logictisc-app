@@ -13,7 +13,7 @@ import { useLocalizedColumns } from "@/hooks/useLocalizedColumns";
 import {
   containerColumns,
   containerStatusMap,
-} from "@features/containers/components/columns";
+} from "@/components/containers/columns";
 import type { Container } from "@/types/containers/container.types";
 
 const queryClient = new QueryClient({

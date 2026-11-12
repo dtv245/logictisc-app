@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { Tooltip } from "antd";
 import { ArrowRight, Clock, MapPin, Truck } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -20,7 +21,7 @@ export interface ShipmentCardProps {
   compact?: boolean;
 }
 
-export function ShipmentCard({
+export const ShipmentCard = memo(function ShipmentCard({
   shipment,
   truckNumber,
   selected = false,
@@ -33,29 +34,39 @@ export function ShipmentCard({
   const customerLabel = `${shipment.name} · ${shipment.customerName}`;
   const laneLabel = `${shipment.originCity} → ${shipment.destinationCity}`;
   const truckLabel = truckNumber ?? shipment.assignedTruckNumber ?? t("tmsDispatch.queue.noTruck");
-  const overdue = getTmsOverdue(shipment.raw);
-  const overdueReasonLabels = overdue.reasons.map((reason) => {
-    const duration = formatTmsOverdueDuration(reason.overdueMilliseconds);
-    return t("tmsDashboard.overdueReason", {
-      phase: t(reason.kind === "pickup" ? "tmsDashboard.pickupPhase" : "tmsDashboard.deliveryPhase"),
-      amount: duration.amount,
-      unit: t(duration.unit === "days" ? "tmsDashboard.dayUnit" : "tmsDashboard.hourUnit"),
-    });
-  });
+
+  const overdue = useMemo(() => getTmsOverdue(shipment.raw), [shipment.raw]);
+  const overdueReasonLabels = useMemo(
+    () =>
+      overdue.reasons.map((reason) => {
+        const duration = formatTmsOverdueDuration(reason.overdueMilliseconds);
+        return t("tmsDashboard.overdueReason", {
+          phase: t(reason.kind === "pickup" ? "tmsDashboard.pickupPhase" : "tmsDashboard.deliveryPhase"),
+          amount: duration.amount,
+          unit: t(duration.unit === "days" ? "tmsDashboard.dayUnit" : "tmsDashboard.hourUnit"),
+        });
+      }),
+    [overdue, t],
+  );
+
   const terminal = shipment.status === "delivered" || shipment.status === "cancelled";
-  const serverRiskReasons = shipment.riskReasons ?? [];
-  const riskReasonLabels = [
-    ...overdueReasonLabels,
-    ...serverRiskReasons
-      .filter((reason) =>
-        !terminal &&
-        !((reason.code === "PICKUP_OVERDUE" && overdue.reasons.some((item) => item.kind === "pickup")) ||
-          (reason.code === "DELIVERY_OVERDUE" && overdue.reasons.some((item) => item.kind === "delivery"))) &&
-        !(terminal && (reason.code === "PICKUP_OVERDUE" || reason.code === "DELIVERY_OVERDUE")),
-      )
-      .map(formatTmsRiskReason),
-  ];
-  const riskSummary = riskReasonLabels.join(" · ");
+
+  const riskReasonLabels = useMemo(() => {
+    const serverRiskReasons = shipment.riskReasons ?? [];
+    return [
+      ...overdueReasonLabels,
+      ...serverRiskReasons
+        .filter((reason) =>
+          !terminal &&
+          !((reason.code === "PICKUP_OVERDUE" && overdue.reasons.some((item) => item.kind === "pickup")) ||
+            (reason.code === "DELIVERY_OVERDUE" && overdue.reasons.some((item) => item.kind === "delivery"))) &&
+          !(terminal && (reason.code === "PICKUP_OVERDUE" || reason.code === "DELIVERY_OVERDUE")),
+        )
+        .map(formatTmsRiskReason),
+    ];
+  }, [overdueReasonLabels, shipment.riskReasons, terminal, overdue.reasons]);
+
+  const riskSummary = useMemo(() => riskReasonLabels.join(" · "), [riskReasonLabels]);
 
   return (
     <button
@@ -125,4 +136,4 @@ export function ShipmentCard({
       ) : null}
     </button>
   );
-}
+});

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -56,6 +56,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
   // Fetch real queries using existing useDashboardData
   const dashboardData = useDashboardData(filters, { enableFinancials: false });
+  const { otd, exceptions, refetchAll } = dashboardData;
   // Priority panel has a real load source; the other panels stay unavailable.
   const priorityShipments = usePriorityShipments();
   // Dispatch and the operations KPIs must read the same load queue so a load
@@ -64,7 +65,11 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
   const trucks = useTmsTrucks();
   const networkVehicles = useMemo(
     () => toNetworkVehicles(trucks.data?.items ?? []),
-    [trucks.data],
+    [trucks.data?.items],
+  );
+  const onRoadCount = useMemo(
+    () => networkVehicles.filter((vehicle) => vehicle.status === "moving").length,
+    [networkVehicles],
   );
   const loadSummary = useMemo(
     () =>
@@ -79,9 +84,6 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
 
   // KPI chỉ dùng field có trong response hiện tại; thiếu field không được thay bằng số mẫu.
   const kpiItems: KpiItemProps[] = useMemo(() => {
-    const otd = dashboardData.otd;
-    const exceptions = dashboardData.exceptions;
-
     const otdValue = typeof otd.data?.otdPercentage === "number" && Number.isFinite(otd.data.otdPercentage)
       ? Math.round(otd.data.otdPercentage)
       : null;
@@ -134,12 +136,23 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         state: getKpiState(exceptions.isLoading, exceptions.error, exceptionsCount),
       },
     ];
-  }, [dashboardData, loadSummary, loads.isLoading, loads.error, t]);
+  }, [otd, exceptions, loadSummary, loads.isLoading, loads.error, t]);
 
-  const retryAll = () => {
+  const retryAll = useCallback(() => {
     void loads.refetch();
-    dashboardData.refetchAll();
-  };
+    refetchAll();
+  }, [loads, refetchAll]);
+
+  const handleSelectShipment = useCallback(
+    (shipmentId: string) => {
+      navigate(`/tms/shipments/${shipmentId}`);
+    },
+    [navigate],
+  );
+
+  const handleTrucksRetry = useCallback(() => {
+    void trucks.refetch();
+  }, [trucks]);
 
   return (
     <div className={`ops-dashboard-layout ${className}`}>
@@ -173,7 +186,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           isUnavailable={priorityShipments.isUnavailable}
           locale={priorityShipments.locale}
           onRetry={priorityShipments.retry}
-          onSelectShipment={(shipmentId) => navigate(`/tms/shipments/${shipmentId}`)}
+          onSelectShipment={handleSelectShipment}
           shipments={priorityShipments.shipments}
         />
       </div>
@@ -187,8 +200,8 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         <NetworkMiniMap
           error={!trucks.data && trucks.error ? describeTmsError(trucks.error) : undefined}
           isLoading={trucks.isLoading}
-          onRetry={() => { void trucks.refetch(); }}
-          onRoadCount={networkVehicles.filter((vehicle) => vehicle.status === "moving").length}
+          onRetry={handleTrucksRetry}
+          onRoadCount={onRoadCount}
           vehicles={networkVehicles}
         />
       </div>
