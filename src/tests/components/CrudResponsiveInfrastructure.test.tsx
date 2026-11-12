@@ -20,7 +20,7 @@ import { resourceFormDefinitions } from "@/components/resources/resourceForms";
 import { ResourceListToolbar } from "@/components/ResourceListToolbar";
 import { resolveFilterControls } from "@/components/resources/resourceFilterControls";
 import { initializeAppI18n } from "@locales";
-import { BaseTable } from "@table";
+import { BaseTable } from "@/table/BaseTable";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { Form, Grid } from "antd";
 import type { ColumnsType } from "antd/es/table";

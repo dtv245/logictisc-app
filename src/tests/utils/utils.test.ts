@@ -1,15 +1,19 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  type ActivePromiseRef,
   type AsyncState,
-  isUuid,
   resolveAsyncState,
+} from "@/utils/asyncStateModel";
+import {
+  type ActivePromiseRef,
   runSingleFlight,
+} from "@/utils/singleFlight";
+import {
+  isUuid,
   UUID_PATTERN,
-} from "@utils";
+} from "@/utils/uuid";
 
-describe("src/utils barrel exports and behaviors", () => {
+describe("src/utils behaviors", () => {
   describe("asyncStateModel", () => {
     it("returns loading status when isLoading is true", () => {
       const state: AsyncState<string[]> = resolveAsyncState({

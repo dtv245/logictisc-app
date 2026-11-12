@@ -20,8 +20,7 @@
 
 import { AntdLocaleProvider } from "@/components/AntdLocaleProvider";
 import { initializeAppI18n } from "@locales";
-import { BaseTable } from "@table";
-import type { BaseTableProps } from "@table";
+import { BaseTable, type BaseTableProps } from "@/table/BaseTable";
 import { render, screen } from "@testing-library/react";
 import type { ColumnsType } from "antd/es/table";
 import { I18nextProvider } from "react-i18next";

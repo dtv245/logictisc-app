@@ -13,7 +13,7 @@ import type { Product, ProductFormValues, ProductSearchValues } from "@/types/pr
 import { ProductForm } from "@features/products/components/form";
 import { useProductColumns } from "@features/products/components/columns";
 import { FilterBar } from "@/components/FilterBar";
-import { BaseTable } from "@table";
+import { BaseTable } from "@/table/BaseTable";
 import { formatMoney } from "@formatters/money";
 import { toIntlLocale } from "@formatters/intlLocale";
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";

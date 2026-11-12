@@ -3,7 +3,7 @@ import { render } from "@testing-library/react";
 import { beforeAll, expect, it, vi } from "vitest";
 import { I18nextProvider } from "react-i18next";
 import { initializeAppI18n } from "@locales";
-import { BaseTable } from "@table";
+import { BaseTable } from "@/table/BaseTable";
 
 let i18n: Awaited<ReturnType<typeof initializeAppI18n>>;
 beforeAll(async () => { i18n=await initializeAppI18n({locale:"en",fallbackLocale:"en"}); });

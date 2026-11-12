@@ -12,8 +12,7 @@ import { normalizeJwtRoles } from "@/providers/permissions/jwtRoles";
 import { AppRouter } from "@/router/AppRouter";
 
 const { tmsMounted } = vi.hoisted(() => ({ tmsMounted: vi.fn() }));
-vi.mock("@components", async (importOriginal) => ({
-  ...await importOriginal<typeof import("@components")>(),
+vi.mock("@/components/AppLayout", () => ({
   AppLayout: () => <Outlet />,
 }));
 vi.mock("@router/ProtectedRoute", () => ({ ProtectedRoute: () => <Outlet /> }));

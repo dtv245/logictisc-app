@@ -1,4 +1,4 @@
-import { ResourceEditPage } from "@/components";
+import { ResourceEditPage } from "@/components/ResourceEditPage";
 
 const DriverEdit = () => <ResourceEditPage resource="drivers" />;
 

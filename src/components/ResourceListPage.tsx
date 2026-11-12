@@ -9,7 +9,7 @@ import { translateOptional } from "@/locales";
 
 import type { ApiError } from "@/types/api.types";
 import { useEntityFilters } from "@/hooks/useEntityFilters";
-import { BaseTable } from "@table";
+import { BaseTable } from "@/table/BaseTable";
 import { resolveAsyncState } from "@utils/asyncStateModel";
 import { AsyncStateView } from "./AsyncState";
 import { ResourceListToolbar } from "./ResourceListToolbar";

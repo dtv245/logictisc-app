@@ -1,4 +1,4 @@
-import { ResourceCreatePage } from "@/components";
+import { ResourceCreatePage } from "@/components/ResourceCreatePage";
 
 const DriverCreate = () => <ResourceCreatePage resource="drivers" />;
 

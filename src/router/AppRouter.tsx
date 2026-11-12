@@ -28,7 +28,7 @@ import { TenantGuard } from "./TenantGuard";
 // Lazy-load các page lớn để auth/diagnostics shell không phải tải toàn bộ CRUD
 // bundle trước khi biết người dùng được phép vào phần nghiệp vụ hay không.
 const MainLayout = lazy(() =>
-  import("@components").then((module) => ({
+  import("@/components/AppLayout").then((module) => ({
     default: module.AppLayout,
   })),
 );
@@ -193,7 +193,14 @@ export const AppRouter = ({
               <Route path="dispatch" element={<TmsDispatchPage />} />
               <Route
                 path="approvals"
-                element={<TmsDispatchPage approvalsOnly />}
+                element={
+                  <ResourceAccessBoundary
+                    action="AI_DISPATCH_VIEW"
+                    resource="ai-dispatch"
+                  >
+                    <TmsDispatchPage approvalsOnly />
+                  </ResourceAccessBoundary>
+                }
               />
               <Route path="live-tracking" element={<TmsLiveTrackingPage />} />
               <Route path="shipments/:shipmentId" element={<TmsShipmentDetailPage />} />
