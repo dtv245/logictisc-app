@@ -15,176 +15,91 @@ Do not redesign the project from scratch.
 
 ---
 
-# 1. Existing Architecture Is Intentional
+# 1. Target Global File-Type Architecture
 
-The current project has these main boundaries:
+The project architecture strictly follows `AGENTS.md` (the highest priority rule) and `docs/adr/001-unified-runtime-foundation.md`.
+
+The target architectural boundaries (`src/`) are organized globally by file type:
 
 ```text
 src/
-├── app/
-├── assets/
-├── common/
-├── config/
-├── constants/
-├── core/
-├── features/
-├── locales/
-├── pages/
-├── providers/
-├── styles/
-├── test/
-└── main.tsx
+├── api/          # API calls: api/<domain>/<domain>.api.ts
+├── components/   # Reusable and domain UI components: components/<domain>/
+├── hooks/        # All hooks: hooks/<domain>/use*.ts
+├── pages/        # One screen per file: pages/<domain>/
+├── resources/    # Refine resource definitions: resources/*.resource.ts
+├── types/        # Pure types only: types/<domain>/*.types.ts
+├── utils/        # Pure shared utilities partitioned by topic
+├── constants/    # Global routes, enums, constants
+├── lib/          # Axios client, query client, i18n
+├── locales/      # Internationalization dictionaries
+├── config/       # Runtime config, bootstrap, health gate
+├── providers/    # Refine auth, data, permissions, notification providers
+├── router/       # AppRouter, ProtectedRoute, TenantGuard
+├── styles/       # Global stylesheets
+├── App.tsx       # Root runtime composition
+└── main.tsx      # Application entry point
 ```
 
-Keep these architectural boundaries.
-
-Do not remove:
-
-* app/
-* core/
-* common/
-* config/
-* constants/
-* features/
-* pages/
-* providers/
-
-without explicit approval.
+**BANNED & DECOMMISSIONED DIRECTORIES:**
+- `src/app/`, `src/core/`, `src/common/`, `src/shared/`: **Explicitly banned** per ADR-001 (flattened into `src/App.tsx`, `src/config/`, `src/providers/`, `src/components/`, `src/hooks/`, `src/utils/`). Do NOT re-create them.
+- `src/features/`: **Deprecated and actively being eliminated** per `AGENTS.md`. The target is to completely eliminate `src/features/` and move all code to global type-based folders (`api/`, `components/`, `hooks/`, `pages/`, `types/`, `resources/`). Do NOT create new files in `src/features/` and NEVER move files back into `src/features/`.
 
 ---
 
-# 2. Responsibilities Of Existing Layers
+# 2. Responsibilities Of Current Layers
 
-## app/
+## App & Runtime Composition (`App.tsx`, `config/`, `router/`)
 
-`app/` is the application layer.
+Replacing legacy `app/`:
+- `main.tsx` initializes i18n and mounts `App`.
+- `App.tsx` composes the unified runtime foundation, runtime config provider, and Refine providers.
+- `config/` handles deploy-time runtime configuration loading (`runtime-config.json`), bootstrap, and `/api/health` gate.
+- `router/` manages application routing, `ProtectedRoute`, and `TenantGuard`.
 
-The current project already contains:
-
-```text
-app/
-├── bootstrap/
-├── diagnostics/
-├── i18n/
-├── router/
-├── runtime/
-└── App.tsx
-```
-
-Keep this responsibility.
-
-`app/` may:
-
-* bootstrap the application
-* compose application runtime
-* register Refine resources
-* handle application routing
-* handle top-level tenant/auth boundaries
-* initialize application i18n
-* handle application-wide diagnostics
-
-Do not move feature business logic into `app/`.
+Do not move domain business logic into top-level composition.
 
 ---
 
-## core/
+## Technical Providers (`providers/`)
 
-`core/` is technical infrastructure.
+Replacing legacy `core/`:
+`src/providers/` hosts technical infrastructure and Refine integrations:
+- `providers/api/`: Axios client infrastructure, envelope unwrapping, correlation headers, HTTP error normalization.
+- `providers/auth/`: OIDC integration, session management, token handling.
+- `providers/permissions/`: Role matrix, access-control infrastructure, JWT role interpretation.
+- `providers/dataProvider.ts`: Refine DataProvider.
+- `providers/notificationProvider.ts`: Refine notification integration.
 
-The current project contains:
-
-```text
-core/
-├── api/
-├── auth/
-├── config/
-├── errors/
-└── permissions/
-```
-
-Preserve this layer.
-
-Examples of correct ownership:
-
-```text
-core/api/
-→ Axios/client infrastructure
-→ generic Refine data provider infrastructure
-→ generic API envelope handling
-→ HTTP errors
-→ retries
-→ query serialization
-
-core/auth/
-→ OIDC
-→ JWT verification
-→ session management
-→ low-level authentication infrastructure
-
-core/config/
-→ runtime configuration infrastructure
-
-core/permissions/
-→ access-control infrastructure
-→ JWT role interpretation
-→ role matrix
-```
-
-`core` MUST NOT contain business-specific Customer, Load, Trip,
-Employee, Invoice, Truck, etc. logic.
+`providers/` MUST NOT contain domain-specific business logic.
 
 ---
 
-## common/
+## Global Domain & Utility Layers (`api/`, `components/`, `hooks/`, `pages/`, `resources/`, `types/`, `utils/`)
 
-`common/` is reusable application code that is not owned by one
-business feature.
-
-The current project already has:
-
-```text
-common/
-├── components/
-├── formatters/
-├── forms/
-├── hooks/
-├── i18n/
-├── table/
-├── testing/
-├── types/
-└── utils/
-```
-
-Do not blindly move everything shared-looking into common.
-
-A file belongs in `common/` only when its semantics are generic enough
-to be reused by unrelated business features.
-
-Business knowledge must stay in the corresponding feature.
+Replacing legacy `common/` and decommissioned `features/`:
+- `api/`: API calling functions: `api/<domain>/<domain>.api.ts`.
+- `components/`: Reusable components as well as domain components: `components/<domain>/`.
+- `hooks/`: Domain hooks: `hooks/<domain>/use*.ts`.
+- `pages/`: Thin screen pages: `pages/<domain>/`.
+- `resources/`: Refine resource definitions: `resources/*.resource.ts`.
+- `types/`: Pure types only: `types/<domain>/*.types.ts`.
+- `utils/`: Shared pure functions (no React hooks, no API calls, used across 3+ places).
 
 ---
 
 ## config/
 
-`config/` contains build-time/environment configuration.
-
-Example:
-
-```text
-config/env.ts
-```
-
-Do not mix this responsibility with `core/config`.
-
-Preferred distinction:
+`src/config/` contains runtime configuration loading, bootstrap, and environment access:
 
 ```text
 src/config/
-→ build-time/static environment configuration
-
-core/config/
-→ runtime configuration loading, validation, context and access
+├── AppBootstrap.tsx
+├── RuntimeConfigProvider.tsx
+└── env.ts
 ```
+
+This layer loads `/runtime-config.json`, gates the application on `/api/health`, and provides runtime configuration context per ADR-001.
 
 ---
 
@@ -202,7 +117,7 @@ constants/
 
 Global constants belong here.
 
-Business-domain constants must remain inside the feature.
+Business-domain constants and enums belong in `src/constants/` or their respective domain types in `src/types/<domain>/`.
 
 Example:
 
@@ -214,17 +129,17 @@ generic UI defaults
 → constants/ui.ts
 
 Load business status
-→ features/loads/
+→ types/loads/
 
 Customer business type
-→ features/customers/
+→ types/customers/
 ```
 
 ---
 
 # 3. Canonical Backend-To-UI Data Flow
 
-For feature data, prefer this conceptual flow:
+For domain data, prefer this conceptual flow:
 
 ```text
 Spring Boot DTO
@@ -255,7 +170,7 @@ Request Mapper (only when necessary)
     ↓
 Refine dataProvider
     ↓
-core/api
+src/providers/api
     ↓
 Spring Boot
 ```
@@ -265,28 +180,29 @@ transformation directly inside pages or table components.
 
 ---
 
-# 4. Customer Feature Is The Reference Pattern
+# 4. Global Architecture Reference Pattern
 
-The existing Customer feature currently demonstrates an important pattern:
+The target structure organizes domain artifacts across global type-based folders:
 
 ```text
-features/customers/
-├── components/
-│   └── columns.tsx
-├── mappers/
-│   └── customer.mapper.ts
-├── schemas/
-├── types/
-│   ├── customer.api.types.ts
-│   └── customer.types.ts
-└── customers.resource.ts
+src/
+├── api/customers/customer.api.ts
+├── components/customers/columns.tsx
+├── hooks/customers/
+├── pages/customers/
+│   ├── create.tsx
+│   ├── edit.tsx
+│   ├── list.tsx
+│   └── show.tsx
+├── resources/customers.resource.ts
+└── types/customers/customer.types.ts
 ```
 
-Use this as a REFERENCE for API/domain separation.
+Use this as a REFERENCE for API/domain separation across all domains.
 
-Do NOT blindly copy every folder into every other feature.
+Do NOT create empty directories for architectural symmetry.
 
-A feature only needs:
+A domain only needs:
 
 * API types when backend DTO contracts require them
 * domain types when frontend semantics differ
@@ -294,20 +210,18 @@ A feature only needs:
 * schemas when runtime/form validation is required
 * validators when business validation exists
 
-Do not create empty directories for architectural symmetry.
-
 ---
 
 # 5. API Transport Types
 
-Backend request/response contracts belong inside the owning feature.
+Backend request/response contracts belong inside `src/types/<domain>/` or `src/api/<domain>/`.
 
 Preferred naming:
 
 ```text
-features/customers/types/customer.api.types.ts
-features/loads/types/load.api.types.ts
-features/trips/types/trip.api.types.ts
+types/customers/customer.types.ts
+types/loads/load.types.ts
+types/trips/trip.types.ts
 ```
 
 Examples:
@@ -343,7 +257,7 @@ inside transport types.
 Frontend domain types belong in:
 
 ```text
-features/<feature>/types/<entity>.types.ts
+types/<domain>/<entity>.types.ts
 ```
 
 Example:
@@ -367,10 +281,10 @@ Avoid needless duplication.
 
 # 7. Mappers
 
-Mappers belong in:
+Mappers (when required) belong in `src/utils/` or domain utilities:
 
 ```text
-features/<feature>/mappers/
+utils/<domain>/mapper.ts
 ```
 
 Create a mapper only when real transformation is required.
@@ -452,7 +366,7 @@ Prefer composition over inheritance.
 
 # 9. Generic API Types
 
-Generic API infrastructure types belong to `core/api`.
+Generic API infrastructure types belong to `src/types/api.types.ts` or `src/providers/api/`.
 
 Examples:
 
@@ -467,101 +381,69 @@ HttpError
 The current project contains:
 
 ```text
-core/api/api.types.ts
-core/api/types.ts
-common/types/api.ts
+types/api.types.ts
+providers/api/apiClient.ts
 ```
-
-Before modifying these files:
-
-1. inspect their actual contents
-2. determine whether responsibilities overlap
-3. choose one canonical definition for each semantic concept
-4. update all imports safely
-5. delete a duplicate only after proving it is redundant
-
-Do NOT assume these files are duplicates based only on their names.
 
 Preferred ownership:
 
 ```text
-HTTP/API infrastructure contract
-→ core/api/
+HTTP/API transport contract
+→ types/api.types.ts, providers/api/
 
-generic non-API reusable application type
-→ common/types/
+generic reusable non-API types
+→ types/
 ```
 
 ---
 
-# 10. Feature Type Ownership
+# 10. Pure Domain Type Ownership
 
-A domain type belongs to its feature.
+Pure domain types belong to `src/types/<domain>/`:
 
 Examples:
 
 ```text
 Accident
-→ features/accidents/types/
+→ types/accidents/
 
 AiDispatch
-→ features/ai-dispatch/types/
+→ types/ai-dispatch/
 
 ApiKey
-→ features/api-keys/types/
-
-Chat
-→ features/chat/types/
+→ types/api-keys/
 
 Customer
-→ features/customers/types/
+→ types/customers/
 
 Document
-→ features/documents/types/
-
-Dvir
-→ features/dvir/types/
-
-Employee
-→ features/employees/types/
-
-Finance
-→ features/finance/types/
-
-HosEld
-→ features/hos-eld/types/
-
-LoadBoard
-→ features/load-board/types/
+→ types/documents/
 
 Load
-→ features/loads/types/
+→ types/loads/
 
 Notification
-→ features/notifications/types/
-
-Product
-→ features/products/types/
+→ types/notifications/
 
 Trip
-→ features/trips/types/
+→ types/trips/
 
 Truck
-→ features/trucks/types/
+→ types/trucks/
 ```
 
-Do not centralize all domain types in `common/types`.
+Do NOT put resource configuration, endpoints, or constants in `types/`.
 
 ---
 
 # 11. Refine Resource Files
 
-The project currently uses files such as:
+Resource definition files live in `src/resources/`:
 
 ```text
-features/customers/customers.resource.ts
-features/loads/loads.resource.ts
-features/trips/trips.resource.ts
+resources/customers.resource.ts
+resources/loads.resource.ts
+resources/trips.resource.ts
 ```
 
 Keep this convention.
@@ -586,23 +468,20 @@ Do NOT use `*.resource.ts` as a dumping ground for:
 * generic validation
 * unrelated business utilities
 
-Resource files should import canonical feature types when necessary.
-
 ---
 
 # 12. Generic Refine CRUD Infrastructure
 
-The project already has generic CRUD infrastructure such as:
+The project has generic CRUD infrastructure in `src/components/resources/`:
 
 ```text
-common/components/ResourceCreatePage.tsx
-common/components/ResourceEditPage.tsx
-common/components/ResourceListPage.tsx
-common/components/ResourceShowPage.tsx
-
-features/resources/resourceCapabilities.ts
-features/resources/ResourceFormFields.tsx
-features/resources/resourceForms.ts
+components/resources/ResourceCreatePage.tsx
+components/resources/ResourceEditPage.tsx
+components/resources/ResourceListPage.tsx
+components/resources/ResourceShowPage.tsx
+components/resources/resourceCapabilities.ts
+components/resources/ResourceFormFields.tsx
+components/resources/resourceForms.ts
 ```
 
 Preserve and reuse existing generic CRUD infrastructure when appropriate.
@@ -610,80 +489,55 @@ Preserve and reuse existing generic CRUD infrastructure when appropriate.
 Do not recreate per-feature CRUD infrastructure that Refine and the existing
 generic components already solve.
 
-`features/resources/` is infrastructure for resource behavior,
-not a normal business domain.
-
-Do not normalize it as if it were Customer, Load, Trip, etc.
-
 ---
 
 # 13. Pages Stay Route-Level
 
-The current architecture intentionally separates:
+The global architecture separates page routes from components and hooks:
 
 ```text
-features/customers/
-```
-
-from:
-
-```text
-pages/customers/
+pages/<domain>/
 ├── create.tsx
 ├── edit.tsx
 ├── list.tsx
-├── show.tsx
-└── index.ts
+└── show.tsx
 ```
-
-Preserve this separation.
 
 Pages are route-level composition.
 
-Pages should remain thin.
-
-A page may:
-
-* compose feature components
+Pages should remain thin:
+* compose domain components (`src/components/<domain>/`)
+* call hooks for state/logic (`src/hooks/<domain>/`)
 * connect route parameters
 * invoke Refine page-level hooks
-* select appropriate resource/component
-* render route-specific layout
 
 Pages should NOT own:
-
-* backend DTO transformation
-* reusable domain logic
-* domain constants
-* business validation
-* duplicated API error parsing
-* reusable table-column definitions
-
-Those belong to the feature/core/common layer.
+* direct API calls (live in `src/api/<domain>/`)
+* heavy business logic (lives in `src/hooks/<domain>/`)
+* reusable types (live in `src/types/<domain>/`)
+* reusable table columns (live in `src/components/<domain>/`)
 
 ---
 
-# 14. Feature Components
+# 14. Domain Components
 
-Feature UI belongs in:
+Domain UI components belong in:
 
 ```text
-features/<feature>/components/
+components/<domain>/
 ```
 
 Example:
 
 ```text
-features/loads/components/columns.tsx
-features/customers/components/columns.tsx
+components/loads/
+components/customers/columns.tsx
 ```
 
-These components may know about their feature domain.
-
-They must consume canonical types from:
+These components consume canonical types from:
 
 ```text
-features/<feature>/types/
+types/<domain>/
 ```
 
 Do not redefine the same interface locally inside `columns.tsx`,
@@ -707,7 +561,7 @@ export interface CustomerFormValues {
 Use:
 
 ```text
-features/<feature>/schemas/
+types/<domain>/ (or utils/)
 ```
 
 for runtime/form schemas when needed.
@@ -756,94 +610,40 @@ Do not build one global mega-validator.
 
 ---
 
-# 17. Refine And Core Boundaries
+# 17. Refine Provider Implementations
 
-The project currently has Refine-related provider implementations in multiple places,
-including:
+The project maintains its Refine provider implementations cleanly inside `src/providers/`:
 
 ```text
-core/api/dataProvider.ts
-core/auth/authProvider.ts
-core/permissions/accessControlProvider.ts
-
 providers/authProvider.ts
+providers/dataProvider.ts
 providers/notificationProvider.ts
+providers/permissions/roleMatrix.ts
+providers/api/apiClient.ts
 ```
 
-Do not move or merge these files based only on naming.
-
-First inspect their implementation and dependencies.
-
-Target conceptual separation:
-
-```text
-Refine adapter
-      ↓
-technical infrastructure
-```
-
-If `providers/*` is a thin project-level adapter and `core/*`
-contains infrastructure, preserve that distinction.
-
-If two files implement the same responsibility, propose consolidation
-before modifying them.
-
-Never create another provider layer unnecessarily.
+Do not create duplicate provider layers.
 
 ---
 
-# 18. Common Hooks Must Actually Be Common
+# 18. Domain & Shared Hooks
 
-The current project includes hooks such as:
-
-```text
-common/hooks/useAuthStatus.ts
-common/hooks/useCurrentTenant.ts
-common/hooks/useCurrentUser.ts
-common/hooks/useLarkLogin.ts
-common/hooks/useLogoutUser.ts
-common/hooks/useSwitchTenant.ts
-common/hooks/useTenantList.ts
-```
-
-Do not automatically move them.
-
-Inspect semantics and usage first.
-
-Generic hooks may remain in `common/hooks`.
-
-If a hook is clearly owned by authentication or tenant behavior,
-propose a better owner before moving it.
-
-Do not perform the move without verifying all imports and boundaries.
+Hooks are organized under `src/hooks/`:
+- Shared hooks live directly in `src/hooks/` (e.g., `useCurrentTenant.ts`, `useCurrentUser.ts`, `usePaginatedTable.ts`).
+- Domain-specific hooks live under `src/hooks/<domain>/use*.ts` (e.g., `hooks/payroll/usePayrollActions.ts`).
 
 ---
 
-# 19. i18n Ownership
+# 19. i18n Organization
 
-The current project contains:
+i18n catalogs and initialization live in `src/locales/`:
 
 ```text
-app/i18n/
-common/i18n/
 locales/
-```
-
-Do not merge or remove these based only on names.
-
-Inspect responsibilities first.
-
-Preferred conceptual separation may be:
-
-```text
-app/i18n
-→ application-level i18n bootstrap/composition
-
-common/i18n
-→ generic reusable i18n helpers/resources
-
-locales
-→ user-visible translation content
+├── vi.ts
+├── en.ts
+├── ja.ts
+└── index.ts
 ```
 
 If actual code does not match this separation,
@@ -911,12 +711,11 @@ Pay special attention to:
 
 ```text
 index.ts barrel files
-feature types
+types
 resource files
 mappers
-common/components
+components
 providers
-core/auth
 ```
 
 Prefer `import type` for type-only imports:
@@ -1149,21 +948,18 @@ A developer should be able to trace a business entity like this:
 ```text
 Spring Boot DTO
        ↓
-features/<feature>/types/*.api.types.ts
+types/<domain>/*.types.ts (pure types)
        ↓
-features/<feature>/mappers/
+api/<domain>/*.api.ts & utils/ (mappers)
        ↓
-features/<feature>/types/*.types.ts
+hooks/<domain>/use*.ts (logic)
        ↓
-features/<feature>/*.resource.ts
+components/<domain>/
        ↓
-features/<feature>/components/
-       ↓
-pages/<feature>/
+pages/<domain>/ (thin screens)
+(and resources/<domain>.resource.ts)
 ```
 
-But only the layers that actually add value should exist.
+Only the layers that actually add value should exist.
 
-Preserve the current Refine architecture.
-
-Do not rewrite working code just to make directory trees symmetrical.
+Preserve the Refine architecture while maintaining the global file-type organization specified in `AGENTS.md`.

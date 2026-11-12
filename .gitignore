@@ -27,3 +27,6 @@ test-results
 *.sw?
 
 .env
+
+# Temporary session cache
+.awb

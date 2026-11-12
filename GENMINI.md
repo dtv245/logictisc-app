@@ -64,29 +64,42 @@ Không có dark mode, không có thư viện motion, không có animated route t
 
 ```text
 src/
-├── main.tsx / App.tsx        entry, providers, BrowserRouter, Refine
-├── config/                   runtime config, health gate, bootstrap
-├── router/                   AppRouter, ProtectedRoute, TenantGuard
-├── pages/                    route pages (resource pages + màn chuyên biệt)
-├── components/               AppLayout, AppSider, CRUD shell, modal, toolbar
-│   ├── resources/            form definitions, resourceCapabilities, modal frame
-│   ├── dashboard/ ai/ lark-base/
-├── features/                 domain components/hooks/API hiện có (dashboard, loads/redesign, optimization, settlements, payroll, fleet, map, ...)
-├── hooks/                    identity, tenant, filter, mutation, AI, preview
-├── api/                      adapters AI và Lark Base
-├── providers/                auth, access control, dataProvider, apiClient, notification
-├── forms/  table/            FormGrid/Section/Footer, BaseTable
-├── constants/ styles/ locales/ formatters/ types/ utils/
-└── tests/                    (nhiều test nằm cạnh component/hook/page)
-e2e/fixtures/                 fixture Playwright
+├── api/          # hàm gọi API: api/<domain>/<domain>.api.ts
+├── components/   # component dùng lại & domain: components/<domain>/
+├── hooks/        # mọi hook: hooks/<domain>/use*.ts
+├── pages/        # mỗi màn hình một file: pages/<domain>/
+├── resources/    # định nghĩa resource Refine: resources/*.resource.ts
+├── types/        # chỉ type thuần: types/<domain>/*.types.ts
+├── utils/        # hàm thuần dùng chung, chia theo chủ đề
+├── constants/    # routes, enum, hằng số toàn cục
+├── lib/          # axios client, query client, i18n
+├── locales/      # từ điển đa ngôn ngữ (vi, en, ja)
+├── config/       # runtime config, health gate, bootstrap
+├── providers/    # auth, access control, dataProvider, notification
+├── router/       # AppRouter, ProtectedRoute, TenantGuard
+├── styles/       # global styles (SCSS)
+├── App.tsx       # runtime composition
+├── main.tsx      # entry point
+└── features/     # (DEPRECATED: đang dời bỏ sang cấu trúc global theo AGENTS.md)
 public/  docs/
 ```
 
-**Quy ước đặt code mới:**
-- Hook dùng chung → `src/hooks/`. Hàm tái sử dụng (từ 2 nơi trở lên) → `src/utils/` (format thì `src/formatters/`). Type/contract → `src/types/`. Component dùng chung → `src/components/<domain>/`.
-- Không tạo thêm cấu trúc feature lồng nhiều tầng. Code đã có trong `features/` thì **sửa tại chỗ**, không di chuyển.
-- Việc tái cấu trúc thư mục chỉ làm khi người dùng yêu cầu rõ và theo phiên riêng.
-- Layout thật là `components/AppLayout.tsx`; không có thư mục `layouts/` hay `services/` thống nhất.
+**Quy ước đặt code mới (tuân theo AGENTS.md — nguồn quy tắc ưu tiên cao nhất):**
+- **Mục tiêu:** Bỏ `src/features/`, chuyển sang cấu trúc theo loại file ở tầng global để dễ bảo trì.
+- **Loại file quyết định thư mục:**
+  - `*.api.ts` -> `src/api/<domain>/`
+  - `use*.ts` -> `src/hooks/<domain>/`
+  - `*.resource.ts` -> `src/resources/`
+  - `*.types.ts`, `types.ts` -> `src/types/<domain>/`
+  - Trang (List, Show, Create, Edit, *Page.tsx) -> `src/pages/<domain>/`
+  - Component còn lại -> `src/components/<domain>/`
+  - Hàm thuần -> `src/utils/` (dùng từ 3 nơi trở lên)
+- **Chiều phụ thuộc:** App/resources -> pages -> components -> hooks -> api -> types/utils/lib/constants. Tầng dưới không import tầng trên.
+- `types/` chỉ chứa type thuần: không resource config, không endpoint, không hằng số.
+- Import bằng đường dẫn đầy đủ qua `@/`. Không tạo `index.ts` gom export.
+- Page mỏng: chỉ ghép component và hook; logic ở hooks, gọi API ở api.
+- **Tuyệt đối không thêm file mới vào `src/features/` và không đưa file đã dời quay trở lại `src/features/`.**
+- **Thư mục cấm (BANNED):** `src/app/`, `src/common/`, `src/core/`, `src/shared/` (bị cấm theo ADR-001) và `src/features/` (đang dời bỏ hoàn toàn).
 
 ---
 

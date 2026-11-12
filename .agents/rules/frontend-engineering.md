@@ -3,46 +3,47 @@
 This document defines the mandatory frontend engineering rules for this repository, overriding generic recommendations with project-specific architecture, Refine conventions, and Ant Design patterns.
 
 ## 1. Project Directory Structure
-This repository enforces a strict, flat-feature architecture. 
+This repository enforces a global file-type architecture (migrating away from `src/features/` to global type-based folders organized by domain as defined in `AGENTS.md`).
 **APPROVED DIRECTORY LAYER (`src/`):**
+- `api/`: API calling functions: `api/<domain>/<domain>.api.ts`.
 - `assets/`: Static assets (images, icons).
-- `components/`: Global, reusable UI components. Do NOT place domain-specific components here.
-- `hooks/`: Application-wide reusable hooks.
-- `validators/`: Reusable generic validators (e.g., `email.validator.ts`).
-- `formatters/`: Formatting logic (raw data -> display representation).
-- `forms/`: Shared form infrastructure (e.g., `backendFieldErrors.ts`).
-- `table/`: Global table utilities.
-- `utils/`: Generic helpers.
-- `types/`: Frontend application data structures, DTOs, and form structures.
-- `constants/`: Global constants.
-- `config/`: Application configuration.
-- `providers/`: Refine integrations (`dataProvider.ts`, `authProvider.ts`, etc.).
-- `features/`: Domain-specific modules containing what the application *does* with data.
-- `pages/`: Route-level screens composing Refine hooks, feature components, and layouts.
-- `router/`: Application routing configuration.
+- `components/`: Reusable and domain UI components: `components/<domain>/`.
+- `hooks/`: Reusable and domain hooks: `hooks/<domain>/use*.ts`.
+- `pages/`: Route-level screen components: `pages/<domain>/` (one file per screen).
+- `resources/`: Refine resource definitions: `resources/*.resource.ts`.
+- `types/`: Pure type definitions: `types/<domain>/*.types.ts`.
+- `utils/`: Shared pure functions partitioned by topic (pure only, used across 3+ places).
+- `constants/`: Global routes, enums, constants.
+- `lib/`: Shared clients and infrastructure (axios client, query client, i18n).
 - `locales/`: Internationalization dictionaries.
+- `config/`: Application bootstrap and runtime configuration.
+- `providers/`: Refine providers (auth, data, access control, notification).
+- `router/`: Application routing configuration.
 - `styles/`: Global stylesheets.
-- `test/`: Testing setup and utilities.
+- `formatters/`, `forms/`, `table/`, `validators/`: Shared cross-cutting utilities.
 
 **BANNED DIRECTORIES / LAYERS:**
-Do NOT create the following folders or architectural layers unless explicitly requested:
-- `src/app/`, `src/common/`, `src/core/`, `src/shared/`
-- `services/`, `repositories/`, `use-cases/`, `domain/`, `entities/`, `infrastructure/`
+Do NOT create the following folders or architectural layers:
+- `src/features/` (deprecated/banned for new code; existing modules are actively being moved to global structure per `AGENTS.md`. Never add new files here or move files back into `src/features/`).
+- `src/app/`, `src/common/`, `src/core/`, `src/shared/` (banned per ADR-001).
+- `services/`, `repositories/`, `use-cases/`, `domain/`, `entities/`, `infrastructure/`.
 Do NOT create abstraction layers merely for theoretical separation.
 
 ## 2. Types Architecture
-All structured application data types MUST live at the root of `src/types/` in a flat structure. Do NOT create `features/*/types/`, `types/dto/`, or `types/models/`.
-- `*.types.ts`: Frontend/application data structures (e.g., `customer.types.ts`).
-- `*.dto.ts`: Backend transport structures (e.g., `CreateCustomerDto`, `CustomerResponseDto`).
-- `*.form.types.ts`: Form structures, ONLY when they differ meaningfully from DTO/domain types.
+Structured application data types live under `src/types/<domain>/*.types.ts` (pure types only) or shared API types in `src/types/`.
+- `types/<domain>/*.types.ts`: Pure types partitioned by domain.
+- `*.dto.ts`: Backend transport structures.
 - `api.types.ts`: Generic API structures (`ApiResponse<T>`, `ApiError`).
-**Rule:** Types must contain STRUCTURE ONLY. No formatting, validation, API requests, mappers, or side effects.
+**Rule:** `types/` must contain PURE TYPES ONLY. No resource config, no endpoints, no constants, no formatting, no validation, and no side effects.
 
-## 3. Features & Mappers
-`src/features/` organizes what the application does with data.
-- **Responsibilities:** Feature UI, feature-specific mapping, business validation, Refine resource configuration.
-- **Mappers:** Only create mappers to transform between *meaningfully different* structures. Do NOT create identity mappers.
-- **Business Validation:** Belongs in the feature folder (e.g., `features/loads/load.validation.ts`). Do NOT put domain validation in `src/validators/` or `src/forms/`.
+## 3. Domain Logic, API & Utilities
+Business logic is organized by global file types rather than feature folders:
+- **API calls:** Live in `src/api/<domain>/<domain>.api.ts`.
+- **Hooks & Business Logic:** Live in `src/hooks/<domain>/use*.ts`.
+- **UI Components:** Live in `src/components/<domain>/`.
+- **Pages:** Live in `src/pages/<domain>/` (thin pages composing components and hooks).
+- **Pure Helpers & Mappers:** Live in `src/utils/` (partitioned by topic, used in 3+ places). Only create mappers between meaningfully different structures.
+- **Refine Resources:** Live in `src/resources/*.resource.ts`.
 
 ## 4. Refine Framework Integration
 This project uses `@refinedev/core` (v4). 
@@ -63,8 +64,11 @@ This project relies on `antd` (v5). Use official Ant Design patterns and do not 
 - **Pages:** Keep `src/pages/` thin. Pages should primarily compose Refine hooks, feature components, and layouts. Do not implement large business rules or DTO transformations inside page components.
 
 ## 7. Dependency Direction
-- `types` MUST NOT import `features`, `pages`, `components`, or `providers`.
-- Shared infrastructure (`components`, `hooks`, `validators`, `formatters`, `forms`) MUST NOT depend on business pages.
+- Strictly follow the dependency hierarchy defined in `AGENTS.md`:
+  `App/resources -> pages -> components -> hooks -> api -> types/utils/lib/constants`.
+  Lower layers MUST NOT import upper layers.
+- `types` MUST contain pure types only and must not import from higher layers.
+- Import files using full paths via `@/`. Do NOT create `index.ts` re-export bundles.
 
 ## 8. Code Quality & Testing
 - Follow existing ESLint, Prettier, and TypeScript configurations. Do not modify them unless explicitly requested.

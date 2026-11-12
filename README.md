@@ -41,16 +41,11 @@ npm install
 npm run dev
 ```
 
-Local development includes one UI-only account so the dashboard can be opened
-while the external Identity Server is unavailable:
-
-```text
-Username: admin@logicstic.local
-Password: Logicstic@2026
-```
-
-The account is enabled by `VITE_DEMO_AUTH_ENABLED=true`, works only in Vite
-development mode, and does not grant access to protected backend APIs.
+Authentication is configured via Lark SSO and OIDC (Authorization Code + PKCE).
+In local development, the login page (`/login`) provides buttons for Lark SSO
+and standard OIDC authentication against the Identity Server.
+Protected endpoints and OAuth metadata are configured in `public/runtime-config.json`
+and `.env`.
 
 ### API origin and the dev proxy
 
@@ -81,10 +76,10 @@ in memory and the Spring API is called with a Bearer token; the browser never
 overrides the tenant with a custom header. Runtime endpoints and OAuth metadata
 come from `public/runtime-config.json`, which must not contain secrets.
 
-The production Refine composition lives in `src/app/runtime`. API resource
-contracts, filter/sort allowlists and update methods live in
-`src/app/runtime/resources.ts`; transport and envelope adaptation live in
-`src/core/api`.
+The production Refine composition lives in `src/App.tsx` (with routing declared
+in `src/router/AppRouter.tsx`). API resource contracts, filter/sort allowlists
+and update methods live in `src/pages/resourceRegistry.ts`; transport and envelope
+adaptation live in `src/providers/api/`.
 
 See [ADR-001](docs/adr/001-unified-runtime-foundation.md) for the architecture
 decision and the [foundation integration contract](docs/foundation-integration-contract.md)

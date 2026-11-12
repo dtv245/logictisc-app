@@ -7,38 +7,38 @@
 | Field | Value |
 |---|---|
 | Schema Version | 1 |
-| Revision | 20 |
+| Revision | 25 |
 | Project | LogisticsX Frontend |
 | Repository Root | /home/vumoi/logictics-app |
 | Execution Mode | SCOPED_TASK |
-| Last Updated | 2026-11-06T15:04:25+07:00 |
-| Current Phase | 8 — Frontend Development |
-| Active Role | Code Reviewer |
-| Status | READY_FOR_REVIEW |
-| Next Role | Code Reviewer |
-| Next Action | Review StrictMode map reuse and teardown; verify remaining Firefox/Mapbox console messages in the browser |
-| Handoff Sequence | 20 |
+| Last Updated | 2026-11-07T01:56:26+07:00 |
+| Current Phase | 6 — Project Structure |
+| Active Role | Tech Lead |
+| Status | BLOCKED |
+| Next Role | Tech Lead |
+| Next Action | Confirm whether another session/process is advancing the migration; coordinate repo ownership, then resolve mapping questions before further source edits |
+| Handoff Sequence | 25 |
 
 ## 2. Project Snapshot
 
-- **Problem:** Complete transport operations and financial workflows against the existing Spring backend.
+- **Problem:** Maintain the LogisticsX TMS frontend while moving its code from feature folders into a global structure organized by file type.
 - **Users:** Dispatchers, finance staff, payroll managers and drivers.
-- **Goal:** Implement accepted frontend v2 contracts and retain genuine backend/authorization blockers; no task is user-deferred.
-- **Core Features:** See canonical plan section 48 current execution matrix and section 49 checkmarks.
-- **Technology:** React 18, TypeScript 6, Vite 8, Refine 4, Ant Design 5, Query 4, Vitest and Playwright.
-- **Constraints:** Frontend only; preserve dirty Lark/user work, foundation, tenant boundaries and screen-scoped fetching. No invented endpoints, production mocks, client ledger reconstruction or backend changes.
-- **Scope:** Current scoped task hardens the TMS map UI against Mapbox WebGL context loss and diagnoses the reported dispatch-board 404s. No API, hook, route, Refine resource, translation-key or dependency changes were made.
-- **Out of Scope:** Backend source/config/container/build/restart, database/migration/reset/reseed, framework migration, deployment and unrelated user changes.
-- **Repository Baseline:** Historical Oct6 branch KAN-79-integrations-dang-nhap-bang-lark, HEAD 0eb8bf6; typecheck/lint/build PASS; 115 files / 633 tests PASS; authenticated E2E NOT RUN. Map redesign gates and the 2026-11-06 WebGL fix gates passed; 11 focused tests cover map context-loss handling and cleanup. Live Mapbox rendering was not verified.
+- **Goal:** Migrate `src/features/` to the user-defined global structure in small, reviewable domain steps without mixing moves and logic changes.
+- **Core Features:** TMS operations, dispatch, fleet, payroll and settlements remain existing product domains; the active work is structural only.
+- **Technology:** React 18.3, TypeScript 6, Vite 8, Refine 4, Ant Design 5, TanStack Query 4, Axios, Vitest and Playwright (from `package.json` and user instructions).
+- **Constraints:** Follow the repository's current Vietnamese `AGENTS.md` instructions; preserve staged, unstaged and untracked work; use `git mv`; one domain per move commit; no package/lockfile changes; no speculative destinations for unmapped files.
+- **Scope:** Global source-structure migration. Current turn records a baseline and open mapping questions only; no source files were changed.
+- **Out of Scope:** Backend, database, API behavior, package/lockfile changes, unrelated working-tree edits, and any delete or move whose destination is not clear.
+- **Repository Baseline:** As of 2026-11-07T01:56+07:00: branch `main`, last observed HEAD `ac7e7a4` (`refactor(employees): move to global structure`), ahead 24. The branch advanced from `d6d2709` during this turn; named newly observed commits include `b34c751` (Terminal), `e0051ba` (Truck) and `ac7e7a4` (Employees). The dirty path list keeps changing and the latest observed set includes Fleet/Invoice edits and untracked artifacts. 251 tracked files remained under `src/features/` at the last count. `docs/restructure/PROGRESS.md` still reports only `accidents` done, inconsistent with the recent history. Build/lint/tests were NOT RUN; the 1205-test original baseline is historical, not a current result.
 
 ## 3. Current Delivery State
 
 ### Current Objective
 
-- **Feature/Task ID:** TMS-MAP-WEBGL-ROBUSTNESS-2026-11-06
-- **Objective:** Prevent uncaught Mapbox style access after `webglcontextlost`, avoid redundant map destruction during React StrictMode effect replay, and classify the dispatch-board 404 source.
-- **Acceptance Gate:** Context loss pauses child layers and displays fallback; context restore remounts them; cleanup is safe if Mapbox has no style; StrictMode reuses one Map instance but real unmount removes it; typecheck/lint/build and focused tests pass. Backend route availability must be checked in the authenticated running environment.
-- **Allowed Change Scope:** `src/components/map/`, `src/pages/tms-flow/LiveTrackingPage.tsx`, related map tests and `.ai-workflow/PROJECT_MEMORY.md`; no backend, API contract, hook, route, Refine resource, i18n key or package changes.
+- **Feature/Task ID:** GLOBAL-STRUCTURE-REFACTOR-2026-11-07
+- **Objective:** Move files out of `src/features/` into the global file-type structure, following the approved per-domain mapping and preserving behavior.
+- **Acceptance Gate:** Every moved file has an explicit destination; ambiguous mappings are resolved first; move commits contain moves only; logic/import updates are separate; current working-tree work remains intact; final build, lint and test gates meet the baseline of at least 1205 passing tests.
+- **Allowed Change Scope:** Mapped source moves and necessary direct-import updates, plus `docs/restructure/` and `.ai-workflow/PROJECT_MEMORY.md`; preserve all existing staged, unstaged and untracked work and avoid package/lockfile changes.
 
 ### Phase Status
 
@@ -50,7 +50,7 @@
 | 3. Database Design | Database Engineer | Database Engineer; Software Architect; Backend Developer | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
 | 4. System Architecture | Software Architect | Software Architect; Tech Lead; Security Engineer; Database Engineer | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
 | 5. API Design | Tech Lead | Tech Lead; Software Architect; Backend Developer; Frontend Developer; Security Engineer | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
-| 6. Project Structure | Tech Lead | Tech Lead; Software Architect; Backend Developer; Frontend Developer | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
+| 6. Project Structure | Tech Lead | Tech Lead; Software Architect; Backend Developer; Frontend Developer | `BLOCKED` | HOFF-0021–0025 record repeated Git-state changes during this turn, last observed HEAD `ac7e7a4`; mapping questions remain and `PROGRESS.md` is stale. |
 | 7. Backend Development | Backend Developer | Backend Developer; Tech Lead; Database Engineer; QA / Tester; Security Engineer; Code Reviewer | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
 | 8. Frontend Development | Frontend Developer | Frontend Developer; Tech Lead; QA / Tester; Security Engineer; Code Reviewer | `READY_FOR_REVIEW` | Map UI plus WebGL loss/restoration guard and StrictMode map reuse complete; typecheck/lint/build and 11 focused tests PASS. Firefox/Mapbox deprecation warnings remain upstream; authenticated runtime result for dispatch-board endpoints remains unresolved. |
 | 9. Integration | Tech Lead | Tech Lead; Backend Developer; Frontend Developer; QA / Tester | `NOT_APPLICABLE` | Existing project; no separate role gate claimed in this frontend continuation. |
@@ -65,10 +65,11 @@
 
 ### Feature / Task Board
 
-Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publishes /api/me and messaging ownership enforcement; this documentation task did not re-audit frontend source or probe the target runtime. Reconcile source contract, runtime and frontend acceptance independently before changing feature statuses.
+Historical feature statuses below retain their earlier checkpoints. The current task is the separate global-structure migration; the restructuring tracker needs reconciliation with Git history before it can represent the current state.
 
 | ID | Requirement IDs | Owner | Status | Evidence | Next Action |
 |---|---|---|---|---|---|
+| GLOBAL-STRUCTURE-REFACTOR-2026-11-07 | User-provided global target structure and move/commit rules | Tech Lead | `BLOCKED` | User instructions; `docs/restructure/mapping.md`; `docs/restructure/PROGRESS.md`; HEAD `ac7e7a4` | Confirm active migration ownership; resolve unmapped destinations; reconcile tracker |
 | DOC-ALIGN-PROMPT-001 | User prompt-writing request | Tech Lead | `DONE` | docs/prompt-business-backend-frontend-alignment.md; HOFF-0016 | Apply only when implementation is requested within authorized scope |
 | TMS-MAP-WEBGL-ROBUSTNESS-2026-11-06 | Recover map UI safely after WebGL context loss; diagnose dispatch-board 404s | Frontend Developer | `READY_FOR_REVIEW` | mapStyleSafety.ts; MapShell/VehicleLayer/DispatchMapLayers; HOFF-0019–0020; final gates PASS | Verify authenticated API runtime; review browser recovery with approved token |
 | TMS-MAP-REDESIGN-2026-11-06 | Three TMS map screens, MapShell, GeoJSON vehicle layers and responsive floating panels | Frontend Developer | `READY_FOR_REVIEW` | src/components/map/MapShell.tsx; src/components/map/VehicleLayer.tsx; DispatchPage/LiveTrackingPage; HOFF-0018; final gates PASS | Independent review; live Mapbox check when token/model asset are available |
@@ -102,17 +103,20 @@ Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publish
 
 ### In Scope
 
-- Current request: author one reusable prompt from project plans/contracts; document business-to-API-to-UI traceability and verification criteria.
-- Future authorized frontend continuation: reconcile updated packaged contracts and deployed artifact before selecting tasks; preserve completed work and actual blockers.
+- Classify and move each source file from `src/features/` into `api/`, `components/`, `hooks/`, `pages/`, `resources/`, `types/`, `utils/`, `constants/` or `lib/` as the user-defined rules allow.
+- Keep each domain move separate from logic changes; use direct `@/` imports and co-locate tests with the moved file.
+- Update the restructuring progress record only after reconciling it with the actual Git history and filesystem.
 
 ### Out of Scope
 
-- Backend implementation/config/deployment/container and database/migration changes; production endpoint mocks; financial/ranking formulas; unrelated user work.
+- Backend or database changes, API/behavior changes, package/lockfile changes, and unrelated user work.
+- Guessing destinations for `config/`, `store/`, `layers/`, styles or existing barrels; do not remove or move these until their mapping is clear.
 
 ### Traceability
 
 | Requirement / Story | Business Rule | Domain / Data | API / UI | Tests | Status |
 |---|---|---|---|---|---|
+| GLOBAL-STRUCTURE-REFACTOR-2026-11-07 | File type determines destination; move and logic edits use separate commits | Existing frontend domains under `src/features/` | Global structure from current user instructions | Final build/lint/test required; NOT RUN in baseline turn | BLOCKED pending mapping decisions and tracker reconciliation |
 | DOC-ALIGN-PROMPT-001 | Business acceptance, source contract, target runtime and frontend evidence are independent | Frontend v2 plus Oct7 verified handoff and backend current plan checkpoint | Reusable audit/implementation prompt; no source edit | Reference/structure/whitespace and memory checks; product tests NOT RUN (docs only) | DONE |
 | TMS-MAP-REDESIGN-2026-11-06 | Reuse current map interactions and keep the map as the base visual layer; do not infer vehicle motion without telemetry | Existing TruckResponse coordinates/status only; no API/data contract changes | Shared MapShell and GeoJSON VehicleLayer applied to dispatch, approvals and live tracking | MapShell/VehicleLayer/DispatchPage targeted tests: 3 files / 15 tests PASS; typecheck/lint/build PASS | READY_FOR_REVIEW |
 | TMS-MAP-WEBGL-ROBUSTNESS-2026-11-06 | A lost WebGL context may temporarily remove Mapbox's style; async layer updates and React cleanup must tolerate that state | Mapbox context events and existing Mapbox sources/layers | Pause map children on loss, show fallback, restore after WebGL/style is ready, and make cleanup best-effort | MapShell/VehicleLayer/DispatchMapLayers tests: 3 files / 11 tests PASS; final typecheck/lint/build PASS | READY_FOR_REVIEW |
@@ -123,9 +127,9 @@ Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publish
 
 ## 5. Architecture and Data Snapshot
 
-- **Architecture Style:** Existing React Refine application; docs/adr/001-unified-runtime-foundation.md.
-- **Modules / Boundaries:** Existing shallow src/features, src/pages, src/components, src/types structure. TMS map presentation now shares `src/components/map/MapShell` and `VehicleLayer`.
-- **Dependency Direction:** Pages/components → Refine hooks → existing DataProvider/API client → Spring backend.
+- **Architecture Style:** Existing React Refine application; frontend structure is being reorganized by file type under the user-provided rules.
+- **Modules / Boundaries:** Target top-level folders are `api`, `components`, `hooks`, `pages`, `resources`, `types`, `utils`, `constants`, `lib`, `locales`, plus `App.tsx` and `main.tsx`. `src/features/` still contains 251 tracked files.
+- **Dependency Direction:** App/resources → pages → components → hooks → api → types/utils/lib/constants; lower layers must not import higher layers.
 - **Authentication / Authorization:** Existing shared JWT/session/tenant boundary preserved; exact fail-closed capabilities retained. Caller IDs cannot replace server authorization.
 - **Data Model / Migration:** Backend source/config/migrations byte-identical to pre-task hash snapshot; no database operation or migration work.
 - **API / Integration Contract:** Oct6 runtime matrix is a historical checkpoint. Oct7 handoff publishes 176 operations / 140 paths / 291 schemas, V38, including /api/me and messaging ownership enforcement; provenance LOCAL_JAR_CONTRACT_SNAPSHOT, deployment_verified=false. Prompt names the actual docs/frontend-backend-handoff/docs paths and requires manifest/provenance verification.
@@ -137,6 +141,7 @@ Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publish
 
 | ID | Date | Owner | Decision | Reason / Evidence | Consequences | Supersedes |
 |---|---|---|---|---|---|---|
+| REORG-SCOPE-20261107 | 2026-11-07 | Tech Lead | Use the current user-provided global-structure instructions as the active scoped task and preserve the dirty worktree | User instructions, `git status`, current HEAD `d6d2709`, and restructuring docs | This turn records baseline only; no staged or unrelated source changes are touched | Prior map-task scope as the active task only |
 | FE-ALIGN-20261006 | 2026-10-06 | Frontend Developer | First current contract matrix controls execution | Runtime 137 paths and confirmed controllers | Five recent tasks remain DONE; real blockers retained; READY none | Historical Oct5 runtime absence only; old handoffs retained |
 | FE-EXECUTIVE-DORMANT | 2026-10-06 | Frontend Developer | Gate Executive menu/resources/rendering and redirect old return targets to Operations | BE-031 summary absent and incompatible report DTO/parameters | Queries/metrics/page preserved; Fleet independently DONE; no compatibility fabrication | Previous exposed Executive navigation |
 | FE-SETTLEMENT-EXACT-COMMANDS | 2026-10-06 | Frontend Developer | Retain existing confirmed commands/corrections | Current SettlementActions already matches runtime | No generic reject/recalculate/payment aliases; BE-025 remains partial | Planned unsupported action names |
@@ -156,6 +161,9 @@ Feature statuses below retain the Oct6 checkpoints. The Oct7 handoff now publish
 
 | ID | Severity | Risk | Evidence | Mitigation | Owner | Status |
 |---|---|---|---|---|---|---|
+| REORG-PROGRESS-DRIFT | MEDIUM | Restructuring tracker does not reflect current repository state | `PROGRESS.md` lists only accidents done; HEAD is ahead 24 with recent restructuring commits; 251 tracked `src/features/` files remained at last count | Reconcile the tracker against commit history and actual paths before relying on its per-domain status | Tech Lead | OPEN |
+| REORG-DIRTY-WORKTREE | HIGH | Existing staged and unstaged work could be mixed into migration commits or lost | Latest observed status includes Driver/Employee/type edits, pagination/tsconfig edits, a skills-file deletion, and untracked artifacts; the path set is changing | Preserve all current edits; do not stage, restore, reset, clean, or commit them as part of this baseline | Tech Lead | OPEN |
+| REORG-CONCURRENT-CHANGE | HIGH | Repository HEAD and dirty files changed repeatedly during this turn without an action from this agent | HEAD advanced from `d6d2709` to `ac7e7a4`; Terminal, Truck and Employees refactor commits appeared; dirty paths changed again after HOFF-0024 | Treat commits and worktree changes as external until the user confirms ownership; avoid dependent edits | Tech Lead | OPEN |
 | FE-DIRTY-GRAPH | CRITICAL | Full dirty working tree includes substantial pre-existing feature work; broad graph risk is unresolved | CLI detect-changes all: 45 tracked files, 266 symbols, 24 flows, CRITICAL; MCP zero was unseen | Session diff reviewed against snapshot; LOW scoped impact with callers, UNKNOWN confirmed by usage; four gates PASS; no clean graph/commit claim | Frontend Developer | OPEN |
 | FE-AUTH-E2E | HIGH | Deterministic authenticated browser certification unavailable | BE-021 identity and test environment absent | Preserve shared identity boundary; document E2E NOT RUN; no production mock | Backend/test environment owners | BLOCKED |
 | TMS-MAP-LIVE-VERIFY | MEDIUM | Runtime appearance, Mapbox token compatibility and optional 3D model rendering are not browser-verified | No live token verified; `public/models/truck.glb` absent; code-level tests use Mapbox mocks | Keep optional model path fail-soft; review visually with authorized token and model asset | Frontend Developer | OPEN |
@@ -167,6 +175,8 @@ Rows below retain the Oct6 feature acceptance checkpoints, not a fresh absence/s
 
 | ID | Blocker | Needed To Unblock | Owner | Status |
 |---|---|---|---|---|
+| REORG-MAPPING-QUESTIONS | Destination rules remain unclear for config/contracts, map layers/store, and existing barrel files | User confirms destinations/removal policy before any affected file is planned or moved | User / Tech Lead | OPEN |
+| REORG-CONCURRENT-CHANGE | Multiple migration commits and repeatedly changing dirty-file sets appeared during this turn | User confirms whether migration commits `b34c751`, `e0051ba`, `ac7e7a4` and the current dirty work are expected, and whether another session is active | User | OPEN |
 | TMS-DISPATCH-API-404 | Authenticated dev browser receives 404 for risk/unassigned dispatch reads | Check running backend version/route registration for `/api/loads/dispatch-board/risk` and `/unassigned` behind the same auth session; source controller and tests define both routes | Backend/runtime owner | NEEDS_RUNTIME_VERIFICATION |
 | BE-021 | Identity/Profile and authenticated E2E | GET /api/me matching shared session claims and deterministic authorized test environment | Backend owners | BLOCKED_BACKEND |
 | BE-020 | Document upload | Final multipart file/metadata/storage/ownership/error/authorization contract | Backend owners | BLOCKED_BACKEND |
@@ -200,6 +210,10 @@ BE-029 runtime deployment absence is RESOLVED / HISTORICAL for the five recently
 | Shared TMS MapShell and vehicle layer | src/components/map/MapShell.tsx; src/components/map/VehicleLayer.tsx; src/components/map/DispatchMapLayers.tsx | Frontend Developer | READY_FOR_REVIEW | 2026-11-06 |
 | Map shell and vehicle layer tests | src/components/map/MapShell.test.tsx; src/components/map/VehicleLayer.test.tsx; src/pages/tms-flow/DispatchPage.test.tsx | Frontend Developer | PASS — 15 tests | 2026-11-06 |
 | WebGL context-loss recovery | src/components/map/mapStyleSafety.ts; MapShell/VehicleLayer/DispatchMapLayers tests | Frontend Developer | PASS — 11 focused tests; backend 404 needs runtime check | 2026-11-06 |
+| Global structure mapping | docs/restructure/mapping.md; docs/restructure/PROGRESS.md; user-provided AGENTS.md | Tech Lead | Baseline reviewed; progress tracker stale and mappings need decisions | 2026-11-07 |
+| Current frontend scripts and stack | package.json | Tech Lead | READ; checks NOT RUN in this turn | 2026-11-07 |
+| Repository change after initial baseline | commit `b34c751`; current `git status` | Tech Lead | Observed; owner not confirmed; preserve as external work | 2026-11-07 |
+| Latest repository checkpoint | commit `ac7e7a4`; current `git status` | Tech Lead | Observed; ownership not confirmed; further edits paused | 2026-11-07 |
 
 ## 9. Role Handoffs
 
@@ -629,6 +643,111 @@ BE-029 runtime deployment absence is RESOLVED / HISTORICAL for the five recently
 - **Acceptance Gate:** One map instance survives StrictMode effect replay; real unmount removes it; focused tests, build and lint pass; no application-level attempt to hide Firefox/Mapbox warnings.
 - **Do Not Redo:** Do not suppress browser console warnings, skip `map.remove()`, or modify package/dependency/API contracts without separate approval. No Git operations were performed.
 
+### HOFF-0021 — Tech Lead → Tech Lead
+
+- **Timestamp:** 2026-11-07T01:50:33+07:00
+- **From Role:** Tech Lead
+- **To Role:** Tech Lead
+- **Phase:** 6 — Project Structure
+- **Status:** BLOCKED
+- **Objective:** Establish an evidence-backed baseline for the active global source-structure migration and identify decisions needed before the next move.
+- **Inputs Read:** Existing memory revision 20; user-provided `AGENTS.md`; `docs/restructure/mapping.md`; `docs/restructure/PROGRESS.md`; `package.json`; `git status`, recent Git history and tracked `src/features/` paths.
+- **Completed:** Recorded current HEAD `d6d2709` on `main` (ahead 20), 251 tracked files still under `src/features/`, and the mismatch between the progress tracker and recent commit history. Noted existing staged/unstaged/untracked work for preservation. Kept this turn to the memory artifact; source files were not changed.
+- **Requirement IDs:** GLOBAL-STRUCTURE-REFACTOR-2026-11-07.
+- **Files and Artifacts:** `.ai-workflow/PROJECT_MEMORY.md`; no source files changed.
+- **Decisions:** `REORG-SCOPE-20261107`: treat current user-provided structure instructions as the active scoped task and preserve the dirty worktree. The pre-existing unstructured HOFF-0021 text after Final Readiness is preserved verbatim below; this registered entry is the canonical sequence-21 record and supersedes that unstructured appendix.
+- **Assumptions:** The user-provided `AGENTS.md` defines the requested migration scope; ownership of current dirty changes is not inferred.
+- **Verification:** `python3 /home/vumoi/.codex/skills/ai-software-project-workflow/scripts/validate_memory.py --project-root /home/vumoi/logictics-app` passed before this update at revision 20 / 20 registered handoffs. Build, lint and tests: NOT RUN because this was a baseline/memory update with no source edits, and no verification run was requested.
+- **Open Issues and Risks:** `docs/restructure/PROGRESS.md` is stale relative to the current Git history; the working tree contains staged Terminal changes, an unstaged `tsconfig.app.json` change and untracked artifacts; config/contracts, map layers/store and existing barrels still need mapping decisions.
+- **Blockers:** `REORG-MAPPING-QUESTIONS` requires user decisions before planning any affected file move.
+- **Next Required Action:** Confirm the destinations/removal policy for the unresolved mapping categories; then reconcile the progress tracker against Git history and current paths before listing the next domain's file-to-destination plan.
+- **Acceptance Gate:** Mapping choices are recorded; no existing user changes are swept into a domain move; every next move has an explicit destination; commits separate moves from logic changes.
+- **Do Not Redo:** Do not repeat the baseline Git status/log and `src/features/` inventory without new evidence. Do not run build/lint/tests and report them as current from historical documentation.
+
+### HOFF-0022 — Tech Lead → Tech Lead
+
+- **Timestamp:** 2026-11-07T01:52:21+07:00
+- **From Role:** Tech Lead
+- **To Role:** Tech Lead
+- **Phase:** 6 — Project Structure
+- **Status:** BLOCKED
+- **Objective:** Record a repository state change that appeared after the initial baseline and prevent accidental edits against an unstable worktree.
+- **Inputs Read:** HOFF-0021; current `git status`; `git log -3`; `git show --stat b34c751`; tracked `src/features/` count; memory validator output.
+- **Completed:** Observed HEAD move from `d6d2709` to `b34c751` (`refactor(terminals): move to global structure`) and the dirty file set change from Terminal edits to Truck/Fleet/map/maintenance work. This agent ran no Git commit or source-edit command. Updated the current baseline and risks while preserving the observed changes.
+- **Requirement IDs:** GLOBAL-STRUCTURE-REFACTOR-2026-11-07.
+- **Files and Artifacts:** `.ai-workflow/PROJECT_MEMORY.md`; no source files changed.
+- **Decisions:** Treat `b34c751` and the current dirty worktree as external changes with unconfirmed ownership; do not stage, revert, clean, commit or edit them in this turn.
+- **Assumptions:** The repository change was made by the user or another process; its ownership and intent are unknown.
+- **Verification:** `git log -3 --oneline --decorate` identified `b34c751`; `git show --stat --summary b34c751` showed the Terminal refactor; `git ls-files src/features | wc -l` returned 251; memory validator passed at revision 21 / 21 registered handoffs before this update. Build/lint/tests NOT RUN.
+- **Open Issues and Risks:** `REORG-CONCURRENT-CHANGE`, `REORG-DIRTY-WORKTREE` and `REORG-PROGRESS-DRIFT` remain open; the mapping questions from HOFF-0021 remain unresolved.
+- **Blockers:** User confirmation of the unexpected commit/current working-tree ownership, plus the unresolved mapping decisions.
+- **Next Required Action:** Confirm whether `b34c751` and the current Truck/Fleet worktree changes are expected; then resolve the remaining mapping questions before any source edit.
+- **Acceptance Gate:** Repository state and ownership are confirmed; every next move has an explicit destination; no existing user work is included accidentally in a new commit.
+- **Do Not Redo:** Do not repeat inspection of commit `b34c751` or the current file list unless Git state changes again. Do not claim this agent created the commit.
+
+### HOFF-0023 — Tech Lead → Tech Lead
+
+- **Timestamp:** 2026-11-07T01:53:58+07:00
+- **From Role:** Tech Lead
+- **To Role:** Tech Lead
+- **Phase:** 6 — Project Structure
+- **Status:** BLOCKED
+- **Objective:** Record a second external Git-state change and pause migration work until repository ownership is clear.
+- **Inputs Read:** HOFF-0022; latest `git status`; latest `git log`; tracked `src/features/` count.
+- **Completed:** Observed HEAD advance again, from `b34c751` to `e0051ba` (`refactor(trucks): move to global structure`), while the dirty path list changed. This agent ran no source-edit or Git commit command. Updated the memory checkpoint; all current source edits remain untouched.
+- **Requirement IDs:** GLOBAL-STRUCTURE-REFACTOR-2026-11-07.
+- **Files and Artifacts:** `.ai-workflow/PROJECT_MEMORY.md`; no source files changed.
+- **Decisions:** Pause source work pending user confirmation of the two newly observed migration commits and current working-tree ownership.
+- **Assumptions:** Another session/process or the user may be continuing migration work; the actor is unknown.
+- **Verification:** Latest observed `HEAD` was `e0051ba`; `git status --short --branch` showed the remaining Fleet/config/test edits, a skills-file deletion and untracked artifacts; `git ls-files src/features | wc -l` returned 251. Memory validator passed at revision 22 / 22 registered handoffs before this update. Build/lint/tests NOT RUN.
+- **Open Issues and Risks:** Repeated repository changes during this turn; stale `docs/restructure/PROGRESS.md`; mapping decisions from HOFF-0021 remain open.
+- **Blockers:** `REORG-CONCURRENT-CHANGE` and `REORG-MAPPING-QUESTIONS`.
+- **Next Required Action:** Confirm whether another session/process is advancing this repository and whether commits `b34c751` and `e0051ba` plus the current dirty work should be treated as the active baseline.
+- **Acceptance Gate:** Repository ownership and current baseline are confirmed before further edits; unresolved file destinations are decided before planning affected moves.
+- **Do Not Redo:** Do not rerun the read-only inspection unless Git state changes again. Do not claim or amend commits created by another actor.
+
+### HOFF-0024 — Tech Lead → Tech Lead
+
+- **Timestamp:** 2026-11-07T01:55:02+07:00
+- **From Role:** Tech Lead
+- **To Role:** Tech Lead
+- **Phase:** 6 — Project Structure
+- **Status:** BLOCKED
+- **Objective:** Capture another change in the dirty file set and pause this role pending confirmation of repository ownership.
+- **Inputs Read:** HOFF-0023; latest `git status`; current `git log`; prior memory validator and diff-check results.
+- **Completed:** The worktree changed again after HOFF-0023: the latest observed uncommitted paths include Driver/Employee domain edits instead of the prior Fleet-focused set. Last observed HEAD remained `e0051ba`. This agent made no source changes and did not commit.
+- **Requirement IDs:** GLOBAL-STRUCTURE-REFACTOR-2026-11-07.
+- **Files and Artifacts:** `.ai-workflow/PROJECT_MEMORY.md`; no source files changed.
+- **Decisions:** Keep source editing paused until the user confirms whether another session/process is performing the migration.
+- **Assumptions:** The changing working tree is controlled outside this agent; actor and intent are unknown.
+- **Verification:** The prior memory validation and `git diff --check` passed before this update. A handoff-comparison shell command did not execute due quoting; no result is claimed from it. Build/lint/tests NOT RUN.
+- **Open Issues and Risks:** `REORG-CONCURRENT-CHANGE` remains active; exact dirty-file inventory is unstable; mapping decisions and tracker drift remain unresolved.
+- **Blockers:** User confirmation of concurrent repository activity and the unresolved mappings.
+- **Next Required Action:** Confirm whether another session/process is advancing this repository and whether commits `b34c751` and `e0051ba` plus the current dirty work should be treated as the active baseline.
+- **Acceptance Gate:** No overlapping source edits; current baseline confirmed; each planned file has a clear destination.
+- **Do Not Redo:** Do not repeat the prior diff-check or memory validation until after this update; do not run a failed shell quoting command unchanged.
+
+### HOFF-0025 — Tech Lead → Tech Lead
+
+- **Timestamp:** 2026-11-07T01:56:26+07:00
+- **From Role:** Tech Lead
+- **To Role:** Tech Lead
+- **Phase:** 6 — Project Structure
+- **Status:** BLOCKED
+- **Objective:** Record further migration commits observed during final verification and stop before editing against a moving repository state.
+- **Inputs Read:** HOFF-0024; final `git status --short --branch`; latest `git log -1`; existing restructure tracker.
+- **Completed:** Observed branch `main` advance to `ac7e7a4` (`refactor(employees): move to global structure`, ahead 24) and the dirty path set change again, now including Invoice edits. This agent made no source changes and ran no commit command.
+- **Requirement IDs:** GLOBAL-STRUCTURE-REFACTOR-2026-11-07.
+- **Files and Artifacts:** `.ai-workflow/PROJECT_MEMORY.md`; no source files changed.
+- **Decisions:** Stop migration work in this session until the user confirms whether another active session is making the commits and edits.
+- **Assumptions:** The actor advancing the branch is not this agent; ownership and authorization are unknown.
+- **Verification:** Latest observed `git log -1 --oneline --decorate` returned `ac7e7a4`; `git status --short --branch` showed Fleet/Invoice edits and untracked artifacts. The memory validator and `git diff --check` will be run after this update. Build/lint/tests NOT RUN.
+- **Open Issues and Risks:** `REORG-CONCURRENT-CHANGE` remains active; `PROGRESS.md` still conflicts with the recent history; mapping questions remain open.
+- **Blockers:** User confirmation of the active repository owner and the unresolved file mappings.
+- **Next Required Action:** Confirm that commits `b34c751`, `e0051ba`, `ac7e7a4` and current working-tree edits are expected, and whether another session is still working in this repository.
+- **Acceptance Gate:** Repository ownership is clear and no other session is changing the source before work resumes.
+- **Do Not Redo:** Do not repeat migration implementation work or claim these commits; verify the memory update, then wait for user direction.
+
 ## 10. Final Readiness
 
 Product gate statuses/evidence below are retained from the historical Oct6 checkpoint; documentation-only work on Oct7 does not rerun or certify them.
@@ -656,6 +775,10 @@ Scoped map UI status on 2026-11-06: READY_FOR_REVIEW. The focused map tests and 
 **Production Verdict:** `NOT READY`
 
 **Residual Risks / Approved Exceptions:** Missing contracts/authorization and E2E remain unresolved; user approved frontend-only scope, no task deferrals. See docs/frontend-backend-unblock.md.
+
+Active global-structure task baseline (2026-11-07): build/lint/test NOT RUN in this turn; the historical readiness results above do not certify the current restructuring state. HEAD advanced repeatedly and the dirty path set kept changing; see HOFF-0022–0025.
+
+The pre-existing unstructured HOFF-0021 dashboard note is preserved verbatim below and superseded by the canonical registered HOFF-0021 under Role Handoffs.
 
 ### HOFF-0021 — Frontend Developer → Code Reviewer
 
