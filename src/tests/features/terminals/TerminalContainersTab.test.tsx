@@ -127,6 +127,25 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
     );
   });
 
+  it("shows a loading state while the container page is being fetched", () => {
+    vi.mocked(refineCore.useCustom).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isFetching: true,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    } as unknown as ReturnType<typeof refineCore.useCustom>);
+
+    const { container } = render(
+      <MemoryRouter>
+        <TerminalContainersTab terminalId="term-123" />
+      </MemoryRouter>,
+    );
+
+    expect(container.querySelector(".ant-spin-spinning")).not.toBeNull();
+  });
+
   it("renders the PagedResponse items", () => {
     vi.mocked(refineCore.useCustom).mockReturnValue(
       page(mockContainers) as unknown as ReturnType<typeof refineCore.useCustom>,

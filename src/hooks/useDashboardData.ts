@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useCustom, useDataProvider, useList } from "@refinedev/core";
+import { useCan, useCustom, useDataProvider, useList } from "@refinedev/core";
 import { useQueries } from "@tanstack/react-query";
 import dayjs from "dayjs";
 
@@ -36,6 +36,17 @@ export function useDashboardData(
 ) {
   const { enableFinancials = true } = options;
   const dataProvider = useDataProvider();
+
+  // `/api/reports/operations/**` is readable by ADMIN, ACCOUNTANT, DISPATCHER,
+  // PAYROLL and PAYROLL_MANAGER (BE-034). `loads:list` is NOT that grant: the
+  // TMS route happens to be gated by loads:list today, but the report queries
+  // must check the report permission so a future loads-only role cannot issue a
+  // predictable 403 (and never gets a zero-filled KPI instead of "forbidden").
+  const reportsAccess = useCan({
+    resource: "reports",
+    action: "OPERATIONS_VIEW",
+  });
+  const canReadOperationsReports = reportsAccess.data?.can === true;
 
   // 1. Tab visibility tracking to pause polling when tab is hidden
   const [isDocumentVisible, setIsDocumentVisible] = useState(() =>
@@ -271,7 +282,8 @@ export function useDashboardData(
       },
     },
     queryOptions: {
-      enabled: Boolean(currentFrom && currentTo),
+      enabled:
+        canReadOperationsReports && Boolean(currentFrom && currentTo),
       staleTime: 30_000,
       keepPreviousData: true,
       refetchInterval: (_data, query) =>
@@ -289,7 +301,12 @@ export function useDashboardData(
       },
     },
     queryOptions: {
-      enabled: Boolean(filters.comparePrevious && prevFrom && prevTo),
+      enabled: Boolean(
+        canReadOperationsReports &&
+          filters.comparePrevious &&
+          prevFrom &&
+          prevTo,
+      ),
       staleTime: 10 * 60_000,
       keepPreviousData: true,
       refetchInterval: false,
@@ -307,7 +324,8 @@ export function useDashboardData(
       },
     },
     queryOptions: {
-      enabled: Boolean(currentFrom && currentTo),
+      enabled:
+        canReadOperationsReports && Boolean(currentFrom && currentTo),
       staleTime: 30_000,
       keepPreviousData: true,
       refetchInterval: (_data, query) =>
@@ -326,7 +344,8 @@ export function useDashboardData(
       },
     },
     queryOptions: {
-      enabled: Boolean(currentFrom && currentTo),
+      enabled:
+        canReadOperationsReports && Boolean(currentFrom && currentTo),
       staleTime: 30_000,
       keepPreviousData: true,
       refetchInterval: (_data, query) =>
@@ -345,7 +364,8 @@ export function useDashboardData(
       },
     },
     queryOptions: {
-      enabled: Boolean(currentFrom && currentTo),
+      enabled:
+        canReadOperationsReports && Boolean(currentFrom && currentTo),
       staleTime: 30_000,
       keepPreviousData: true,
       refetchInterval: (_data, query) =>
@@ -457,11 +477,13 @@ export function useDashboardData(
       void laneProfitabilityQuery.refetch();
       void truckProfitabilityQuery.refetch();
     }
-    void otdQuery.refetch();
-    void prevOtdQuery.refetch();
-    void delaysQuery.refetch();
-    void transitTimeQuery.refetch();
-    void exceptionsQuery.refetch();
+    if (canReadOperationsReports) {
+      void otdQuery.refetch();
+      void prevOtdQuery.refetch();
+      void delaysQuery.refetch();
+      void transitTimeQuery.refetch();
+      void exceptionsQuery.refetch();
+    }
     void loadsCountQuery.refetch();
     void tripsCountQuery.refetch();
     void trucksCountQuery.refetch();
