@@ -22,6 +22,7 @@ export const routes = {
   profitability: "/finance/profitability",
   optimization: "/optimization",
   optimizationRun: "/optimization/runs/:id",
+  executiveReport: "/reports/executive",
   fleetReport: "/reports/fleet",
   fleetMileageAttributions: "/fleet/mileage-attributions",
   payroll: "/payroll",

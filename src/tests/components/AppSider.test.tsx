@@ -128,6 +128,7 @@ describe("AppSider — Thanh Icon Rail điều hướng liên tục", () => {
       routes.tmsFlow.approvals,
       routes.tmsFlow.liveTracking,
       routes.optimization,
+      routes.executiveReport,
       routes.fleetReport,
       routes.profitability,
       routes.resources.settlements.list,

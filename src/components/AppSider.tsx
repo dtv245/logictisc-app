@@ -68,6 +68,7 @@ import {
   DocumentsNavIcon,
   DriverExpiringNavIcon,
   DriversNavIcon,
+  ExecutiveNavIcon,
   FinanceZoneIcon,
   InvoicesNavIcon,
   LoadsNavIcon,
@@ -230,6 +231,14 @@ export const NAV_ZONES: readonly NavZone[] = [
         route: routes.resources.payments.list,
         resource: "payments",
         sectionKey: "cashflow",
+      },
+      {
+        icon: <ExecutiveNavIcon size={18} />,
+        key: "app:executive",
+        labelKey: "navigation.items.dashboard",
+        route: routes.executiveReport,
+        permission: { resource: "reports", action: "EXECUTIVE_VIEW" },
+        sectionKey: "reports",
       },
       {
         icon: <ProfitabilityNavIcon size={18} />,

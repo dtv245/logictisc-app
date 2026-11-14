@@ -45,6 +45,9 @@ const LarkCallbackPage = lazy(() =>
 const ProfitabilityPage = lazy(() =>
   import("@pages/profitability/ProfitabilityPage").then((module) => ({ default: module.ProfitabilityPage })),
 );
+const ExecutiveOverviewPage = lazy(() =>
+  import("@pages/executive/ExecutiveOverviewPage").then((module) => ({ default: module.ExecutiveOverviewPage })),
+);
 const MyPayslipsPage = lazy(() => import("@pages/payslips/MyPayslipsPage").then((module) => ({ default: module.MyPayslipsPage })));
 const PayslipShowPage = lazy(() => import("@pages/payslips/PayslipShow").then((module) => ({ default: module.PayslipShow })));
 const PayrollEntryPage = lazy(() => import("@pages/payroll/PayrollEntryPage").then((module) => ({ default: module.PayrollEntryPage })));
@@ -205,6 +208,14 @@ export const AppRouter = ({
               <Route path="live-tracking" element={<TmsLiveTrackingPage />} />
               <Route path="shipments/:shipmentId" element={<TmsShipmentDetailPage />} />
             </Route>
+            <Route
+              path={routes.executiveReport}
+              element={
+                <ResourceAccessBoundary action="EXECUTIVE_VIEW" resource="reports">
+                  <ExecutiveOverviewPage />
+                </ResourceAccessBoundary>
+              }
+            />
             <Route path={routes.profitability} element={
               <ResourceAccessBoundary resource="profitability" action="PROFITABILITY_VIEW">
                 <ProfitabilityPage />

@@ -21,6 +21,7 @@ import {
   CreditCard,
   Ellipsis,
   FolderOpen,
+  Gauge,
   HandCoins,
   IdCard,
   Kanban,
@@ -117,6 +118,9 @@ export const InvoicesNavIcon = createIcon(Receipt);
 export const PaymentsNavIcon = createIcon(CreditCard);
 export const ExpensesNavIcon = createIcon(BadgeDollarSign);
 export const ProfitabilityNavIcon = createIcon(TrendingUp);
+
+// Báo cáo điều hành (Executive dashboard)
+export const ExecutiveNavIcon = createIcon(Gauge);
 
 // Khu vực Lương (Payroll)
 export const SettlementsNavIcon = createIcon(HandCoins);
