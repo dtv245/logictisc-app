@@ -34,8 +34,9 @@ export const ROLE_MATRIX = [
   { resources: ["trips"], actions: [...CRUD_ACTIONS, "dispatch", "cancel", "complete"], roles: DISPATCH },
   { resources: ["invoices"], actions: [...CRUD_ACTIONS, "write", "BILLING_VIEW", "BILLING_GENERATE", "BILLING_ISSUE", "BILLING_CORRECT"], roles: ACCOUNTING },
   { resources: ["payments"], actions: [...READ_ACTIONS, "create", "edit", "update", "write", "PAYMENT_CANCEL"], roles: ACCOUNTING },
-  { resources: ["documents"], actions: [...READ_ACTIONS, "download", "delete"], roles: OPERATIONS },
-  // Upload has no contract; unknown actions remain denied until it is supplied.
+  // Download and upload have no backend contract (DocumentController exposes
+  // GET list, GET by id and DELETE only); unknown actions remain denied.
+  { resources: ["documents"], actions: [...READ_ACTIONS, "delete"], roles: OPERATIONS },
   { resources: ["rates"], actions: ["RATE_PREVIEW", "RATE_ACCEPT", "RATE_AUTHOR"], roles: ACCOUNTING },
   { resources: ["optimization"], actions: ["OPTIMIZATION_VIEW", "OPTIMIZATION_RUN", "OPTIMIZATION_ACCEPT"], roles: DISPATCH },
   { resources: ["fleet-reports"], actions: ["FLEET_REPORT_VIEW"], roles: PAYROLL },
@@ -43,10 +44,11 @@ export const ROLE_MATRIX = [
   { resources: ["payslips"], actions: ["PAYSLIP_VIEW"], roles: JWT_ROLES },
   { resources: ["messages", "messaging", "conversations"], actions: [...READ_ACTIONS, "create", "send"], roles: JWT_ROLES },
   { resources: ["conversations"], actions: ["TENANT_CHAT_CREATE"], roles: ["ADMIN"] },
-  // These fallback-authenticated routes retain their existing vocabulary; no new domain action is inferred.
-  { resources: ["terminals"], actions: READ_ACTIONS, roles: JWT_ROLES },
-  { resources: ["terminals"], actions: ["create", "edit", "update"], roles: ["SUPERADMIN", "ADMIN", "OWNER", "MANAGER", "DISPATCHER"] },
-  { resources: ["terminals"], actions: ["delete"], roles: ["SUPERADMIN", "ADMIN", "OWNER", "MANAGER"] },
+  // SecurityConfig grants `/api/terminals/**` to exactly ADMIN, ACCOUNTANT and
+  // DISPATCHER with no per-method split. Legacy SUPERADMIN/OWNER/MANAGER
+  // authorities are not backend roles here; granting them would enable calls
+  // the backend rejects with 403.
+  { resources: ["terminals"], actions: CRUD_ACTIONS, roles: OPERATIONS },
   { resources: ["notifications"], actions: [...READ_ACTIONS, "markAllRead", "mark-all-read"], roles: JWT_ROLES },
   { resources: ["shipment-costs"], actions: [...READ_ACTIONS, "COST_VIEW", "COST_CREATE", "COST_SYNC_EXPENSES", "COST_ALLOCATE_MAINTENANCE"], roles: PAYROLL },
   { resources: ["shipment-costs"], actions: ["COST_VERIFY", "COST_APPROVE", "COST_VOID"], roles: ACCOUNTING },

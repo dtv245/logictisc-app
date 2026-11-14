@@ -6,6 +6,7 @@ import {
   Popconfirm,
   Space,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
 import {
@@ -28,20 +29,16 @@ export interface DocumentDropboxDrawerProps {
   open: boolean;
   document: Document | null;
   onClose: () => void;
-  onDownload: (doc: Document) => void;
   onDelete: (doc: Document) => Promise<boolean>;
   deletePending?: boolean;
-  downloadPending?: boolean;
 }
 
 export const DocumentDropboxDrawer: React.FC<DocumentDropboxDrawerProps> = ({
   open,
   document: doc,
   onClose,
-  onDownload,
   onDelete,
   deletePending = false,
-  downloadPending = false,
 }) => {
   const { t, i18n } = useTranslation();
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -67,14 +64,17 @@ export const DocumentDropboxDrawer: React.FC<DocumentDropboxDrawerProps> = ({
       title={t("documents.dropbox.fileDetailsTitle")}
       extra={
         <Space wrap>
-          <Button
-            type="primary"
-            icon={<CloudDownloadOutlined />}
-            onClick={() => onDownload(doc)}
-            loading={downloadPending}
-          >
-            {t("documents.dropbox.download")}
-          </Button>
+          {/* Download stays disabled: the backend exposes no file-content
+              route for documents, so there is no request to issue. */}
+          <Tooltip title={t("documents.dropbox.downloadUnavailable")}>
+            <Button
+              icon={<CloudDownloadOutlined />}
+              disabled
+              aria-label={t("documents.dropbox.download")}
+            >
+              {t("documents.dropbox.download")}
+            </Button>
+          </Tooltip>
           <Popconfirm
             title={t("documents.dropbox.deleteConfirm")}
             open={deleteConfirmOpen}

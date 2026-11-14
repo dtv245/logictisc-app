@@ -1,6 +1,10 @@
 import { useCallback, useRef } from "react";
 import { useCustomMutation, useInvalidate } from "@refinedev/core";
-import { buildDocumentFormData, type DocumentUploadPayload } from "../api/documents.api";
+import {
+  buildDocumentFormData,
+  DOCUMENT_UPLOAD_CONTRACT_CONFIRMED,
+  type DocumentUploadPayload,
+} from "../api/documents.api";
 import type { Document } from "@/types/documents/document.types";
 import type { ApiError } from "@/types/api.types";
 
@@ -23,6 +27,13 @@ export const useDocumentUpload = (options: UseDocumentUploadOptions = {}) => {
 
   const upload = useCallback(
     async (payload: DocumentUploadPayload): Promise<Document | undefined> => {
+      // The modal already refuses to mount while the contract is unconfirmed.
+      // This second guard stops any future caller from POSTing to a route the
+      // backend does not expose (DocumentController has no @PostMapping).
+      if (!DOCUMENT_UPLOAD_CONTRACT_CONFIRMED) {
+        throw new Error("DOCUMENT_UPLOAD_CONTRACT_UNCONFIRMED");
+      }
+
       // Guard against double-click while request is in-flight
       if (isSubmittingRef.current || isLoading) {
         return undefined;

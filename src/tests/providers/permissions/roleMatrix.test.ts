@@ -61,6 +61,16 @@ describe("canJwtRolesAccess", () => {
     expect(can("DRIVER", "drivers", "list")).toBe(false);
   });
 
+  it("denies document download/upload because neither backend route exists", () => {
+    // DocumentController: @GetMapping list, @GetMapping("/{id}"), @DeleteMapping.
+    // There is no file-content route and no @PostMapping.
+    for (const role of ["ADMIN", "ACCOUNTANT", "DISPATCHER"] as const) {
+      expect(can(role, "documents", "download")).toBe(false);
+      expect(can(role, "documents", "upload")).toBe(false);
+      expect(can(role, "documents", "create")).toBe(false);
+    }
+  });
+
   it("grants self-profile and payroll-profile routes only to their assigned roles", () => {
     expect(can("DRIVER", "drivers", "DRIVER_PROFILE_SELF_VIEW")).toBe(true);
     expect(can("DISPATCHER", "drivers", "DRIVER_PROFILE_SELF_VIEW")).toBe(false);
@@ -71,12 +81,44 @@ describe("canJwtRolesAccess", () => {
     expect(can("DISPATCHER", "drivers", "DRIVER_PAYROLL_PROFILE_VIEW")).toBe(false);
   });
 
-  it("applies the three terminal policy rows", () => {
-    expect(can("DRIVER", "terminals", "show")).toBe(true);
-    expect(can("DRIVER", "terminals", "edit")).toBe(false);
-    expect(can("DISPATCHER", "terminals", "create")).toBe(true);
-    expect(can("DISPATCHER", "terminals", "delete")).toBe(false);
-    expect(can("MANAGER", "terminals", "delete")).toBe(true);
+  it("mirrors SecurityConfig exactly for every /api/terminals/** action", () => {
+    // SecurityConfig.java: `"/api/terminals/**".hasAnyRole("ADMIN","ACCOUNTANT","DISPATCHER")`
+    // — no per-method split and no legacy role hierarchy.
+    const allowed: JwtRole[] = ["ADMIN", "ACCOUNTANT", "DISPATCHER"];
+    const denied: JwtRole[] = [
+      "SUPERADMIN",
+      "OWNER",
+      "MANAGER",
+      "DRIVER",
+      "PAYROLL",
+      "PAYROLL_MANAGER",
+    ];
+    const actions = [
+      "list",
+      "show",
+      "read",
+      "create",
+      "edit",
+      "update",
+      "delete",
+    ];
+
+    for (const action of actions) {
+      for (const role of allowed) {
+        expect(can(role, "terminals", action), `${role}:${action}`).toBe(true);
+      }
+      for (const role of denied) {
+        expect(can(role, "terminals", action), `${role}:${action}`).toBe(
+          false,
+        );
+      }
+    }
+  });
+
+  it("keeps ACCOUNTANT and DISPATCHER terminal writes visible instead of blocking them", () => {
+    expect(can("ACCOUNTANT", "terminals", "create")).toBe(true);
+    expect(can("ACCOUNTANT", "terminals", "delete")).toBe(true);
+    expect(can("DISPATCHER", "terminals", "delete")).toBe(true);
   });
 
   it("allows every role the contracted collaboration and inspection actions", () => {

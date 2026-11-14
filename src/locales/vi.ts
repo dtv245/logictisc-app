@@ -1961,10 +1961,12 @@ export const viMessages = {
       value: "Chưa có dữ liệu",
       requiredEndpoint: "Endpoint cần bổ sung:",
       noAggregateEndpoint: "Backend chưa có endpoint tổng hợp cho chỉ số này.",
+      featureDormant:
+        "Báo cáo điều hành chưa được kích hoạt: bốn trong sáu route backend chưa tồn tại, và hai route còn lại không cung cấp được các chỉ số toàn hệ thống này (BE-031).",
       noDateFilter: "Backend chưa lọc được dữ liệu theo khoảng thời gian.",
       noCostSource: "Backend chưa có nguồn dữ liệu chi phí.",
       notInContract:
-        "Không có trong hợp đồng backend hiện tại. Cả sáu endpoint báo cáo đều đã hoạt động và không endpoint nào trả chỉ số này — không còn gì để chờ ở backend nữa.",
+        "Route đã tồn tại nhưng response không mang chỉ số này — không còn gì để chờ ở backend nữa.",
       requestFailed:
         "Yêu cầu báo cáo không trả về được. Đây không phải là không có dữ liệu: hãy thử lại trước khi kết luận.",
       noRowsInWindow:
@@ -2215,6 +2217,7 @@ export const viMessages = {
       emptyDescription: "Tải lên hoặc kéo thả chứng từ để bắt đầu quản lý hồ sơ vận tải",
       viewDetails: "Xem chi tiết",
       download: "Tải xuống",
+      downloadUnavailable: "Chưa thể tải xuống: backend chưa cung cấp endpoint trả nội dung tệp cho tài liệu (BE-020).",
       delete: "Xóa tài liệu",
       deleteConfirm: "Bạn có chắc chắn muốn xóa tài liệu này không?",
       deleteSuccess: "Đã xóa tài liệu thành công",

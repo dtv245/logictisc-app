@@ -2,7 +2,10 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as refineCore from "@refinedev/core";
-import { TerminalContainersTab } from "@/features/terminals/components/TerminalContainersTab";
+import {
+  CONTAINER_CONTRACT_CONFIRMED,
+  TerminalContainersTab,
+} from "@/features/terminals/components/TerminalContainersTab";
 import type { Container } from "@/types/containers/container.types";
 
 vi.mock("@refinedev/core", () => ({
@@ -67,6 +70,30 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
         },
       })
     );
+  });
+
+  it("keeps the /api/containers request disabled because the backend has no route", () => {
+    vi.mocked(refineCore.useCustom).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    } as unknown as ReturnType<typeof refineCore.useCustom>);
+
+    render(
+      <MemoryRouter>
+        <TerminalContainersTab terminalId="term-123" />
+      </MemoryRouter>,
+    );
+
+    expect(CONTAINER_CONTRACT_CONFIRMED).toBe(false);
+    expect(refineCore.useCustom).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryOptions: expect.objectContaining({ enabled: false }),
+      }),
+    );
+    expect(screen.getByText("Thông tin Container tại bến")).toBeInTheDocument();
   });
 
   it("hiển thị danh sách container trong bảng khi API trả về dữ liệu dạng envelope { items: [...] }", () => {

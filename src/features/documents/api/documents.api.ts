@@ -1,39 +1,17 @@
-import axios from "axios";
-import { getAuthHeaders } from "@/api/ai/ai.api";
 import type { DocumentType } from "@/types/documents/document.types";
 
-// Runtime OpenAPI (2026-10-05) and DocumentController expose GET/DELETE only.
-// Keep the upload implementation dormant until POST multipart is confirmed.
-// See FE-DOC-001 and BE-020 in docs/plan-frontend-progress.md/backend-gaps.md.
+// DocumentController exposes GET list, GET by id and DELETE only.
+// POST /api/documents (multipart) and GET /api/documents/{id}/download are both
+// absent from the backend, so both features stay dormant. See BE-020 in
+// docs/backend-gaps.md. Unknown actions remain denied by the role matrix.
 export const DOCUMENT_UPLOAD_CONTRACT_CONFIRMED = false;
 
-/** Fetch an existing document using the authenticated download endpoint. */
-export async function fetchDocumentDownload(
-  apiUrl: string,
-  documentId: string,
-): Promise<Blob> {
-  const baseUrl = apiUrl.replace(/\/+$/, "");
-  const response = await axios.get<Blob>(
-    `${baseUrl}/api/documents/${encodeURIComponent(documentId)}/download`,
-    {
-      headers: getAuthHeaders(),
-      responseType: "blob",
-    },
-  );
-  const blob = response.data;
-  const contentType = String(response.headers["content-type"] ?? blob?.type ?? "").toLowerCase();
-
-  if (
-    !(blob instanceof Blob) ||
-    blob.size === 0 ||
-    contentType.includes("application/json") ||
-    contentType.includes("text/html")
-  ) {
-    throw new Error("DOCUMENT_DOWNLOAD_INVALID_RESPONSE");
-  }
-
-  return blob;
-}
+/**
+ * The backend has no file-content route. The UI must not issue a request to a
+ * route that is known to be missing: `GET /api/documents/{id}` returns metadata
+ * JSON, not a file, and must never be treated as a download.
+ */
+export const DOCUMENT_DOWNLOAD_CONTRACT_CONFIRMED = false;
 
 export interface DocumentUploadPayload {
   file: File;

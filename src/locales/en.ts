@@ -1959,10 +1959,12 @@ export const enMessages = {
       requiredEndpoint: "Endpoint still needed:",
       noAggregateEndpoint:
         "The backend has no aggregate endpoint for this metric yet.",
+      featureDormant:
+        "Executive reporting is not activated: four of its six backend routes do not exist yet, and the two that do cannot supply these company-wide figures (BE-031).",
       noDateFilter: "The backend cannot filter this data by date range yet.",
       noCostSource: "The backend has no cost data source yet.",
       notInContract:
-        "Not available from the current backend contract. All six reporting endpoints are live and none of them returns this metric, so there is nothing left to wait for.",
+        "The route exists, but its response does not carry this metric. There is nothing left to wait for on the backend side.",
       requestFailed:
         "The report request did not come back. That is not the same as having no data: retry before drawing a conclusion.",
       noRowsInWindow:
@@ -2215,6 +2217,7 @@ export const enMessages = {
       emptyDescription: "Upload or drop documents to start managing your logistics records",
       viewDetails: "View Details",
       download: "Download",
+      downloadUnavailable: "Download is unavailable: the backend does not expose a document file endpoint (BE-020).",
       delete: "Delete Document",
       deleteConfirm: "Are you sure you want to delete this document?",
       deleteSuccess: "Document deleted successfully",

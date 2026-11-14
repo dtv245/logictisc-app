@@ -753,6 +753,7 @@ export const jaMessages = {
       emptyDescription: "ファイルをドラッグ＆ドロップして管理を開始します",
       viewDetails: "詳細を表示",
       download: "ダウンロード",
+      downloadUnavailable: "ダウンロードできません: バックエンドに文書ファイルのエンドポイントがありません (BE-020)。",
       delete: "削除",
       deleteConfirm: "このドキュメントを削除してもよろしいですか？",
       deleteSuccess: "ドキュメントを削除しました",

@@ -12,7 +12,6 @@ import type { ColumnsType } from "antd/es/table";
 import { useMemo } from "react";
 import {
   DeleteOutlined,
-  DownloadOutlined,
   EyeOutlined,
   LinkOutlined,
 } from "@ant-design/icons";
@@ -29,9 +28,7 @@ export interface DocumentDropboxTableProps {
   documents: Document[];
   loading?: boolean;
   deletingDocumentId?: string | null;
-  downloadingDocumentId?: string | null;
   onPreview: (doc: Document) => void;
-  onDownload: (doc: Document) => void;
   onDelete: (doc: Document) => void;
 }
 
@@ -39,9 +36,7 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
   documents,
   loading = false,
   deletingDocumentId = null,
-  downloadingDocumentId = null,
   onPreview,
-  onDownload,
   onDelete,
 }) => {
   const { t, i18n } = useTranslation();
@@ -194,16 +189,6 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
               aria-label={t("documents.dropbox.viewDetails")}
             />
           </Tooltip>
-          <Tooltip title={t("documents.dropbox.download")}>
-            <Button
-              type="text"
-              size="small"
-              icon={<DownloadOutlined />}
-              onClick={() => onDownload(record)}
-              loading={downloadingDocumentId === record.id}
-              aria-label={t("documents.dropbox.download")}
-            />
-          </Tooltip>
           <Tooltip title={t("documents.dropbox.delete")}>
             <Popconfirm
               title={t("documents.dropbox.deleteConfirm")}
@@ -228,7 +213,7 @@ export const DocumentDropboxTable: React.FC<DocumentDropboxTableProps> = ({
         </Space>
       ),
     },
-  ], [deletingDocumentId, downloadingDocumentId, i18n.language, onDelete, onDownload, onPreview, t]);
+  ], [deletingDocumentId, i18n.language, onDelete, onPreview, t]);
 
   return (
     <Table<Document>

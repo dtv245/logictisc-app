@@ -16,7 +16,7 @@ import {
   fetchLoadsPage,
   fetchLoadTimeline,
   fetchPendingSuggestions,
-  TmsApiError,
+  isEndpointNotFoundError,
   tmsKeys,
 } from "@/api/tms-flow/tmsFlow.api";
 import { TMS_LOAD_PAGE_SIZE } from "@/constants/tms";
@@ -46,9 +46,6 @@ const rememberUnavailableDispatchEndpoint = (
   queryClient.setQueryDefaults(queryKey, { cacheTime: Infinity, staleTime: Infinity });
   queryClient.setQueryData(queryKey, true);
 };
-
-const isEndpointNotFoundError = (error: unknown): boolean =>
-  error instanceof TmsApiError && error.status === 404;
 
 const deriveClientFallbackRiskReasons = (
   load: LoadResponse,

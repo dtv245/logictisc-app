@@ -9,12 +9,25 @@ vi.mock("@refinedev/core", () => ({
   useInvalidate: vi.fn(),
 }));
 
+// The upload contract is dormant in production. Behavioural tests below opt in
+// explicitly; the first test proves the guard holds while it is off.
+const uploadContract = vi.hoisted(() => ({ confirmed: true }));
+vi.mock("@/features/documents/api/documents.api", async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import("@/features/documents/api/documents.api")
+  >()),
+  get DOCUMENT_UPLOAD_CONTRACT_CONFIRMED() {
+    return uploadContract.confirmed;
+  },
+}));
+
 describe("useDocumentUpload", () => {
   const mockMutateAsync = vi.fn();
   const mockInvalidate = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    uploadContract.confirmed = true;
     vi.mocked(refineCore.useInvalidate).mockReturnValue(mockInvalidate);
     vi.mocked(refineCore.useCustomMutation).mockReturnValue({
       mutateAsync: mockMutateAsync,
@@ -24,6 +37,23 @@ describe("useDocumentUpload", () => {
       isSuccess: false,
       reset: vi.fn(),
     } as unknown as ReturnType<typeof refineCore.useCustomMutation>);
+  });
+
+  it("never POSTs /api/documents while the backend contract is unconfirmed", async () => {
+    uploadContract.confirmed = false;
+    const file = new File(["test-content"], "bol.pdf", {
+      type: "application/pdf",
+    });
+    const { result } = renderHook(() => useDocumentUpload());
+
+    await act(async () => {
+      await expect(
+        result.current.upload({ file, type: "bill_of_lading" }),
+      ).rejects.toThrow("DOCUMENT_UPLOAD_CONTRACT_UNCONFIRMED");
+    });
+
+    expect(mockMutateAsync).not.toHaveBeenCalled();
+    expect(mockInvalidate).not.toHaveBeenCalled();
   });
 
   it("builds FormData correctly with all payload fields", () => {

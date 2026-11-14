@@ -11,12 +11,17 @@
  * từng response (`status: "unavailable"` + `reasonCode`). Hai tầng này độc lập:
  * khai báo `available` mà dữ liệu rỗng vẫn ra ô "chưa có số", không bao giờ ra 0.
  *
- * Vì sao còn chỉ số `unavailable` sau khi 6 endpoint đã dựng xong: backend không
- * trả `operatingMargin` và `revenueGrowth` trong bất kỳ response nào. Không suy
- * diễn chúng từ các trường khác — đó là bịa một chỉ số mà hợp đồng không có.
+ * Vì sao phần lớn chỉ số ở đây là `unavailable`: bốn trong sáu route tổng hợp
+ * không tồn tại trong `logictics_api`, hai route còn lại không mang các chỉ số
+ * này (xem `config/executive.contract.ts`). Một chỉ số không được suy diễn từ
+ * trường khác — đó là bịa một con số mà hợp đồng không có.
  */
 
 import type { MetricDefinition, MetricValue } from "@/types/executive/executive.types";
+import {
+  EXECUTIVE_ENDPOINT_CONTRACT,
+  type ExecutiveEndpointKey,
+} from "../config/executive.contract";
 import { buildReferences, type FleetType } from "./executive.refs";
 
 /**
@@ -30,20 +35,24 @@ export const UNAVAILABLE_METRIC: MetricValue = {
   reasonCode: null,
 };
 
-/** Endpoint tổng hợp cần bổ sung ở backend. */
+/**
+ * Đường dẫn của sáu route báo cáo, lấy từ một nguồn duy nhất
+ * (`config/executive.contract.ts`) để không có chỗ nào khai báo lại sai.
+ */
 export const REQUIRED_ENDPOINTS = {
-  executiveSummary: "/api/reports/executive-summary",
-  monthlyFinancials: "/api/reports/financials/monthly",
-  costBreakdown: "/api/reports/costs/by-category",
-  fleetHealth: "/api/reports/fleet/health",
-  customerConcentration: "/api/reports/customers/concentration",
-  receivablesAging: "/api/reports/receivables/aging",
+  executiveSummary: EXECUTIVE_ENDPOINT_CONTRACT.executiveSummary.path,
+  monthlyFinancials: EXECUTIVE_ENDPOINT_CONTRACT.monthlyFinancials.path,
+  costBreakdown: EXECUTIVE_ENDPOINT_CONTRACT.costBreakdown.path,
+  fleetHealth: EXECUTIVE_ENDPOINT_CONTRACT.fleetHealth.path,
+  customerConcentration:
+    EXECUTIVE_ENDPOINT_CONTRACT.customerConcentration.path,
+  receivablesAging: EXECUTIVE_ENDPOINT_CONTRACT.receivablesAging.path,
 } as const;
 
 /** Lý do chưa có dữ liệu, dùng làm locale key. */
 const REASONS = {
   /**
-   * Endpoint tổng hợp đã có nhưng không trả về chỉ số này. Khác hẳn
+   * Route đã có nhưng response không mang chỉ số này. Khác hẳn
    * `noAggregateEndpoint`: ở đây không còn gì để chờ ở backend nữa.
    */
   notInContract: "executive.unavailable.notInContract",
@@ -52,12 +61,24 @@ const REASONS = {
 const available = { status: "available" } as const;
 
 /**
+ * Route chưa tồn tại ở backend. Nêu đúng đường dẫn còn thiếu để người đọc biết
+ * đang chờ việc gì, thay vì một ô trống không lý do.
+ */
+const endpointMissing = (
+  endpointKey: ExecutiveEndpointKey,
+): MetricDefinition["availability"] => ({
+  status: "unavailable",
+  requiredEndpoint: EXECUTIVE_ENDPOINT_CONTRACT[endpointKey].path,
+  reasonKey: "executive.unavailable.noAggregateEndpoint",
+});
+
+/**
  * Chỉ số không nằm trong hợp đồng backend hiện tại.
  *
- * Cố tình KHÔNG kèm `requiredEndpoint`: cả sáu endpoint báo cáo đều đã hoạt
- * động, nên không còn endpoint nào để chỉ ra. Đây là khác biệt giữa "chưa làm
- * xong ở backend" và "backend đã trả lời rằng nó không trả chỉ số này" — trộn
- * hai thứ đó lại sẽ khiến người đọc chờ một việc không ai đang làm.
+ * Cố tình KHÔNG kèm `requiredEndpoint`: route đã tồn tại, nhưng response không
+ * mang chỉ số này. Đây là khác biệt giữa "route còn thiếu" (`endpointMissing`,
+ * có `requiredEndpoint`) và "route đã trả lời rằng nó không trả chỉ số này" —
+ * trộn hai thứ đó lại sẽ khiến người đọc chờ một việc không ai đang làm.
  */
 const notInContract = (reasonKey: string): MetricDefinition["availability"] => ({
   status: "unavailable",
@@ -100,6 +121,10 @@ export const unavailableReasonKey = (reasonCode: string | null): string =>
 export const SECTION_REASONS = {
   requestFailed: "executive.unavailable.requestFailed",
   noRowsInWindow: "executive.unavailable.noRowsInWindow",
+  /** Route không tồn tại trong backend controller mappings. */
+  endpointMissing: "executive.unavailable.noAggregateEndpoint",
+  /** Executive chưa được bật vì thiếu route/DTO (BE-031). */
+  featureDormant: "executive.unavailable.featureDormant",
 } as const;
 
 /**
@@ -132,7 +157,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "currencyPerMile",
     higherIsBetter: false,
     refKey: "cpm",
-    availability: available,
+    availability: notInContract(REASONS.notInContract),
     warnBandRatio: 0.03,
   },
   {
@@ -141,7 +166,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "currencyPerMile",
     higherIsBetter: true,
     refKey: "rpm",
-    availability: available,
+    availability: notInContract(REASONS.notInContract),
     warnBandRatio: 0.03,
   },
   {
@@ -150,7 +175,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "currencyPerMile",
     higherIsBetter: true,
     refKey: "spread",
-    availability: available,
+    availability: notInContract(REASONS.notInContract),
     warnBandRatio: 0.05,
   },
   {
@@ -168,7 +193,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "days",
     higherIsBetter: false,
     refKey: "dso",
-    availability: available,
+    availability: endpointMissing("receivablesAging"),
     warnBandRatio: 0.1,
   },
   {
@@ -187,7 +212,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "percent",
     higherIsBetter: true,
     refKey: "utilization",
-    availability: available,
+    availability: endpointMissing("executiveSummary"),
     warnBandRatio: 0.05,
   },
   {
@@ -196,7 +221,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "percent",
     higherIsBetter: true,
     refKey: "loadedMiles",
-    availability: available,
+    availability: endpointMissing("executiveSummary"),
     warnBandRatio: 0.04,
   },
   {
@@ -205,7 +230,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "percent",
     higherIsBetter: true,
     refKey: "onTimeDelivery",
-    availability: available,
+    availability: endpointMissing("executiveSummary"),
     warnBandRatio: 0.02,
   },
   {
@@ -214,7 +239,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "percent",
     higherIsBetter: true,
     refKey: "difot",
-    availability: available,
+    availability: endpointMissing("executiveSummary"),
     warnBandRatio: 0.02,
   },
 
@@ -225,7 +250,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "percent",
     higherIsBetter: false,
     refKey: "unplannedDowntime",
-    availability: available,
+    availability: notInContract(REASONS.notInContract),
     warnBandRatio: 0.1,
   },
   {
@@ -234,7 +259,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "percent",
     higherIsBetter: true,
     refKey: "pmCompliance",
-    availability: available,
+    availability: notInContract(REASONS.notInContract),
     warnBandRatio: 0.03,
   },
   {
@@ -243,7 +268,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "currencyPerMile",
     higherIsBetter: false,
     refKey: "maintenanceCostPerMile",
-    availability: available,
+    availability: notInContract(REASONS.notInContract),
     warnBandRatio: 0.08,
   },
   {
@@ -252,7 +277,7 @@ const METRIC_SEEDS: readonly MetricSeed[] = [
     unit: "count",
     higherIsBetter: false,
     refKey: "breakdownsPer100k",
-    availability: available,
+    availability: notInContract(REASONS.notInContract),
     warnBandRatio: 0.1,
   },
 

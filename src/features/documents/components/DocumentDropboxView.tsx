@@ -26,7 +26,7 @@ import {
   SearchOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
-import { useApiUrl, useDelete } from "@refinedev/core";
+import { useDelete } from "@refinedev/core";
 import { useTranslation } from "react-i18next";
 import type { Document } from "@/types/documents/document.types";
 import type { ApiError } from "@/types/api.types";
@@ -35,7 +35,6 @@ import { DocumentDropboxDropzone } from "./DocumentDropboxDropzone";
 import { DocumentDropboxCard } from "./DocumentDropboxCard";
 import { DocumentDropboxTable } from "./DocumentDropboxTable";
 import { DocumentDropboxDrawer } from "./DocumentDropboxDrawer";
-import { fetchDocumentDownload } from "../api/documents.api";
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { createListPaginationConfig } from "@/constants/pagination";
@@ -49,7 +48,6 @@ const { Text, Title } = Typography;
 
 export const DocumentDropboxView: React.FC = () => {
   const { t } = useTranslation();
-  const apiUrl = useApiUrl();
 
   // Chế độ xem: grid (lưới dạng thẻ Dropbox) hoặc list (bảng danh sách)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -67,7 +65,6 @@ export const DocumentDropboxView: React.FC = () => {
   // File chi tiết đang mở trong Drawer
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [downloadingDocumentId, setDownloadingDocumentId] = useState<string | null>(null);
   const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null);
 
   // Hook Refine useTable đồng bộ URL (?pageSize=10&current=1)
@@ -190,40 +187,6 @@ export const DocumentDropboxView: React.FC = () => {
     setSelectedDoc(doc);
     setDrawerOpen(true);
   }, []);
-
-  // Hành động tải xuống
-  const handleDownload = useCallback(async (doc: Document) => {
-    setDownloadingDocumentId(doc.id);
-    message.loading({
-      content: `${t("documents.dropbox.downloadStarted")}: ${doc.fileName}`,
-      key: "doc-download",
-    });
-    try {
-      const blob = await fetchDocumentDownload(apiUrl, doc.id);
-      const downloadUrl = URL.createObjectURL(blob);
-      const link = window.document.createElement("a");
-      link.href = downloadUrl;
-      link.download = doc.fileName.replace(/[\\/:*?"<>|]+/g, "_").trim() || `document-${doc.id}`;
-      window.document.body.appendChild(link);
-      try {
-        link.click();
-      } finally {
-        link.remove();
-        window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-      }
-      message.success({
-        content: `${t("documents.dropbox.downloadReady")}: ${doc.fileName}`,
-        key: "doc-download",
-      });
-    } catch {
-      message.error({
-        content: t("documents.dropbox.downloadFailed"),
-        key: "doc-download",
-      });
-    } finally {
-      setDownloadingDocumentId(null);
-    }
-  }, [apiUrl, t]);
 
   // Hành động xóa tài liệu
   const handleDelete = useCallback(async (doc: Document): Promise<boolean> => {
@@ -532,9 +495,7 @@ export const DocumentDropboxView: React.FC = () => {
               <DocumentDropboxCard
                 document={doc}
                 deleting={deletingDocumentId === doc.id}
-                downloading={downloadingDocumentId === doc.id}
                 onPreview={handlePreview}
-                onDownload={handleDownload}
                 onDelete={handleDelete}
               />
             </Col>
@@ -545,9 +506,7 @@ export const DocumentDropboxView: React.FC = () => {
           documents={filteredDocuments}
           loading={isFetching}
           deletingDocumentId={deletingDocumentId}
-          downloadingDocumentId={downloadingDocumentId}
           onPreview={handlePreview}
-          onDownload={handleDownload}
           onDelete={handleDelete}
         />
       )}
@@ -587,10 +546,8 @@ export const DocumentDropboxView: React.FC = () => {
           setDrawerOpen(false);
           setSelectedDoc(null);
         }}
-        onDownload={handleDownload}
         onDelete={handleDelete}
         deletePending={Boolean(selectedDoc && deletingDocumentId === selectedDoc.id)}
-        downloadPending={Boolean(selectedDoc && downloadingDocumentId === selectedDoc.id)}
       />
     </div>
   );

@@ -204,11 +204,16 @@ export interface MonthlyFinancialPoint {
    */
   totalMiles: MetricValue;
   /**
-   * Suy luận theo lịch, KHÔNG phải kỳ kế toán đã chốt — không có bảng
-   * `accounting_periods` ở backend.
+   * Có phải kỳ kế toán đã chốt hay không.
+   *
+   * `null` = không biết: không có bảng `accounting_periods` ở backend và
+   * `MonthlyFinancialSummary` không mang trường này. Trước đây giá trị được suy
+   * theo lịch, nhưng đó là một kết luận kế toán không có nguồn — giao diện phải
+   * hiển thị "chưa rõ", không được tự chốt kỳ.
    */
-  closed: boolean;
-  invoiceCount: number;
+  closed: boolean | null;
+  /** Số hoá đơn trong tháng. `null` khi response không có trường này. */
+  invoiceCount: number | null;
 }
 
 /** Một hạng mục chi phí trong cơ cấu chi phí. */

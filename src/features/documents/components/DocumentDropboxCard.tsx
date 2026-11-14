@@ -11,7 +11,6 @@ import {
 import type { MenuProps } from "antd";
 import {
   DeleteOutlined,
-  DownloadOutlined,
   EyeOutlined,
   MoreOutlined,
   LinkOutlined,
@@ -28,18 +27,14 @@ const { Text } = Typography;
 export interface DocumentDropboxCardProps {
   document: Document;
   deleting?: boolean;
-  downloading?: boolean;
   onPreview: (doc: Document) => void;
-  onDownload: (doc: Document) => void;
   onDelete: (doc: Document) => void;
 }
 
 export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
   document: doc,
   deleting = false,
-  downloading = false,
   onPreview,
-  onDownload,
   onDelete,
 }) => {
   const { t, i18n } = useTranslation();
@@ -51,13 +46,6 @@ export const DocumentDropboxCard: React.FC<DocumentDropboxCardProps> = ({
       icon: <EyeOutlined />,
       label: t("documents.dropbox.viewDetails"),
       onClick: () => onPreview(doc),
-    },
-    {
-      key: "download",
-      icon: <DownloadOutlined />,
-      label: t("documents.dropbox.download"),
-      disabled: downloading,
-      onClick: () => onDownload(doc),
     },
     {
       type: "divider",

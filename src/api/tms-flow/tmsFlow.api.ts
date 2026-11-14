@@ -118,6 +118,15 @@ const toApiError = (error: unknown): TmsApiError => {
   return new TmsApiError(error instanceof Error ? error.message : "TMS request failed");
 };
 
+/**
+ * Only a missing optional route (404) may fall back to the load list.
+ * 401/403 mean the caller is not authorized and 5xx means the server is
+ * failing — silently replacing those with client-side data would hide a real
+ * outage or an authorization problem.
+ */
+export const isEndpointNotFoundError = (error: unknown): boolean =>
+  error instanceof TmsApiError && error.status === 404;
+
 const getPage = async <T>(
   url: string,
   params: Record<string, unknown>,

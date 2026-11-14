@@ -28,7 +28,6 @@ describe("DocumentDropboxDrawer delete confirmation", () => {
         open
         document={document}
         onClose={onClose}
-        onDownload={vi.fn()}
         onDelete={onDelete}
       />,
       vi.fn(),
@@ -42,6 +41,21 @@ describe("DocumentDropboxDrawer delete confirmation", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it("renders download as a disabled, unsupported control", async () => {
+    await renderFinance(
+      <DocumentDropboxDrawer
+        open
+        document={document}
+        onClose={vi.fn()}
+        onDelete={vi.fn(async () => true)}
+      />,
+      vi.fn(),
+    );
+
+    const download = screen.getByRole("button", { name: "Download" });
+    expect(download).toBeDisabled();
+  });
+
   it("closes the inspector only after deletion succeeds", async () => {
     const onClose = vi.fn();
     const onDelete = vi.fn(async () => true);
@@ -50,7 +64,6 @@ describe("DocumentDropboxDrawer delete confirmation", () => {
         open
         document={document}
         onClose={onClose}
-        onDownload={vi.fn()}
         onDelete={onDelete}
       />,
       vi.fn(),

@@ -15,6 +15,14 @@ export interface TerminalContainersTabProps {
   terminalId: string;
 }
 
+/**
+ * `logictics_api` has no ContainerController: a grep over controller mappings
+ * finds no `/api/containers` route (only the `Container` entity). Keep the
+ * request disabled so the tab does not 404 on every mount; the informational
+ * empty state explains that the backend read contract is missing.
+ */
+export const CONTAINER_CONTRACT_CONFIRMED = false;
+
 const containerStatusToneMap: Record<string, StatusTone> = {
   available: "success",
   loaded: "success",
@@ -52,7 +60,7 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
       },
     },
     queryOptions: {
-      enabled: Boolean(terminalId),
+      enabled: CONTAINER_CONTRACT_CONFIRMED && Boolean(terminalId),
       retry: 1,
     },
     errorNotification: false,
@@ -128,7 +136,7 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
     },
   ], []);
 
-  if (isError) {
+  if (isError || (!CONTAINER_CONTRACT_CONFIRMED && !data)) {
     return (
       <Card variant="borderless" style={{ marginTop: 16 }}>
         <Alert

@@ -1,46 +1,49 @@
+/**
+ * Contract guard for the documents feature.
+ *
+ * logictics_api DocumentController exposes only:
+ *   GET  /api/documents
+ *   GET  /api/documents/{id}   (metadata JSON, NOT file content)
+ *   DELETE /api/documents/{id}
+ *
+ * There is no `/download` route and no `@PostMapping`, so the frontend must
+ * not ship a request function for either. These tests fail if someone
+ * reintroduces a call to a route the backend does not serve.
+ */
+
 import axios from "axios";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchDocumentDownload } from "@/features/documents/api/documents.api";
 
-vi.mock("@/api/ai/ai.api", () => ({
-  getAuthHeaders: () => ({ Authorization: "Bearer test-session-token" }),
-}));
+import * as documentsApi from "@/features/documents/api/documents.api";
 
-describe("fetchDocumentDownload", () => {
+describe("documents API contract", () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it("uses the authorized document endpoint and returns a non-empty file blob", async () => {
-    const blob = new Blob(["pdf-content"], { type: "application/pdf" });
-    const request = vi.spyOn(axios, "get").mockResolvedValue({
-      data: blob,
-      headers: { "content-type": "application/pdf" },
-    } as never);
-
-    await expect(fetchDocumentDownload("https://api.example.test/", "doc / 1")).resolves.toBe(blob);
-
-    expect(request).toHaveBeenCalledWith(
-      "https://api.example.test/api/documents/doc%20%2F%201/download",
-      expect.objectContaining({
-        responseType: "blob",
-        headers: { Authorization: "Bearer test-session-token" },
-      }),
-    );
+  it("declares both download and upload as unavailable", () => {
+    expect(documentsApi.DOCUMENT_DOWNLOAD_CONTRACT_CONFIRMED).toBe(false);
+    expect(documentsApi.DOCUMENT_UPLOAD_CONTRACT_CONFIRMED).toBe(false);
   });
 
-  it("rejects empty and JSON error responses instead of treating them as downloads", async () => {
-    const request = vi.spyOn(axios, "get");
-    request.mockResolvedValueOnce({
-      data: new Blob([], { type: "application/pdf" }),
-      headers: { "content-type": "application/pdf" },
-    } as never);
-    request.mockResolvedValueOnce({
-      data: new Blob(["{\"error\":true}"], { type: "application/json" }),
-      headers: { "content-type": "application/json" },
-    } as never);
+  it("does not export a download request function", () => {
+    expect("fetchDocumentDownload" in documentsApi).toBe(false);
+  });
 
-    await expect(fetchDocumentDownload("https://api.example.test", "doc-1"))
-      .rejects.toThrow("DOCUMENT_DOWNLOAD_INVALID_RESPONSE");
-    await expect(fetchDocumentDownload("https://api.example.test", "doc-1"))
-      .rejects.toThrow("DOCUMENT_DOWNLOAD_INVALID_RESPONSE");
+  it("builds upload FormData without issuing any HTTP request", () => {
+    const get = vi.spyOn(axios, "get");
+    const post = vi.spyOn(axios, "post");
+    const file = new File(["content"], "bol.pdf", {
+      type: "application/pdf",
+    });
+
+    const formData = documentsApi.buildDocumentFormData({
+      file,
+      type: "bill_of_lading",
+      loadId: "load-1",
+    });
+
+    expect(formData.get("file")).toBe(file);
+    expect(formData.get("type")).toBe("bill_of_lading");
+    expect(get).not.toHaveBeenCalled();
+    expect(post).not.toHaveBeenCalled();
   });
 });
