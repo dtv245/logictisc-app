@@ -1,32 +1,30 @@
 /**
  * Executive Overview contract status.
  *
- * Re-verified 2026-11-14 against `logictics_api`:
+ * Re-verified 2026-11-14 against `logictics_api` at `2328e76`:
  *   src/main/java/com/company/logicstic/controller/ReportController.java
+ *   src/main/java/com/company/logicstic/dto/report/*.java
  *   src/main/java/com/company/logicstic/config/SecurityConfig.java
  *
- * PRESENT
- *   GET /api/reports/financials/monthly
- *     Params: year (int, required), month (int, required), currency (optional).
- *     Returns: ApiResponse<MonthlyFinancialSummary> — ONE month per call.
- *   GET /api/reports/fleet/health (alias: /api/reports/fleet/utilization-history)
- *     Params: policyId (UUID, required), truckIds (List<UUID>, required),
- *             from/to (Instant), firstDate/exclusiveLastDate (LocalDate),
- *             businessZoneId (optional).
- *     Returns: ApiResponse<FleetHistory.Report>.
+ * ALL SIX ROUTES NOW EXIST:
+ *   GET /api/reports/executive-summary          (from, to)
+ *   GET /api/reports/financials/monthly         (year, month, currency?)
+ *   GET /api/reports/costs/by-category          (from, to, currency?)
+ *   GET /api/reports/fleet/health               (policyId, truckIds required)
+ *   GET /api/reports/customers/concentration    (from, to, currency?, limit)
+ *   GET /api/reports/receivables/aging          (asOf, from?, to?, currency?)
  *
- * ABSENT — a grep over controller mappings returns no match for any of these:
- *   /api/reports/executive-summary
- *   /api/reports/costs/by-category
- *   /api/reports/customers/concentration
- *   /api/reports/receivables/aging
+ * Authorization: the five financial/executive routes are limited to ADMIN,
+ * ACCOUNTANT, PAYROLL and PAYROLL_MANAGER. DISPATCHER/DRIVER receive 403, so
+ * the hooks also gate on `reports:EXECUTIVE_VIEW` (see roleMatrix) instead of
+ * issuing a predictable 403.
  *
- * Executive therefore stays dormant (BE-031 in docs/backend-gaps.md). When it is
- * mounted later, it must not request the four absent routes, and it must not
- * present a composition of monthly + fleet data as system-wide figures: the
- * dashboard already owns the verified monthly and fleet screens.
+ * Fleet health still needs a policy id and truck ids selected by the user. The
+ * Executive screen has no verified source for those, so it never calls that
+ * route; the Fleet Report page owns the verified request path and the fleet
+ * health KPIs stay unavailable here.
  */
-export const EXECUTIVE_CONTRACT_CONFIRMED = false;
+export const EXECUTIVE_CONTRACT_CONFIRMED = true;
 
 export type ExecutiveEndpointKey =
   | "executiveSummary"
@@ -45,7 +43,7 @@ export interface ExecutiveEndpointContract {
 export const EXECUTIVE_ENDPOINT_CONTRACT = {
   executiveSummary: {
     path: "/api/reports/executive-summary",
-    available: false,
+    available: true,
   },
   monthlyFinancials: {
     path: "/api/reports/financials/monthly",
@@ -53,7 +51,7 @@ export const EXECUTIVE_ENDPOINT_CONTRACT = {
   },
   costBreakdown: {
     path: "/api/reports/costs/by-category",
-    available: false,
+    available: true,
   },
   fleetHealth: {
     path: "/api/reports/fleet/health",
@@ -61,18 +59,21 @@ export const EXECUTIVE_ENDPOINT_CONTRACT = {
   },
   customerConcentration: {
     path: "/api/reports/customers/concentration",
-    available: false,
+    available: true,
   },
   receivablesAging: {
     path: "/api/reports/receivables/aging",
-    available: false,
+    available: true,
   },
 } as const satisfies Record<ExecutiveEndpointKey, ExecutiveEndpointContract>;
 
+/** Refine resource/action used to mirror the backend finance-only report matrix. */
+export const EXECUTIVE_REPORT_RESOURCE = "reports";
+export const EXECUTIVE_VIEW_ACTION = "EXECUTIVE_VIEW";
+
 /**
- * A query may only run when the feature is enabled AND its route exists.
- * Callers pass this into `enabled`; it is exported so tests can prove that a
- * dormant feature issues no request even for a route that exists.
+ * A query may only run when the feature is enabled, its route exists, and the
+ * caller holds the report permission. Callers pass this into `enabled`.
  */
 export const isExecutiveEndpointQueryEnabled = (
   key: ExecutiveEndpointKey,

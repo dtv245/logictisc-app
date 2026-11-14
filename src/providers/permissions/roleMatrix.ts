@@ -20,6 +20,14 @@ const OPERATIONS = ["ADMIN", "ACCOUNTANT", "DISPATCHER"] as const;
 const DISPATCH = ["ADMIN", "DISPATCHER"] as const;
 const ACCOUNTING = ["ADMIN", "ACCOUNTANT"] as const;
 const PAYROLL = ["ADMIN", "ACCOUNTANT", "PAYROLL", "PAYROLL_MANAGER"] as const;
+/** BE-034: DISPATCHER may GET operational reports, but not financial reports. */
+const OPERATIONAL_REPORTS = [
+  "ADMIN",
+  "ACCOUNTANT",
+  "DISPATCHER",
+  "PAYROLL",
+  "PAYROLL_MANAGER",
+] as const;
 
 /** Exact handoff SecurityConfig grants; no legacy authority aliases or ADMIN bypass of ownership. */
 export const ROLE_MATRIX = [
@@ -40,6 +48,10 @@ export const ROLE_MATRIX = [
   { resources: ["rates"], actions: ["RATE_PREVIEW", "RATE_ACCEPT", "RATE_AUTHOR"], roles: ACCOUNTING },
   { resources: ["optimization"], actions: ["OPTIMIZATION_VIEW", "OPTIMIZATION_RUN", "OPTIMIZATION_ACCEPT"], roles: DISPATCH },
   { resources: ["fleet-reports"], actions: ["FLEET_REPORT_VIEW"], roles: PAYROLL },
+  // SecurityConfig: GET /api/reports/operations/** is wider than the rest of
+  // /api/reports/**, which stays finance-only. No other method is widened.
+  { resources: ["reports"], actions: ["OPERATIONS_VIEW"], roles: OPERATIONAL_REPORTS },
+  { resources: ["reports"], actions: ["EXECUTIVE_VIEW", "FINANCIAL_VIEW"], roles: PAYROLL },
   { resources: ["fleet-reports"], actions: ["FLEET_MILEAGE_ATTRIBUTION"], roles: DISPATCH },
   { resources: ["payslips"], actions: ["PAYSLIP_VIEW"], roles: JWT_ROLES },
   { resources: ["messages", "messaging", "conversations"], actions: [...READ_ACTIONS, "create", "send"], roles: JWT_ROLES },

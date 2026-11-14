@@ -1969,6 +1969,8 @@ export const enMessages = {
         "The report request did not come back. That is not the same as having no data: retry before drawing a conclusion.",
       noRowsInWindow:
         "The report ran and found no rows for this period in this currency.",
+      forbidden:
+        "Your role cannot read executive reports. Ask an administrator for the finance reporting permission.",
       reason: {
         noSourceRows: "There are no rows to aggregate.",
         noRowsInCurrency: "There are no rows in the requested currency.",
@@ -1987,6 +1989,35 @@ export const enMessages = {
         ambiguousTruckLink:
           "A record is linked to two different trucks and cannot be attributed.",
         notImplemented: "This metric is not implemented yet.",
+        noDeliveredLoadsInPeriod:
+          "There are no delivered loads with a requested delivery date in this period.",
+        noTrucksInFleet: "There are no truck rows in the fleet table.",
+        noCompletedTripsInPeriod: "No trip was completed inside this period.",
+        noValidTripMileageRows:
+          "No completed trip has usable loaded, deadhead and actual mileage.",
+        tripsMissingOrInconsistentMileage:
+          "Some completed trips have missing or inconsistent mileage and were excluded.",
+        zeroRecordedMiles:
+          "Every completed trip recorded zero loaded and deadhead miles.",
+        noVehicleAvailabilityHistory:
+          "There is no vehicle-availability history, so utilization cannot be measured.",
+        difotNotDefined:
+          "DIFOT has no defined source in the current schema.",
+        nonPositiveAttributedRevenue:
+          "Attributed revenue is not positive, so a share cannot be computed.",
+        revenueWindowRequired:
+          "A revenue window (from/to) is required to compute DSO.",
+        zeroWindowRevenue: "Revenue in the DSO window is zero.",
+        zeroOutstanding:
+          "Nothing is outstanding, so a share of outstanding cannot be computed.",
+        periodEndDsoApproximation:
+          "DSO is a period-end approximation using window revenue, not a cash-flow series.",
+        zeroTotalCost:
+          "Total approved cost is zero, so a category share cannot be computed.",
+        maintenanceCurrencyNotStored:
+          "Maintenance records store no currency and are excluded from the money total.",
+        noCustomerMileageAllocation:
+          "Mileage is not allocated to customers, so customer revenue per mile cannot be computed.",
         unknown: "The backend did not say why this metric has no value.",
       },
     },

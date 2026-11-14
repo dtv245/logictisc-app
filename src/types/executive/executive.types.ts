@@ -216,22 +216,33 @@ export interface MonthlyFinancialPoint {
   invoiceCount: number | null;
 }
 
-/** Một hạng mục chi phí trong cơ cấu chi phí. */
+/**
+ * Một hạng mục chi phí trong cơ cấu chi phí.
+ *
+ * Backend trả TỔNG tiền theo hạng mục, không trả chi phí mỗi dặm: cửa sổ báo
+ * cáo không trùng một tháng nên không có mẫu số dặm đã xác minh cho cả cửa sổ.
+ * Vì vậy mô hình giữ `currentTotal`/`previousTotal` và KHÔNG có trường mỗi-dặm.
+ */
 export interface CostCategoryPoint {
+  /** Giá trị `expenses.category` đã chuẩn hoá (vd `FUEL`). */
   id: string;
-  /** Khoá locale do backend chọn (`executive.costCategories.*`). */
-  labelKey: string;
-  currentPerMile: MetricValue;
-  previousPerMile: MetricValue;
+  /** Giá trị gốc backend trả — dùng khi chưa có khoá locale. */
+  category: string;
+  /** Khoá locale cho hạng mục đã biết; null khi giá trị chưa được ánh xạ. */
+  labelKey: string | null;
+  currentTotal: MetricValue;
+  previousTotal: MetricValue;
   /** Tỉ trọng trên tổng chi phí, đơn vị %. */
   shareOfTotal: MetricValue;
-  rowCount: number;
+  currentRowCount: number;
+  previousRowCount: number;
 }
 
 /** Một khách hàng trong bảng tập trung khách hàng. */
 export interface CustomerConcentrationRow {
   customerId: string;
-  customerName: string;
+  /** Backend allows a null stored name; render a dash rather than inventing one. */
+  customerName: string | null;
   revenue: MetricValue;
   shareOfRevenue: MetricValue;
   revenuePerMile: MetricValue;

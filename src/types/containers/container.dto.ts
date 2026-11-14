@@ -27,7 +27,7 @@ export interface ContainerResponse {
   loadedAt?: ISODateTime | null;
   deliveredAt?: ISODateTime | null;
   returnedAt?: ISODateTime | null;
-  createdAt: ISODateTime;
+  createdAt: ISODateTime | null;
   createdBy?: string | null;
   lastModifiedAt?: ISODateTime | null;
   lastModifiedBy?: string | null;

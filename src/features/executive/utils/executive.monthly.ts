@@ -1,19 +1,32 @@
 /**
  * Request plan and response mapping for GET `/api/reports/financials/monthly`.
  *
- * The backend contract is `year` + `month` (+ optional `currency`) and it
- * returns ONE `MonthlyFinancialSummary`. The previous Executive query sent a
- * `from`/`to` window and read `response.points[]`; neither exists on the wire.
+ * Backend contract (verified at `logictics_api` `2328e76`):
+ *   - request: `year` + `month` (+ optional `currency`);
+ *   - response: ONE `MonthlyFinancialSummary` per call, now with an additive
+ *     `mileage` object (BE-033) sourced from completed trips' mileage columns.
+ *
  * Chart points are therefore built by calling the endpoint once per month and
  * mapping each response individually.
  *
- * Anything the summary does not carry stays unavailable. In particular the
- * monthly DTO has no miles field, so every per-mile metric is unavailable with
- * `NO_TOTAL_MILES_SOURCE` — never divided by an invented denominator.
+ * Per-mile rules:
+ *   - `totalMiles` is the only denominator used. `loadedMiles` is never a
+ *     substitute for total miles.
+ *   - Revenue per mile is computed only when revenue and `totalMiles` are both
+ *     complete (`mileage.availability === "AVAILABLE"`). `PARTIAL` mileage means
+ *     a known subset of trips was excluded, so a per-mile ratio would be
+ *     understated — those months stay unavailable with the backend reason.
+ *   - Cost per mile additionally requires a complete operating cost. The
+ *     backend reports `knownOperatingCostAvailability = PARTIAL`, so this stays
+ *     unavailable until the cost sources reconcile.
+ *   - A zero denominator is `ZERO_DENOMINATOR`, never `Infinity` or 0.
  */
 
 import type { MetricValue, MonthlyFinancialPoint } from "@/types/executive/executive.types";
-import type { MonthlyFinancialSummary } from "@/types/reports/report.dto";
+import type {
+  MonthlyFinancialSummary,
+  MonthlyMileageSummary,
+} from "@/types/reports/report.dto";
 import { calculateProfit } from "@/utils/calculations";
 
 /**
@@ -89,6 +102,34 @@ export const toWireMetric = (
 };
 
 /**
+ * One mileage column, gated on complete mileage.
+ *
+ * `PARTIAL` mileage is a real measurement over a known subset of trips; using
+ * it as a denominator would silently change the meaning of every per-mile KPI.
+ */
+const toMileageMetric = (
+  mileage: MonthlyMileageSummary | null,
+  pick: (value: MonthlyMileageSummary) => number | null,
+): MetricValue => {
+  if (!mileage) return unavailable("NO_COMPLETED_TRIPS_IN_PERIOD");
+  if (mileage.availability !== "AVAILABLE") {
+    return unavailable(mileage.reason ?? "NO_VALID_TRIP_MILEAGE_ROWS");
+  }
+  return toWireMetric(pick(mileage), "NO_VALID_TRIP_MILEAGE_ROWS");
+};
+
+/** Ratio metric that refuses to divide by a missing/zero denominator. */
+const ratioMetric = (
+  numerator: MetricValue,
+  denominator: MetricValue,
+): MetricValue => {
+  if (numerator.status === "unavailable") return numerator;
+  if (denominator.status === "unavailable") return denominator;
+  if (denominator.value === 0) return unavailable("ZERO_DENOMINATOR");
+  return { status: "available", value: numerator.value / denominator.value };
+};
+
+/**
  * Một tháng không có response (lỗi request hoặc chưa từng chạy).
  *
  * Giữ chỗ trên trục thời gian nhưng mọi chỉ số đều "chưa có số": bỏ tháng khỏi
@@ -118,13 +159,11 @@ export const emptyMonthlyFinancialPoint = (
 /**
  * Map one monthly summary to one chart point.
  *
- * `operatingCost` is only read when the backend says it is `AVAILABLE`.
- * The controller currently reports `PARTIAL`, so the value is present on the
- * wire but incomplete; showing it as total operating cost would present an
- * understated figure as complete.
- *
- * Profit uses the same confirmed formula as the operations dashboard
- * (`calculateProfit`) and only runs when both operands are complete.
+ * `operatingCost` is only read when the backend says it is `AVAILABLE`. The
+ * controller currently reports `PARTIAL`, so the value on the wire is
+ * incomplete; showing it as total operating cost would present an understated
+ * figure as complete. Profit uses the same confirmed formula as the operations
+ * dashboard (`calculateProfit`) and only runs when both operands are complete.
  */
 export const toMonthlyFinancialPoint = (
   summary: MonthlyFinancialSummary,
@@ -156,8 +195,24 @@ export const toMonthlyFinancialPoint = (
               : null,
         );
 
-  // The monthly DTO carries no mileage at all.
-  const noMileage = unavailable("NO_TOTAL_MILES_SOURCE");
+  const loadedMiles = toMileageMetric(summary.mileage, (m) => m.loadedMiles);
+  const totalMiles = toMileageMetric(summary.mileage, (m) => m.totalMiles);
+
+  const revenuePerMile = ratioMetric(revenue, totalMiles);
+  const costPerMile = ratioMetric(operatingCost, totalMiles);
+  const contributionSpread: MetricValue =
+    revenuePerMile.status === "available" && costPerMile.status === "available"
+      ? {
+          status: "available",
+          value: revenuePerMile.value - costPerMile.value,
+        }
+      : unavailable(
+          revenuePerMile.status === "unavailable"
+            ? revenuePerMile.reasonCode
+            : costPerMile.status === "unavailable"
+              ? costPerMile.reasonCode
+              : null,
+        );
 
   return {
     month: planItem.monthKey,
@@ -165,11 +220,11 @@ export const toMonthlyFinancialPoint = (
     revenue,
     operatingCost,
     operatingProfit,
-    revenuePerMile: noMileage,
-    costPerMile: noMileage,
-    contributionSpread: noMileage,
-    loadedMiles: noMileage,
-    totalMiles: noMileage,
+    revenuePerMile,
+    costPerMile,
+    contributionSpread,
+    loadedMiles,
+    totalMiles,
     // No accounting-period table exists, so "closed" cannot be known.
     closed: null,
     invoiceCount: null,

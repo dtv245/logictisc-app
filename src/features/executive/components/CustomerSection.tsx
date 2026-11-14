@@ -181,16 +181,21 @@ export const CustomerSection = ({
       title: t("executive.customer.columns.customer"),
       dataIndex: "customerName",
       key: "customerName",
-      render: (name: string, _row, index) =>
+      render: (name: string | null, _row, index) => {
+        // Backend allows a null stored customer name; a dash is the honest
+        // rendering — inventing a label would attribute revenue to a customer
+        // that does not exist.
+        const label = name ?? "—";
         // Ba khách hàng lớn nhất được đánh dấu vì đó là nhóm mang rủi ro tập trung.
-        index < TOP_CUSTOMER_COUNT ? (
+        return index < TOP_CUSTOMER_COUNT ? (
           <span className="exec-customer__top">
             <Tag color="blue">{index + 1}</Tag>
-            {name}
+            {label}
           </span>
         ) : (
-          name
-        ),
+          label
+        );
+      },
     },
     {
       title: t("executive.customer.columns.revenue"),

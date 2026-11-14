@@ -49,6 +49,7 @@ export const ACCESS_RESOURCES = [
   "optimization",
   "fleet-reports",
   "ai-dispatch",
+  "reports",
 ] as const;
 
 export type AccessResource = (typeof ACCESS_RESOURCES)[number];

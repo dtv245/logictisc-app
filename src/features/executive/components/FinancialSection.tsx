@@ -52,6 +52,8 @@ interface FinancialSectionProps {
   /** Ngưỡng CPM mục tiêu, kèm nguồn. */
   costPerMileTarget: MetricReference | null;
   reasonKey: string;
+  /** Lý do riêng của khối cơ cấu chi phí (endpoint độc lập với chuỗi tháng). */
+  costReasonKey: string;
   /**
    * Tổng số dặm của tháng gần nhất.
    *
@@ -88,6 +90,7 @@ export const FinancialSection = ({
   costCategories,
   costPerMileTarget,
   reasonKey,
+  costReasonKey,
   totalMiles,
   currency,
 }: FinancialSectionProps) => {
@@ -316,7 +319,7 @@ export const FinancialSection = ({
           <figure className="exec-chart">
             <figcaption>{t("executive.charts.costStructure.title")}</figcaption>
             {costCategories === null || costCategories.length === 0 ? (
-              <UnavailableNotice reasonKey={reasonKey} />
+              <UnavailableNotice reasonKey={costReasonKey} />
             ) : (
               <ul className="exec-cost-list">
                 {costCategories.map((category) => {
@@ -324,7 +327,9 @@ export const FinancialSection = ({
                   return (
                     <li className="exec-cost" key={category.id}>
                       <span className="exec-cost__label">
-                        {t(category.labelKey)}
+                        {category.labelKey
+                          ? t(category.labelKey)
+                          : category.category}
                       </span>
                       <span className="exec-cost__track">
                         {/* Không có tỉ trọng thì để rãnh trống. Vẽ một thanh
@@ -339,8 +344,8 @@ export const FinancialSection = ({
                       </span>
                       <span className="exec-cost__value">
                         {formatMetricOrDash(
-                          category.currentPerMile,
-                          "currencyPerMile",
+                          category.currentTotal,
+                          "currency",
                           locale,
                           currency,
                         )}

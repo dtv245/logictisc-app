@@ -1,9 +1,10 @@
 import type { DocumentType } from "@/types/documents/document.types";
 
-// DocumentController exposes GET list, GET by id and DELETE only.
-// POST /api/documents (multipart) and GET /api/documents/{id}/download are both
-// absent from the backend, so both features stay dormant. See BE-020 in
-// docs/backend-gaps.md. Unknown actions remain denied by the role matrix.
+// Verified against `logictics_api` `2328e76` (handoff
+// docs/contracts/backend-frontend-unblock-handoff.md): DocumentController still
+// exposes GET list, GET by id and DELETE only. BE-020a/BE-020b are
+// STILL_BLOCKED — no storage adapter exists — so download and upload stay
+// dormant. Unknown actions remain denied by the role matrix.
 export const DOCUMENT_UPLOAD_CONTRACT_CONFIRMED = false;
 
 /**

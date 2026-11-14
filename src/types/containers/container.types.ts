@@ -17,7 +17,8 @@ export interface Container {
   loadedAt?: ISODateTime | null;
   deliveredAt?: ISODateTime | null;
   returnedAt?: ISODateTime | null;
-  createdAt: ISODateTime;
+  /** ContainerView allows null (legacy rows may have no audit timestamp). */
+  createdAt: ISODateTime | null;
   createdBy?: string | null;
   lastModifiedAt?: ISODateTime | null;
   lastModifiedBy?: string | null;

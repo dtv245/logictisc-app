@@ -1971,6 +1971,8 @@ export const viMessages = {
         "Yêu cầu báo cáo không trả về được. Đây không phải là không có dữ liệu: hãy thử lại trước khi kết luận.",
       noRowsInWindow:
         "Báo cáo đã chạy và không tìm thấy dòng nào trong kỳ này với loại tiền này.",
+      forbidden:
+        "Vai trò của bạn không được xem báo cáo điều hành. Hãy đề nghị quản trị viên cấp quyền báo cáo tài chính.",
       reason: {
         noSourceRows: "Không có dòng nào để tổng hợp.",
         noRowsInCurrency: "Không có dòng nào mang loại tiền đang yêu cầu.",
@@ -1987,6 +1989,35 @@ export const viMessages = {
         ambiguousTruckLink:
           "Một bản ghi gắn với hai xe khác nhau nên không quy được về xe nào.",
         notImplemented: "Chỉ số này chưa được cài đặt.",
+        noDeliveredLoadsInPeriod:
+          "Không có chuyến đã giao nào có ngày giao yêu cầu trong kỳ này.",
+        noTrucksInFleet: "Bảng đội xe không có dòng xe nào.",
+        noCompletedTripsInPeriod: "Không có chuyến nào hoàn thành trong kỳ này.",
+        noValidTripMileageRows:
+          "Không có chuyến hoàn thành nào có đủ số dặm có tải, chạy rỗng và thực tế hợp lệ.",
+        tripsMissingOrInconsistentMileage:
+          "Một số chuyến hoàn thành thiếu hoặc lệch số dặm nên đã bị loại.",
+        zeroRecordedMiles:
+          "Mọi chuyến hoàn thành đều ghi 0 dặm có tải và 0 dặm chạy rỗng.",
+        noVehicleAvailabilityHistory:
+          "Không có lịch sử khả dụng của xe nên không đo được hiệu suất sử dụng.",
+        difotNotDefined:
+          "DIFOT không có nguồn dữ liệu nào trong schema hiện tại.",
+        nonPositiveAttributedRevenue:
+          "Doanh thu quy được về khách không dương nên không tính được tỉ trọng.",
+        revenueWindowRequired:
+          "Cần khoảng doanh thu (from/to) để tính DSO.",
+        zeroWindowRevenue: "Doanh thu trong khoảng DSO bằng 0.",
+        zeroOutstanding:
+          "Không còn khoản phải thu nên không tính được tỉ trọng.",
+        periodEndDsoApproximation:
+          "DSO là ước lượng cuối kỳ theo doanh thu trong khoảng, không phải chuỗi dòng tiền.",
+        zeroTotalCost:
+          "Tổng chi phí đã duyệt bằng 0 nên không tính được tỉ trọng hạng mục.",
+        maintenanceCurrencyNotStored:
+          "Bản ghi bảo trì không lưu loại tiền nên bị loại khỏi tổng tiền.",
+        noCustomerMileageAllocation:
+          "Số dặm không được phân bổ về khách nên không tính được doanh thu mỗi dặm theo khách.",
         unknown: "Backend không nêu lý do vì sao chỉ số này chưa có giá trị.",
       },
     },

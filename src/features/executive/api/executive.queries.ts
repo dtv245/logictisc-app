@@ -1,38 +1,35 @@
 /**
  * Truy vấn và tính toán cho Executive Overview.
  *
- * TRẠNG THÁI HỢP ĐỒNG (đối chiếu `logictics_api` ngày 2026-11-14):
+ * Hợp đồng đã xác minh tại `logictics_api` commit `2328e76`
+ * (`ReportController` + `dto/report/**`), xem
+ * `docs/contracts/backend-frontend-unblock-handoff.md`:
  *
- *   GET /api/reports/executive-summary        — KHÔNG tồn tại
- *   GET /api/reports/financials/monthly       — tồn tại, `year` + `month`
- *                                               (+ `currency`), trả về MỘT
- *                                               `MonthlyFinancialSummary`
- *   GET /api/reports/costs/by-category        — KHÔNG tồn tại
- *   GET /api/reports/fleet/health             — tồn tại, BẮT BUỘC `policyId`
- *                                               và `truckIds`, trả về
- *                                               `FleetHistory.Report`
- *   GET /api/reports/customers/concentration  — KHÔNG tồn tại
- *   GET /api/reports/receivables/aging        — KHÔNG tồn tại
+ *   GET /api/reports/executive-summary        from, to
+ *   GET /api/reports/financials/monthly       year, month, currency?
+ *   GET /api/reports/costs/by-category        from, to, currency?
+ *   GET /api/reports/customers/concentration  from, to, currency?, limit
+ *   GET /api/reports/receivables/aging        asOf, from?, to?, currency?
+ *   GET /api/reports/fleet/health             policyId, truckIds (không gọi ở đây)
  *
- * Vì bốn route không tồn tại và hai route còn lại không phải DTO mà màn hình
- * này cần, Executive vẫn ở trạng thái dormant (BE-031). Hook này KHÔNG gửi
- * request khi `EXECUTIVE_CONTRACT_CONFIRMED === false`, và khi được bật lại nó
- * chỉ gọi monthly bằng `year`/`month` — không còn `from`/`to`, không còn
- * `response.points[]`. Fleet health không có nguồn `policyId`/`truckIds` đã
- * xác minh trong ngữ cảnh Executive nên không được gọi ở đây; màn hình Fleet
- * Report đã là nơi triển khai hợp lệ của route đó.
+ * Ngày gửi lên là ngày lịch bao gồm hai đầu (`yyyy-MM-dd`), đúng quy ước backend.
+ * Bốn route tài chính/điều hành chỉ cho ADMIN/ACCOUNTANT/PAYROLL/PAYROLL_MANAGER,
+ * nên hook khoá query theo `reports:EXECUTIVE_VIEW` thay vì gửi request chắc
+ * chắn nhận 403.
  *
- * Quy tắc xuyên suốt: không có số nghĩa là không có số. Không phép chuyển đổi
- * nào biến trường thiếu thành 0, và không chỉ số nào được cộng dồn từ dữ liệu
- * CRUD rồi gọi là số liệu toàn hệ thống.
+ * Quy tắc xuyên suốt: không có số nghĩa là không có số. `MetricDto.value` chỉ
+ * được đọc khi `availability` là AVAILABLE hoặc PARTIAL; null/reason luôn đi ra
+ * `MetricValue.status = "unavailable"`, không bao giờ thành 0. Các phép chia
+ * mỗi-dặm chỉ chạy khi mẫu số dặm và tử số đều đầy đủ.
  */
 
-import { useCan, useDataProvider, useList } from "@refinedev/core";
+import { useCan, useCustom, useDataProvider } from "@refinedev/core";
 import { useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 import type { ApiError } from "@/types/api.types";
 import type {
+  AgingBucketPoint,
   CostCategoryPoint,
   CustomerConcentration,
   InsightModel,
@@ -43,10 +40,22 @@ import type {
   ReceivablesAging,
   StatusLevel,
 } from "@/types/executive/executive.types";
-import type { MonthlyFinancialSummary } from "@/types/reports/report.dto";
-import { DISPLAY_CURRENCY } from "../config/executive.constants";
+import type {
+  CostBreakdownReport,
+  CustomerConcentrationReport,
+  ExecutiveSummaryReport,
+  MetricDto,
+  MonthlyFinancialSummary,
+  ReceivablesAgingReport,
+} from "@/types/reports/report.dto";
+import {
+  CONCENTRATION_LIMIT,
+  DISPLAY_CURRENCY,
+} from "../config/executive.constants";
 import {
   EXECUTIVE_ENDPOINT_CONTRACT,
+  EXECUTIVE_REPORT_RESOURCE,
+  EXECUTIVE_VIEW_ACTION,
   isExecutiveEndpointQueryEnabled,
 } from "../config/executive.contract";
 import {
@@ -81,12 +90,103 @@ const FLEET_HEALTH_METRIC_IDS = [
   "breakdownsPer100k",
 ] as const;
 
+/**
+ * Bản đồ khoá locale cho các hạng mục chi phí backend đã trả.
+ *
+ * Chỉ ánh xạ những giá trị đã thấy trong contract/test fixture. Giá trị chưa
+ * biết hiển thị nguyên văn — không tự đặt tên hạng mục mới.
+ */
+const COST_CATEGORY_LABEL_KEYS: Readonly<Record<string, string>> = {
+  FUEL: "executive.costCategories.fuel",
+  MAINTENANCE: "executive.costCategories.maintenance",
+  OTHER: "executive.costCategories.other",
+  UNCATEGORIZED: "executive.costCategories.unclassified",
+};
+
+/** Sáu nhóm tuổi nợ cố định của backend; thứ tự do backend quyết định. */
+const AGING_LABEL_KEYS: Readonly<Record<string, string>> = {
+  current: "executive.aging.current",
+  days1To30: "executive.aging.days1To30",
+  days31To60: "executive.aging.days31To60",
+  days61To90: "executive.aging.days61To90",
+  over90: "executive.aging.over90",
+  noDueDate: "executive.aging.noDueDate",
+};
+
 const UNAVAILABLE = (reasonCode: string | null): MetricValue => ({
   status: "unavailable",
   reasonCode,
 });
 
-/** Giá trị dùng cho rule engine: chỉ số chưa đo được là `undefined`, không phải 0. */
+const pad2 = (value: number): string => String(value).padStart(2, "0");
+
+const formatUtcDate = (date: Date): string =>
+  `${date.getUTCFullYear()}-${pad2(date.getUTCMonth() + 1)}-${pad2(
+    date.getUTCDate(),
+  )}`;
+
+export interface ReportWindow {
+  /** Inclusive `yyyy-MM-dd`. */
+  readonly from: string;
+  /** Inclusive `yyyy-MM-dd`. */
+  readonly to: string;
+}
+
+/**
+ * Inclusive calendar window covering the same months as the monthly chart:
+ * the first day of the month `rangeMonths - 1` months ago through today, UTC.
+ * `rangeMonths` is clamped to the same 24-month ceiling as the request plan.
+ */
+export const buildReportWindow = (
+  now: Date,
+  rangeMonths: number,
+): ReportWindow => {
+  const months = Number.isFinite(rangeMonths)
+    ? Math.min(24, Math.max(1, Math.trunc(rangeMonths)))
+    : 1;
+  const to = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
+  const from = new Date(
+    Date.UTC(to.getUTCFullYear(), to.getUTCMonth() - (months - 1), 1),
+  );
+  return { from: formatUtcDate(from), to: formatUtcDate(to) };
+};
+
+/** Today as an inclusive calendar date, used as the aging `asOf`. */
+export const utcToday = (now: Date): string =>
+  formatUtcDate(
+    new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())),
+  );
+
+/**
+ * `MetricDto` → `MetricValue`.
+ *
+ * AVAILABLE and PARTIAL both carry a real value; `UNAVAILABLE`,
+ * `NOT_APPLICABLE`, a null value or a non-finite number carry none. The backend
+ * reason is preserved so the UI can name the limitation.
+ */
+export const toMetricValue = (
+  metric: MetricDto | null | undefined,
+): MetricValue => {
+  if (!metric) return UNAVAILABLE("NO_SOURCE_ROWS");
+
+  const numeric =
+    typeof metric.value === "number" && Number.isFinite(metric.value)
+      ? metric.value
+      : null;
+
+  if (
+    (metric.availability === "AVAILABLE" ||
+      metric.availability === "PARTIAL") &&
+    numeric !== null
+  ) {
+    return { status: "available", value: numeric };
+  }
+
+  return UNAVAILABLE(metric.reason ?? null);
+};
+
 const ruleValue = (value: MetricValue): number | undefined =>
   value.status === "available" ? value.value : undefined;
 
@@ -121,6 +221,7 @@ export interface ExecutiveData {
   costCategories: CostCategoryPoint[] | null;
   totalMiles: MetricValue;
   monthlyReasonKey: string;
+  costReasonKey: string;
   concentration: CustomerConcentration | null;
   concentrationReasonKey: string;
   aging: ReceivablesAging | null;
@@ -140,33 +241,112 @@ export const useExecutiveData = (
   fleetType: FleetType | null,
   rangeMonths: number,
 ): ExecutiveData => {
-  const trucksAccess = useCan({ action: "list", resource: "trucks" });
-  const customersAccess = useCan({ action: "list", resource: "customers" });
-  const canReadTrucks = trucksAccess.data?.can === true;
-  const canReadCustomers = customersAccess.data?.can === true;
-
-  const trucks = useList<{ id: string }, ApiError>({
-    resource: "trucks",
-    pagination: { current: 1, pageSize: 1 },
-    queryOptions: { enabled: canReadTrucks, staleTime: 60_000 },
+  const reportAccess = useCan({
+    resource: EXECUTIVE_REPORT_RESOURCE,
+    action: EXECUTIVE_VIEW_ACTION,
   });
-  const customers = useList<{ id: string }, ApiError>({
-    resource: "customers",
-    pagination: { current: 1, pageSize: 1 },
-    queryOptions: { enabled: canReadCustomers, staleTime: 60_000 },
-  });
-
+  const canViewReports = reportAccess.data?.can === true;
+  // One clock reading per mount keeps the aggregate window, the aging `asOf`
+  // and the monthly plan describing the same period.
+  const now = useMemo(() => new Date(), []);
+  const window = useMemo(
+    () => buildReportWindow(now, rangeMonths),
+    [now, rangeMonths],
+  );
+  const asOf = useMemo(() => utcToday(now), [now]);
   const monthlyPlan = useMemo(
-    () => buildMonthlyQueryPlan(new Date(), rangeMonths),
-    [rangeMonths],
+    () => buildMonthlyQueryPlan(now, rangeMonths),
+    [now, rangeMonths],
   );
 
   const dataProvider = useDataProvider();
+  const queryOptions = { staleTime: 60_000 } as const;
+
+  const summary = useCustom<
+    ExecutiveSummaryReport,
+    ApiError,
+    { from: string; to: string }
+  >({
+    url: EXECUTIVE_ENDPOINT_CONTRACT.executiveSummary.path,
+    method: "get",
+    config: { query: { from: window.from, to: window.to } },
+    queryOptions: {
+      ...queryOptions,
+      enabled:
+        canViewReports && isExecutiveEndpointQueryEnabled("executiveSummary"),
+    },
+  });
+
+  const costs = useCustom<
+    CostBreakdownReport,
+    ApiError,
+    { from: string; to: string; currency: string }
+  >({
+    url: EXECUTIVE_ENDPOINT_CONTRACT.costBreakdown.path,
+    method: "get",
+    config: {
+      query: {
+        from: window.from,
+        to: window.to,
+        currency: DISPLAY_CURRENCY,
+      },
+    },
+    queryOptions: {
+      ...queryOptions,
+      enabled: canViewReports && isExecutiveEndpointQueryEnabled("costBreakdown"),
+    },
+  });
+
+  const concentrationQuery = useCustom<
+    CustomerConcentrationReport,
+    ApiError,
+    { from: string; to: string; currency: string; limit: number }
+  >({
+    url: EXECUTIVE_ENDPOINT_CONTRACT.customerConcentration.path,
+    method: "get",
+    config: {
+      query: {
+        from: window.from,
+        to: window.to,
+        currency: DISPLAY_CURRENCY,
+        limit: CONCENTRATION_LIMIT,
+      },
+    },
+    queryOptions: {
+      ...queryOptions,
+      enabled:
+        canViewReports &&
+        isExecutiveEndpointQueryEnabled("customerConcentration"),
+    },
+  });
+
+  const aging = useCustom<
+    ReceivablesAgingReport,
+    ApiError,
+    { asOf: string; from: string; to: string; currency: string }
+  >({
+    url: EXECUTIVE_ENDPOINT_CONTRACT.receivablesAging.path,
+    method: "get",
+    config: {
+      query: {
+        asOf,
+        from: window.from,
+        to: window.to,
+        currency: DISPLAY_CURRENCY,
+      },
+    },
+    queryOptions: {
+      ...queryOptions,
+      enabled: canViewReports && isExecutiveEndpointQueryEnabled("receivablesAging"),
+    },
+  });
+
+  const monthlyEnabled =
+    canViewReports && isExecutiveEndpointQueryEnabled("monthlyFinancials");
   const monthlyEndpoint = EXECUTIVE_ENDPOINT_CONTRACT.monthlyFinancials;
-  const monthlyEnabled = isExecutiveEndpointQueryEnabled("monthlyFinancials");
 
   // Một request cho mỗi tháng: contract là year/month, và response chỉ mô tả
-  // đúng một tháng. `enabled` khoá toàn bộ khi Executive chưa được xác nhận.
+  // đúng một tháng. Cache key gồm tenant-independent year/month/currency.
   const monthlyQueries = useQueries({
     queries: monthlyPlan.map((item) => ({
       queryKey: [
@@ -211,23 +391,81 @@ export const useExecutiveData = (
         })
       : null;
 
-    // Hai route không tồn tại: không có dữ liệu, không có request.
-    const costCategories: CostCategoryPoint[] | null = null;
-    const concentration: CustomerConcentration | null = null;
-    const aging: ReceivablesAging | null = null;
+    const summaryData = summary.data?.data;
+    const costsData = costs.data?.data;
+    const concentrationData = concentrationQuery.data?.data;
+    const agingData = aging.data?.data;
 
-    // Fleet health cần policyId + truckIds do người dùng chọn; Executive không
-    // có nguồn đó nên các KPI giữ "chưa có số". Ngay cả khi có report, bốn
-    // chỉ số này không nằm trong FleetHistory.Report.
+    const costCategories: CostCategoryPoint[] | null = costsData
+      ? costsData.categories.map((category) => ({
+          id: category.category,
+          category: category.category,
+          labelKey:
+            COST_CATEGORY_LABEL_KEYS[category.category.toUpperCase()] ?? null,
+          currentTotal: toMetricValue(category.currentTotal),
+          previousTotal: toMetricValue(category.previousTotal),
+          shareOfTotal: toMetricValue(category.shareOfTotal),
+          currentRowCount: category.currentRowCount,
+          previousRowCount: category.previousRowCount,
+        }))
+      : null;
+
+    const concentration: CustomerConcentration | null = concentrationData
+      ? {
+          rows: concentrationData.rows.map((row) => ({
+            customerId: row.customerId,
+            customerName: row.customerName,
+            revenue: toMetricValue(row.revenue),
+            shareOfRevenue: toMetricValue(row.shareOfRevenue),
+            // Backend reports no cost or mileage allocation to customers.
+            revenuePerMile: UNAVAILABLE("NO_CUSTOMER_MILEAGE_ALLOCATION"),
+            grossMarginPercent: UNAVAILABLE("NO_COST_ALLOCATION"),
+            onTimeDeliveryPercent: UNAVAILABLE("NOT_IMPLEMENTED"),
+            dsoDays: UNAVAILABLE("NOT_IMPLEMENTED"),
+          })),
+          top1Share: toMetricValue(concentrationData.top1Share),
+          top3Share: toMetricValue(concentrationData.top3Share),
+          top5Share: toMetricValue(concentrationData.top5Share),
+          hhi: toMetricValue(concentrationData.hhi),
+          customersConsidered: concentrationData.customersConsidered,
+          customersReturned: concentrationData.customersReturned,
+          invoicesWithoutCustomer: concentrationData.invoicesWithoutCustomer,
+        }
+      : null;
+
+    const agingModel: ReceivablesAging | null = agingData
+      ? {
+          asOf: agingData.asOf,
+          outstandingTotal: toMetricValue(agingData.outstandingTotal),
+          overdueTotal: toMetricValue(agingData.overdueTotal),
+          invoicesWithStatusPaymentMismatch:
+            agingData.invoicesWithStatusPaymentMismatch,
+          // Six fixed buckets, used exactly as returned: no merging, no
+          // recomputation of shares from `amount`.
+          buckets: agingData.buckets.map(
+            (bucket): AgingBucketPoint => ({
+              id: bucket.id,
+              labelKey: AGING_LABEL_KEYS[bucket.id] ?? bucket.id,
+              amount: toMetricValue(bucket.amount),
+              shareOfOutstanding: toMetricValue(bucket.shareOfOutstanding),
+              invoiceCount: bucket.invoiceCount,
+            }),
+          ),
+        }
+      : null;
+
+    // Fleet health requires policyId + truckIds chosen by the user. Executive
+    // has no verified source for those, so no request is made and the KPIs are
+    // unavailable (NOT because they are zero).
     const fleetHealthValues = toFleetHealthMetrics(null);
 
     const values: Record<string, MetricValue> = {
-      fleetSize: UNAVAILABLE(null),
-      activeCustomerCount: UNAVAILABLE(null),
-      fleetUtilization: UNAVAILABLE(null),
-      loadedMiles: UNAVAILABLE(null),
-      onTimeDelivery: UNAVAILABLE(null),
-      difot: UNAVAILABLE(null),
+      fleetSize: toMetricValue(summaryData?.fleetSize),
+      activeCustomerCount: toMetricValue(summaryData?.activeCustomers),
+      fleetUtilization: toMetricValue(summaryData?.fleetUtilizationPct),
+      loadedMiles: toMetricValue(summaryData?.loadedMilesPct),
+      onTimeDelivery: toMetricValue(summaryData?.onTimeDeliveryPct),
+      difot: toMetricValue(summaryData?.difotPct),
       costPerMile: monthlyPoints
         ? latestAvailable(monthlyPoints, (point) => point.costPerMile)
         : UNAVAILABLE(null),
@@ -237,26 +475,15 @@ export const useExecutiveData = (
       contributionSpread: monthlyPoints
         ? latestAvailable(monthlyPoints, (point) => point.contributionSpread)
         : UNAVAILABLE(null),
-      dso: UNAVAILABLE(null),
+      dso: toMetricValue(agingData?.dsoDays),
       unplannedDowntime: fleetHealthValues.unplannedDowntime,
       pmCompliance: fleetHealthValues.pmCompliance,
       maintenanceCostPerMile: fleetHealthValues.maintenanceCostPerMile,
       breakdownsPer100k: fleetHealthValues.breakdownsPer100k,
+      // Not returned by any backend report.
       operatingMargin: UNAVAILABLE(null),
       revenueGrowth: UNAVAILABLE(null),
     };
-
-    // Hai con số đếm này đọc từ `total` của truy vấn phân trang đã lọc, không
-    // phải cộng dồn bản ghi: đó là một phép đếm thật.
-    if (canReadTrucks && trucks.data?.total !== undefined) {
-      values.fleetSize = { status: "available", value: trucks.data.total };
-    }
-    if (canReadCustomers && customers.data?.total !== undefined) {
-      values.activeCustomerCount = {
-        status: "available",
-        value: customers.data.total,
-      };
-    }
 
     const buildModel = (
       definition: (typeof definitions)[number],
@@ -339,38 +566,33 @@ export const useExecutiveData = (
       ruleValues[`${definition.id}Target`] = target?.value;
     });
 
+    const latestPoint = monthlyPoints?.at(-1);
     const insights = runRules({
       values: ruleValues,
-      revenue:
-        monthlyPoints && monthlyPoints.length > 0
-          ? ruleValue(monthlyPoints[monthlyPoints.length - 1].revenue)
-          : undefined,
-      miles:
-        monthlyPoints && monthlyPoints.length > 0
-          ? ruleValue(monthlyPoints[monthlyPoints.length - 1].loadedMiles)
-          : undefined,
-      top1Share: undefined,
-      top3Share: undefined,
+      revenue: latestPoint ? ruleValue(latestPoint.revenue) : undefined,
+      miles: latestPoint ? ruleValue(latestPoint.loadedMiles) : undefined,
+      top1Share: concentration ? ruleValue(concentration.top1Share) : undefined,
+      top3Share: concentration ? ruleValue(concentration.top3Share) : undefined,
       definitions,
     });
 
     const isLoading =
-      trucksAccess.isLoading ||
-      customersAccess.isLoading ||
-      monthlyQueries.some((query) => query.isLoading) ||
-      (canReadTrucks && trucks.isLoading) ||
-      (canReadCustomers && customers.isLoading);
+      reportAccess.isLoading ||
+      summary.isLoading ||
+      costs.isLoading ||
+      concentrationQuery.isLoading ||
+      aging.isLoading ||
+      monthlyQueries.some((query) => query.isLoading);
 
     const awaitingData =
       !isLoading &&
       Object.values(values).every((value) => value.status === "unavailable");
 
-    const dormant = !isExecutiveEndpointQueryEnabled("monthlyFinancials");
-    const monthlyReasonKey = dormant
-      ? SECTION_REASONS.featureDormant
-      : monthlyQueries.some((query) => query.isError)
-        ? SECTION_REASONS.requestFailed
-        : SECTION_REASONS.noRowsInWindow;
+    const sectionReasonKey = (hasError: boolean): string => {
+      if (!canViewReports) return SECTION_REASONS.forbidden;
+      if (hasError) return SECTION_REASONS.requestFailed;
+      return SECTION_REASONS.noRowsInWindow;
+    };
 
     return {
       definitions,
@@ -391,25 +613,33 @@ export const useExecutiveData = (
       totalMiles: monthlyPoints
         ? latestAvailable(monthlyPoints, (point) => point.totalMiles)
         : UNAVAILABLE(null),
-      monthlyReasonKey,
+      monthlyReasonKey: sectionReasonKey(
+        monthlyQueries.some((query) => query.isError),
+      ),
+      costReasonKey: sectionReasonKey(costs.isError),
       concentration,
-      concentrationReasonKey: SECTION_REASONS.endpointMissing,
-      aging,
-      agingReasonKey: SECTION_REASONS.endpointMissing,
+      concentrationReasonKey: sectionReasonKey(concentrationQuery.isError),
+      aging: agingModel,
+      agingReasonKey: sectionReasonKey(aging.isError),
       insights,
       isLoading,
       awaitingData,
     };
   }, [
     fleetType,
-    canReadTrucks,
-    canReadCustomers,
-    trucks.data,
-    customers.data,
-    trucks.isLoading,
-    customers.isLoading,
-    trucksAccess.isLoading,
-    customersAccess.isLoading,
+    canViewReports,
+    reportAccess.isLoading,
+    summary.data,
+    summary.isLoading,
+    costs.data,
+    costs.isLoading,
+    costs.isError,
+    concentrationQuery.data,
+    concentrationQuery.isLoading,
+    concentrationQuery.isError,
+    aging.data,
+    aging.isLoading,
+    aging.isError,
     monthlyQueries,
     monthlyPlan,
   ]);

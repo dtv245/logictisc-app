@@ -6,15 +6,21 @@ import {
   CONTAINER_CONTRACT_CONFIRMED,
   TerminalContainersTab,
 } from "@/features/terminals/components/TerminalContainersTab";
+import { DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import type { Container } from "@/types/containers/container.types";
+
+const access = vi.hoisted(() => ({ can: true, isLoading: false }));
 
 vi.mock("@refinedev/core", () => ({
   useCustom: vi.fn(),
+  useCan: () => ({ data: { can: access.can }, isLoading: access.isLoading }),
 }));
 
 describe("TerminalContainersTab — Tab containers tại bến", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    access.can = true;
+    access.isLoading = false;
   });
 
   const mockContainers: Container[] = [
@@ -44,14 +50,27 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
     },
   ];
 
-  it("gọi useCustom với url '/api/containers' và param currentTerminalId", () => {
-    vi.mocked(refineCore.useCustom).mockReturnValue({
-      data: { data: { items: mockContainers } },
-      isLoading: false,
-      isError: false,
-      error: null,
-      refetch: vi.fn(),
-    } as unknown as ReturnType<typeof refineCore.useCustom>);
+  const page = (items: Container[], totalItems = items.length) => ({
+    data: {
+      data: {
+        items,
+        totalItems,
+        totalPages: Math.max(1, Math.ceil(totalItems / DEFAULT_LIST_PAGE_SIZE)),
+        currentPage: 1,
+        pageSize: DEFAULT_LIST_PAGE_SIZE,
+        hasNext: totalItems > DEFAULT_LIST_PAGE_SIZE,
+      },
+    },
+    isLoading: false,
+    isError: false,
+    error: null,
+    refetch: vi.fn(),
+  });
+
+  it("enables the verified BE-032 query with server pagination params", () => {
+    vi.mocked(refineCore.useCustom).mockReturnValue(
+      page(mockContainers) as unknown as ReturnType<typeof refineCore.useCustom>,
+    );
 
     render(
       <MemoryRouter>
@@ -59,6 +78,7 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
       </MemoryRouter>,
     );
 
+    expect(CONTAINER_CONTRACT_CONFIRMED).toBe(true);
     expect(refineCore.useCustom).toHaveBeenCalledWith(
       expect.objectContaining({
         url: "/api/containers",
@@ -66,44 +86,51 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
         config: {
           query: {
             currentTerminalId: "term-123",
+            page: 1,
+            pageSize: DEFAULT_LIST_PAGE_SIZE,
+            orderBy: "number",
+            descending: false,
           },
         },
-      })
+        queryOptions: expect.objectContaining({ enabled: true }),
+      }),
     );
   });
 
-  it("keeps the /api/containers request disabled because the backend has no route", () => {
-    vi.mocked(refineCore.useCustom).mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isError: false,
-      error: null,
-      refetch: vi.fn(),
-    } as unknown as ReturnType<typeof refineCore.useCustom>);
+  it("reads the page from the URL and sends it to the backend", () => {
+    vi.mocked(refineCore.useCustom).mockReturnValue(
+      page(mockContainers) as unknown as ReturnType<typeof refineCore.useCustom>,
+    );
 
     render(
-      <MemoryRouter>
+      <MemoryRouter
+        initialEntries={[
+          "/terminals/term-123?terminalContainersTerminalId=term-123&terminalContainersPage=3&terminalContainersPageSize=20",
+        ]}
+      >
         <TerminalContainersTab terminalId="term-123" />
       </MemoryRouter>,
     );
 
-    expect(CONTAINER_CONTRACT_CONFIRMED).toBe(false);
     expect(refineCore.useCustom).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryOptions: expect.objectContaining({ enabled: false }),
+        config: {
+          query: {
+            currentTerminalId: "term-123",
+            page: 3,
+            pageSize: 20,
+            orderBy: "number",
+            descending: false,
+          },
+        },
       }),
     );
-    expect(screen.getByText("Thông tin Container tại bến")).toBeInTheDocument();
   });
 
-  it("hiển thị danh sách container trong bảng khi API trả về dữ liệu dạng envelope { items: [...] }", () => {
-    vi.mocked(refineCore.useCustom).mockReturnValue({
-      data: { data: { items: mockContainers } },
-      isLoading: false,
-      isError: false,
-      error: null,
-      refetch: vi.fn(),
-    } as unknown as ReturnType<typeof refineCore.useCustom>);
+  it("renders the PagedResponse items", () => {
+    vi.mocked(refineCore.useCustom).mockReturnValue(
+      page(mockContainers) as unknown as ReturnType<typeof refineCore.useCustom>,
+    );
 
     render(
       <MemoryRouter>
@@ -116,20 +143,15 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
     expect(screen.getByText("loaded")).toBeInTheDocument();
     expect(screen.getByText(/28\.500 kg|28,500 kg/)).toBeInTheDocument();
     expect(screen.getByText("SEAL-9876")).toBeInTheDocument();
-    expect(screen.getByText("Cont hàng lạnh xuất khẩu")).toBeInTheDocument();
-
     expect(screen.getByText("TGHU7654321")).toBeInTheDocument();
-    expect(screen.getByText("20GP")).toBeInTheDocument();
   });
 
-  it("hiển thị danh sách container khi API trả về trực tiếp mảng Container[]", () => {
-    vi.mocked(refineCore.useCustom).mockReturnValue({
-      data: { data: mockContainers },
-      isLoading: false,
-      isError: false,
-      error: null,
-      refetch: vi.fn(),
-    } as unknown as ReturnType<typeof refineCore.useCustom>);
+  it("uses the server total, not the current page length, for pagination", () => {
+    vi.mocked(refineCore.useCustom).mockReturnValue(
+      page(mockContainers, 40) as unknown as ReturnType<
+        typeof refineCore.useCustom
+      >,
+    );
 
     render(
       <MemoryRouter>
@@ -137,18 +159,30 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("MSCU1234567")).toBeInTheDocument();
-    expect(screen.getByText("TGHU7654321")).toBeInTheDocument();
+    // 40 rows at the default page size yields a second page control.
+    expect(screen.getByTitle("2")).toBeInTheDocument();
+  });
+
+  it("does not invent a second page when the server total fits one page", () => {
+    vi.mocked(refineCore.useCustom).mockReturnValue(
+      page(mockContainers, 2) as unknown as ReturnType<
+        typeof refineCore.useCustom
+      >,
+    );
+
+    render(
+      <MemoryRouter>
+        <TerminalContainersTab terminalId="term-123" />
+      </MemoryRouter>,
+    );
+
+    expect(screen.queryByTitle("2")).not.toBeInTheDocument();
   });
 
   it("hiển thị thông báo khi không có container nào lưu bãi", () => {
-    vi.mocked(refineCore.useCustom).mockReturnValue({
-      data: { data: { items: [] } },
-      isLoading: false,
-      isError: false,
-      error: null,
-      refetch: vi.fn(),
-    } as unknown as ReturnType<typeof refineCore.useCustom>);
+    vi.mocked(refineCore.useCustom).mockReturnValue(
+      page([], 0) as unknown as ReturnType<typeof refineCore.useCustom>,
+    );
 
     render(
       <MemoryRouter>
@@ -157,16 +191,16 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
     );
 
     expect(
-      screen.getByText("Hiện không có container nào đang lưu bãi tại bến này")
+      screen.getByText("Hiện không có container nào đang lưu bãi tại bến này"),
     ).toBeInTheDocument();
   });
 
-  it("hiển thị Alert thông tin hướng dẫn khi API gặp lỗi hoặc chưa sẵn sàng", () => {
+  it("hiển thị Alert thông tin khi API gặp lỗi", () => {
     vi.mocked(refineCore.useCustom).mockReturnValue({
       data: null,
       isLoading: false,
       isError: true,
-      error: { message: "Network Error 404" },
+      error: { message: "Network Error 500" },
       refetch: vi.fn(),
     } as unknown as ReturnType<typeof refineCore.useCustom>);
 
@@ -177,9 +211,33 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
     );
 
     expect(screen.getByText("Thông tin Container tại bến")).toBeInTheDocument();
+    expect(screen.getByText(/Network Error 500/)).toBeInTheDocument();
+  });
+
+  it("không gửi request container khi vai trò không có quyền đọc bến bãi", () => {
+    access.can = false;
+    vi.mocked(refineCore.useCustom).mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    } as unknown as ReturnType<typeof refineCore.useCustom>);
+
+    render(
+      <MemoryRouter>
+        <TerminalContainersTab terminalId="term-123" />
+      </MemoryRouter>,
+    );
+
+    expect(refineCore.useCustom).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryOptions: expect.objectContaining({ enabled: false }),
+      }),
+    );
     expect(
-      screen.getByText(/Chưa có dữ liệu hoặc API tra cứu container theo bến bãi/)
+      screen.getByText(/không có quyền|do not have permission/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Network Error 404/)).toBeInTheDocument();
+    expect(screen.queryByText("MSCU1234567")).not.toBeInTheDocument();
   });
 });

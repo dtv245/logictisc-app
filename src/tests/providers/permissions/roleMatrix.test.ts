@@ -130,6 +130,31 @@ describe("canJwtRolesAccess", () => {
     ).toBe(true);
   });
 
+  it("mirrors BE-034: DISPATCHER reads operations reports but not financial ones", () => {
+    // SecurityConfig: GET /api/reports/operations/** is widened to DISPATCHER;
+    // every other /api/reports/** route stays finance-only.
+    expect(can("DISPATCHER", "reports", "OPERATIONS_VIEW")).toBe(true);
+    expect(can("ADMIN", "reports", "OPERATIONS_VIEW")).toBe(true);
+    expect(can("ACCOUNTANT", "reports", "OPERATIONS_VIEW")).toBe(true);
+    expect(can("PAYROLL", "reports", "OPERATIONS_VIEW")).toBe(true);
+    expect(can("PAYROLL_MANAGER", "reports", "OPERATIONS_VIEW")).toBe(true);
+    expect(can("DRIVER", "reports", "OPERATIONS_VIEW")).toBe(false);
+
+    for (const role of ["DISPATCHER", "DRIVER"] as const) {
+      expect(can(role, "reports", "EXECUTIVE_VIEW")).toBe(false);
+      expect(can(role, "reports", "FINANCIAL_VIEW")).toBe(false);
+    }
+    for (const role of [
+      "ADMIN",
+      "ACCOUNTANT",
+      "PAYROLL",
+      "PAYROLL_MANAGER",
+    ] as const) {
+      expect(can(role, "reports", "EXECUTIVE_VIEW")).toBe(true);
+      expect(can(role, "reports", "FINANCIAL_VIEW")).toBe(true);
+    }
+  });
+
   it("denies legacy authorities finance access without a backend grant", () => {
     expect(can("SUPERADMIN", "settlements", "list")).toBe(false);
     expect(can("OWNER", "settlements", "SETTLEMENT_CALCULATE")).toBe(false);

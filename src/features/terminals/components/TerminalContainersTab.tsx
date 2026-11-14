@@ -3,10 +3,10 @@ import type { ColumnsType } from "antd/es/table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
-import { useCustom } from "@refinedev/core";
+import { useCan, useCustom } from "@refinedev/core";
 import { StatusTag } from "@/components/StatusTag";
 import type { StatusTone } from "@/components/StatusTag";
-import type { ApiError } from "@/types/api.types";
+import type { ApiError, PagedResponse } from "@/types/api.types";
 import type { Container } from "@/types/containers/container.types";
 import { createListPaginationConfig, DEFAULT_LIST_PAGE_SIZE } from "@/constants/pagination";
 import { normalizePage, normalizePageSize } from "@/utils/querySerializer";
@@ -16,12 +16,12 @@ export interface TerminalContainersTabProps {
 }
 
 /**
- * `logictics_api` has no ContainerController: a grep over controller mappings
- * finds no `/api/containers` route (only the `Container` entity). Keep the
- * request disabled so the tab does not 404 on every mount; the informational
- * empty state explains that the backend read contract is missing.
+ * BE-032 verified at `logictics_api` `2328e76`:
+ * `GET /api/containers?currentTerminalId=&page=&pageSize=&orderBy=&descending=`
+ * returns `PagedResponse<ContainerView>` (read-only). Authorization matches
+ * `/api/terminals/**` exactly: ADMIN, ACCOUNTANT, DISPATCHER.
  */
-export const CONTAINER_CONTRACT_CONFIRMED = false;
+export const CONTAINER_CONTRACT_CONFIRMED = true;
 
 const containerStatusToneMap: Record<string, StatusTone> = {
   available: "success",
@@ -48,8 +48,16 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
   const pageSize = normalizePageSize(Number(
     savedTerminalId === terminalId ? searchParams.get("terminalContainersPageSize") : DEFAULT_LIST_PAGE_SIZE,
   ));
+  // Authorization mirrors the backend: /api/containers uses exactly the same
+  // ADMIN/ACCOUNTANT/DISPATCHER grant as /api/terminals/**. A USER without that
+  // grant must not issue a request that is guaranteed to return 403.
+  const access = useCan({ resource: "terminals", action: "list" });
+  const canReadContainers = access.data?.can === true;
+
+  // Server-side pagination: page/pageSize are sent to the backend, and the
+  // table total comes from `totalItems` — never from the current page length.
   const { data, isFetching, isError, error } = useCustom<
-    { items?: Container[] } | Container[],
+    PagedResponse<Container>,
     ApiError
   >({
     url: "/api/containers",
@@ -57,19 +65,23 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
     config: {
       query: {
         currentTerminalId: terminalId,
+        page: current,
+        pageSize,
+        orderBy: "number",
+        descending: false,
       },
     },
     queryOptions: {
-      enabled: CONTAINER_CONTRACT_CONFIRMED && Boolean(terminalId),
+      enabled: canReadContainers && CONTAINER_CONTRACT_CONFIRMED && Boolean(terminalId),
       retry: 1,
     },
     errorNotification: false,
   });
 
-  const rawData = data?.data;
-  const containers: Container[] = Array.isArray(rawData)
-    ? rawData
-    : (rawData as { items?: Container[] })?.items ?? [];
+  const page = data?.data;
+  const containers: Container[] = page?.items ?? [];
+  const totalItems =
+    typeof page?.totalItems === "number" ? page.totalItems : containers.length;
 
   const columns: ColumnsType<Container> = useMemo(() => [
     {
@@ -136,7 +148,22 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
     },
   ], []);
 
-  if (isError || (!CONTAINER_CONTRACT_CONFIRMED && !data)) {
+  if (!access.isLoading && !canReadContainers) {
+    return (
+      <Card variant="borderless" style={{ marginTop: 16 }}>
+        <Alert
+          type="warning"
+          showIcon
+          message="Thông tin Container tại bến"
+          description={t("errors.forbidden", {
+            defaultValue: "You do not have permission to access this page.",
+          })}
+        />
+      </Card>
+    );
+  }
+
+  if (isError) {
     return (
       <Card variant="borderless" style={{ marginTop: 16 }}>
         <Alert
@@ -179,7 +206,7 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
         pagination={{
           current,
           pageSize,
-          total: containers.length,
+          total: totalItems,
           ...createListPaginationConfig(t),
           onChange: (nextPage, nextPageSize) => {
             const params = new URLSearchParams(searchParams);
