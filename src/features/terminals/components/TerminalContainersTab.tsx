@@ -169,12 +169,13 @@ export const TerminalContainersTab = ({ terminalId }: TerminalContainersTabProps
         <Alert
           type="info"
           showIcon
-          message="Thông tin Container tại bến"
+          message="Không tải được danh sách Container tại bến"
           description={
             <div>
               <Typography.Paragraph style={{ margin: 0 }}>
-                Chưa có dữ liệu hoặc API tra cứu container theo bến bãi (
-                <code>GET /api/containers?currentTerminalId={terminalId}</code>) chưa sẵn sàng trên máy chủ backend.
+                Yêu cầu tra cứu container theo bến bãi (
+                <code>GET /api/containers?currentTerminalId={terminalId}</code>) không thành công.
+                Đây không phải là danh sách rỗng; hãy thử lại hoặc kiểm tra quyền truy cập.
               </Typography.Paragraph>
               {error?.message && (
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>

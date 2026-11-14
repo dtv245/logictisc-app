@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { createLogger, defineConfig, loadEnv } from 'vite'
+import { createOfflineProxyResponse } from './src/config/devProxyOffline.ts'
 
 // Dev/preview only: forwards /api/** to the Spring API so the browser never
 // issues a cross-origin request (the backend has no CORS config; see
@@ -25,7 +26,7 @@ function createDevLogger(target: string) {
       if (!warnedBackendOffline) {
         warnedBackendOffline = true
         logger.warn(
-          `\n⚠️  [vite] Backend API không khả dụng hoặc vừa khởi động lại tại ${target}. Các API fallback chỉ dùng cho phát triển.\n`,
+          `\n⚠️  [vite] Backend API không khả dụng hoặc vừa khởi động lại tại ${target}. Proxy trả lỗi thật (fail-closed); không có mock data.\n`,
         )
       }
       return
@@ -69,216 +70,18 @@ export default defineConfig(({ mode }) => {
       '/api': {
         target: apiProxyTarget(mode, process.cwd()),
         changeOrigin: true,
-        configure: (proxy, options) => {
+        configure: (proxy) => {
           proxy.on('error', (_err, req, res) => {
-            // When backend server (e.g. localhost:8080) is not running, provide graceful fallback
-            // for development mode so frontend doesn't crash or get stuck at bootstrap health check.
             const url = req.url || '';
-            const method = req.method || 'GET';
-
             if (!res || !('writeHead' in res) || res.headersSent) {
               return;
             }
 
-            if (url === '/api/health' || url.startsWith('/api/health?')) {
-              res.writeHead(503, { 'Content-Type': 'application/json' });
-              res.end(
-                JSON.stringify({
-                  application: 'logicstic',
-                  database: 'unknown',
-                  profiles: 'dev-proxy-fallback',
-                  status: 'DOWN',
-                }),
-              );
-              return;
-            }
-
-            if (/^\/api\/loads(?:\/|\?|$)/.test(url)) {
-              res.writeHead(502, { 'Content-Type': 'application/json' });
-              res.end(
-                JSON.stringify({
-                  success: false,
-                  code: 'BACKEND_OFFLINE',
-                  message: `Real load data is unavailable because the backend at ${target} is offline.`,
-                  data: null,
-                  errors: [],
-                  meta: {
-                    timestamp: new Date().toISOString(),
-                    path: url,
-                    requestId: null,
-                  },
-                }),
-              );
-              return;
-            }
-
-            if (url === '/api/me' && method === 'GET') {
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(
-                JSON.stringify({
-                  success: true,
-                  code: 'OK',
-                  message: 'Success',
-                  data: {
-                    subject: '00000000-0000-0000-0000-000000000001',
-                    email: 'admin@logicstic.local',
-                    tenantId: 'local-development',
-                    roles: ['SUPERADMIN'],
-                    employeeId: '00000000-0000-0000-0000-000000000001',
-                  },
-                  errors: [],
-                  meta: {
-                    timestamp: new Date().toISOString(),
-                    path: '/api/me',
-                    requestId: null,
-                  },
-                }),
-              );
-              return;
-            }
-
-            function getMockItems(pathname: string): Record<string, unknown>[] {
-              if (pathname.startsWith('/api/customers')) {
-                return [
-                  { id: '11111111-1111-1111-1111-111111111111', name: 'Công ty TNHH Logistics Vina', email: 'contact@logisticsvina.vn', phone: '0901234567', status: 'active', isVatExempt: false },
-                  { id: '22222222-2222-2222-2222-222222222222', name: 'Tập đoàn Vận tải Á Châu', email: 'info@achautransport.com', phone: '0912345678', status: 'active', isVatExempt: true },
-                  { id: '33333333-3333-3333-3333-333333333333', name: 'Chuỗi cung ứng Toàn Cầu', email: 'support@globalchain.vn', phone: '0987654321', status: 'active', isVatExempt: false },
-                ];
-              }
-              if (pathname.startsWith('/api/drivers')) {
-                return [
-                  { id: '44444444-4444-4444-4444-444444444444', firstName: 'Nguyễn Văn', lastName: 'An', email: 'an.nguyen@logictics.local', status: 'active' },
-                  { id: '55555555-5555-5555-5555-555555555555', firstName: 'Trần Văn', lastName: 'Bình', email: 'binh.tran@logictics.local', status: 'active' },
-                ];
-              }
-              if (pathname.startsWith('/api/trucks')) {
-                return [
-                  { id: '66666666-6666-6666-6666-666666666666', number: 'TRK-101', licensePlate: '29C-888.99', status: 'available', type: 'tractor', vehicleCapacity: 30000, mainDriverName: 'Nguyễn Văn An' },
-                  { id: '77777777-7777-7777-7777-777777777777', number: 'TRK-102', licensePlate: '51D-555.22', status: 'available', type: 'dry_van', vehicleCapacity: 25000, mainDriverName: 'Trần Văn Bình' },
-                ];
-              }
-              if (pathname.startsWith('/api/terminals')) {
-                return [
-                  { id: '88888888-8888-8888-8888-888888888888', code: 'VNSGN', name: 'Cảng Cát Lái - Sài Gòn', countryCode: 'VN', type: 'SEA_PORT', addressLine1: 'Nguyễn Thị Định', addressCity: 'Thành phố Hồ Chí Minh', addressState: 'TPHCM', addressZipCode: '700000', addressCountry: 'VN' },
-                  { id: '99999999-9999-9999-9999-999999999999', code: 'VNHPH', name: 'Cảng Đình Vũ - Hải Phòng', countryCode: 'VN', type: 'SEA_PORT', addressLine1: 'Bán đảo Đình Vũ', addressCity: 'Hải Phòng', addressState: 'HP', addressZipCode: '180000', addressCountry: 'VN' },
-                ];
-              }
-              if (pathname.startsWith('/api/roles')) {
-                return [
-                  { id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', name: 'SUPERADMIN', displayName: 'Quản trị viên cấp cao' },
-                  { id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', name: 'DISPATCHER', displayName: 'Điều phối viên' },
-                  { id: 'cccccccc-cccc-cccc-cccc-cccccccccccc', name: 'DRIVER', displayName: 'Tài xế' },
-                ];
-              }
-              if (pathname.startsWith('/api/employees')) {
-                return [
-                  { id: '00000000-0000-0000-0000-000000000001', firstName: 'Quản trị', lastName: 'Hệ thống', email: 'admin@logicstic.local', status: 'active' },
-                  { id: '44444444-4444-4444-4444-444444444444', firstName: 'Nguyễn Văn', lastName: 'An', email: 'an.nguyen@logictics.local', status: 'active' },
-                  { id: '55555555-5555-5555-5555-555555555555', firstName: 'Trần Văn', lastName: 'Bình', email: 'binh.tran@logictics.local', status: 'active' },
-                ];
-              }
-              if (pathname.startsWith('/api/trips')) {
-                return [
-                  { id: '12121212-1212-1212-1212-121212121212', number: 3001, name: 'Chuyến Sài Gòn - Bình Dương', status: 'dispatched', truckNumber: 'TRK-101', totalDistance: 45 },
-                  { id: '23232323-2323-2323-2323-232323232323', number: 3002, name: 'Chuyến Hải Phòng - Hà Nội', status: 'draft', truckNumber: 'TRK-102', totalDistance: 120 },
-                ];
-              }
-              if (pathname.startsWith('/api/invoices')) {
-                return [
-                  { id: 'ffffffff-ffff-ffff-ffff-ffffffffffff', number: 5001, type: 'customer', status: 'sent', customerName: 'Công ty TNHH Logistics Vina', employeeName: 'Quản trị Hệ thống', dueDate: '2026-10-15' },
-                ];
-              }
-              if (pathname.startsWith('/api/fleet/policies')) {
-                return [
-                  { id: '11111111-1111-4111-8111-111111111111', code: 'FLEET_POLICY', version: 3, approvalReference: 'APP-001' },
-                  { id: '22222222-1111-4111-8111-111111111111', code: 'STANDARD_FLEET_POLICY', version: 1, approvalReference: 'APP-002' },
-                ];
-              }
-              return [];
-            }
-
-            if (method === 'GET') {
-              const idMatch = url.match(/\/api\/[a-z-]+\/([0-9a-f-]{36})/i);
-              if (idMatch) {
-                const all = getMockItems(url);
-                const found = all.find((item) => item.id === idMatch[1]) || all[0] || { id: idMatch[1] };
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(
-                  JSON.stringify({
-                    success: true,
-                    code: 'OK',
-                    data: found,
-                    errors: [],
-                    meta: { timestamp: new Date().toISOString(), path: url, requestId: null },
-                  }),
-                );
-                return;
-              }
-
-              const items = getMockItems(url);
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(
-                JSON.stringify({
-                  success: true,
-                  code: 'OK',
-                  message: 'Success (dev mock)',
-                  data: {
-                    items,
-                    totalItems: items.length,
-                    totalPages: 1,
-                    currentPage: 1,
-                    pageSize: 20,
-                  },
-                  errors: [],
-                  meta: {
-                    timestamp: new Date().toISOString(),
-                    path: url,
-                    requestId: null,
-                  },
-                }),
-              );
-              return;
-            }
-
-            if (method === 'POST') {
-              res.writeHead(201, { 'Content-Type': 'application/json' });
-              res.end(
-                JSON.stringify({
-                  success: true,
-                  code: 'CREATED',
-                  message: 'Created successfully (dev mock)',
-                  data: { id: '00000000-0000-0000-0000-000000000099' },
-                  errors: [],
-                  meta: { timestamp: new Date().toISOString(), path: url, requestId: null },
-                }),
-              );
-              return;
-            }
-
-            if (method === 'PUT' || method === 'PATCH') {
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(
-                JSON.stringify({
-                  success: true,
-                  code: 'UPDATED',
-                  message: 'Updated successfully (dev mock)',
-                  data: { id: url.split('/').pop() },
-                  errors: [],
-                  meta: { timestamp: new Date().toISOString(), path: url, requestId: null },
-                }),
-              );
-              return;
-            }
-
-            res.writeHead(502, { 'Content-Type': 'application/json' });
-            res.end(
-              JSON.stringify({
-                success: false,
-                code: 'BACKEND_OFFLINE',
-                message: `Backend service at ${options.target} is offline.`,
-                errors: [],
-              }),
-            );
+            // Fail closed. Never fabricate identity, list rows or write success
+            // when the real backend is unreachable.
+            const offline = createOfflineProxyResponse(url, req.method || 'GET', target);
+            res.writeHead(offline.statusCode, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(offline.payload));
           });
         },
       },
@@ -298,8 +101,14 @@ export default defineConfig(({ mode }) => {
     include: ['src/tests/**/*.test.{ts,tsx}', 'src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     setupFiles: ['./src/tests/setup.ts'],
+    // Tests must not depend on a developer's gitignored `.env`. CI only sees
+    // the tracked files, so these values are defined here explicitly. The
+    // MapShell tests mock Mapbox itself; they only need a non-empty style URL
+    // and a public-token-shaped value to get past the production guards.
     env: {
       VITE_API_BASE_URL: 'http://localhost:8080/api',
+      VITE_MAPBOX_STYLE_URL: 'mapbox://styles/mapbox/streets-v12',
+      VITE_MAPBOX_ACCESS_TOKEN: 'pk.test-public-token',
     },
     coverage: {
       provider: 'v8',

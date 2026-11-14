@@ -229,7 +229,10 @@ describe("TerminalContainersTab — Tab containers tại bến", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Thông tin Container tại bến")).toBeInTheDocument();
+    expect(
+      screen.getByText("Không tải được danh sách Container tại bến"),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/không thành công/)).toBeInTheDocument();
     expect(screen.getByText(/Network Error 500/)).toBeInTheDocument();
   });
 
